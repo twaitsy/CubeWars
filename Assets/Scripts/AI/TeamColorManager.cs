@@ -1,0 +1,73 @@
+﻿// =============================================================
+// TeamColorManager.cs
+//
+// PURPOSE:
+// - Provides color lookup for all teams.
+// - Applies team colors to units, buildings, UI, and minimap icons.
+//
+// DEPENDENCIES:
+// - Renderer (Unity):
+//      * Used to apply color to all materials on an object.
+// - Team.cs:
+//      * teamID determines which color to use.
+// - TeamVisual (optional):
+//      * Some objects use TeamVisual to apply colors instead.
+//
+// NOTES FOR FUTURE MAINTENANCE:
+// - Consider switching to MaterialPropertyBlock for performance.
+// - Ensure teamColors array matches maximum team count.
+// - This script uses a global singleton pattern.
+//   DO NOT attach this script to multiple objects.
+//
+// IMPORTANT:
+// - This script does NOT delete teams.
+// - If multiple instances exist, only the first survives.
+// =============================================================
+
+using UnityEngine;
+
+public class TeamColorManager : MonoBehaviour
+{
+    public static TeamColorManager Instance;
+
+    [Header("6 Team Colors (index = teamID)")]
+    public Color[] teamColors = new Color[6]
+    {
+        new Color(0.2f, 0.4f, 1f),  // Team 0 - Blue
+        new Color(1f, 0.25f, 0.25f),// Team 1 - Red
+        new Color(0.2f, 1f, 0.4f),  // Team 2 - Green
+        new Color(1f, 0.85f, 0.2f), // Team 3 - Yellow
+        new Color(0.75f, 0.35f, 1f),// Team 4 - Purple
+        new Color(0.2f, 1f, 1f)     // Team 5 - Cyan
+    };
+
+    void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+    }
+
+    public Color GetTeamColor(int teamID)
+    {
+        if (teamColors == null || teamColors.Length == 0) return Color.white;
+        if (teamID < 0) teamID = 0;
+        if (teamID >= teamColors.Length) teamID = teamID % teamColors.Length;
+        return teamColors[teamID];
+    }
+
+    public void ApplyTeamColor(GameObject obj, int teamID)
+    {
+        Color c = GetTeamColor(teamID);
+
+        var renderers = obj.GetComponentsInChildren<Renderer>(true);
+        foreach (var r in renderers)
+        {
+            if (r.material != null)
+                r.material.color = c;
+        }
+    }
+}

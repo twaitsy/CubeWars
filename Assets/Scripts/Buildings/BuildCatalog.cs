@@ -1,0 +1,41 @@
+﻿// ============================================================================
+// BuildCatalog.cs
+//
+// PURPOSE:
+// - Defines the list of all buildable items available in the game.
+// - Organizes items into high-level categories for UI and AI.
+// - Acts as the source of truth for BuildMenuUI when auto-discovering items.
+//
+// DEPENDENCIES:
+// - BuildItemDefinition:
+//      * Each entry in 'items' references a ScriptableObject describing a building.
+// - BuildMenuUI:
+//      * Reads categoryOrder and items to build the UI.
+//      * Uses categoryOrder to sort categories in the UI.
+// - AIBuilder / TeamAIBuild:
+//      * Uses BuildCatalog to determine what buildings exist.
+//      * Uses BuildItemDefinition.category and aiPriority for decision-making.
+// - Resources folder (optional):
+//      * If BuildMenuUI auto-discovers items, they must be placed in Resources/BuildItems.
+//
+// NOTES FOR FUTURE MAINTENANCE:
+// - If you add new building categories, update categoryOrder to control UI order.
+// - If you add new BuildItemDefinition assets, ensure they are included in 'items'
+//   OR placed in the Resources path for auto-discovery.
+// - If you add AI building logic, ensure category names match AI expectations.
+// - If you add localization, displayName should be localized in BuildItemDefinition.
+//
+// INSPECTOR REQUIREMENTS:
+// - categoryOrder: determines the order categories appear in the UI.
+// - items: list of all buildable items (optional if using auto-discovery).
+// ============================================================================
+
+using System.Collections.Generic;
+using UnityEngine;
+
+[CreateAssetMenu(menuName = "CubeWars/Build Catalog", fileName = "BuildCatalog")]
+public class BuildCatalog : ScriptableObject
+{
+    public List<string> categoryOrder = new List<string>() { "Economy", "Industry", "Housing", "Defense", "Tech" };
+    public List<BuildItemDefinition> items = new List<BuildItemDefinition>();
+}

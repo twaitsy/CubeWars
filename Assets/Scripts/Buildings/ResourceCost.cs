@@ -1,0 +1,9 @@
+﻿using System;
+using UnityEngine;
+
+[Serializable]
+public struct ResourceCost
+{
+    public ResourceType type;
+    public int amount;
+}

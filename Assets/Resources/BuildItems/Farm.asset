@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f33cf4722378784086bcf14af60e604, type: 3}
+  m_Name: Farm
+  m_EditorClassIdentifier: 
+  displayName: Farm
+  description: hgjhggh
+  icon: {fileID: 0}
+  category: Economy
+  prefab: {fileID: 2786262165830792077, guid: 74a9b1e130c218e4bbd2c1d93adf4034, type: 3}
+  yOffset: 0
+  snapRotationToHQ: 1
+  costs:
+  - type: 0
+    amount: 50
+  - type: 1
+    amount: 100

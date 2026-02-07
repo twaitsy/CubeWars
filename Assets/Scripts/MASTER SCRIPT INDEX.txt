@@ -1,0 +1,527 @@
+﻿# CUBE WARS — COMPLETE PROJECT BLUEPRINT
+# (Unified Design Document)
+
+============================================================
+= 1. HIGH‑LEVEL VISION
+============================================================
+
+Cube Wars is a long‑form, macro‑focused, sci‑fi RTS + city‑builder hybrid.
+It blends the economic depth of Stellaris, Timberborn, Starmancer, and Anno
+with the combat systems of Age of Empires, Command & Conquer, and tower defense.
+
+The core fantasy:
+- Build and manage a thriving sci‑fi colony.
+- Develop a deep, multi‑layered economy with refinement chains.
+- Command large armies in medium‑paced, tactical combat.
+- Survive threats, expand territory, and optimize endlessly.
+- Play skirmish matches or handcrafted campaign missions.
+- Experience rude, funny, light‑hearted sci‑fi storytelling.
+
+The game is designed to be:
+- Simple early, complex late.
+- Moderate difficulty.
+- Macro‑heavy.
+- Long‑form (40–90+ minutes, potentially endless).
+- Expandable with new buildings, units, weapons, and tech.
+
+
+============================================================
+= 2. SYSTEM OVERVIEWS
+============================================================
+
+## AI SYSTEM
+Purpose: Controls non-player teams including economy, military, building, and threat response.
+Responsibilities:
+- Manage resources, production, and expansion.
+- Make strategic decisions based on personality.
+- React to threats, rebuild, and coordinate attacks.
+Interactions: Buildings, Combat, Economy, Civilians, Core.
+Notes: AIPlayer is the orchestrator.
+
+## BUILDINGS SYSTEM
+Purpose: Handles placement, construction, production, storage, and refinement.
+Responsibilities:
+- Grid-based placement.
+- Construction progress and resource consumption.
+- Production of units, vehicles, and refined materials.
+Interactions: Economy, AI, Civilians, Combat.
+Notes: BuildGridManager and ConstructionSite are core.
+
+## CIVILIANS SYSTEM
+Purpose: Worker simulation for gathering, building, research, and refinement.
+Responsibilities:
+- Job assignment (manual).
+- XP and skill progression.
+- Happiness affecting productivity.
+- Optional building operation for efficiency boosts.
+Interactions: Buildings, Economy, AI.
+Notes: Medium-depth simulation (Timberborn-like).
+
+## COMBAT SYSTEM
+Purpose: Tactical combat with large armies and soft counters.
+Responsibilities:
+- Unit combat logic and stances.
+- Projectiles and pooling.
+- Turrets and defensive structures.
+Interactions: AI, Buildings, Core.
+Notes: Medium-paced, large-scale warfare.
+
+## CORE SYSTEM
+Purpose: Foundational systems for camera, initialization, selection, and global rules.
+Responsibilities:
+- Map bootstrapping.
+- Team styling and color management.
+- Win condition evaluation.
+Interactions: All systems.
+
+## UI SYSTEM
+Purpose: Player-facing interfaces for building, selection, economy, and unit inspection.
+Responsibilities:
+- Build menus, unit stats, minimap, health bars.
+- Player input and selection.
+Interactions: Buildings, Combat, Core.
+Notes: UI contains no game logic.
+
+## CATALOGS SYSTEM
+Purpose: Stores static data definitions for tools, items, units, buildings, etc.
+Responsibilities:
+- Provide metadata for UI and gameplay.
+Interactions: Buildings, UI.
+
+## DOCUMENTS SYSTEM
+Purpose: High-level design documentation for gameplay systems.
+Responsibilities:
+- Describe mechanics, rules, and intended behaviors.
+Interactions: All systems.
+
+
+============================================================
+= 3. GLOBAL GAME RULES
+============================================================
+
+## RESOURCE FLOW
+- Resource nodes spawn randomly on maps.
+- Civilians gather raw materials and deliver them to HQ or storage.
+- Some resources require refinement (e.g., iron ore → iron).
+- Storage is per-building; upgrades increase capacity.
+- TeamResources tracks totals.
+
+## UNIT PRODUCTION
+- Buildings like Barracks and VehicleFactory use production queues.
+- Production requires refined or raw resources depending on unit.
+- Units spawn at designated points.
+
+## COMBAT RESOLUTION
+- Units and buildings implement IAttackable and IHasHealth.
+- WeaponComponent handles firing logic.
+- Projectiles use pooling.
+- Soft counter system (stat-driven).
+
+## BUILDING PLACEMENT
+- BuildPlacementManager validates placement.
+- ConstructionSite consumes resources over time.
+- Completed buildings replace the site.
+
+## AI BEHAVIOR
+- Personality-driven.
+- Adaptive mid-game.
+- Uses stances, abilities, and coordinated attacks.
+- No cheating; identical rules to player.
+
+## WIN CONDITIONS
+- Build a thriving colony (primary).
+- Survive threats.
+- Dominate the map (optional).
+- Campaign missions may define custom objectives.
+
+
+============================================================
+= 4. DATA DICTIONARY (GLOBAL STRUCTURES)
+============================================================
+
+## ResourceType
+Defines a resource category (dynamic list).
+
+## ResourceCost
+Specifies cost of buildings or units.
+
+## ResourceCapacityEntry
+Defines storage capacity for a resource.
+
+## TeamResources
+Tracks team resource totals.
+
+## UnitProductionDefinition
+Defines unit stats, cost, and production time.
+
+## CharacterStats
+Defines health, speed, and combat modifiers.
+
+## BuildItemDefinition
+Defines building stats, cost, and construction rules.
+
+
+============================================================
+= 5. GAMEPLAY LOOP
+============================================================
+
+## PER-TICK LOGIC
+- AI updates economy, military, and building decisions.
+- Civilians perform jobs and gain XP.
+- Combat systems update targeting and firing.
+- Construction progresses.
+- Resource nodes may regenerate.
+- Win conditions checked.
+
+## PLAYER LOOP
+- Build and expand colony.
+- Assign civilians to jobs.
+- Research tech.
+- Place buildings.
+- Manage economy and production.
+- Command armies.
+
+## AI LOOP
+- Evaluate threats.
+- Produce units.
+- Expand economy.
+- Place buildings.
+- Attack or defend based on personality.
+
+## WORLD LOOP
+- Neutral factions act.
+- Scripted events trigger (campaign).
+- UI updates reflect world state.
+
+
+============================================================
+= 6. ECONOMY MODEL
+============================================================
+
+## RESOURCE TYPES
+Dynamic list defined in ResourceType script.
+Examples:
+- Iron Ore
+- Iron
+- Lithium
+- Batteries
+- Food (future)
+
+## USAGE
+- Buildings
+- Units
+- Refinement
+- Research
+- Civilians (food/happiness)
+
+## REFINEMENT CHAINS
+Examples:
+- Iron Ore → Iron → Steel
+- Lithium → Battery
+
+## GENERATION
+- Randomized resource nodes.
+- Civilians gather and deliver.
+- Refiners convert raw → refined.
+
+## STORAGE
+- Per building.
+- Upgrades increase capacity.
+
+## COMPLEXITY
+Between medium and complex (AoE → Factorio).
+
+## CIVILIAN IMPACT
+- XP boosts speed, strength, happiness, knowledge, chemistry, engineering, doctoring, farming, crafting.
+- Optional building operation boosts efficiency.
+
+## AI ECONOMY
+- Identical rules to player.
+
+## FUTURE EXPANSIONS
+- Trade
+- Market system
+- Tech tree costs
+- Logistics
+- Upkeep
+
+
+============================================================
+= 7. COMBAT MODEL
+============================================================
+
+## UNIT ARCHETYPES
+- Infantry (existing)
+- Vehicles
+- Air units
+- Specialists
+- Support units
+- Siege units
+- Stealth units
+
+## COUNTERS
+- Soft counters (stat-driven).
+- Hard counters possible later.
+
+## ABILITIES
+- Planned (grenades, shields, overcharge, etc.)
+
+## PACING
+Medium and tactical (AoE-like).
+
+## XP SYSTEM
+Units can level up:
+- Damage
+- Health
+- Accuracy
+- Ability unlocks (future)
+
+## FORMATIONS & STANCES
+- Guard
+- Defend
+- Hold position
+- Patrol
+
+## ADVANCED MECHANICS
+Not planned (no morale, suppression, etc.)
+
+## COMBAT FEEL
+- Survival pressure
+- Large-scale warfare
+- Stellaris + C&C energy
+
+
+============================================================
+= 8. CIVILIAN MODEL
+============================================================
+
+## MORTALITY
+Civilians can die (combat, hazards).
+
+## NEEDS
+- Happiness affects productivity.
+- Future: food, rest, housing.
+
+## JOBS
+- Builder
+- Gatherer
+- Researcher
+- Refiner
+- Courier
+- Operator
+- Specialists (future)
+
+## XP & SKILLS
+- Speed
+- Knowledge
+- Strength
+- Chemistry
+- Engineering
+- Doctor
+- Farming
+- Crafting
+- (Future: Logistics, Leadership, Mining, Refinement)
+
+## ASSIGNMENT
+- Manual, not dynamic.
+
+## PATHFINDING
+- No special constraints.
+
+## BUILDING OPERATION
+- Optional but beneficial.
+
+## MORALE
+- Yes; unhappy civilians work slower.
+
+## AI CIVILIANS
+- AI manages civilians identically.
+
+## FEEL
+Medium-depth simulation (Timberborn-like).
+
+
+============================================================
+= 9. AI STRATEGIC PHILOSOPHY
+============================================================
+
+## PERSONALITIES
+All types:
+- Aggressive
+- Defensive
+- Economic
+- Rush
+- Turtle
+- Expansionist
+- Tech-focused
+- Balanced
+- Survivalist
+- Opportunistic
+- Siege-oriented
+
+## PERSONALITY IMPACT
+Affects:
+- Build order
+- Unit composition
+- Expansion
+- Research
+- Civilian jobs
+- Combat stance
+- Target selection
+
+## ADAPTATION
+Yes; AI adapts mid-game.
+
+## SCOUTING
+No active scouting.
+
+## STANCES
+Yes; AI uses stances and formations.
+
+## ABILITIES
+AI uses abilities.
+
+## ATTACK COORDINATION
+Yes; waves, focus fire, regrouping.
+
+## CHEATING
+None; AI follows identical rules.
+
+## FEEL
+Narrative, faction-like personalities.
+
+
+============================================================
+= 10. MAP DESIGN & WORLD RULES
+============================================================
+
+## SYMMETRY
+Mixed (skirmish vs campaign).
+
+## RESOURCE PLACEMENT
+Randomized.
+
+## TERRAIN
+- Choke points
+- Bridges
+- Impassable terrain
+
+## HAZARDS
+None yet.
+
+## DYNAMICS
+Static maps.
+
+## NEUTRAL FACTIONS
+Yes; wildlife, bandits, settlements.
+
+## SCRIPTED EVENTS
+Yes; waves, drops, missions.
+
+## AI TERRAIN AWARENESS
+Basic.
+
+## WORLD FEEL
+Mix of:
+- Clean competitive RTS (StarCraft)
+- Sci-fi frontier (Stellaris)
+
+## GAME MODES
+- 8-player skirmish (random maps)
+- Campaign mode (fixed maps, fixed AI)
+
+
+============================================================
+= 11. TECH & BUILDING PROGRESSION
+============================================================
+
+## BUILDING UPGRADES
+- In-place upgrades.
+- Improve storage, production, training speed, health, unlocks, efficiency.
+
+## TECH TREE
+- Building-based.
+- Branching (Starmancer/Timberborn style).
+- Civilians assigned to research.
+
+## UNLOCKS
+- Prerequisite buildings
+- Research tasks
+- Missions/objectives
+
+## UPGRADE TYPES
+- Global upgrades
+- Building-specific upgrades
+
+## RESOURCE REQUIREMENTS
+- Refined resources required for advanced tech.
+
+## AI TECH
+- Identical rules to player.
+
+## LATE-GAME CONTENT
+- Heavy artillery
+- Mega-factories
+- High-tier units
+- No planet-scale superweapons
+
+## PROGRESSION FEEL
+Slow and monumental (Stellaris-like).
+
+
+============================================================
+= 12. FACTIONS & MULTIPLAYER
+============================================================
+
+## FACTIONS
+- Multiple factions planned.
+- Unique units, buildings, tech, personalities.
+
+## MULTIPLAYER
+- PvP
+- Teams
+- Co-op vs AI (future)
+
+## PROCEDURAL GENERATION
+- Procedural maps only.
+
+## MODDING
+- Only via Unity editor.
+
+
+============================================================
+= 13. LORE & TONE
+============================================================
+
+## TONE
+- Rude
+- Funny
+- Light sci-fi
+- Not lore-heavy
+
+## STORY
+- Campaign missions
+- Named characters (future)
+- Neutral factions with personality
+
+
+============================================================
+= 14. ULTIMATE GOALS
+============================================================
+
+Primary victory fantasy:
+- Build a thriving sci-fi colony.
+
+Secondary:
+- Survive threats.
+- Dominate the map.
+- Complete campaign missions.
+
+Dream version of Cube Wars:
+A fusion of the best economic systems from Stellaris, Timberborn, Starmancer, and Anno,
+combined with the combat of AoE, C&C, and tower defense — endlessly expandable with
+new buildings, units, weapons, and research options.
+
+============================================================
+= END OF BLUEPRINT
+============================================================

@@ -1,0 +1,153 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &6226796819295631304
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2625391072817808048}
+  - component: {fileID: 6165544163978956557}
+  - component: {fileID: 8239850905451238468}
+  - component: {fileID: 4292702707948622982}
+  - component: {fileID: 4423172772019527663}
+  - component: {fileID: 3362326296254924292}
+  - component: {fileID: -242824025362883815}
+  m_Layer: 0
+  m_Name: UI
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2625391072817808048
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6226796819295631304}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.0487085, y: -0.1299999, z: 0.027048767}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6165544163978956557
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6226796819295631304}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4386e7866d28b77419805c4ecc6cca7c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerTeamID: 0
+  show: 0
+  toggleKey: 98
+  panelWidth: 460
+  panelHeight: 420
+  marginRight: 12
+  marginTop: 12
+  autoDiscover: 1
+  resourcesPath: BuildItems
+  useManualCatalogWhenAutoDiscoverOff: 1
+  categories: []
+  trySyncBuildGridVisibility: 1
+  showCosts: 1
+  showAffordability: 1
+--- !u!114 &8239850905451238468
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6226796819295631304}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0e560b93eee85141b1b65564f0da17e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  team1ID: 0
+  team2ID: 1
+  team1GoldText: {fileID: 0}
+  team1FoodText: {fileID: 0}
+  team2GoldText: {fileID: 0}
+  team2FoodText: {fileID: 0}
+--- !u!114 &4292702707948622982
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6226796819295631304}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b46cb622345239748b2a68179aae59c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  show: 1
+  toggleKey: 27
+  panelWidth: 300
+  panelHeight: 400
+  buttonHeight: 40
+  buttonSpacing: 10
+  fontSize: 18
+  loadableScenes: []
+  creditsText: Twaitsy
+--- !u!114 &4423172772019527663
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6226796819295631304}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2377f5c791947d541addf6f653cbd066, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerTeamID: 0
+  show: 1
+  toggleKey: 9
+  panelWidth: 460
+  panelHeight: 320
+  marginLeft: 12
+  marginBottom: 12
+  maxResourceLines: 14
+--- !u!114 &3362326296254924292
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6226796819295631304}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f649d8f90fb98f498437c67fca0a0f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  width: 320
+  height: 420
+  padding: 10
+--- !u!114 &-242824025362883815
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6226796819295631304}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_FirstSelected: {fileID: 0}
+  m_sendNavigationEvents: 1
+  m_DragThreshold: 10

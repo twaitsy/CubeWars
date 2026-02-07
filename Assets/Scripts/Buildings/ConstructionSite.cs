@@ -1,0 +1,293 @@
+﻿// ============================================================================
+// ConstructionSite.cs
+//
+// PURPOSE:
+// - Represents an in-progress building.
+// - Tracks resource delivery, build progress, and completion.
+// - Spawns the final building prefab when finished.
+//
+// DEPENDENCIES:
+// - BuildItemDefinition:
+//      * Provides prefab, costs, buildTime override, category.
+// - BuildGridCell:
+//      * The grid cell this site occupies; updated on completion.
+// - BuildPlacementManager:
+//      * Calls Init() when placing a new construction site.
+// - TeamStorageManager:
+//      * ReserveForSite(teamID, SiteKey, costs)
+//      * ReleaseReservation(teamID, SiteKey)
+//      * Used for resource reservation and delivery.
+// - TeamResources (indirect via TeamStorageManager):
+//      * High-level resource façade used elsewhere.
+// - JobManager:
+//      * CountBuildersOnSite(this) for UI + AI.
+//      * Builders call AddWork() and ReceiveDelivery().
+// - ResourceStorageProvider / ResourceDropoff / ResourceStorageContainer:
+//      * Final building may include these; ApplyTeamToPlacedObject assigns teamID.
+// - Building (final prefab):
+//      * Must have teamID, IAttackable, IHasHealth, etc.
+// - BuildItemInstance:
+//      * Added to final building for identification.
+// - TeamVisual:
+//      * Applies team colors to final building.
+// - Team.cs:
+//      * teamID determines which team owns the finished building.
+//
+// NOTES FOR FUTURE MAINTENANCE:
+// - This script NEVER deletes Team objects.
+//   It only destroys the ConstructionSite GameObject on completion.
+// - If you add multi-stage construction, split Complete() into phases.
+// - If you add construction animations, trigger them in Update() or Complete().
+// - If you add worker-only construction (no passive build), remove passive progress.
+// - If you add refunds on cancel, integrate with TeamStorageManager.
+// - If you add terrain alignment, adjust placement position in Complete().
+// - If you add building upgrades, treat upgrades as new ConstructionSites.
+// - If you add save/load, persist buildProgress, delivered, and reservations.
+//
+// INSPECTOR REQUIREMENTS:
+// - baseBuildTime: fallback if BuildItemDefinition.buildTime <= 0.
+// - costs: auto-filled from BuildItemDefinition.
+// - constructionSitePrefab must contain:
+//      * ConstructionSite
+//      * BuildItemInstance (optional, added automatically)
+//      * TeamVisual (optional)
+// ============================================================================
+
+using UnityEngine;
+using System.Collections.Generic;
+
+public class ConstructionSite : MonoBehaviour
+{
+    [Header("Team & Definition")]
+    public int teamID;
+    public BuildItemDefinition buildItem;   // what we’re building
+    public BuildGridCell gridCell;         // cell this site occupies
+
+    [Header("Build Settings")]
+    public float baseBuildTime = 10f;      // fallback if item has no override
+    public ResourceCost[] costs;
+
+    // State
+    public bool InitOK { get; private set; }
+    public bool IsComplete => completed;
+    public bool MaterialsComplete => HasAllResources();
+    public int SiteKey { get; private set; }
+
+    float buildProgress;
+    bool completed;
+
+    // delivered[type] = amount delivered to this site
+    Dictionary<ResourceType, int> delivered = new Dictionary<ResourceType, int>();
+
+    void Awake()
+    {
+        SiteKey = GetInstanceID();
+
+        if (costs != null)
+        {
+            foreach (var c in costs)
+                delivered[c.type] = 0;
+        }
+    }
+
+    void Update()
+    {
+        if (!InitOK || completed)
+            return;
+
+        if (!MaterialsComplete)
+            return;
+
+        // Passive build (optional)
+        buildProgress += Time.deltaTime;
+
+        float requiredTime = GetBuildTime();
+        if (buildProgress >= requiredTime)
+            Complete();
+    }
+
+    float GetBuildTime()
+    {
+        if (buildItem != null && buildItem.buildTime > 0f)
+            return buildItem.buildTime;
+        return Mathf.Max(0.1f, baseBuildTime);
+    }
+
+    bool HasAllResources()
+    {
+        if (costs == null) return true;
+
+        foreach (var c in costs)
+        {
+            if (!delivered.TryGetValue(c.type, out int have) || have < c.amount)
+                return false;
+        }
+        return true;
+    }
+
+    // ---------------- INIT ----------------
+
+    public void Init(BuildGridCell cell, int team, BuildItemDefinition item, bool reserveResources)
+    {
+        teamID = team;
+        gridCell = cell;
+        buildItem = item;
+        costs = item != null ? item.costs : costs;
+
+        delivered.Clear();
+        if (costs != null)
+        {
+            foreach (var c in costs)
+                delivered[c.type] = 0;
+        }
+
+        // Reserve resources
+        if (reserveResources && TeamStorageManager.Instance != null && costs != null && costs.Length > 0)
+        {
+            bool ok = TeamStorageManager.Instance.ReserveForSite(teamID, SiteKey, costs);
+            if (!ok)
+            {
+                InitOK = false;
+                return;
+            }
+        }
+
+        InitOK = true;
+    }
+
+    // ---------------- WORK / PROGRESS ----------------
+
+    public void AddWork(float workAmount)
+    {
+        if (!InitOK || completed) return;
+        if (!MaterialsComplete) return;
+
+        buildProgress += workAmount;
+
+        float requiredTime = GetBuildTime();
+        if (buildProgress >= requiredTime)
+            Complete();
+    }
+
+    // ---------------- RESOURCE DELIVERY ----------------
+
+    public int GetMissing(ResourceType type)
+    {
+        if (costs == null) return 0;
+
+        int required = 0;
+        for (int i = 0; i < costs.Length; i++)
+        {
+            if (costs[i].type == type)
+            {
+                required = costs[i].amount;
+                break;
+            }
+        }
+
+        delivered.TryGetValue(type, out int have);
+        return Mathf.Max(0, required - have);
+    }
+
+    public int ReceiveDelivery(ResourceType type, int amount)
+    {
+        if (amount <= 0) return 0;
+
+        int missing = GetMissing(type);
+        if (missing <= 0) return 0;
+
+        int accepted = Mathf.Min(missing, amount);
+
+        if (!delivered.ContainsKey(type))
+            delivered[type] = 0;
+
+        delivered[type] += accepted;
+        return accepted;
+    }
+
+    public ResourceCost[] GetRequiredCosts() => costs;
+
+    public int GetDeliveredAmount(ResourceType type) =>
+        delivered.TryGetValue(type, out int v) ? v : 0;
+
+    // ---------------- COMPLETE ----------------
+
+    void Complete()
+    {
+        if (completed) return;
+        completed = true;
+
+        if (TeamStorageManager.Instance != null)
+            TeamStorageManager.Instance.ReleaseReservation(teamID, SiteKey);
+
+        if (buildItem != null && buildItem.prefab != null)
+        {
+            Vector3 pos = transform.position;
+            Quaternion rot = Quaternion.identity;
+
+            GameObject placed = Instantiate(buildItem.prefab, pos, rot);
+
+            BuildItemInstance bii = placed.GetComponent<BuildItemInstance>();
+            if (bii == null) bii = placed.AddComponent<BuildItemInstance>();
+            bii.itemId = buildItem.name;
+
+            ApplyTeamToPlacedObject(placed, teamID);
+
+            if (gridCell != null)
+            {
+                gridCell.isOccupied = true;
+                gridCell.placedObject = placed;
+            }
+        }
+
+        // IMPORTANT:
+        // - This destroys ONLY the ConstructionSite, not the Team.
+        Destroy(gameObject);
+    }
+
+    void ApplyTeamToPlacedObject(GameObject placed, int team)
+    {
+        if (placed == null) return;
+
+        Building building = placed.GetComponent<Building>();
+        if (building != null) building.teamID = team;
+
+        Civilian civ = placed.GetComponent<Civilian>();
+        if (civ != null) civ.teamID = team;
+
+        Unit unit = placed.GetComponent<Unit>();
+        if (unit != null) unit.teamID = team;
+
+        var sp = placed.GetComponent<ResourceStorageProvider>();
+        if (sp != null) sp.teamID = team;
+
+        var drop = placed.GetComponent<ResourceDropoff>();
+        if (drop != null) drop.teamID = team;
+
+        var storage = placed.GetComponent<ResourceStorageContainer>();
+        if (storage != null) storage.teamID = team;
+
+        TeamVisual tv = placed.GetComponent<TeamVisual>();
+        if (tv != null)
+        {
+            tv.teamID = team;
+            tv.kind = (building != null) ? VisualKind.Building : VisualKind.Unit;
+            tv.Apply();
+        }
+    }
+
+    // ---------------- UI HELPERS ----------------
+
+    public float Progress01 =>
+        GetBuildTime() > 0f ? Mathf.Clamp01(buildProgress / GetBuildTime()) : 1f;
+
+    public string GetStatusLine()
+    {
+        if (completed) return "Completed";
+        if (!MaterialsComplete) return "Awaiting Materials";
+        return "Under Construction";
+    }
+
+    public int AssignedBuilderCount =>
+        JobManager.Instance != null ? JobManager.Instance.CountBuildersOnSite(this) : 0;
+}

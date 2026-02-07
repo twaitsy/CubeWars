@@ -1,0 +1,81 @@
+﻿// =============================================================
+// AIEconomy.cs
+//
+// DEPENDENCIES:
+// - Barracks: uses QueueCount, EnqueueUnit(), buildTime proxy
+// - AIPersonality: affects delay between unit queues
+//
+// NOTES FOR FUTURE MAINTENANCE:
+// - If Barracks changes how units are produced, keep this in sync.
+// - For more advanced AI, replace EnqueueUnit() with explicit unit selection.
+// =============================================================
+
+using UnityEngine;
+
+public class AIEconomy : MonoBehaviour
+{
+    public int teamID;
+    public AIPersonality personality;
+
+    [Header("Behaviour")]
+    public float buildDelayMultiplier = 1f;
+    public float minQueueDelay = 0.5f;
+
+    private Barracks barracks;
+    private float buildTimer;
+
+    void Start()
+    {
+        FindBarracks();
+    }
+
+    void FindBarracks()
+    {
+        foreach (var b in GameObject.FindObjectsOfType<Barracks>())
+        {
+            if (b.teamID == teamID)
+            {
+                barracks = b;
+                return;
+            }
+        }
+    }
+
+    public void Tick()
+    {
+        if (barracks == null)
+        {
+            FindBarracks();
+            return;
+        }
+
+        buildTimer -= Time.deltaTime;
+        if (buildTimer > 0f) return;
+
+        if (barracks.QueueCount == 0)
+        {
+            barracks.EnqueueUnit();
+
+            float baseTime = barracks.buildTime;
+            float personalityFactor = 1f;
+
+            switch (personality)
+            {
+                case AIPersonality.Aggressive:
+                    personalityFactor = 0.8f;
+                    break;
+                case AIPersonality.Defensive:
+                    personalityFactor = 1.2f;
+                    break;
+                default:
+                    personalityFactor = 1f;
+                    break;
+            }
+
+            buildTimer = Mathf.Max(
+                minQueueDelay,
+                baseTime * buildDelayMultiplier * personalityFactor
+            );
+        }
+    }
+}

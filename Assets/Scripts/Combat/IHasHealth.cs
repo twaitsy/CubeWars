@@ -1,0 +1,5 @@
+﻿public interface IHasHealth
+{
+    float CurrentHealth { get; }
+    float MaxHealth { get; }
+}

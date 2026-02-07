@@ -1,0 +1,8 @@
+﻿using UnityEngine;
+public interface IAttackable
+{
+    int TeamID { get; }
+    bool IsAlive { get; }
+    Transform AimPoint { get; }
+    void TakeDamage(float amount);
+}

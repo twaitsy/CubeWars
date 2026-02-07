@@ -1,0 +1,167 @@
+﻿// =============================================================
+// UnitCombatController.cs (Updated for WeaponComponent + UI)
+//
+// DEPENDENCIES:
+// - WeaponComponent:
+//      * Handles firing, cooldowns, projectile spawning.
+// - Attackable:
+//      * Target interface (teamID, IsAlive, isCivilian).
+// - DiplomacyManager:
+//      * War/peace filtering via AreAtWar(teamA, teamB).
+// - AIMilitary:
+//      * Calls SetManualTarget() for focus fire.
+// - UnitInspectorUI:
+//      * Uses:
+//          - GetTargetStatus()
+//          - canAttackCivilians
+//          - ToggleAttackCivilians()
+//          - stance
+//          - SetStance(CombatStance)
+//
+// NOTES FOR FUTURE MAINTENANCE:
+// - If you change how targeting works, keep GetTargetStatus() in sync so UI
+//   doesn’t break silently.
+// - If you add new stances, update CombatStance and any UI that manipulates it.
+// =============================================================
+
+using UnityEngine;
+
+public class UnitCombatController : MonoBehaviour
+{
+    public enum CombatStance { Hold, Guard, Aggressive }
+
+    [Header("Owner")]
+    public int teamID;
+
+    [Header("Weapon")]
+    public WeaponComponent weapon;
+
+    [Header("Target Rules")]
+    public bool canAttackCivilians = false;
+
+    [Header("Detection")]
+    public LayerMask attackableLayers;
+
+    [Header("Runtime")]
+    public Attackable currentTarget;
+
+    private bool hasManualTarget;
+
+    void Awake()
+    {
+        if (weapon == null)
+            weapon = GetComponent<WeaponComponent>();
+    }
+
+    void Update()
+    {
+        if (currentTarget == null || !IsValidTarget(currentTarget))
+        {
+            currentTarget = null;
+            hasManualTarget = false;
+        }
+
+        if (!hasManualTarget)
+            AcquireTarget();
+
+        if (currentTarget == null || weapon == null)
+            return;
+
+        float dist = Vector3.Distance(transform.position, currentTarget.transform.position);
+        if (dist > weapon.range)
+            return;
+
+        Vector3 toTarget = currentTarget.transform.position - transform.position;
+        toTarget.y = 0f;
+        if (toTarget.sqrMagnitude > 0.01f)
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                Quaternion.LookRotation(toTarget),
+                Time.deltaTime * 10f
+            );
+
+        if (weapon.CanFire)
+            weapon.FireAtTarget(currentTarget, teamID);
+    }
+
+    void AcquireTarget()
+    {
+        if (weapon == null) return;
+
+        Collider[] hits = Physics.OverlapSphere(transform.position, weapon.range, attackableLayers);
+
+        Attackable best = null;
+        float bestDist = float.MaxValue;
+
+        foreach (var hit in hits)
+        {
+            var atk = hit.GetComponentInParent<Attackable>();
+            if (atk == null || !IsValidTarget(atk)) continue;
+
+            float d = Vector3.Distance(transform.position, atk.transform.position);
+            if (d < bestDist)
+            {
+                bestDist = d;
+                best = atk;
+            }
+        }
+
+        currentTarget = best;
+    }
+
+    bool IsValidTarget(Attackable a)
+    {
+        if (a == null || !a.IsAlive) return false;
+        if (a.teamID == teamID) return false;
+        if (a.isCivilian && !canAttackCivilians) return false;
+
+        return DiplomacyManager.Instance == null ||
+               DiplomacyManager.Instance.AreAtWar(teamID, a.teamID);
+    }
+
+    public void SetManualTarget(Attackable target)
+    {
+        if (!IsValidTarget(target)) return;
+        currentTarget = target;
+        hasManualTarget = true;
+    }
+
+    public void ClearManualTarget()
+    {
+        hasManualTarget = false;
+        currentTarget = null;
+    }
+
+    public void SetStance(CombatStance newStance)
+    {
+        // (You can expand this later to change behaviour based on stance.)
+        // For now, stance is informational + used by UI.
+        // If you add stance-specific logic, keep UI + AI in sync.
+        // e.g., Aggressive could increase search radius, Hold could disable AcquireTarget().
+        // This is left simple for now.
+        // NOTE: UnitInspectorUI relies on this existing.
+        // (No extra logic required yet.)
+        // If you add "Hold" logic, you might want:
+        // if (newStance == CombatStance.Hold) ClearManualTarget();
+        // etc.
+        // Keeping it minimal for now.
+        // --------------------------------
+        // But we still store it:
+        stance = newStance;
+    }
+
+    public CombatStance stance = CombatStance.Guard;
+
+    public string GetTargetStatus()
+    {
+        if (currentTarget == null)
+            return "None";
+
+        return currentTarget.name + (hasManualTarget ? " (Ordered)" : "");
+    }
+
+    public void ToggleAttackCivilians()
+    {
+        canAttackCivilians = !canAttackCivilians;
+    }
+}

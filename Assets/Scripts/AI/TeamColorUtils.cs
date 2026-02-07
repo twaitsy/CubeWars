@@ -1,0 +1,22 @@
+﻿using UnityEngine;
+
+public static class TeamColorUtils
+{
+    static readonly Color[] colors =
+    {
+        Color.blue,
+        Color.red,
+        Color.green,
+        Color.magenta,
+        Color.cyan,
+        Color.gray
+    };
+
+    public static Color Get(int teamID)
+    {
+        if (teamID < 0 || teamID >= colors.Length)
+            return Color.white;
+
+        return colors[teamID];
+    }
+}

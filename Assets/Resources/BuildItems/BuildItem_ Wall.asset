@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f33cf4722378784086bcf14af60e604, type: 3}
+  m_Name: BuildItem_ Wall
+  m_EditorClassIdentifier: 
+  displayName: Wall
+  description: 
+  icon: {fileID: 0}
+  category: Defense
+  prefab: {fileID: 96089464860108064, guid: e03e86496940efe4ebfd25ec847256f2, type: 3}
+  yOffset: 0
+  snapRotationToHQ: 1
+  costs:
+  - type: 4
+    amount: 40

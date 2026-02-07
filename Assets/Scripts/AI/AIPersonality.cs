@@ -1,0 +1,6 @@
+﻿public enum AIPersonality
+{
+    Aggressive,
+    Balanced,
+    Defensive
+}

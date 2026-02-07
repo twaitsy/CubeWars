@@ -1,0 +1,46 @@
+﻿using UnityEngine;
+
+public class NeonRing : MonoBehaviour
+{
+    public int teamID;
+    public VisualKind kind = VisualKind.Unit;
+
+    public float radius = 0.9f;
+    public float height = 0.03f;
+    public float yOffset = -0.48f;
+
+    [Range(0f, 6f)] public float emissionStrength = 2.0f;
+
+    static readonly int ColorID = Shader.PropertyToID("_Color");
+    static readonly int EmissionID = Shader.PropertyToID("_EmissionColor");
+
+    void Start()
+    {
+        var ring = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        ring.name = "NeonRing";
+        ring.transform.SetParent(transform, false);
+        ring.transform.localPosition = new Vector3(0f, yOffset, 0f);
+        ring.transform.localScale = new Vector3(radius, height, radius);
+
+        var col = ring.GetComponent<Collider>();
+        if (col != null) Destroy(col);
+
+        if (TeamColorManager.Instance == null) return;
+
+        Color team = TeamColorManager.Instance.GetTeamColor(teamID);
+        Color c = team;
+
+        if (kind == VisualKind.Civilian) c = Color.Lerp(team, Color.white, 0.55f);
+        if (kind == VisualKind.Building) c = Color.Lerp(team, Color.black, 0.2f);
+
+        var r = ring.GetComponent<Renderer>();
+        if (r != null)
+        {
+            var block = new MaterialPropertyBlock();
+            r.GetPropertyBlock(block);
+            block.SetColor(ColorID, c);
+            block.SetColor(EmissionID, c * emissionStrength);
+            r.SetPropertyBlock(block);
+        }
+    }
+}

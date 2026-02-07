@@ -1,0 +1,23 @@
+﻿using UnityEngine;
+
+[CreateAssetMenu(menuName = "CubeWars/Tool Item")]
+public class ToolItem : ScriptableObject
+{
+    public string displayName = "Tool";
+
+    [Header("Bonuses")]
+    public float moveSpeedBonus = 0f;
+    public int carryCapacityBonus = 0;
+
+    [Tooltip("Multiplies HarvestPerTick")]
+    public float harvestMultiplier = 1f;
+
+    [Tooltip("Multiplies builder work contribution")]
+    public float buildMultiplier = 1f;
+
+    [Tooltip("Multiplies combat damage")]
+    public float damageMultiplier = 1f;
+
+    [Header("Craft Cost (spent from TeamResources)")]
+    public ResourceCost[] craftCost;
+}

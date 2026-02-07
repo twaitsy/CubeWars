@@ -1,0 +1,9 @@
+﻿using UnityEngine;
+
+public class TeamWatchdog : MonoBehaviour
+{
+    void OnDestroy()
+    {
+        Debug.LogError($"TEAM DESTROYED: {gameObject.name}", this);
+    }
+}

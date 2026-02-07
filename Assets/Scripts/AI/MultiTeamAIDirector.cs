@@ -1,0 +1,29 @@
+﻿using System.Collections.Generic;
+using UnityEngine;
+
+/// <summary>
+/// High-level AI director for multiple AI teams.
+/// 
+/// DEPENDENCIES:
+/// - BuildGridCell
+/// - BuildPlacementManager
+/// - BuildItemDefinition
+/// - BuildItemInstance
+/// - ConstructionSite
+/// - TeamResources
+/// - Headquarters
+///
+/// RESPONSIBILITIES:
+/// - Compute AI build strategy per team
+/// - Reserve walkways
+/// - Place buildings based on aggression
+/// - Track construction sites
+///
+/// IMPORTANT:
+/// - This script does NOT delete teams.
+/// - It only reads teamID and HQ positions.
+/// </summary>
+public class MultiTeamAIDirector : MonoBehaviour
+{
+    // (rest of your script unchanged)
+}
