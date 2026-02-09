@@ -37,6 +37,16 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     // Expose carried for UI
     public ResourceType CarriedType => carriedType;
     public int CarriedAmount => carriedAmount;
+    public string CurrentStateName => state.ToString();
+
+    public string GetCurrentTargetLabel()
+    {
+        if (targetNode != null) return $"Resource: {targetNode.name}";
+        if (targetSite != null) return $"Construction: {targetSite.name}";
+        if (targetStorage != null) return $"Storage: {targetStorage.name}";
+        if (agent != null && agent.hasPath) return $"Move: {agent.destination}";
+        return "None";
+    }
 
     private float currentHealth;
     private NavMeshAgent agent;
@@ -204,6 +214,9 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             case CivilianRole.Hauler: state = State.SearchingSupplySite; break;
             default: state = State.Idle; break;
         }
+
+        // Search immediately on role assignment/spawn.
+        searchTimer = searchRetrySeconds;
     }
 
     /// <summary>
@@ -346,13 +359,22 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         if (targetStorage == null || targetStorage.teamID != teamID)
             targetStorage = TeamStorageManager.Instance.FindNearestStorageWithFree(teamID, carriedType, transform.position);
 
-        if (targetStorage == null)
+        if (targetStorage != null)
+        {
+            agent.SetDestination(targetStorage.transform.position);
+            if (Arrived()) state = State.Depositing;
             return;
+        }
 
-        agent.SetDestination(targetStorage.transform.position);
-
-        if (Arrived())
-            state = State.Depositing;
+        var dropoff = ResourceDropoff.FindNearest(teamID, carriedType, transform.position);
+        if (dropoff != null)
+        {
+            int accepted = dropoff.Deposit(carriedType, carriedAmount);
+            carriedAmount -= accepted;
+            if (carriedAmount > 0) carriedAmount = 0;
+            state = (role == CivilianRole.Gatherer) ? State.SearchingNode : State.SearchingBuildSite;
+            return;
+        }
     }
 
     void TickDeposit()

@@ -32,6 +32,7 @@ public class CivilianSpawner : MonoBehaviour
             if (civScript != null)
             {
                 civScript.teamID = teamID;
+                civScript.SetRole(CivilianRole.Gatherer);
             }
             TeamColorManager.Instance.ApplyTeamColor(civ, teamID);
         }

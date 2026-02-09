@@ -92,9 +92,7 @@ public class TeamBootstrap : MonoBehaviour
         hq.transform.SetParent(team.hqRoot);
 
         // Assign team ownership via Building base class
-        Building building = hq.GetComponent<Building>();
-        if (building != null)
-            building.teamID = team.teamID;
+        ApplyTeamToObject(hq, team.teamID);
 
         Debug.Log($"Spawned HQ for Team {team.teamID}");
     }
@@ -127,9 +125,10 @@ public class TeamBootstrap : MonoBehaviour
             worker.transform.SetParent(team.unitsRoot);
 
             // Assign team ownership
-            Unit unit = worker.GetComponent<Unit>();
-            if (unit != null)
-                unit.teamID = team.teamID;
+            ApplyTeamToObject(worker, team.teamID);
+
+            if (worker.TryGetComponent<Civilian>(out var civ))
+                civ.SetRole(CivilianRole.Gatherer);
         }
 
         Debug.Log($"Spawned {startingWorkers} workers for Team {team.teamID}");
@@ -158,5 +157,23 @@ public class TeamBootstrap : MonoBehaviour
     {
         if (obj.GetComponent<T>() == null)
             obj.AddComponent<T>();
+    }
+
+    private void ApplyTeamToObject(GameObject obj, int teamID)
+    {
+        if (obj == null) return;
+
+        foreach (var b in obj.GetComponentsInChildren<Building>(true)) b.teamID = teamID;
+        foreach (var h in obj.GetComponentsInChildren<Headquarters>(true)) h.teamID = teamID;
+        foreach (var u in obj.GetComponentsInChildren<Unit>(true)) u.teamID = teamID;
+        foreach (var c in obj.GetComponentsInChildren<Civilian>(true)) c.teamID = teamID;
+        foreach (var d in obj.GetComponentsInChildren<ResourceDropoff>(true)) d.teamID = teamID;
+        foreach (var s in obj.GetComponentsInChildren<ResourceStorageContainer>(true)) s.teamID = teamID;
+
+        foreach (var p in obj.GetComponentsInChildren<ResourceStorageProvider>(true))
+        {
+            p.teamID = teamID;
+            p.RefreshRegistration();
+        }
     }
 }

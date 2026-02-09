@@ -74,6 +74,21 @@ public class Barracks : MonoBehaviour
 
         if (go.TryGetComponent<Unit>(out var unit))
             unit.teamID = teamID;
+
+        if (go.TryGetComponent<Civilian>(out var civ))
+        {
+            civ.teamID = teamID;
+            civ.SetRole(CivilianRole.Gatherer);
+        }
+
+        foreach (var b in go.GetComponentsInChildren<Building>(true)) b.teamID = teamID;
+        foreach (var s in go.GetComponentsInChildren<ResourceStorageContainer>(true)) s.teamID = teamID;
+        foreach (var p in go.GetComponentsInChildren<ResourceStorageProvider>(true))
+        {
+            p.teamID = teamID;
+            p.RefreshRegistration();
+        }
+        foreach (var d in go.GetComponentsInChildren<ResourceDropoff>(true)) d.teamID = teamID;
     }
 
     // ---------- UI / AI API ----------

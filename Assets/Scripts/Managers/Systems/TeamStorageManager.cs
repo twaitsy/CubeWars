@@ -63,7 +63,7 @@ public class TeamStorageManager : MonoBehaviour
         if (!reservedTotals.ContainsKey(teamID))
         {
             reservedTotals[teamID] = new Dictionary<ResourceType, int>();
-            foreach (ResourceType t in System.Enum.GetValues(typeof(ResourceType)))
+            foreach (ResourceType t in ResourceDefaults.AllTypes)
                 reservedTotals[teamID][t] = 0;
         }
     }
@@ -302,7 +302,7 @@ public class TeamStorageManager : MonoBehaviour
         if (!siteReserved.TryGetValue(siteKey, out var dict))
         {
             dict = new Dictionary<ResourceType, int>();
-            foreach (ResourceType t in System.Enum.GetValues(typeof(ResourceType)))
+            foreach (ResourceType t in ResourceDefaults.AllTypes)
                 dict[t] = 0;
             siteReserved[siteKey] = dict;
         }

@@ -1,49 +1,13 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class ParentRenamer : MonoBehaviour
 {
-    // The list of offensive words as a string array
-    private string[] offensiveWords = new string[]
-    {
-        "cunt", "motherfucker", "fuck", "bitch", "shit", "bastard", "cock", "twat", "nigger", "faggot",
-        "kike", "wanker", "asshole", "piss", "damn", "retard", "idiot", "arse", "arsehole", "bollocks",
-        "bloody", "dick", "prick", "penis", "frigging", "slapper", "dork", "nonce", "tits", "moron",
-        "cretin", "negro", "coon", "pikey", "gippo", "golliwog", "spastic", "schizo", "paki", "cocksucker",
-        "dyke", "anus", "ass-hat", "ass-jabber", "ass-pirate", "assbag", "assbandit", "assbanger", "assbite", "assclown",
-        "asscock", "asscracker", "asses", "assface", "assfuck", "assfucker", "assgoblin", "asshat", "asshead", "asshopper",
-        "assjacker", "asslick", "asslicker", "assmonkey", "assmunch", "assmuncher", "assnigger", "asspirate", "assshit", "assshole",
-        "asssucker", "asswad", "asswipe", "axwound", "goddammit", "dick-head", "dumb-ass", "goddamned", "mother-fucker", "father-fucker",
-        "goddamnit", "jackarse", "abbo", "abo", "anal", "analsex", "arab", "argie", "asian", "assassin",
-        "assassinate", "assault", "assbagger", "assblaster", "asscowboy", "asshore", "assjockey", "asskiss", "asskisser", "assklown"
-    };
-
     void Awake()
     {
-        // Ensure this runs early, before Start() on other scripts
-        RenameParent();
-    }
+        Transform parent = transform.parent;
+        if (parent == null) return;
 
-    private void RenameParent()
-    {
-        Transform parentTransform = transform.parent;
-        if (parentTransform != null)
-        {
-            // Pick two random words (can be the same)
-            int firstNameIndex = Random.Range(0, offensiveWords.Length);
-            int lastNameIndex = Random.Range(0, offensiveWords.Length);
-
-            string firstName = offensiveWords[firstNameIndex];
-            string lastName = offensiveWords[lastNameIndex];
-
-            // Set parent's name to "First Last"
-            parentTransform.name = firstName + " " + lastName;
-
-            // Optional: Log for debugging
-            Debug.Log($"Renamed parent '{parentTransform.name}' (was '{parentTransform.gameObject.name}') from child '{gameObject.name}'");
-        }
-        else
-        {
-            Debug.LogWarning("ParentRenamer: No parent found on " + gameObject.name + ". Skipping rename.");
-        }
+        var assigner = parent.GetComponent<UnitNameAssigner>();
+        if (assigner == null) assigner = parent.gameObject.AddComponent<UnitNameAssigner>();
     }
 }

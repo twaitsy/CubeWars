@@ -44,10 +44,10 @@ public class ResourceStorageContainer : MonoBehaviour
 
     void Awake()
     {
-        foreach (ResourceType t in System.Enum.GetValues(typeof(ResourceType)))
+        foreach (ResourceType t in ResourceDefaults.AllTypes)
         {
             stored[t] = 0;
-            capacity[t] = 0;
+            capacity[t] = ResourceDefaults.DefaultStoragePerResource;
         }
     }
 
