@@ -28,11 +28,12 @@ public class CivilianSpawner : MonoBehaviour
 
             GameObject civ = Instantiate(civilianPrefab, spawnPos, Quaternion.identity);
 
+            TeamAssignmentUtility.ApplyTeamToHierarchy(civ, teamID);
+
             Civilian civScript = civ.GetComponent<Civilian>();
             if (civScript != null)
-            {
-                civScript.teamID = teamID;
-            }
+                civScript.SetRole(CivilianRole.Gatherer);
+
             TeamColorManager.Instance.ApplyTeamColor(civ, teamID);
         }
     }

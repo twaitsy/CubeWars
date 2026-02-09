@@ -86,6 +86,18 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
     private State state;
 
+    public string CurrentState => state.ToString();
+    public string CurrentTargetName
+    {
+        get
+        {
+            if (targetSite != null) return targetSite.name;
+            if (targetNode != null) return targetNode.name;
+            if (targetStorage != null) return targetStorage.name;
+            return "None";
+        }
+    }
+
     // Registration timing: teamID is often assigned right after Instantiate (before Start).
     // So we register with JobManager in Start, and only re-register on OnEnable if Start has run.
     private bool started;
@@ -147,6 +159,13 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             UnregisterFromJobManager();
 
         RegisterWithJobManager();
+    }
+
+    public void SetTeamID(int newTeamID)
+    {
+        if (teamID == newTeamID) return;
+        teamID = newTeamID;
+        RefreshJobManagerRegistration();
     }
 
     void Update()
@@ -347,7 +366,15 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             targetStorage = TeamStorageManager.Instance.FindNearestStorageWithFree(teamID, carriedType, transform.position);
 
         if (targetStorage == null)
+        {
+            if (!TeamStorageManager.Instance.HasAnyPhysicalStorage(teamID))
+            {
+                TeamResources.Instance?.Deposit(teamID, carriedType, carriedAmount);
+                carriedAmount = 0;
+                state = (role == CivilianRole.Gatherer) ? State.SearchingNode : State.SearchingBuildSite;
+            }
             return;
+        }
 
         agent.SetDestination(targetStorage.transform.position);
 

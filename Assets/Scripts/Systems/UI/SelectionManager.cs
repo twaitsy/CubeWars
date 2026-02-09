@@ -46,6 +46,19 @@ public class SelectionManager : MonoBehaviour
                 sel.SetSelected(true);
                 return;
             }
+
+            Transform root = hit.collider.transform;
+            var civ = root.GetComponentInParent<Civilian>();
+            if (civ != null) { SetSelection(civ.gameObject); return; }
+
+            var unit = root.GetComponentInParent<Unit>();
+            if (unit != null) { SetSelection(unit.gameObject); return; }
+
+            var building = root.GetComponentInParent<Building>();
+            if (building != null) { SetSelection(building.gameObject); return; }
+
+            var node = root.GetComponentInParent<ResourceNode>();
+            if (node != null) { SetSelection(node.gameObject); return; }
         }
 
         ClearSelection();

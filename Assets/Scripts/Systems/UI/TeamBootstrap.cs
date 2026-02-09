@@ -92,9 +92,7 @@ public class TeamBootstrap : MonoBehaviour
         hq.transform.SetParent(team.hqRoot);
 
         // Assign team ownership via Building base class
-        Building building = hq.GetComponent<Building>();
-        if (building != null)
-            building.teamID = team.teamID;
+        TeamAssignmentUtility.ApplyTeamToHierarchy(hq, team.teamID);
 
         Debug.Log($"Spawned HQ for Team {team.teamID}");
     }
@@ -126,10 +124,7 @@ public class TeamBootstrap : MonoBehaviour
             GameObject worker = Instantiate(workerPrefab, spawnPos, Quaternion.identity);
             worker.transform.SetParent(team.unitsRoot);
 
-            // Assign team ownership
-            Unit unit = worker.GetComponent<Unit>();
-            if (unit != null)
-                unit.teamID = team.teamID;
+            TeamAssignmentUtility.ApplyTeamToHierarchy(worker, team.teamID);
         }
 
         Debug.Log($"Spawned {startingWorkers} workers for Team {team.teamID}");
