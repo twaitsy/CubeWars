@@ -48,9 +48,19 @@ public class TeamBootstrap : MonoBehaviour
     [Tooltip("Worker unit prefab spawned at game start.")]
     public GameObject workerPrefab;
 
-    [Header("Starting Units")]
+    [Header("Starting Civilians")]
     [Tooltip("How many workers each team starts with.")]
     public int startingWorkers = 3;
+
+    [Tooltip("Role assigned to spawned workers.")]
+    public CivilianRole startingWorkerRole = CivilianRole.Gatherer;
+
+    [Header("Starting Combat Units")]
+    [Tooltip("Combat unit prefab spawned for each team at start.")]
+    public GameObject startingUnitPrefab;
+
+    [Tooltip("How many combat units to spawn for each team.")]
+    public int startingUnits = 1;
 
     [Header("Spawn Offsets")]
     [Tooltip("Offset applied when spawning HQs.")]
@@ -67,6 +77,7 @@ public class TeamBootstrap : MonoBehaviour
         {
             SetupHQ(team);
             SetupWorkers(team);
+            SetupStartingUnits(team);
             SetupAI(team);
         }
     }
@@ -125,9 +136,37 @@ public class TeamBootstrap : MonoBehaviour
             worker.transform.SetParent(team.unitsRoot);
 
             TeamAssignmentUtility.ApplyTeamToHierarchy(worker, team.teamID);
+
+            var civ = worker.GetComponentInChildren<Civilian>();
+            if (civ != null)
+                civ.SetRole(startingWorkerRole);
         }
 
         Debug.Log($"Spawned {startingWorkers} workers for Team {team.teamID}");
+    }
+
+
+    private void SetupStartingUnits(Team team)
+    {
+        if (startingUnitPrefab == null || startingUnits <= 0)
+            return;
+
+        if (team.unitsRoot == null || team.hqRoot == null || team.hqRoot.childCount == 0)
+            return;
+
+        Transform hq = team.hqRoot.GetChild(0);
+
+        for (int i = 0; i < startingUnits; i++)
+        {
+            Vector3 offset = workerSpawnOffset + new Vector3(i * 1.5f, 0f, -i * 1.5f);
+            Vector3 spawnPos = hq.position + offset;
+
+            GameObject unit = Instantiate(startingUnitPrefab, spawnPos, Quaternion.identity);
+            unit.transform.SetParent(team.unitsRoot);
+            TeamAssignmentUtility.ApplyTeamToHierarchy(unit, team.teamID);
+        }
+
+        Debug.Log($"Spawned {startingUnits} combat units for Team {team.teamID}");
     }
 
     // -------------------------------------------------------------

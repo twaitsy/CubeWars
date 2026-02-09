@@ -89,6 +89,7 @@ public class UnitInspectorUI : MonoBehaviour
             height
         );
 
+        IMGUIInputBlocker.Register(rect);
         GUILayout.BeginArea(rect, GUI.skin.window);
         GUILayout.BeginVertical();
 

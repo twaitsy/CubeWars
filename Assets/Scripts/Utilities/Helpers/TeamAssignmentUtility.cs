@@ -14,6 +14,12 @@ public static class TeamAssignmentUtility
         ApplyToAll(root, teamID, (ResourceDropoff c, int t) => c.SetTeamID(t));
         ApplyToAll(root, teamID, (ResourceStorageProvider c, int t) => c.SetTeamID(t));
         ApplyToAll(root, teamID, (ResourceStorageContainer c, int t) => c.SetTeamID(t));
+        ApplyToAll(root, teamID, (Attackable c, int t) =>
+        {
+            c.teamID = t;
+            c.isCivilian = c.GetComponent<Civilian>() != null;
+            c.isBuilding = c.GetComponent<Building>() != null;
+        });
         ApplyToAll(root, teamID, (TeamVisual tv, int t) =>
         {
             tv.teamID = t;
@@ -21,6 +27,7 @@ public static class TeamAssignmentUtility
             tv.Apply();
         });
 
+        ApplyCombatDefaults(root, teamID);
         EnsureDisplayName(root);
     }
 
@@ -31,6 +38,21 @@ public static class TeamAssignmentUtility
 
         if (string.IsNullOrWhiteSpace(root.name) || root.name.Contains("(Clone)"))
             root.name = UnitNamePool.GetRandomDisplayName();
+    }
+
+
+    static void ApplyCombatDefaults(GameObject root, int teamID)
+    {
+        var combats = root.GetComponentsInChildren<UnitCombatController>(true);
+        for (int i = 0; i < combats.Length; i++)
+        {
+            var combat = combats[i];
+            if (combat == null) continue;
+            combat.teamID = teamID;
+
+            if (CombatManager.Instance != null)
+                CombatManager.Instance.ConfigureCombatant(combat);
+        }
     }
 
     static void ApplyToAll<T>(GameObject root, int teamID, System.Action<T, int> apply) where T : Component
