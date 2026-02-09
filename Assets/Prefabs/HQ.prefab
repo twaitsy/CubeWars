@@ -241,6 +241,8 @@ MonoBehaviour:
     capacity: 5000
   - type: 5
     capacity: 5000
+  - type: 4
+    capacity: 333
 --- !u!208 &-6935043793972570880
 NavMeshObstacle:
   m_ObjectHideFlags: 0

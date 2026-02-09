@@ -53,6 +53,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     private float retargetTimer;
 
     private ResourceNode targetNode;
+    private ResourceNode forcedNode;
     private ConstructionSite targetSite;
     private ResourceStorageContainer targetStorage;
 
@@ -91,9 +92,9 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     {
         get
         {
-            if (targetSite != null) return targetSite.name;
-            if (targetNode != null) return targetNode.name;
-            if (targetStorage != null) return targetStorage.name;
+            if (targetSite != null) return SanitizeName(targetSite.name);
+            if (targetNode != null) return SanitizeName(targetNode.name);
+            if (targetStorage != null) return SanitizeName(targetStorage.name);
             return "None";
         }
     }
@@ -242,6 +243,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         CurrentDeliverySite = null;
 
         role = CivilianRole.Gatherer;
+        forcedNode = node;
         targetNode = node;
         CurrentReservedNode = node;
 
@@ -249,6 +251,31 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         {
             state = State.GoingToNode;
             agent.SetDestination(targetNode.transform.position);
+        }
+        else
+        {
+            state = State.SearchingNode;
+        }
+    }
+
+    public void AssignPreferredNode(ResourceNode node)
+    {
+        forcedNode = (node != null && node.amount > 0) ? node : null;
+
+        if (role != CivilianRole.Gatherer)
+            SetRole(CivilianRole.Gatherer);
+
+        targetNode = forcedNode;
+        CurrentReservedNode = forcedNode;
+
+        if (targetNode != null)
+        {
+            state = State.GoingToNode;
+            agent.SetDestination(targetNode.transform.position);
+        }
+        else if (carriedAmount > 0)
+        {
+            state = State.GoingToDepositStorage;
         }
         else
         {
@@ -264,7 +291,11 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         if (searchTimer < searchRetrySeconds) return;
         searchTimer = 0f;
 
-        targetNode = FindClosestResourceNode();
+        if (forcedNode != null && forcedNode.amount > 0)
+            targetNode = forcedNode;
+        else
+            targetNode = FindClosestResourceNode();
+
         CurrentReservedNode = targetNode;
 
         if (targetNode != null)
@@ -278,6 +309,9 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     {
         if (targetNode == null || targetNode.amount <= 0)
         {
+            if (forcedNode == targetNode)
+                forcedNode = null;
+
             targetNode = null;
             CurrentReservedNode = null;
             state = State.SearchingNode;
@@ -302,6 +336,9 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     {
         if (targetNode == null || targetNode.amount <= 0)
         {
+            if (forcedNode == targetNode)
+                forcedNode = null;
+
             targetNode = null;
             CurrentReservedNode = null;
             state = (carriedAmount > 0) ? State.GoingToDepositStorage : State.SearchingNode;
@@ -608,16 +645,22 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
     int GetCarryCapacity()
     {
+        if (carryCapacity > 0)
+            return carryCapacity;
+
         CharacterStats stats = GetComponent<CharacterStats>();
         if (stats != null && stats.CarryCapacity > 0) return stats.CarryCapacity;
-        return carryCapacity;
+        return 1;
     }
 
     int GetHarvestPerTick()
     {
+        if (harvestPerTick > 0)
+            return harvestPerTick;
+
         CharacterStats stats = GetComponent<CharacterStats>();
         if (stats != null && stats.HarvestPerTick > 0) return stats.HarvestPerTick;
-        return harvestPerTick;
+        return 1;
     }
 
     float GetBuildMultiplier()
@@ -638,6 +681,9 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             var n = nodes[i];
             if (n == null || n.amount <= 0) continue;
 
+            if (TeamStorageManager.Instance != null && TeamStorageManager.Instance.GetTotalFreeInBuildings(teamID, n.type) <= 0)
+                continue;
+
             float d = (n.transform.position - transform.position).sqrMagnitude;
             if (d < bestD)
             {
@@ -647,6 +693,12 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         }
 
         return best;
+    }
+
+    static string SanitizeName(string raw)
+    {
+        if (string.IsNullOrEmpty(raw)) return raw;
+        return raw.Replace("(Clone)", "").Trim();
     }
 
     ConstructionSite FindNearestConstructionSite(int team, Vector3 pos)

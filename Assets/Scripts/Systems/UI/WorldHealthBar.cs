@@ -12,7 +12,7 @@ public class WorldHealthBar : MonoBehaviour
 
     [Header("Display Rules")]
     public bool onlyShowForBuildings = true;
-    public bool hideWhenFullHealth = false;
+    public bool hideWhenFullHealth = true;
 
     [Header("Smoothing")]
     [Tooltip("Higher = snappier, lower = smoother. 0 disables smoothing.")]
@@ -74,8 +74,7 @@ public class WorldHealthBar : MonoBehaviour
         else
             displayedT = rawT;
 
-        if (hideWhenFullHealth)
-            holder.gameObject.SetActive(displayedT < 0.999f);
+        holder.gameObject.SetActive(displayedT < 0.999f);
 
         // Update fill width + pivot so it shrinks from left-to-right
         if (barFill != null)

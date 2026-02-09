@@ -81,13 +81,8 @@ public class TaskBoardUI : MonoBehaviour
         {
             Dictionary<CivilianRole, int> counts = JobManager.Instance.GetRoleCounts(playerTeamID);
 
-            int gatherers = counts.ContainsKey(CivilianRole.Gatherer) ? counts[CivilianRole.Gatherer] : 0;
-            int builders = counts.ContainsKey(CivilianRole.Builder) ? counts[CivilianRole.Builder] : 0;
-            int haulers = counts.ContainsKey(CivilianRole.Hauler) ? counts[CivilianRole.Hauler] : 0;
-            int idles = counts.ContainsKey(CivilianRole.Idle) ? counts[CivilianRole.Idle] : 0;
-
             GUI.Label(new Rect(x, y, panelWidth - 20, 20),
-                $"Civilians: Gatherer {gatherers} | Builder {builders} | Hauler {haulers} | Idle {idles}");
+                BuildRoleSummary(counts));
             y += 22;
 
             int sites = JobManager.Instance.GetActiveConstructionSiteCount(playerTeamID);
@@ -96,24 +91,9 @@ public class TaskBoardUI : MonoBehaviour
         }
         else
         {
-            int gatherers = 0, builders = 0, haulers = 0, idles = 0;
-            var all = FindObjectsOfType<Civilian>();
-            for (int i = 0; i < all.Length; i++)
-            {
-                var c = all[i];
-                if (c == null) continue;
-                if (c.teamID != playerTeamID) continue;
-                switch (c.role)
-                {
-                    case CivilianRole.Gatherer: gatherers++; break;
-                    case CivilianRole.Builder: builders++; break;
-                    case CivilianRole.Hauler: haulers++; break;
-                    case CivilianRole.Idle: idles++; break;
-                }
-            }
-
+            var counts = BuildFallbackRoleCounts();
             GUI.Label(new Rect(x, y, panelWidth - 20, 20),
-                $"Civilians: Gatherer {gatherers} | Builder {builders} | Hauler {haulers} | Idle {idles}");
+                BuildRoleSummary(counts));
             y += 22;
         }
 
@@ -133,8 +113,6 @@ public class TaskBoardUI : MonoBehaviour
             int cap = TeamStorageManager.Instance.GetTotalCapacityInBuildings(playerTeamID, t);
             int reserved = TeamStorageManager.Instance.GetReservedTotal(playerTeamID, t);
 
-            if (stored == 0 && cap == 0 && reserved == 0) continue;
-
             string line = $"{t}: {stored}/{cap}";
             if (reserved > 0) line += $"  [{reserved}]";
             if (cap > 0 && stored >= cap) line += " (FULL)";
@@ -148,7 +126,35 @@ public class TaskBoardUI : MonoBehaviour
             if (y > panelRect.yMax - 20) break;
         }
 
-        if (lines == 0)
-            GUI.Label(new Rect(x, y, panelWidth - 20, 18), "No storage buildings registered for this team.");
     }
+    Dictionary<CivilianRole, int> BuildFallbackRoleCounts()
+    {
+        var result = new Dictionary<CivilianRole, int>();
+        foreach (CivilianRole role in Enum.GetValues(typeof(CivilianRole)))
+            result[role] = 0;
+
+        var all = FindObjectsOfType<Civilian>();
+        for (int i = 0; i < all.Length; i++)
+        {
+            var c = all[i];
+            if (c == null || c.teamID != playerTeamID) continue;
+            if (!result.ContainsKey(c.role)) result[c.role] = 0;
+            result[c.role]++;
+        }
+
+        return result;
+    }
+
+    string BuildRoleSummary(Dictionary<CivilianRole, int> counts)
+    {
+        var parts = new List<string>();
+        foreach (CivilianRole role in Enum.GetValues(typeof(CivilianRole)))
+        {
+            int value = (counts != null && counts.ContainsKey(role)) ? counts[role] : 0;
+            parts.Add($"{role} {value}");
+        }
+
+        return "Civilians: " + string.Join(" | ", parts);
+    }
+
 }
