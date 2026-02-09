@@ -214,7 +214,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   teamID: 0
-  acceptsOnly: 
+  acceptsOnly: 000000000100000002000000030000000400000005000000
 --- !u!114 &976683268280428358
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -222,7 +222,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2609521548526753214}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0316fc440feb1e4479faf1e9075d7ebf, type: 3}
   m_Name: 
@@ -264,14 +264,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   teamID: 0
-  capacities:
-  - type: 0
-    capacity: 500
-  - type: 1
-    capacity: 500
-  - type: 4
-    capacity: 500
-  initialStored: []
 --- !u!114 &-2677390483228081505
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -288,4 +280,4 @@ MonoBehaviour:
   isCivilian: 0
   isBuilding: 1
   maxHealth: 100
-  currentHealth: 0
+  canBeRepaired: 1

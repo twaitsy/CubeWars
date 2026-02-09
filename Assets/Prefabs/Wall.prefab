@@ -63,7 +63,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: b8cd3d9c2e34e494c9953ecf99c1fb09, type: 2}
+  - {fileID: 2100000, guid: 282f0f5495c24674fbfad9a5e449d2f2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -144,7 +144,7 @@ MonoBehaviour:
   isCivilian: 0
   isBuilding: 1
   maxHealth: 100
-  currentHealth: 0
+  canBeRepaired: 1
 --- !u!114 &2613902101388370348
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -114,13 +114,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   teamID: 1
-  role: 2
+  role: 0
   maxHealth: 50
   speed: 2.5
   stopDistance: 5
   carryCapacity: 30
   gatherTickSeconds: 0.8
-  harvestPerTick: 10
+  harvestPerTick: 30
   searchRetrySeconds: 2
   buildersCanHaulMaterials: 1
   retargetSeconds: 0.6
