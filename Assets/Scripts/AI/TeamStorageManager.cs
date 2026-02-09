@@ -52,6 +52,13 @@ public class TeamStorageManager : MonoBehaviour
 
     void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Debug.LogWarning("Duplicate TeamStorageManager found on team object. Keeping existing singleton and removing duplicate component.");
+            Destroy(this);
+            return;
+        }
+
         Instance = this;
     }
 

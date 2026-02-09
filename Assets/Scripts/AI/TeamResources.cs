@@ -26,7 +26,8 @@ public class TeamResources : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(gameObject);
+            Debug.LogWarning("Duplicate TeamResources found on team object. Keeping existing singleton and removing duplicate component.");
+            Destroy(this);
             return;
         }
         Instance = this;

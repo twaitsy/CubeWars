@@ -35,6 +35,13 @@ public class TeamInventory : MonoBehaviour
 
     void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Debug.LogWarning("Duplicate TeamInventory found on team object. Keeping existing singleton and removing duplicate component.");
+            Destroy(this);
+            return;
+        }
+
         Instance = this;
 
         for (int t = 0; t < teamCount; t++)

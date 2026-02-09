@@ -49,8 +49,8 @@ public class Team : MonoBehaviour
     // TEAM IDENTITY
     // ---------------------------------------------------------
     [Header("Team Identity")]
-    [Tooltip("Unique ID for this team (1 = Player, 2+ = AI teams).")]
-    public int teamID = 1;
+    [Tooltip("Unique ID for this team (0 = Player, 1+ = AI teams).")]
+    public int teamID = 0;
 
     [Tooltip("Whether this team is controlled by the player or AI.")]
     public TeamType teamType = TeamType.Player;
