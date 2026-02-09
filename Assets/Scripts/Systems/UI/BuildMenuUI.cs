@@ -122,6 +122,7 @@ public class BuildMenuUI : MonoBehaviour
 
     void Start()
     {
+        AutoAssignPlayerTeam();
         if (autoDiscover) categories = DiscoverFromResources(resourcesPath);
         else if (!useManualCatalogWhenAutoDiscoverOff) categories = new BuildCategory[0];
 
@@ -133,6 +134,13 @@ public class BuildMenuUI : MonoBehaviour
             TrySyncGrid(show);
     }
 
+
+    void AutoAssignPlayerTeam()
+    {
+        var gm = FindObjectOfType<GameManager>();
+        if (gm != null && gm.playerTeam != null)
+            playerTeamID = gm.playerTeam.teamID;
+    }
     void Update()
     {
         if (Input.GetKeyDown(toggleKey))

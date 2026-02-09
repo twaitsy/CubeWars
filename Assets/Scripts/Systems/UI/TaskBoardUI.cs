@@ -33,6 +33,29 @@ public class TaskBoardUI : MonoBehaviour
     [Header("Display")]
     public int maxResourceLines = 14;
 
+
+    void Start()
+    {
+        AutoAssignPlayerTeam();
+    }
+
+    void AutoAssignPlayerTeam()
+    {
+        if (GameManager == null)
+            return;
+
+        if (GameManager.playerTeam != null)
+            playerTeamID = GameManager.playerTeam.teamID;
+    }
+
+    GameManager GameManager
+    {
+        get
+        {
+            return FindObjectOfType<GameManager>();
+        }
+    }
+
     void Update()
     {
         if (Input.GetKeyDown(toggleKey))

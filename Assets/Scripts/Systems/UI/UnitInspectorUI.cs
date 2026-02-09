@@ -100,6 +100,7 @@ public class UnitInspectorUI : MonoBehaviour
         DrawCombat();
         DrawConstruction();
         DrawStorage();
+        DrawResourceNode();
         DrawTurret();
         DrawCombatStance();
 
@@ -130,7 +131,15 @@ public class UnitInspectorUI : MonoBehaviour
         {
             GUILayout.Space(6);
             GUILayout.Label("Civilian", GUI.skin.box);
-            GUILayout.Label("Status: Active");
+            GUILayout.Label($"Role: {civ.role}");
+            GUILayout.Label($"Carrying: {civ.CarriedType} {civ.CarriedAmount}/{civ.carryCapacity}");
+
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Gatherer")) civ.SetRole(CivilianRole.Gatherer);
+            if (GUILayout.Button("Builder")) civ.SetRole(CivilianRole.Builder);
+            if (GUILayout.Button("Hauler")) civ.SetRole(CivilianRole.Hauler);
+            if (GUILayout.Button("Idle")) civ.SetRole(CivilianRole.Idle);
+            GUILayout.EndHorizontal();
         }
     }
 
@@ -218,6 +227,18 @@ public class UnitInspectorUI : MonoBehaviour
         if (newToggle != combat.canAttackCivilians)
         {
             combat.ToggleAttackCivilians();
+        }
+    }
+
+
+    void DrawResourceNode()
+    {
+        if (selected.TryGetComponent<ResourceNode>(out var node))
+        {
+            GUILayout.Space(6);
+            GUILayout.Label("Resource Node", GUI.skin.box);
+            GUILayout.Label($"Type: {node.type}");
+            GUILayout.Label($"Remaining: {node.remaining}");
         }
     }
 

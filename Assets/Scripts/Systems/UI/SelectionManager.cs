@@ -32,6 +32,9 @@ public class SelectionManager : MonoBehaviour
     // -------------------------------------------------
     void TrySelect()
     {
+        if (IMGUIInputBlocker.IsMouseOverUI(Input.mousePosition))
+            return;
+
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
 
         if (Physics.Raycast(ray, out RaycastHit hit, 500f))
@@ -53,6 +56,9 @@ public class SelectionManager : MonoBehaviour
     // -------------------------------------------------
     void TryIssueAttackOrder()
     {
+        if (IMGUIInputBlocker.IsMouseOverUI(Input.mousePosition))
+            return;
+
         if (currentSelection == null)
             return;
 
