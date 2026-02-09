@@ -35,7 +35,7 @@ public class SixTeamBootstrap : MonoBehaviour
             Quaternion rot = Quaternion.LookRotation((center - pos).normalized, Vector3.up);
 
             GameObject hq = Instantiate(hqPrefab, pos, rot);
-            ApplyTeamToObject(hq, team);
+            TeamAssignmentUtility.ApplyTeamToHierarchy(hq, team);
 
             // Spawn civilians near HQ
             Vector3 right = hq.transform.right;
@@ -64,60 +64,10 @@ public class SixTeamBootstrap : MonoBehaviour
         if (civilianPrefab == null) return;
 
         GameObject c = Instantiate(civilianPrefab, pos, rot);
-        ApplyTeamToObject(c, teamID);
+        TeamAssignmentUtility.ApplyTeamToHierarchy(c, teamID);
 
         Civilian civ = c.GetComponent<Civilian>();
         if (civ != null)
-        {
-            civ.teamID = teamID;
             civ.SetRole(role);
-        }
-
-        TeamVisual tv = c.GetComponent<TeamVisual>();
-        if (tv != null)
-        {
-            tv.teamID = teamID;
-            tv.kind = VisualKind.Unit;
-            tv.Apply();
-        }
-    }
-
-    void ApplyTeamToObject(GameObject obj, int teamID)
-    {
-        if (obj == null) return;
-
-        // Apply to root AND children (important: HQ storage/dropoff often live on child objects)
-        ApplyTeamToAllInChildren<Building>(obj, teamID, (c, t) => c.teamID = t);
-        ApplyTeamToAllInChildren<Headquarters>(obj, teamID, (c, t) => c.teamID = t);
-        ApplyTeamToAllInChildren<ResourceDropoff>(obj, teamID, (c, t) => c.teamID = t);
-        ApplyTeamToAllInChildren<ResourceStorageProvider>(obj, teamID, (c, t) => c.teamID = t);
-
-        // FIX: also set ResourceStorageContainer teamID (this was missing)
-        ApplyTeamToAllInChildren<ResourceStorageContainer>(obj, teamID, (c, t) => c.teamID = t);
-
-        ApplyTeamToAllInChildren<Civilian>(obj, teamID, (c, t) => c.teamID = t);
-        ApplyTeamToAllInChildren<Unit>(obj, teamID, (c, t) => c.teamID = t);
-
-        // Team visuals (root + children)
-        var buildingOnRoot = obj.GetComponent<Building>();
-        ApplyTeamToAllInChildren<TeamVisual>(obj, teamID, (tv, t) =>
-        {
-            tv.teamID = t;
-            // If this specific object has a Building component, treat it as building; otherwise unit
-            tv.kind = (tv.GetComponent<Building>() != null || buildingOnRoot != null) ? VisualKind.Building : VisualKind.Unit;
-            tv.Apply();
-        });
-    }
-
-    void ApplyTeamToAllInChildren<T>(GameObject obj, int teamID, System.Action<T, int> apply) where T : Component
-    {
-        if (obj == null) return;
-
-        T[] comps = obj.GetComponentsInChildren<T>(true);
-        for (int i = 0; i < comps.Length; i++)
-        {
-            if (comps[i] == null) continue;
-            apply(comps[i], teamID);
-        }
     }
 }

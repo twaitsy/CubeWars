@@ -19,7 +19,7 @@ public class Spawner : MonoBehaviour
                 );
 
             GameObject u = Instantiate(unitPrefab, pos, Quaternion.identity);
-            u.GetComponent<Unit>().teamID = teamID;
+            TeamAssignmentUtility.ApplyTeamToHierarchy(u, teamID);
             TeamColorManager.Instance.ApplyTeamColor(u, teamID);
         }
     }

@@ -20,6 +20,11 @@ public class ResourceDropoff : MonoBehaviour
         all.Remove(this);
     }
 
+    public void SetTeamID(int newTeamID)
+    {
+        teamID = newTeamID;
+    }
+
     public bool CanAccept(ResourceType t)
     {
         if (acceptsOnly == null || acceptsOnly.Length == 0) return true;

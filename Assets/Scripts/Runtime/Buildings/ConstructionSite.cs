@@ -249,31 +249,7 @@ public class ConstructionSite : MonoBehaviour
     {
         if (placed == null) return;
 
-        Building building = placed.GetComponent<Building>();
-        if (building != null) building.teamID = team;
-
-        Civilian civ = placed.GetComponent<Civilian>();
-        if (civ != null) civ.teamID = team;
-
-        Unit unit = placed.GetComponent<Unit>();
-        if (unit != null) unit.teamID = team;
-
-        var sp = placed.GetComponent<ResourceStorageProvider>();
-        if (sp != null) sp.teamID = team;
-
-        var drop = placed.GetComponent<ResourceDropoff>();
-        if (drop != null) drop.teamID = team;
-
-        var storage = placed.GetComponent<ResourceStorageContainer>();
-        if (storage != null) storage.teamID = team;
-
-        TeamVisual tv = placed.GetComponent<TeamVisual>();
-        if (tv != null)
-        {
-            tv.teamID = team;
-            tv.kind = (building != null) ? VisualKind.Building : VisualKind.Unit;
-            tv.Apply();
-        }
+        TeamAssignmentUtility.ApplyTeamToHierarchy(placed, team);
     }
 
     // ---------------- UI HELPERS ----------------

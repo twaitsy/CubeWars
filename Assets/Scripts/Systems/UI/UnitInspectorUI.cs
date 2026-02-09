@@ -96,6 +96,7 @@ public class UnitInspectorUI : MonoBehaviour
         DrawHealth();
         DrawCivilian();
         DrawUnit();
+        DrawBuilding();
         DrawBarracks();
         DrawCombat();
         DrawConstruction();
@@ -132,6 +133,12 @@ public class UnitInspectorUI : MonoBehaviour
             GUILayout.Space(6);
             GUILayout.Label("Civilian", GUI.skin.box);
             GUILayout.Label($"Role: {civ.role}");
+            GUILayout.Label($"State: {civ.CurrentState}");
+            GUILayout.Label($"Target: {civ.CurrentTargetName}");
+            GUILayout.Label($"Team: {civ.teamID}");
+            GUILayout.Label($"Move Speed: {civ.speed:0.0}");
+            GUILayout.Label($"Gather Tick: {civ.gatherTickSeconds:0.00}s");
+            GUILayout.Label($"Harvest/Tick: {civ.harvestPerTick}");
             GUILayout.Label($"Carrying: {civ.CarriedType} {civ.CarriedAmount}/{civ.carryCapacity}");
 
             GUILayout.BeginHorizontal();
@@ -153,6 +160,18 @@ public class UnitInspectorUI : MonoBehaviour
             GUILayout.Label($"Damage: {unit.damage}");
             GUILayout.Label($"Range: {unit.attackRange}");
         }
+    }
+
+
+    void DrawBuilding()
+    {
+        if (!selected.TryGetComponent<Building>(out var building))
+            return;
+
+        GUILayout.Space(6);
+        GUILayout.Label("Building", GUI.skin.box);
+        GUILayout.Label($"Team: {building.teamID}");
+        GUILayout.Label($"Type: {building.GetType().Name}");
     }
 
     void DrawBarracks()

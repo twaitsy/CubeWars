@@ -49,6 +49,11 @@ public class Unit : MonoBehaviour, IHasHealth, IAttackable
         }
     }
 
+    public void SetTeamID(int newTeamID)
+    {
+        teamID = newTeamID;
+    }
+
     public void MoveTo(Vector3 pos)
     {
         if (agent == null) return;

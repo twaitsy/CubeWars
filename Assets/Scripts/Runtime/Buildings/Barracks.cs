@@ -72,8 +72,7 @@ public class Barracks : MonoBehaviour
             Quaternion.identity
         );
 
-        if (go.TryGetComponent<Unit>(out var unit))
-            unit.teamID = teamID;
+        TeamAssignmentUtility.ApplyTeamToHierarchy(go, teamID);
     }
 
     // ---------- UI / AI API ----------

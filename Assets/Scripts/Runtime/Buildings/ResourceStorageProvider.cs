@@ -69,6 +69,13 @@ public class ResourceStorageProvider : MonoBehaviour
         registered = false;
     }
 
+    public void SetTeamID(int newTeamID)
+    {
+        if (teamID == newTeamID) return;
+        teamID = newTeamID;
+        RefreshRegistration();
+    }
+
     public void RefreshRegistration()
     {
         if (!started) return;

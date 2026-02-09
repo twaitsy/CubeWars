@@ -48,12 +48,10 @@ public class HQSpawner : MonoBehaviour
 
             // --- ASSIGN TEAM OWNERSHIP ---
             // Headquarters inherits from Building, so we assign teamID via Building
+            TeamAssignmentUtility.ApplyTeamToHierarchy(hq, team.teamID);
+
             Building building = hq.GetComponent<Building>();
-            if (building != null)
-            {
-                building.teamID = team.teamID;
-            }
-            else
+            if (building == null)
             {
                 Debug.LogWarning(
                     $"HQ prefab '{hqPrefab.name}' has no Building component. " +

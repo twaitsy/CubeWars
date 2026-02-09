@@ -38,6 +38,9 @@ public class TeamStorageManager : MonoBehaviour
 {
     public static TeamStorageManager Instance;
 
+    [Header("Default Team Storage (virtual, used when no buildings are registered)")]
+    public int defaultCapacityPerType = 1000;
+
     private readonly Dictionary<int, List<ResourceStorageContainer>> storages =
         new Dictionary<int, List<ResourceStorageContainer>>();
 
@@ -48,6 +51,12 @@ public class TeamStorageManager : MonoBehaviour
         new Dictionary<int, Dictionary<ResourceType, int>>();
 
     private readonly Dictionary<int, Dictionary<ResourceType, int>> reservedTotals =
+        new Dictionary<int, Dictionary<ResourceType, int>>();
+
+    private readonly Dictionary<int, Dictionary<ResourceType, int>> baselineStored =
+        new Dictionary<int, Dictionary<ResourceType, int>>();
+
+    private readonly Dictionary<int, Dictionary<ResourceType, int>> baselineCapacity =
         new Dictionary<int, Dictionary<ResourceType, int>>();
 
     void Awake()
@@ -65,6 +74,20 @@ public class TeamStorageManager : MonoBehaviour
             reservedTotals[teamID] = new Dictionary<ResourceType, int>();
             foreach (ResourceType t in System.Enum.GetValues(typeof(ResourceType)))
                 reservedTotals[teamID][t] = 0;
+        }
+
+        if (!baselineStored.ContainsKey(teamID))
+        {
+            baselineStored[teamID] = new Dictionary<ResourceType, int>();
+            foreach (ResourceType t in System.Enum.GetValues(typeof(ResourceType)))
+                baselineStored[teamID][t] = 0;
+        }
+
+        if (!baselineCapacity.ContainsKey(teamID))
+        {
+            baselineCapacity[teamID] = new Dictionary<ResourceType, int>();
+            foreach (ResourceType t in System.Enum.GetValues(typeof(ResourceType)))
+                baselineCapacity[teamID][t] = Mathf.Max(0, defaultCapacityPerType);
         }
     }
 
@@ -137,7 +160,7 @@ public class TeamStorageManager : MonoBehaviour
         for (int i = 0; i < list.Count; i++)
             if (list[i] != null) sum += list[i].GetStored(type);
 
-        return sum;
+        return sum + baselineStored[teamID][type];
     }
 
     public int GetTotalCapacity(int teamID, ResourceType type)
@@ -149,7 +172,7 @@ public class TeamStorageManager : MonoBehaviour
         for (int i = 0; i < list.Count; i++)
             if (list[i] != null) sum += list[i].GetCapacity(type);
 
-        return sum;
+        return sum + baselineCapacity[teamID][type];
     }
 
     public int GetTotalFree(int teamID, ResourceType type)
@@ -161,7 +184,7 @@ public class TeamStorageManager : MonoBehaviour
         for (int i = 0; i < list.Count; i++)
             if (list[i] != null) sum += list[i].GetFree(type);
 
-        return sum;
+        return sum + Mathf.Max(0, baselineCapacity[teamID][type] - baselineStored[teamID][type]);
     }
 
     // ------------------- Building-only Totals -------------------
@@ -190,7 +213,7 @@ public class TeamStorageManager : MonoBehaviour
             sum += s.GetStored(type);
         }
 
-        return sum;
+        return sum + baselineStored[teamID][type];
     }
 
     public int GetTotalCapacityInBuildings(int teamID, ResourceType type)
@@ -207,7 +230,7 @@ public class TeamStorageManager : MonoBehaviour
             sum += s.GetCapacity(type);
         }
 
-        return sum;
+        return sum + baselineCapacity[teamID][type];
     }
 
     public int GetTotalFreeInBuildings(int teamID, ResourceType type)
@@ -224,7 +247,7 @@ public class TeamStorageManager : MonoBehaviour
             sum += s.GetFree(type);
         }
 
-        return sum;
+        return sum + Mathf.Max(0, baselineCapacity[teamID][type] - baselineStored[teamID][type]);
     }
 
     // ------------------- Capacity Management -------------------
@@ -354,6 +377,14 @@ public class TeamStorageManager : MonoBehaviour
         int remaining = amount;
         int takenTotal = 0;
 
+        int baselineTake = Mathf.Min(remaining, baselineStored[teamID][type]);
+        if (baselineTake > 0)
+        {
+            baselineStored[teamID][type] -= baselineTake;
+            takenTotal += baselineTake;
+            remaining -= baselineTake;
+        }
+
         var list = storages[teamID];
         for (int i = 0; i < list.Count && remaining > 0; i++)
         {
@@ -376,6 +407,15 @@ public class TeamStorageManager : MonoBehaviour
         int remaining = amount;
         int acceptedTotal = 0;
 
+        int baselineFree = Mathf.Max(0, baselineCapacity[teamID][type] - baselineStored[teamID][type]);
+        int baselineAccepted = Mathf.Min(remaining, baselineFree);
+        if (baselineAccepted > 0)
+        {
+            baselineStored[teamID][type] += baselineAccepted;
+            acceptedTotal += baselineAccepted;
+            remaining -= baselineAccepted;
+        }
+
         var list = storages[teamID];
         for (int i = 0; i < list.Count && remaining > 0; i++)
         {
@@ -391,6 +431,15 @@ public class TeamStorageManager : MonoBehaviour
     }
 
     // ------------------- Queries -------------------
+
+    public bool HasAnyPhysicalStorage(int teamID)
+    {
+        EnsureTeam(teamID);
+        var list = storages[teamID];
+        for (int i = 0; i < list.Count; i++)
+            if (list[i] != null) return true;
+        return false;
+    }
 
     public ResourceStorageContainer FindNearestStorageWithFree(int teamID, ResourceType type, Vector3 pos)
     {

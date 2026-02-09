@@ -97,4 +97,17 @@ public class ResourceStorageContainer : MonoBehaviour
     {
         capacity[type] += amount;
     }
+
+    public void SetTeamID(int newTeamID)
+    {
+        if (teamID == newTeamID) return;
+
+        if (TeamStorageManager.Instance != null)
+            TeamStorageManager.Instance.Unregister(this);
+
+        teamID = newTeamID;
+
+        if (isActiveAndEnabled && TeamStorageManager.Instance != null)
+            TeamStorageManager.Instance.Register(this);
+    }
 }
