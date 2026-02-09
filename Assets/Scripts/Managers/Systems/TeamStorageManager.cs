@@ -39,7 +39,7 @@ public class TeamStorageManager : MonoBehaviour
     public static TeamStorageManager Instance;
 
     [Header("Default Team Storage (virtual, used when no buildings are registered)")]
-    public int defaultCapacityPerType = 1000;
+    public int defaultCapacityPerType = 0;
 
     private readonly Dictionary<int, List<ResourceStorageContainer>> storages =
         new Dictionary<int, List<ResourceStorageContainer>>();

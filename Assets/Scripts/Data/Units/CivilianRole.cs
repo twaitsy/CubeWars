@@ -15,5 +15,10 @@ public enum CivilianRole
     Gatherer,
     Builder,
     Hauler,
+    Crafter,
+    Farmer,
+    Technician,
+    Scientist,
+    Engineer,
     Idle
 }

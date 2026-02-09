@@ -111,7 +111,7 @@ public class UnitInspectorUI : MonoBehaviour
 
     void DrawHeader()
     {
-        GUILayout.Label(selected.name, GUI.skin.box);
+        GUILayout.Label(SanitizeName(selected.name), GUI.skin.box);
 
         int team = GetTeamID();
         if (team >= 0)
@@ -141,12 +141,7 @@ public class UnitInspectorUI : MonoBehaviour
             GUILayout.Label($"Harvest/Tick: {civ.harvestPerTick}");
             GUILayout.Label($"Carrying: {civ.CarriedType} {civ.CarriedAmount}/{civ.carryCapacity}");
 
-            GUILayout.BeginHorizontal();
-            if (GUILayout.Button("Gatherer")) civ.SetRole(CivilianRole.Gatherer);
-            if (GUILayout.Button("Builder")) civ.SetRole(CivilianRole.Builder);
-            if (GUILayout.Button("Hauler")) civ.SetRole(CivilianRole.Hauler);
-            if (GUILayout.Button("Idle")) civ.SetRole(CivilianRole.Idle);
-            GUILayout.EndHorizontal();
+            DrawRoleButtons(civ);
         }
     }
 
@@ -336,6 +331,39 @@ public class UnitInspectorUI : MonoBehaviour
                 GUILayout.Label($"{t}: {stored}/{cap}");
             }
         }
+    }
+
+    void DrawRoleButtons(Civilian civ)
+    {
+        if (civ == null) return;
+
+        var roles = (CivilianRole[])System.Enum.GetValues(typeof(CivilianRole));
+        const int columns = 3;
+
+        for (int i = 0; i < roles.Length; i += columns)
+        {
+            GUILayout.BeginHorizontal();
+            for (int c = 0; c < columns; c++)
+            {
+                int idx = i + c;
+                if (idx >= roles.Length)
+                {
+                    GUILayout.FlexibleSpace();
+                    continue;
+                }
+
+                var role = roles[idx];
+                if (GUILayout.Button(role.ToString()))
+                    civ.SetRole(role);
+            }
+            GUILayout.EndHorizontal();
+        }
+    }
+
+    static string SanitizeName(string raw)
+    {
+        if (string.IsNullOrEmpty(raw)) return raw;
+        return raw.Replace("(Clone)", "").Trim();
     }
 
     int GetTeamID()

@@ -15,7 +15,7 @@ public class SixTeamBootstrap : MonoBehaviour
     public float civilianOffset = 3.0f;
 
     [Header("Starting Civilians Per Team")]
-    public int startingGatherersPerTeam = 1;
+    public int startingCiviliansPerTeam = 3;
     public int startingBuildersPerTeam = 1;
 
     void Start()
@@ -42,15 +42,17 @@ public class SixTeamBootstrap : MonoBehaviour
             Vector3 forward = hq.transform.forward;
 
             int index = 0;
+            int builderCount = Mathf.Clamp(startingBuildersPerTeam, 0, startingCiviliansPerTeam);
+            int gathererCount = Mathf.Max(0, startingCiviliansPerTeam - builderCount);
 
-            for (int i = 0; i < startingGatherersPerTeam; i++)
+            for (int i = 0; i < gathererCount; i++)
             {
                 Vector3 cpos = pos + right * (civilianOffset + index * 1.25f) + forward * 1.5f;
                 SpawnCivilian(team, CivilianRole.Gatherer, cpos, rot);
                 index++;
             }
 
-            for (int i = 0; i < startingBuildersPerTeam; i++)
+            for (int i = 0; i < builderCount; i++)
             {
                 Vector3 cpos = pos - right * (civilianOffset + index * 1.25f) + forward * 1.5f;
                 SpawnCivilian(team, CivilianRole.Builder, cpos, rot);

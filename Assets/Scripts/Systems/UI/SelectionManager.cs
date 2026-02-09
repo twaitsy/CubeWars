@@ -75,6 +75,12 @@ public class SelectionManager : MonoBehaviour
         if (currentSelection == null)
             return;
 
+        if (currentSelection.TryGetComponent<Civilian>(out var civilian))
+        {
+            TryIssueCivilianGatherOrder(civilian);
+            return;
+        }
+
         if (!currentSelection.TryGetComponent<UnitCombatController>(out var combat))
             return;
 
@@ -93,6 +99,26 @@ public class SelectionManager : MonoBehaviour
 
         // Right-clicked ground → clear order
         combat.ClearManualTarget();
+    }
+
+
+    void TryIssueCivilianGatherOrder(Civilian civilian)
+    {
+        if (civilian == null)
+            return;
+
+        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out RaycastHit hit, 500f))
+        {
+            var node = hit.collider.GetComponentInParent<ResourceNode>();
+            if (node != null)
+            {
+                civilian.AssignPreferredNode(node);
+                return;
+            }
+        }
+
+        civilian.AssignPreferredNode(null);
     }
 
     // -------------------------------------------------
