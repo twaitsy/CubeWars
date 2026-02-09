@@ -213,7 +213,8 @@ public class TeamStorageManager : MonoBehaviour
             sum += s.GetStored(type);
         }
 
-        return sum + baselineStored[teamID][type];
+        // Building-only queries should not include virtual baseline storage.
+        return sum;
     }
 
     public int GetTotalCapacityInBuildings(int teamID, ResourceType type)
@@ -230,7 +231,8 @@ public class TeamStorageManager : MonoBehaviour
             sum += s.GetCapacity(type);
         }
 
-        return sum + baselineCapacity[teamID][type];
+        // Building-only queries should not include virtual baseline capacity.
+        return sum;
     }
 
     public int GetTotalFreeInBuildings(int teamID, ResourceType type)
@@ -247,7 +249,8 @@ public class TeamStorageManager : MonoBehaviour
             sum += s.GetFree(type);
         }
 
-        return sum + Mathf.Max(0, baselineCapacity[teamID][type] - baselineStored[teamID][type]);
+        // Building-only queries should not include virtual baseline free space.
+        return sum;
     }
 
     // ------------------- Capacity Management -------------------

@@ -53,8 +53,14 @@ public class WeaponComponent : MonoBehaviour
 
         fireTimer = fireCooldown;
 
+        if (muzzle == null)
+            muzzle = transform;
+
         if (muzzleFlashFX != null)
             Instantiate(muzzleFlashFX, muzzle.position, muzzle.rotation);
+
+        if (ProjectilePool.Instance == null || projectilePrefab == null)
+            return;
 
         Projectile proj = ProjectilePool.Instance.Spawn(projectilePrefab, muzzle.position, muzzle.rotation);
         proj.Init(target, damage, teamID);

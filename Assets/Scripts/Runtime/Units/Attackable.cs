@@ -5,42 +5,16 @@
 // - Universal health + damage interface for ANY object that can be attacked.
 // - Used by units, civilians, buildings, turrets, and future entities.
 // - Provides a consistent API for combat, AI, UI, and projectiles.
-//
-// DEPENDENCIES:
-// - IHasHealth:
-//      * Interface requiring CurrentHealth, MaxHealth.
-// - UnitCombatController / WeaponComponent:
-//      * Query IsAlive, teamID, isCivilian, isBuilding.
-//      * Call TakeDamage() when projectiles hit.
-// - Projectile / ProjectilePool:
-//      * Calls TakeDamage() on impact.
-// - AIMilitary:
-//      * Uses isCivilian / isBuilding for targeting bias.
-// - UnitInspectorUI:
-//      * Reads health values and teamID.
-// - Building:
-//      * If present, Attackable auto‑marks itself as a building.
-// - AlertManager:
-//      * Displays "under attack" and "destroyed" notifications.
-//
-// NOTES FOR FUTURE MAINTENANCE:
-// - If you add armor/resistance, wrap TakeDamage() in a damage calculation layer.
-// - If you add death animations, replace Destroy(gameObject) with an animation
-//   event or death handler.
-// - If you add repair drones or engineers, ensure Repair() remains safe to call.
-// - If you add factions or diplomacy, ensure teamID integrates with DiplomacyManager.
-// - If you add shields, add a shield layer BEFORE currentHealth is reduced.
-// - If you add pooling for buildings/units, replace Destroy() with a pool return.
 // ============================================================================
 
 using UnityEngine;
 
-public class Attackable : MonoBehaviour, IHasHealth
+public class Attackable : MonoBehaviour, IHasHealth, IAttackable
 {
     [Header("Team & Classification")]
     public int teamID;
     public bool isCivilian;
-    public bool isBuilding;   // Used by AIMilitary personality bias
+    public bool isBuilding;
 
     [Header("Health")]
     public float maxHealth = 100f;
@@ -49,30 +23,51 @@ public class Attackable : MonoBehaviour, IHasHealth
     [Header("Repair")]
     public bool canBeRepaired = true;
 
-    // IHasHealth interface
-    public bool IsAlive => currentHealth > 0;
-    public float CurrentHealth => currentHealth;
-    public float MaxHealth => maxHealth;
+    IAttackable attackProxy;
+    IHasHealth healthProxy;
+    Civilian civilianProxy;
 
-    // Helper property
-    public bool IsDamaged => IsAlive && currentHealth < maxHealth;
+    public int TeamID => teamID;
+    public Transform AimPoint => transform;
+    public bool IsAlive => CurrentHealth > 0f;
+    public float CurrentHealth => healthProxy != null ? healthProxy.CurrentHealth : currentHealth;
+    public float MaxHealth => healthProxy != null ? healthProxy.MaxHealth : maxHealth;
+    public bool IsDamaged => IsAlive && CurrentHealth < MaxHealth;
 
     void Awake()
     {
-        currentHealth = maxHealth;
+        var unit = GetComponent<Unit>();
+        var civ = GetComponent<Civilian>();
+        var building = GetComponent<Building>();
 
-        // Auto-detect buildings
-        if (GetComponent<Building>() != null)
+        if (unit != null)
+        {
+            teamID = unit.teamID;
+            attackProxy = unit;
+            healthProxy = unit;
+        }
+        else if (civ != null)
+        {
+            teamID = civ.teamID;
+            civilianProxy = civ;
+            healthProxy = civ;
+            isCivilian = true;
+        }
+        else if (building != null)
+        {
+            teamID = building.teamID;
+            attackProxy = building;
+            healthProxy = building;
             isBuilding = true;
-    }
+        }
 
-    // ------------------------------------------------------------------------
-    // Damage & Repair
-    // ------------------------------------------------------------------------
+        if (healthProxy == null)
+            currentHealth = maxHealth;
+    }
 
     public void Repair(float amount)
     {
-        if (!canBeRepaired || !IsAlive) return;
+        if (!canBeRepaired || !IsAlive || healthProxy != null) return;
         currentHealth = Mathf.Min(maxHealth, currentHealth + amount);
     }
 
@@ -80,13 +75,22 @@ public class Attackable : MonoBehaviour, IHasHealth
     {
         if (!IsAlive) return;
 
+        if (attackProxy != null)
+        {
+            attackProxy.TakeDamage(dmg);
+            return;
+        }
+
+        if (civilianProxy != null)
+        {
+            civilianProxy.TakeDamage(dmg);
+            return;
+        }
+
         currentHealth -= dmg;
 
-        // Alert system
         if (AlertManager.Instance != null)
-        {
             AlertManager.Instance.Push($"{name} is under attack!");
-        }
 
         if (currentHealth <= 0)
             Die();
@@ -95,11 +99,8 @@ public class Attackable : MonoBehaviour, IHasHealth
     void Die()
     {
         if (AlertManager.Instance != null)
-        {
             AlertManager.Instance.Push($"{name} destroyed");
-        }
 
-        // NOTE: If you add death animations or pooling, replace this.
         Destroy(gameObject);
     }
 }
