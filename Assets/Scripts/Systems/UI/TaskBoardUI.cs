@@ -41,23 +41,14 @@ public class TaskBoardUI : MonoBehaviour
 
     void AutoAssignPlayerTeam()
     {
-        if (GameManager == null)
-            return;
-
-        if (GameManager.playerTeam != null)
-            playerTeamID = GameManager.playerTeam.teamID;
-    }
-
-    GameManager GameManager
-    {
-        get
-        {
-            return FindObjectOfType<GameManager>();
-        }
+        if (PlayerTeamResolver.TryGetPlayerTeamID(out int teamID))
+            playerTeamID = teamID;
     }
 
     void Update()
     {
+        AutoAssignPlayerTeam();
+
         if (Input.GetKeyDown(toggleKey))
             show = !show;
     }

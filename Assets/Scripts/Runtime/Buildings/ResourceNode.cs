@@ -15,6 +15,22 @@ public class ResourceNode : MonoBehaviour
     // Legacy compatibility: some code uses node.amount
     public int amount => remaining;
 
+
+    void OnEnable()
+    {
+        ResourceRegistry.Instance?.Register(this);
+    }
+
+    void OnDisable()
+    {
+        ResourceRegistry.Instance?.Unregister(this);
+    }
+
+    void Start()
+    {
+        ResourceRegistry.Instance?.Register(this);
+    }
+
     public bool IsClaimedByOther(int teamID)
     {
         return claimedByTeam != -1 && claimedByTeam != teamID;

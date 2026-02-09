@@ -324,24 +324,43 @@ public class UnitInspectorUI : MonoBehaviour
 
     void DrawStorage()
     {
-        if (selected.TryGetComponent<ResourceStorageContainer>(out var storage))
+        var storages = selected.GetComponentsInChildren<ResourceStorageContainer>(true);
+        if (storages == null || storages.Length == 0)
+            return;
+
+        GUILayout.Space(6);
+        GUILayout.Label("Storage", GUI.skin.box);
+
+        int shown = 0;
+        foreach (ResourceType t in System.Enum.GetValues(typeof(ResourceType)))
         {
-            GUILayout.Space(6);
-            GUILayout.Label("Storage", GUI.skin.box);
-            foreach (ResourceType t in System.Enum.GetValues(typeof(ResourceType)))
+            int totalCap = 0;
+            int totalStored = 0;
+
+            for (int i = 0; i < storages.Length; i++)
             {
-                int cap = storage.GetCapacity(t);
-                if (cap <= 0) continue;
-                int stored = storage.GetStored(t);
-                GUILayout.Label($"{t}: {stored}/{cap}");
+                var storage = storages[i];
+                if (storage == null) continue;
+                totalCap += storage.GetCapacity(t);
+                totalStored += storage.GetStored(t);
             }
+
+            if (totalCap <= 0 && totalStored <= 0)
+                continue;
+
+            GUILayout.Label($"{t}: {totalStored}/{totalCap}");
+            shown++;
         }
+
+        if (shown == 0)
+            GUILayout.Label("Storage containers found but no capacity configured.");
     }
 
     int GetTeamID()
     {
         if (selected.TryGetComponent<Unit>(out var unit)) return unit.teamID;
         if (selected.TryGetComponent<Civilian>(out var civ)) return civ.teamID;
+        if (selected.TryGetComponent<Building>(out var building)) return building.teamID;
         if (selected.TryGetComponent<ConstructionSite>(out var site)) return site.teamID;
         if (selected.TryGetComponent<ResourceStorageContainer>(out var storage)) return storage.teamID;
         return -1;

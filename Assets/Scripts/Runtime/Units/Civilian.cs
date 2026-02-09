@@ -29,6 +29,9 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     public bool buildersCanHaulMaterials = true;
     public float retargetSeconds = 0.6f;
 
+    [Header("Debug")]
+    public bool verboseStateLogging = false;
+
     // Compatibility fields referenced elsewhere
     public ResourceNode CurrentReservedNode { get; set; }
     public ConstructionSite CurrentAssignedSite { get; set; }
@@ -85,6 +88,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     }
 
     private State state;
+    private State lastLoggedState;
 
     public string CurrentState => state.ToString();
     public string CurrentTargetName
@@ -175,6 +179,9 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         agent.speed = speed;
         agent.stoppingDistance = stopDistance;
 
+        EnsureStateMatchesRole();
+        LogStateIfChanged();
+
         switch (state)
         {
             case State.Idle: break;
@@ -195,6 +202,32 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             case State.GoingToDeliverSite: TickGoDeliver(); break;
             case State.Delivering: TickDeliver(); break;
         }
+    }
+
+    void EnsureStateMatchesRole()
+    {
+        if (role == CivilianRole.Gatherer)
+        {
+            if (state == State.SearchingSupplySite || state == State.GoingToPickupStorage || state == State.PickingUp ||
+                state == State.GoingToDeliverSite || state == State.Delivering ||
+                state == State.SearchingBuildSite || state == State.GoingToBuildSite || state == State.Building)
+            {
+                targetSite = null;
+                targetStorage = null;
+                CurrentAssignedSite = null;
+                CurrentDeliverySite = null;
+                state = (carriedAmount > 0) ? State.GoingToDepositStorage : State.SearchingNode;
+            }
+        }
+    }
+
+    void LogStateIfChanged()
+    {
+        if (!verboseStateLogging) return;
+        if (state == lastLoggedState) return;
+
+        lastLoggedState = state;
+        Debug.Log($"[Civilian] {name} (Team {teamID}, Role {role}) -> State {state}, Target {CurrentTargetName}, Carry {carriedAmount} {carriedType}");
     }
 
     public void SetRole(CivilianRole newRole)
@@ -629,7 +662,14 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
     ResourceNode FindClosestResourceNode()
     {
-        var nodes = FindObjectsOfType<ResourceNode>();
+        ResourceNode[] nodes = null;
+
+        if (ResourceRegistry.Instance != null)
+            nodes = ResourceRegistry.Instance.GetAllNodes();
+
+        if (nodes == null || nodes.Length == 0)
+            nodes = FindObjectsOfType<ResourceNode>();
+
         ResourceNode best = null;
         float bestD = float.MaxValue;
 
@@ -637,6 +677,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         {
             var n = nodes[i];
             if (n == null || n.amount <= 0) continue;
+            if (n.IsClaimedByOther(teamID)) continue;
 
             float d = (n.transform.position - transform.position).sqrMagnitude;
             if (d < bestD)

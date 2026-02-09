@@ -81,9 +81,8 @@ public class BuildGridManager : MonoBehaviour
 
     void AutoAssignPlayerTeam()
     {
-        var gm = FindObjectOfType<GameManager>();
-        if (gm != null && gm.playerTeam != null)
-            playerTeamID = gm.playerTeam.teamID;
+        if (PlayerTeamResolver.TryGetPlayerTeamID(out int teamID))
+            playerTeamID = teamID;
     }
 
     IEnumerator DelayedBuild()
@@ -99,6 +98,8 @@ public class BuildGridManager : MonoBehaviour
 
     void Update()
     {
+        AutoAssignPlayerTeam();
+
         if (Input.GetKeyDown(toggleKey))
         {
             if (allCells.Count == 0)

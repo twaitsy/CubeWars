@@ -39,7 +39,10 @@ public class TeamStorageManager : MonoBehaviour
     public static TeamStorageManager Instance;
 
     [Header("Default Team Storage (virtual, used when no buildings are registered)")]
-    public int defaultCapacityPerType = 1000;
+    public int defaultCapacityPerType = 0;
+
+    [Tooltip("If true, building-only totals (TaskBoard/Inspector) include virtual baseline storage.")]
+    public bool includeBaselineInBuildingOnlyTotals = false;
 
     private readonly Dictionary<int, List<ResourceStorageContainer>> storages =
         new Dictionary<int, List<ResourceStorageContainer>>();
@@ -61,6 +64,13 @@ public class TeamStorageManager : MonoBehaviour
 
     void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Debug.LogWarning("[TeamStorageManager] Duplicate detected, destroying extra instance.");
+            Destroy(gameObject);
+            return;
+        }
+
         Instance = this;
     }
 
@@ -184,7 +194,10 @@ public class TeamStorageManager : MonoBehaviour
         for (int i = 0; i < list.Count; i++)
             if (list[i] != null) sum += list[i].GetFree(type);
 
-        return sum + Mathf.Max(0, baselineCapacity[teamID][type] - baselineStored[teamID][type]);
+        if (includeBaselineInBuildingOnlyTotals)
+            sum += Mathf.Max(0, baselineCapacity[teamID][type] - baselineStored[teamID][type]);
+
+        return sum;
     }
 
     // ------------------- Building-only Totals -------------------
@@ -213,7 +226,10 @@ public class TeamStorageManager : MonoBehaviour
             sum += s.GetStored(type);
         }
 
-        return sum + baselineStored[teamID][type];
+        if (includeBaselineInBuildingOnlyTotals)
+            sum += baselineStored[teamID][type];
+
+        return sum;
     }
 
     public int GetTotalCapacityInBuildings(int teamID, ResourceType type)
@@ -230,7 +246,10 @@ public class TeamStorageManager : MonoBehaviour
             sum += s.GetCapacity(type);
         }
 
-        return sum + baselineCapacity[teamID][type];
+        if (includeBaselineInBuildingOnlyTotals)
+            sum += baselineCapacity[teamID][type];
+
+        return sum;
     }
 
     public int GetTotalFreeInBuildings(int teamID, ResourceType type)
@@ -247,7 +266,10 @@ public class TeamStorageManager : MonoBehaviour
             sum += s.GetFree(type);
         }
 
-        return sum + Mathf.Max(0, baselineCapacity[teamID][type] - baselineStored[teamID][type]);
+        if (includeBaselineInBuildingOnlyTotals)
+            sum += Mathf.Max(0, baselineCapacity[teamID][type] - baselineStored[teamID][type]);
+
+        return sum;
     }
 
     // ------------------- Capacity Management -------------------

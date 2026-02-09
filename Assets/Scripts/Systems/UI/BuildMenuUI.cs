@@ -137,14 +137,18 @@ public class BuildMenuUI : MonoBehaviour
 
     void AutoAssignPlayerTeam()
     {
-        var gm = FindObjectOfType<GameManager>();
-        if (gm != null && gm.playerTeam != null)
-            playerTeamID = gm.playerTeam.teamID;
+        if (PlayerTeamResolver.TryGetPlayerTeamID(out int teamID))
+            playerTeamID = teamID;
     }
     void Update()
     {
+        AutoAssignPlayerTeam();
+
         if (Input.GetKeyDown(toggleKey))
+        {
             ToggleVisible();
+            Debug.Log($"[BuildMenuUI] Toggle requested for team {playerTeamID}. Visible={show}");
+        }
     }
 
     void OnGUI()

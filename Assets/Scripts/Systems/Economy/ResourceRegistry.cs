@@ -44,4 +44,25 @@ public class ResourceRegistry : MonoBehaviour
         }
         return list;
     }
+
+    public ResourceNode[] GetAllNodes()
+    {
+        List<ResourceNode> all = new List<ResourceNode>(64);
+
+        foreach (var kv in nodesByType)
+        {
+            var list = kv.Value;
+            if (list == null) continue;
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                var node = list[i];
+                if (node == null) continue;
+                all.Add(node);
+            }
+        }
+
+        return all.ToArray();
+    }
+
 }
