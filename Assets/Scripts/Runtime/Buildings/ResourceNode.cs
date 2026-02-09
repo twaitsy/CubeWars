@@ -1,8 +1,10 @@
 ﻿using UnityEngine;
+using UnityEngine.Serialization;
 
 public class ResourceNode : MonoBehaviour
 {
     public ResourceType type;
+    [FormerlySerializedAs("amount")]
     public int remaining = 500;
 
     [HideInInspector]

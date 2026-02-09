@@ -75,7 +75,15 @@ public class BuildGridManager : MonoBehaviour
 
     void Start()
     {
+        AutoAssignPlayerTeam();
         StartCoroutine(DelayedBuild());
+    }
+
+    void AutoAssignPlayerTeam()
+    {
+        var gm = FindObjectOfType<GameManager>();
+        if (gm != null && gm.playerTeam != null)
+            playerTeamID = gm.playerTeam.teamID;
     }
 
     IEnumerator DelayedBuild()
