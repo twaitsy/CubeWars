@@ -230,11 +230,17 @@ MonoBehaviour:
   teamID: 0
   capacities:
   - type: 1
-    capacity: 333
+    capacity: 5000
   - type: 0
-    capacity: 333
+    capacity: 5000
   - type: 4
-    capacity: 333
+    capacity: 5000
+  - type: 2
+    capacity: 5000
+  - type: 3
+    capacity: 5000
+  - type: 5
+    capacity: 5000
 --- !u!208 &-6935043793972570880
 NavMeshObstacle:
   m_ObjectHideFlags: 0

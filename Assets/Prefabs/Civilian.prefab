@@ -118,9 +118,9 @@ MonoBehaviour:
   maxHealth: 50
   speed: 2.5
   stopDistance: 5
-  carryCapacity: 30
+  carryCapacity: 300
   gatherTickSeconds: 0.8
-  harvestPerTick: 30
+  harvestPerTick: 100
   searchRetrySeconds: 2
   buildersCanHaulMaterials: 1
   retargetSeconds: 0.6
