@@ -1,0 +1,31 @@
+// =============================================================
+// Turret.cs (Updated for WeaponComponent)
+//
+// DEPENDENCIES:
+// - UnitCombatController:
+//      * Handles targeting + stance logic.
+// - WeaponComponent:
+//      * Handles firing.
+// - Attackable:
+//      * Makes turret a valid target.
+//
+// NOTES FOR FUTURE MAINTENANCE:
+// - If turrets gain rotation, add a rotating base component.
+// - If turrets gain multiple weapons, add a WeaponComponent[] array.
+// =============================================================
+
+using UnityEngine;
+
+[RequireComponent(typeof(UnitCombatController))]
+[RequireComponent(typeof(WeaponComponent))]
+[RequireComponent(typeof(Attackable))]
+public class Turret : MonoBehaviour
+{
+    public int teamID;
+
+    void Awake()
+    {
+        GetComponent<UnitCombatController>().teamID = teamID;
+        GetComponent<Attackable>().teamID = teamID;
+    }
+}

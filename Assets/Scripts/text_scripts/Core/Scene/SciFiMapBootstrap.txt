@@ -1,0 +1,114 @@
+using UnityEngine;
+
+public class SciFiMapBootstrap : MonoBehaviour
+{
+    public int teamCount = 6;
+    public Vector3 center = Vector3.zero;
+    public float hqRadius = 18f;
+
+    [Header("Roads")]
+    public float roadWidth = 2.0f;
+    public float roadThickness = 0.05f;
+
+    [Header("Territory Discs")]
+    public float territoryRadius = 20f;
+    public float territoryThickness = 0.02f;
+    [Range(0f, 6f)] public float territoryEmission = 1.2f;
+
+    [Header("Center Beacon")]
+    public float beaconHeight = 10f;
+    [Range(0f, 6f)] public float beaconEmission = 2.5f;
+
+    static readonly int ColorID = Shader.PropertyToID("_Color");
+    static readonly int EmissionID = Shader.PropertyToID("_EmissionColor");
+
+    void Start()
+    {
+        CreateBeacon();
+        CreateNeonRoads();
+        CreateTerritories();
+    }
+
+    void CreateBeacon()
+    {
+        var beacon = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        beacon.name = "CenterBeacon";
+        beacon.transform.position = center + new Vector3(0f, beaconHeight * 0.5f, 0f);
+        beacon.transform.localScale = new Vector3(2f, beaconHeight * 0.5f, 2f);
+
+        Destroy(beacon.GetComponent<Collider>());
+
+        var r = beacon.GetComponent<Renderer>();
+        if (r != null)
+        {
+            var block = new MaterialPropertyBlock();
+            Color c = new Color(0.2f, 0.9f, 1f);
+            block.SetColor(ColorID, c);
+            block.SetColor(EmissionID, c * beaconEmission);
+            r.SetPropertyBlock(block);
+        }
+    }
+
+    void CreateNeonRoads()
+    {
+        for (int teamID = 0; teamID < teamCount; teamID++)
+        {
+            float angle = (360f / teamCount) * teamID;
+            Vector3 dir = Quaternion.Euler(0f, angle, 0f) * Vector3.forward;
+
+            Vector3 a = center;
+            Vector3 b = center + dir * hqRadius;
+            Vector3 mid = (a + b) * 0.5f;
+            float len = Vector3.Distance(a, b);
+
+            var road = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            road.name = $"NeonRoad_Team{teamID}";
+            road.transform.position = mid + new Vector3(0f, roadThickness * 0.5f, 0f);
+            road.transform.localScale = new Vector3(roadWidth, roadThickness, len);
+            road.transform.rotation = Quaternion.LookRotation((b - a).normalized, Vector3.up);
+
+            Destroy(road.GetComponent<Collider>());
+
+            if (TeamColorManager.Instance == null) continue;
+
+            Color c = TeamColorManager.Instance.GetTeamColor(teamID);
+            var r = road.GetComponent<Renderer>();
+            if (r != null)
+            {
+                var block = new MaterialPropertyBlock();
+                block.SetColor(ColorID, Color.Lerp(c, Color.black, 0.55f));
+                block.SetColor(EmissionID, c * 0.9f);
+                r.SetPropertyBlock(block);
+            }
+        }
+    }
+
+    void CreateTerritories()
+    {
+        if (TeamColorManager.Instance == null) return;
+
+        for (int teamID = 0; teamID < teamCount; teamID++)
+        {
+            float angle = (360f / teamCount) * teamID;
+            Vector3 dir = Quaternion.Euler(0f, angle, 0f) * Vector3.forward;
+            Vector3 pos = center + dir * (hqRadius * 0.85f);
+
+            var disc = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            disc.name = $"HoloTerritory_Team{teamID}";
+            disc.transform.position = pos + new Vector3(0f, territoryThickness * 0.5f, 0f);
+            disc.transform.localScale = new Vector3(territoryRadius, territoryThickness, territoryRadius);
+
+            Destroy(disc.GetComponent<Collider>());
+
+            Color c = TeamColorManager.Instance.GetTeamColor(teamID);
+            var r = disc.GetComponent<Renderer>();
+            if (r != null)
+            {
+                var block = new MaterialPropertyBlock();
+                block.SetColor(ColorID, Color.Lerp(c, Color.white, 0.35f));
+                block.SetColor(EmissionID, c * territoryEmission);
+                r.SetPropertyBlock(block);
+            }
+        }
+    }
+}

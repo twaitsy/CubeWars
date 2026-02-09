@@ -1,0 +1,50 @@
+using UnityEngine;
+using System.Collections.Generic;
+
+public class AIRebuildManager : MonoBehaviour
+{
+    public int teamID;
+
+    // Stores (building definition, rebuild position)
+    private readonly Queue<(BuildItemDefinition, Vector3)> rebuildQueue
+        = new Queue<(BuildItemDefinition, Vector3)>();
+
+    /// <summary>
+    /// Call this from your building destruction logic.
+    /// Example:
+    /// FindObjectOfType<AIRebuildManager>()?.NotifyBuildingDestroyed(teamID, item, position);
+    /// </summary>
+    public void NotifyBuildingDestroyed(int lostTeam, BuildItemDefinition item, Vector3 pos)
+    {
+        if (lostTeam != teamID)
+            return;
+
+        rebuildQueue.Enqueue((item, pos));
+    }
+
+    public void Tick()
+    {
+        if (rebuildQueue.Count == 0)
+            return;
+
+        var (item, pos) = rebuildQueue.Peek();
+
+        // Check resources
+        if (!TeamResources.Instance.CanAfford(teamID, item.costs))
+            return;
+
+        // Check placement
+        if (!BuildPlacementManager.Instance.CanPlaceAt(pos))
+            return;
+
+        // Rebuild
+        BuildPlacementManager.Instance.PlaceBuild(
+            item,
+            pos,
+            Quaternion.identity,
+            teamID
+        );
+
+        rebuildQueue.Dequeue();
+    }
+}

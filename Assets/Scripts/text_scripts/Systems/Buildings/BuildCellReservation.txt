@@ -1,0 +1,47 @@
+// ============================================================================
+// BuildCellReservation.cs
+//
+// PURPOSE:
+// - Marks a BuildGridCell with special placement restrictions.
+// - Used to prevent buildings from being placed in specific areas such as:
+//      * Walkways
+//      * Defensive borders
+//      * Reserved terrain
+//
+// DEPENDENCIES:
+// - BuildGridCell:
+//      * This component is attached to the same GameObject as BuildGridCell.
+// - BuildPlacementManager:
+//      * Checks this component when respectCellReservations = true.
+//      * Blocks placement if blockBuildingPlacement is true.
+// - BuildGridManager:
+//      * Does NOT directly use this, but grid cells may be preconfigured
+//        with reservations depending on map generation.
+// - AIBuilder / AIRebuildManager:
+//      * Should respect reservations if using grid-based placement.
+//
+// NOTES FOR FUTURE MAINTENANCE:
+// - If you add new reservation types (e.g., “ReservedForRoad”, “ReservedForFarm”),
+//   extend this script or create a more flexible tagging system.
+// - If you add terrain-based auto-reservations, ensure BuildGridManager assigns
+//   this component during grid generation.
+// - If you add building footprints larger than 1 cell, reservation logic must
+//   be extended to check multiple cells.
+// - If you add zoning (residential, industrial, military), integrate here.
+//
+// INSPECTOR REQUIREMENTS:
+// - reservedForWalkway: optional metadata for designers.
+// - reservedForBorderDefense: optional metadata for designers.
+// - blockBuildingPlacement: if true, BuildPlacementManager will reject placement.
+// ============================================================================
+
+using UnityEngine;
+
+public class BuildCellReservation : MonoBehaviour
+{
+    public bool reservedForWalkway = true;
+    public bool reservedForBorderDefense = false;
+
+    [Tooltip("If true, no buildings can be placed here.")]
+    public bool blockBuildingPlacement = true;
+}

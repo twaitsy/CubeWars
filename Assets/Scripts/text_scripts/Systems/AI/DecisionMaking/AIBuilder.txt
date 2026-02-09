@@ -1,0 +1,110 @@
+using UnityEngine;
+
+public class AIBuilder : MonoBehaviour
+{
+    public int teamID;
+    public AIPersonality personality;
+
+    [Header("Build Options")]
+    public BuildItemDefinition[] availableBuildings;
+    public float buildRadius = 18f;
+    public float buildCooldown = 8f;
+
+    float buildTimer;
+
+    void Update()
+    {
+        buildTimer -= Time.deltaTime;
+    }
+
+    public void Tick()
+    {
+        if (buildTimer > 0f)
+            return;
+
+        BuildItemDefinition choice = ChooseBuilding();
+        if (choice == null)
+            return;
+
+        Vector3 pos;
+        if (!FindBuildLocation(out pos))
+            return;
+
+        if (!TeamResources.Instance.CanAfford(teamID, choice.costs))
+            return;
+
+        BuildPlacementManager.Instance.PlaceBuild(
+            choice,
+            pos,
+            Quaternion.identity,
+            teamID
+        );
+
+        buildTimer = buildCooldown;
+    }
+
+    BuildItemDefinition ChooseBuilding()
+    {
+        if (availableBuildings == null || availableBuildings.Length == 0)
+            return null;
+
+        switch (personality)
+        {
+            case AIPersonality.Aggressive:
+                return FindBuilding(AIBuildingPriority.Military);
+
+            case AIPersonality.Defensive:
+                return FindBuilding(AIBuildingPriority.Storage);
+
+            default:
+                return FindBuilding(AIBuildingPriority.Economy);
+        }
+    }
+
+    BuildItemDefinition FindBuilding(AIBuildingPriority priority)
+    {
+        foreach (var b in availableBuildings)
+        {
+            if (b.aiPriority == priority)
+                return b;
+        }
+
+        return availableBuildings[Random.Range(0, availableBuildings.Length)];
+    }
+
+    bool FindBuildLocation(out Vector3 pos)
+    {
+        pos = Vector3.zero;
+
+        Vector3 origin = FindBaseCenter();
+        if (origin == Vector3.zero)
+            return false;
+
+        for (int i = 0; i < 20; i++)
+        {
+            Vector2 r = Random.insideUnitCircle * buildRadius;
+            Vector3 p = origin + new Vector3(r.x, 0f, r.y);
+
+            if (BuildPlacementManager.Instance.CanPlaceAt(p))
+            {
+                pos = p;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    Vector3 FindBaseCenter()
+    {
+        foreach (var s in GameObject.FindObjectsOfType<ResourceStorageContainer>())
+        {
+            if (s.teamID == teamID)
+                return s.transform.position;
+        }
+
+        return Vector3.zero;
+    }
+}
+// DEPENDENCIES:
+// - Requires BuildPlacementManager.PlaceBuild(...) and TeamResources.CanAfford/Spend.

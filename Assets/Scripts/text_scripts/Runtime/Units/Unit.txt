@@ -1,0 +1,82 @@
+using UnityEngine;
+using UnityEngine.AI;
+
+/// <summary>
+/// Base class for all units in Cube Wars.
+///
+/// DEPENDENCIES:
+/// - NavMeshAgent:
+///     Movement and pathfinding.
+/// - UnitCombatController:
+///     Handles combat behaviour.
+/// - AIMilitary:
+///     Issues MoveTo commands.
+/// - IHasHealth / IAttackable:
+///     Used by UI, AI, and combat systems.
+///
+/// RESPONSIBILITIES:
+/// - Movement
+/// - Health + damage
+/// - Combat targeting info
+///
+/// IMPORTANT:
+/// - Does NOT delete teams.
+/// - Only destroys THIS unit on death.
+/// </summary>
+public class Unit : MonoBehaviour, IHasHealth, IAttackable
+{
+    [Header("Team")]
+    public int teamID;
+
+    [Header("Combat")]
+    public bool combatEnabled = true;
+    public float attackRange = 5f;
+    public float damage = 10f;
+
+    [Header("Health")]
+    public float MaxHealth = 100f;
+    public float CurrentHealth = 100f;
+
+    private NavMeshAgent agent;
+
+    void Awake()
+    {
+        agent = GetComponent<NavMeshAgent>();
+        if (agent != null)
+        {
+            agent.stoppingDistance = 0.5f;
+            agent.updateRotation = true;
+        }
+    }
+
+    public void MoveTo(Vector3 pos)
+    {
+        if (agent == null) return;
+        agent.isStopped = false;
+        agent.SetDestination(pos);
+    }
+
+    float IHasHealth.CurrentHealth => CurrentHealth;
+    float IHasHealth.MaxHealth => MaxHealth;
+
+    public int TeamID => teamID;
+    public bool IsAlive => CurrentHealth > 0f;
+    public Transform AimPoint => transform;
+
+    public void TakeDamage(float amount)
+    {
+        if (!IsAlive) return;
+
+        CurrentHealth -= amount;
+        if (CurrentHealth <= 0f)
+        {
+            CurrentHealth = 0f;
+            Die();
+        }
+    }
+
+    void Die()
+    {
+        Destroy(gameObject);
+    }
+}

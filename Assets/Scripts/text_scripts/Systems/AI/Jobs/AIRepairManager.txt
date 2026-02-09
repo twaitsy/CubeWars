@@ -1,0 +1,38 @@
+using UnityEngine;
+
+public class AIRepairManager : MonoBehaviour
+{
+    public int teamID;
+    public float repairRange = 30f;
+    public float repairAmount = 8f;
+    public float repairInterval = 1f;
+
+    float timer;
+
+    public void Tick()
+    {
+        timer -= Time.deltaTime;
+        if (timer > 0f) return;
+        timer = repairInterval;
+
+        RepairNearbyBuildings();
+    }
+
+    void RepairNearbyBuildings()
+    {
+        Attackable[] all = GameObject.FindObjectsOfType<Attackable>();
+
+        foreach (var a in all)
+        {
+            if (a.teamID != teamID) continue;
+            if (!a.canBeRepaired) continue;
+            if (!a.IsDamaged) continue;
+
+            if (Vector3.Distance(transform.position, a.transform.position) > repairRange)
+                continue;
+
+            a.Repair(repairAmount);
+            return; // repair ONE per tick
+        }
+    }
+}

@@ -1,0 +1,100 @@
+using UnityEngine;
+
+public class MapVisualsBootstrap : MonoBehaviour
+{
+    public int teamCount = 6;
+    public Vector3 center = Vector3.zero;
+    public float hqRadius = 18f;
+
+    [Header("Roads")]
+    public float roadWidth = 2.2f;
+    public float roadThickness = 0.05f;
+
+    [Header("Territories")]
+    public float territoryRadius = 28f;
+    public float territoryAlpha = 0.12f;
+
+    [Header("Landmark")]
+    public float landmarkHeight = 6f;
+
+    void Start()
+    {
+        CreateLandmark();
+        CreateRoads();
+        CreateTerritories();
+    }
+
+    void CreateLandmark()
+    {
+        var obelisk = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        obelisk.name = "CentralLandmark";
+        obelisk.transform.position = center + new Vector3(0f, landmarkHeight * 0.5f, 0f);
+        obelisk.transform.localScale = new Vector3(2f, landmarkHeight, 2f);
+
+        var r = obelisk.GetComponent<Renderer>();
+        if (r != null && r.material != null) r.material.color = new Color(0.15f, 0.15f, 0.18f);
+    }
+
+    void CreateRoads()
+    {
+        for (int teamID = 0; teamID < teamCount; teamID++)
+        {
+            float angle = (360f / teamCount) * teamID;
+            Vector3 dir = Quaternion.Euler(0f, angle, 0f) * Vector3.forward;
+
+            Vector3 a = center;
+            Vector3 b = center + dir * hqRadius;
+
+            CreateRoadSegment(teamID, a, b);
+        }
+    }
+
+    void CreateRoadSegment(int teamID, Vector3 a, Vector3 b)
+    {
+        Vector3 mid = (a + b) * 0.5f;
+        float len = Vector3.Distance(a, b);
+
+        var road = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        road.name = $"Road_Team{teamID}";
+        road.transform.position = mid + new Vector3(0f, roadThickness * 0.5f, 0f);
+        road.transform.localScale = new Vector3(roadWidth, roadThickness, len);
+        road.transform.rotation = Quaternion.LookRotation((b - a).normalized, Vector3.up);
+
+        Destroy(road.GetComponent<Collider>());
+
+        var r = road.GetComponent<Renderer>();
+        if (r != null && r.material != null)
+            r.material.color = new Color(0.08f, 0.08f, 0.09f);
+    }
+
+    void CreateTerritories()
+    {
+        if (TeamColorManager.Instance == null) return;
+
+        for (int teamID = 0; teamID < teamCount; teamID++)
+        {
+            float angle = (360f / teamCount) * teamID;
+            Vector3 dir = Quaternion.Euler(0f, angle, 0f) * Vector3.forward;
+
+            Vector3 pos = center + dir * (hqRadius * 0.85f);
+
+            var territory = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            territory.name = $"Territory_Team{teamID}";
+            territory.transform.position = pos + new Vector3(0f, 0.01f, 0f);
+            territory.transform.localScale = new Vector3(territoryRadius, 0.02f, territoryRadius);
+
+            Destroy(territory.GetComponent<Collider>());
+
+            Color c = TeamColorManager.Instance.GetTeamColor(teamID);
+            c.a = 1f;
+
+            var r = territory.GetComponent<Renderer>();
+            if (r != null && r.material != null)
+            {
+                r.material.color = Color.Lerp(c, Color.white, 0.35f);
+                // Transparency hack in Standard shader can be finicky in 2019;
+                // if it renders opaque, set Rendering Mode = Transparent in the material manually.
+            }
+        }
+    }
+}

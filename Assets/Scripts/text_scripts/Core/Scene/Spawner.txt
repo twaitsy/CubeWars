@@ -1,0 +1,26 @@
+using UnityEngine;
+
+public class Spawner : MonoBehaviour
+{
+    public GameObject unitPrefab;
+    public int teamID;
+    public int count = 20;
+    public Vector3 spawnArea;
+
+    void Start()
+    {
+        for (int i = 0; i < count; i++)
+        {
+            Vector3 pos = transform.position +
+                new Vector3(
+                    Random.Range(-spawnArea.x, spawnArea.x),
+                    0.5f,
+                    Random.Range(-spawnArea.z, spawnArea.z)
+                );
+
+            GameObject u = Instantiate(unitPrefab, pos, Quaternion.identity);
+            u.GetComponent<Unit>().teamID = teamID;
+            TeamColorManager.Instance.ApplyTeamColor(u, teamID);
+        }
+    }
+}

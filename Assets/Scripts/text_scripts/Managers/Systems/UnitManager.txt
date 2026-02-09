@@ -1,0 +1,12 @@
+using UnityEngine;
+
+public class UnitManager : MonoBehaviour
+{
+    // This will eventually track all units,
+    // handle spawning, despawning, and provide lists to AI/UI.
+
+    void Awake()
+    {
+        Debug.Log("UnitManager initialized");
+    }
+}

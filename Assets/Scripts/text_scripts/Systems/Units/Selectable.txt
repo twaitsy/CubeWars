@@ -1,0 +1,13 @@
+using UnityEngine;
+
+public class Selectable : MonoBehaviour
+{
+    [Tooltip("Optional visual ring GameObject to toggle on selection.")]
+    public GameObject selectionRing;
+
+    public void SetSelected(bool selected)
+    {
+        if (selectionRing != null)
+            selectionRing.SetActive(selected);
+    }
+}

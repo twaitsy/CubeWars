@@ -7,8 +7,8 @@ outputFile    := scriptsFolder . "\scriptsmerged.txt"
 If FileExist(outputFile)
     FileDelete, %outputFile%
 
-; Loop through all .cs files in the folder
-Loop, Files, %scriptsFolder%\*.cs
+; Loop through all .cs files in the folder and subfolders
+Loop, Files, %scriptsFolder%\*.cs, R
 {
     currentFile := A_LoopFileFullPath
 
