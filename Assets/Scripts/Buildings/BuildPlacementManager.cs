@@ -239,33 +239,7 @@ public class BuildPlacementManager : MonoBehaviour
 
     void ApplyTeamToPlacedObject(GameObject placed, int teamID)
     {
-        if (placed == null) return;
-
-        Building building = placed.GetComponent<Building>();
-        if (building != null) building.teamID = teamID;
-
-        Civilian civ = placed.GetComponent<Civilian>();
-        if (civ != null) civ.teamID = teamID;
-
-        Unit unit = placed.GetComponent<Unit>();
-        if (unit != null) unit.teamID = teamID;
-
-        var sp = placed.GetComponent<ResourceStorageProvider>();
-        if (sp != null) sp.teamID = teamID;
-
-        var drop = placed.GetComponent<ResourceDropoff>();
-        if (drop != null) drop.teamID = teamID;
-
-        var storage = placed.GetComponent<ResourceStorageContainer>();
-        if (storage != null) storage.teamID = teamID;
-
-        TeamVisual tv = placed.GetComponent<TeamVisual>();
-        if (tv != null)
-        {
-            tv.teamID = teamID;
-            tv.kind = (building != null) ? VisualKind.Building : VisualKind.Unit;
-            tv.Apply();
-        }
+        TeamOwnershipUtility.ApplyTeamToHierarchy(placed, teamID);
     }
 
     // ---------- Optional Preview ----------

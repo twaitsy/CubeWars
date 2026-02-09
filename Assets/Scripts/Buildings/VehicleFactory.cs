@@ -33,7 +33,8 @@ public class VehicleFactory : Building
         {
             building = false;
             Vector3 pos = transform.position + transform.forward * 4f;
-            Instantiate(vehiclePrefab, pos, Quaternion.identity);
+            GameObject vehicle = Instantiate(vehiclePrefab, pos, Quaternion.identity);
+            TeamOwnershipUtility.ApplyTeamToHierarchy(vehicle, teamID);
         }
     }
 }

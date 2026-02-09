@@ -28,12 +28,7 @@ public class CivilianSpawner : MonoBehaviour
 
             GameObject civ = Instantiate(civilianPrefab, spawnPos, Quaternion.identity);
 
-            Civilian civScript = civ.GetComponent<Civilian>();
-            if (civScript != null)
-            {
-                civScript.teamID = teamID;
-            }
-            TeamColorManager.Instance.ApplyTeamColor(civ, teamID);
+            TeamOwnershipUtility.ApplyTeamToHierarchy(civ, teamID);
         }
     }
 }
