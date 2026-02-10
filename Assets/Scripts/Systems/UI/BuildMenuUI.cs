@@ -151,16 +151,17 @@ public class BuildMenuUI : MonoBehaviour
     {
         if (!show) return;
 
-        float left = Screen.width - panelWidth - marginRight;
+        float scale = RTSGameSettings.UIScale;
+        float left = Screen.width - (panelWidth * scale) - marginRight;
         float top = marginTop;
 
-        Rect panelRect = new Rect(left, top, panelWidth, panelHeight);
+        Rect panelRect = new Rect(left, top, panelWidth * scale, panelHeight * scale);
         IMGUIInputBlocker.Register(panelRect);
 
-        GUI.Box(panelRect, "BUILD MENU");
+        GUI.Box(panelRect, "BUILD MENU | RTS");
 
-        float x = panelRect.x + 10;
-        float y = panelRect.y + 24;
+        float x = panelRect.x + 10 * scale;
+        float y = panelRect.y + 24 * scale;
 
         if (categories == null || categories.Length == 0)
         {
@@ -177,13 +178,13 @@ public class BuildMenuUI : MonoBehaviour
             return;
         }
 
-        GUI.Label(new Rect(x, y, 60, 20), "Search:");
-        search = GUI.TextField(new Rect(x + 62, y, panelWidth - 20 - 62, 20), search ?? "");
-        y += 26;
+        GUI.Label(new Rect(x, y, 70 * scale, 20 * scale), "Search:");
+        search = GUI.TextField(new Rect(x + 62 * scale, y, panelRect.width - 20 * scale - 62 * scale, 20 * scale), search ?? "");
+        y += 26 * scale;
 
-        float tabH = 28f;
-        float tabW = Mathf.Max(90f, (panelWidth - 20) / Mathf.Max(1, Mathf.Min(categories.Length, 4)));
-        int maxTabsPerRow = Mathf.Max(1, Mathf.FloorToInt((panelWidth - 20) / tabW));
+        float tabH = 28f * scale;
+        float tabW = Mathf.Max(90f * scale, (panelRect.width - 20 * scale) / Mathf.Max(1, Mathf.Min(categories.Length, 4)));
+        int maxTabsPerRow = Mathf.Max(1, Mathf.FloorToInt((panelRect.width - 20 * scale) / tabW));
 
         int tabIndex = 0;
         while (tabIndex < categories.Length)
@@ -216,10 +217,10 @@ public class BuildMenuUI : MonoBehaviour
         selectedCategoryIndex = Mathf.Clamp(selectedCategoryIndex, 0, categories.Length - 1);
         BuildCategory cat = categories[selectedCategoryIndex];
 
-        GUI.Label(new Rect(x, y, panelWidth - 20, 18), $"Category: {cat.name}");
-        y += 20;
+        GUI.Label(new Rect(x, y, panelRect.width - 20 * scale, 18 * scale), $"Category: {cat.name}");
+        y += 20 * scale;
 
-        Rect listRect = new Rect(x, y, panelWidth - 20, panelRect.yMax - y - 10);
+        Rect listRect = new Rect(x, y, panelRect.width - 20 * scale, panelRect.yMax - y - 10 * scale);
         GUI.Box(listRect, "");
 
         float innerX = listRect.x + 8;
@@ -278,7 +279,7 @@ public class BuildMenuUI : MonoBehaviour
                 if (showAffordability && !canAfford)
                     sb.Append("  (Need deposited resources)");
 
-                float rowH = 34f;
+                float rowH = 38f * scale;
                 Rect btn = new Rect(0, iy, innerW - 18, rowH);
 
                 bool prev = GUI.enabled;
@@ -291,7 +292,7 @@ public class BuildMenuUI : MonoBehaviour
                 if (clicked && BuildPlacementManager.Instance != null)
                     BuildPlacementManager.Instance.SetSelected(item);
 
-                iy += rowH + 6;
+                iy += rowH + 6 * scale;
                 drawn++;
                 if (drawn > 90) break;
             }
@@ -303,7 +304,7 @@ public class BuildMenuUI : MonoBehaviour
         viewRect.height = Mathf.Max(innerH, iy + 10);
         GUI.EndScrollView();
 
-        GUI.Label(new Rect(panelRect.x + 10, panelRect.yMax - 18, panelWidth - 20, 18),
+        GUI.Label(new Rect(panelRect.x + 10 * scale, panelRect.yMax - 18 * scale, panelRect.width - 20 * scale, 18 * scale),
             "Tip: Select an item, hover grid to preview, press R to rotate, click to place.");
     }
 
