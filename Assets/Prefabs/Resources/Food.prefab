@@ -105,6 +105,7 @@ GameObject:
   - component: {fileID: 2132388619435381168}
   - component: {fileID: 4259878123215558097}
   - component: {fileID: 8299532770504361808}
+  - component: {fileID: 2283692263590751052}
   m_Layer: 0
   m_Name: Food
   m_TagString: Untagged
@@ -171,8 +172,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   type: 0
-  amount: 50
-  harvestPerTick: 10
+  remaining: 50
+  maxGatherers: 2
+  claimedByTeam: -1
+--- !u!208 &2283692263590751052
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1341854994968595624}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &2294454405165448058
 GameObject:
   m_ObjectHideFlags: 0

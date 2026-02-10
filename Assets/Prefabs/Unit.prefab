@@ -18,7 +18,6 @@ GameObject:
   - component: {fileID: 5698747395136932435}
   - component: {fileID: 2693829284941731090}
   - component: {fileID: 4646788487840639628}
-  - component: {fileID: 188235456894863902}
   - component: {fileID: -3108631485046487415}
   - component: {fileID: 7308953244192399137}
   - component: {fileID: 4156195193998033707}
@@ -188,7 +187,7 @@ MonoBehaviour:
   onlyShowForBuildings: 0
   hideWhenFullHealth: 0
   smoothSpeed: 18
-  glowStrength: 1.8
+  glowStrength: 1
   billboardToCamera: 1
 --- !u!195 &4646788487840639628
 NavMeshAgent:
@@ -212,42 +211,6 @@ NavMeshAgent:
   m_BaseOffset: 0.5
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!114 &188235456894863902
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1254357736737325336}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d3d1d39cbe06504989420c4b14831a0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  baseMoveSpeed: 2.5
-  baseCarryCapacity: 30
-  baseHarvestPerTick: 5
-  baseBuildMultiplier: 1
-  baseDamageMultiplier: 1
-  mining:
-    level: 0
-    xp: 0
-  building:
-    level: 0
-    xp: 0
-  farming:
-    level: 0
-    xp: 0
-  hauling:
-    level: 0
-    xp: 0
-  combat:
-    level: 0
-    xp: 0
-  driving:
-    level: 0
-    xp: 0
-  equippedTool: {fileID: 0}
 --- !u!114 &-3108631485046487415
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -276,7 +239,7 @@ MonoBehaviour:
   teamID: 0
   isCivilian: 0
   isBuilding: 0
-  maxHealth: 100
+  maxHealth: 1000
   canBeRepaired: 1
 --- !u!114 &4156195193998033707
 MonoBehaviour:

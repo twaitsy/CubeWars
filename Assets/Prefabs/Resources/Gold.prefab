@@ -173,8 +173,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   type: 1
-  amount: 300
-  harvestPerTick: 1
+  remaining: 300
+  maxGatherers: 2
+  claimedByTeam: -1
 --- !u!208 &-5649342042414044457
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -187,7 +188,7 @@ NavMeshObstacle:
   m_Shape: 1
   m_Extents: {x: 0.5, y: 0.5, z: 0.5}
   m_MoveThreshold: 0.1
-  m_Carve: 0
+  m_Carve: 1
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 0, z: 0}
   m_TimeToStationary: 0.5

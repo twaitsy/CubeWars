@@ -243,6 +243,16 @@ MonoBehaviour:
     capacity: 5000
   - type: 4
     capacity: 333
+  grantStartingResources: 1
+  startingResources:
+  - type: 0
+    amount: 500
+  - type: 1
+    amount: 500
+  - type: 2
+    amount: 500
+  - type: 4
+    amount: 500
 --- !u!208 &-6935043793972570880
 NavMeshObstacle:
   m_ObjectHideFlags: 0

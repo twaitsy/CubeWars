@@ -27,7 +27,7 @@ public class Minimap : MonoBehaviour
         DrawEntities<Unit>();
         DrawEntities<Turret>();
         DrawEntities<ResourceNode>();
-
+        DrawEntities<Civilian>();
         HandleClick();
     }
 

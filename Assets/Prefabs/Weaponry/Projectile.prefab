@@ -61,7 +61,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: b6000a5cf6c581e4493cd6671f4ec8b5, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -107,8 +107,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 94e64dce3daf63c47b39a3c50817d688, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lifetime: 4
-  hitRadius: 0.25
+  prefabKey: {fileID: 0}
+  speed: 25
+  maxLifetime: 5
+  impactFX: {fileID: 0}
 --- !u!54 &5401821674480156794
 Rigidbody:
   m_ObjectHideFlags: 0
