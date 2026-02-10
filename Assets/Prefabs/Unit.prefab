@@ -308,9 +308,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   teamID: 0
   weapon: {fileID: 0}
-  canAttackCivilians: 0
+  canAttackCivilians: 1
   attackableLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 4294967295
   currentTarget: {fileID: 0}
   stance: 1
