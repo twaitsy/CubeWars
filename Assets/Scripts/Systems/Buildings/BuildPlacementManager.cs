@@ -40,6 +40,7 @@
 // =============================================================
 
 using UnityEngine;
+using System.Collections.Generic;
 
 public class BuildPlacementManager : MonoBehaviour
 {
@@ -63,11 +64,13 @@ public class BuildPlacementManager : MonoBehaviour
     public bool respectCellReservations = true;
 
     [Header("Preview (Optional)")]
-    public bool showPreview = false;
+    public bool showPreview = true;
     public Material previewMaterial;
     [Range(0.05f, 1f)] public float previewAlpha = 0.35f;
 
     private GameObject previewObj;
+    private BuildItemDefinition previewItem;
+    private int placementQuarterTurns;
 
     // DEPENDENCIES:
     // - BuildItemDefinition: uses prefab, costs, yOffset
@@ -88,8 +91,21 @@ public class BuildPlacementManager : MonoBehaviour
     public void SetSelected(BuildItemDefinition item)
     {
         selectedItem = item;
+        placementQuarterTurns = 0;
         ClearPreview();
         Debug.Log($"[BuildPlacementManager] Selected: {(item != null ? item.displayName : "None")}");
+    }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.R) && selectedItem != null)
+        {
+            placementQuarterTurns = (placementQuarterTurns + 1) % 4;
+
+            var grid = FindObjectOfType<BuildGridManager>();
+            if (grid != null)
+                grid.RefreshHoveredPreview();
+        }
     }
 
     public bool TryPlace(BuildGridCell cell)
@@ -108,19 +124,39 @@ public class BuildPlacementManager : MonoBehaviour
     public bool TryPlace(BuildGridCell cell, BuildItemDefinition item)
     {
         if (cell == null || item == null) return false;
-        if (cell.isOccupied) return false;
-
-        if (respectCellReservations)
-        {
-            var res = cell.GetComponent<BuildCellReservation>();
-            if (res != null && res.blockBuildingPlacement)
-                return false;
-        }
-
         if (item.prefab == null)
         {
             Debug.LogWarning("[BuildPlacementManager] Build item has no prefab assigned.");
             return false;
+        }
+
+        BuildingFootprint footprint = item.prefab.GetComponent<BuildingFootprint>();
+        Vector2Int dimensions = footprint != null
+            ? footprint.GetDimensionsForQuarterTurns(placementQuarterTurns)
+            : Vector2Int.one;
+
+        BuildGridManager grid = FindObjectOfType<BuildGridManager>();
+        List<BuildGridCell> cells = grid != null
+            ? grid.GetFootprintCells(cell.teamID, cell.gridCoord, dimensions)
+            : new List<BuildGridCell> { cell };
+
+        if (cells == null || cells.Count == 0)
+            return false;
+
+        for (int i = 0; i < cells.Count; i++)
+        {
+            if (cells[i] == null || cells[i].isOccupied)
+                return false;
+        }
+
+        if (respectCellReservations)
+        {
+            for (int i = 0; i < cells.Count; i++)
+            {
+                var res = cells[i].GetComponent<BuildCellReservation>();
+                if (res != null && res.blockBuildingPlacement)
+                    return false;
+            }
         }
 
         // Always enforce "deposited in buildings" if storage manager exists
@@ -137,9 +173,8 @@ public class BuildPlacementManager : MonoBehaviour
                 return false;
         }
 
-        Vector3 pos = cell.worldCenter
-                      + new Vector3(item.placementOffset.x, item.yOffset + item.placementOffset.y, item.placementOffset.z);
-        Quaternion rot = Quaternion.identity;
+        Vector3 pos = GetPlacementPosition(cell, item, footprint);
+        Quaternion rot = GetPlacementRotation(footprint);
 
         GameObject placed;
 
@@ -157,7 +192,7 @@ public class BuildPlacementManager : MonoBehaviour
                 return false;
             }
 
-            site.Init(cell, cell.teamID, item, reserveResourcesForSites);
+            site.Init(cell, cell.teamID, item, reserveResourcesForSites, cells);
 
             if (!site.InitOK)
             {
@@ -191,8 +226,7 @@ public class BuildPlacementManager : MonoBehaviour
             ApplyTeamToPlacedObject(placed, cell.teamID);
         }
 
-        cell.isOccupied = true;
-        cell.placedObject = placed;
+        AttachOccupancyTracker(placed, cells);
 
         return true;
     }
@@ -252,30 +286,63 @@ public class BuildPlacementManager : MonoBehaviour
         if (selectedItem == null) return;
         if (previewMaterial == null) return;
 
-        if (respectCellReservations)
+        if (selectedItem.prefab == null)
         {
-            var res = cell.GetComponent<BuildCellReservation>();
-            if (res != null && res.blockBuildingPlacement)
+            ClearPreview();
+            return;
+        }
+
+        BuildingFootprint footprint = selectedItem.prefab.GetComponent<BuildingFootprint>();
+        Vector2Int dimensions = footprint != null
+            ? footprint.GetDimensionsForQuarterTurns(placementQuarterTurns)
+            : Vector2Int.one;
+
+        var grid = FindObjectOfType<BuildGridManager>();
+        List<BuildGridCell> cells = grid != null
+            ? grid.GetFootprintCells(cell.teamID, cell.gridCoord, dimensions)
+            : new List<BuildGridCell> { cell };
+
+        if (cells == null || cells.Count == 0)
+        {
+            ClearPreview();
+            return;
+        }
+
+        for (int i = 0; i < cells.Count; i++)
+        {
+            if (cells[i].isOccupied)
             {
                 ClearPreview();
                 return;
             }
+
+            if (respectCellReservations)
+            {
+                var res = cells[i].GetComponent<BuildCellReservation>();
+                if (res != null && res.blockBuildingPlacement)
+                {
+                    ClearPreview();
+                    return;
+                }
+            }
         }
 
-        Vector3 pos = cell.worldCenter
-                      + new Vector3(selectedItem.placementOffset.x,
-                                    selectedItem.yOffset + selectedItem.placementOffset.y,
-                                    selectedItem.placementOffset.z);
+        Vector3 pos = GetPlacementPosition(cell, selectedItem, footprint);
+        Quaternion rot = GetPlacementRotation(footprint);
 
-        if (previewObj == null)
+        if (previewObj == null || previewItem != selectedItem)
         {
+            if (previewObj != null)
+                Destroy(previewObj);
+
             previewObj = Instantiate(selectedItem.prefab);
             previewObj.name = "BuildPreview";
             DisableGameplayComponents(previewObj);
             ApplyPreviewMaterial(previewObj);
+            previewItem = selectedItem;
         }
 
-        previewObj.transform.SetPositionAndRotation(pos, Quaternion.identity);
+        previewObj.transform.SetPositionAndRotation(pos, rot);
         previewObj.SetActive(true);
     }
 
@@ -283,6 +350,34 @@ public class BuildPlacementManager : MonoBehaviour
     {
         if (previewObj != null)
             previewObj.SetActive(false);
+    }
+
+    Vector3 GetPlacementPosition(BuildGridCell anchorCell, BuildItemDefinition item, BuildingFootprint footprint)
+    {
+        Vector3 pos = anchorCell.worldCenter
+                      + new Vector3(item.placementOffset.x, item.yOffset + item.placementOffset.y, item.placementOffset.z);
+
+        if (footprint != null)
+            pos += Quaternion.Euler(0f, placementQuarterTurns * 90f, 0f) * footprint.worldOffset;
+
+        return pos;
+    }
+
+    Quaternion GetPlacementRotation(BuildingFootprint footprint)
+    {
+        float extra = footprint != null ? footprint.extraYRotation : 0f;
+        return Quaternion.Euler(0f, (placementQuarterTurns * 90f) + extra, 0f);
+    }
+
+    void AttachOccupancyTracker(GameObject placed, List<BuildGridCell> cells)
+    {
+        if (placed == null || cells == null) return;
+
+        BuildGridOccupant occ = placed.GetComponent<BuildGridOccupant>();
+        if (occ == null)
+            occ = placed.AddComponent<BuildGridOccupant>();
+
+        occ.SetOccupiedCells(cells, placed);
     }
 
     void DisableGameplayComponents(GameObject go)

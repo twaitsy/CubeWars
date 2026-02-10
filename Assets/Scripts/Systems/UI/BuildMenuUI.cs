@@ -304,7 +304,7 @@ public class BuildMenuUI : MonoBehaviour
         GUI.EndScrollView();
 
         GUI.Label(new Rect(panelRect.x + 10, panelRect.yMax - 18, panelWidth - 20, 18),
-            "Tip: Select a build item, then click a grid cell to place a blueprint.");
+            "Tip: Select an item, hover grid to preview, press R to rotate, click to place.");
     }
 
     BuildCategory[] DiscoverFromResources(string path)
