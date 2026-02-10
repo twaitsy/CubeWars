@@ -9,5 +9,13 @@
     Coal,
     Copper,
     Silicon,
-    Lithium
+    Lithium,
+
+    IronIngot,
+    Steel,
+    Lumber,
+    Flour,
+    Bread,
+    Tools,
+    Fuel
 }

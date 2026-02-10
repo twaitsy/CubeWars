@@ -135,6 +135,8 @@ public class UnitInspectorUI : MonoBehaviour
             GUILayout.Space(6);
             GUILayout.Label("Civilian", GUI.skin.box);
             GUILayout.Label($"Role: {civ.role}");
+            GUILayout.Label($"Job Type: {civ.JobType}");
+            GUILayout.Label($"Task: {civ.CurrentTaskLabel}");
             GUILayout.Label($"State: {civ.CurrentState}");
             GUILayout.Label($"Target: {civ.CurrentTargetName}");
             GUILayout.Label($"Team: {civ.teamID}");
@@ -142,8 +144,12 @@ public class UnitInspectorUI : MonoBehaviour
             GUILayout.Label($"Gather Tick: {civ.gatherTickSeconds:0.00}s");
             GUILayout.Label($"Harvest/Tick: {civ.harvestPerTick}");
             GUILayout.Label($"Carrying: {civ.CarriedType} {civ.CarriedAmount}/{civ.carryCapacity}");
+            if (civ.AssignedCraftingBuilding != null)
+                GUILayout.Label($"Craft Target: {civ.AssignedCraftingBuilding.name}");
+            GUILayout.Label($"Craft Progress: {civ.CraftingProgress:P0}");
 
             DrawRoleButtons(civ);
+            DrawJobTypeButtons(civ);
         }
     }
 
@@ -170,6 +176,11 @@ public class UnitInspectorUI : MonoBehaviour
         GUILayout.Label($"Team: {building.teamID}");
         GUILayout.Label($"Type: {building.GetType().Name}");
 
+        if (building is CraftingBuilding crafting)
+        {
+            DrawCraftingBuilding(crafting);
+        }
+
         int playerTeam = GetPlayerTeamID();
         bool canDemolish = playerTeam < 0 || building.teamID == playerTeam;
 
@@ -183,6 +194,42 @@ public class UnitInspectorUI : MonoBehaviour
 
         if (!canDemolish)
             GUILayout.Label("You can only demolish your own buildings.");
+    }
+
+
+    void DrawCraftingBuilding(CraftingBuilding crafting)
+    {
+        GUILayout.Space(4);
+        GUILayout.Label("Production", GUI.skin.box);
+
+        string recipeName = crafting.recipe != null ? crafting.recipe.recipeName : "None";
+        GUILayout.Label($"Recipe: {recipeName}");
+        GUILayout.Label($"State: {crafting.State}");
+        GUILayout.Label($"Missing Inputs: {crafting.GetMissingInputSummary()}");
+        GUILayout.Label($"Output Progress: {crafting.CraftProgress01:P0}");
+
+        GUILayout.Label($"Workers: {crafting.AssignedWorkers.Count}/{crafting.GetMaxWorkers()}");
+        GUILayout.Label($"WorkPoint Occupancy: {crafting.GetWorkPointOccupancy()}");
+
+        if (crafting.recipe?.inputs != null)
+        {
+            GUILayout.Label("Delivered Inputs:");
+            foreach (var input in crafting.recipe.inputs)
+            {
+                int delivered = crafting.InputBuffer[input.resourceType];
+                GUILayout.Label($"  {input.resourceType}: {delivered}");
+            }
+        }
+
+        if (crafting.recipe?.outputs != null)
+        {
+            GUILayout.Label("Output Queue:");
+            foreach (var output in crafting.recipe.outputs)
+            {
+                int queued = crafting.OutputQueue[output.resourceType];
+                GUILayout.Label($"  {output.resourceType}: {queued}");
+            }
+        }
     }
 
     void DrawBarracks()
@@ -406,6 +453,35 @@ public class UnitInspectorUI : MonoBehaviour
                 var role = roles[idx];
                 if (GUILayout.Button(role.ToString()))
                     civ.SetRole(role);
+            }
+            GUILayout.EndHorizontal();
+        }
+    }
+
+
+    void DrawJobTypeButtons(Civilian civ)
+    {
+        GUILayout.Space(4);
+        GUILayout.Label("Job Specialization", GUI.skin.box);
+
+        var jobs = (CivilianJobType[])System.Enum.GetValues(typeof(CivilianJobType));
+        const int columns = 3;
+
+        for (int i = 0; i < jobs.Length; i += columns)
+        {
+            GUILayout.BeginHorizontal();
+            for (int c = 0; c < columns; c++)
+            {
+                int idx = i + c;
+                if (idx >= jobs.Length)
+                {
+                    GUILayout.FlexibleSpace();
+                    continue;
+                }
+
+                var job = jobs[idx];
+                if (GUILayout.Button(job.ToString()))
+                    civ.SetJobType(job);
             }
             GUILayout.EndHorizontal();
         }

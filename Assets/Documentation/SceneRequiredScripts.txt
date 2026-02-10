@@ -8,7 +8,10 @@ Core bootstrap/system scripts (required)
 - BuildPlacementManager
 - BuildGridManager
 - ResourceRegistry
+- CraftingSystem (legacy API support, optional if still crafting ToolItem assets)
 - JobManager
+- CraftingJobManager
+- ProductionNotificationManager
 - ProjectilePool
 
 Common global managers (recommended / used by existing systems)
@@ -19,6 +22,10 @@ Common global managers (recommended / used by existing systems)
 - CombatManager
 - TeamColorManager
 - WinConditionManager
+
+Production-chain building scripts (required if using crafting economy)
+- CraftingBuilding
+- ProductionStatusVisualizer (optional but recommended for missing-input/full-output icons)
 
 UI/interaction scripts
 - SelectionManager
@@ -42,3 +49,6 @@ Notes
 - Every civilian prefab should include Civilian + NavMeshAgent.
 - ProjectilePool must exist so pooled projectiles are reused.
 - Resource nodes require ResourceNode and rely on ResourceRegistry for discovery.
+
+- Civilians assigned to crafting need matching CivilianJobType (Blacksmith, Carpenter, Farmer, Cook, Engineer) for recipe.requiredJobType.
+- Crafting buildings should define inputSlot, outputSlot, workPoints[], throughput caps, and recipe batches for full logistics behavior.

@@ -59,6 +59,34 @@ public class TeamStorageManager : MonoBehaviour
     private readonly Dictionary<int, Dictionary<ResourceType, int>> baselineCapacity =
         new Dictionary<int, Dictionary<ResourceType, int>>();
 
+    struct StorageCacheKey
+    {
+        public int teamID;
+        public ResourceType resourceType;
+        public bool requiresFree;
+        public int cellX;
+        public int cellZ;
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hash = teamID;
+                hash = (hash * 397) ^ (int)resourceType;
+                hash = (hash * 397) ^ (requiresFree ? 1 : 0);
+                hash = (hash * 397) ^ cellX;
+                hash = (hash * 397) ^ cellZ;
+                return hash;
+            }
+        }
+    }
+
+    readonly Dictionary<StorageCacheKey, ResourceStorageContainer> nearestCache =
+        new Dictionary<StorageCacheKey, ResourceStorageContainer>();
+
+    [Header("Storage Lookup Cache")]
+    [Min(1f)] public float nearestCacheCellSize = 6f;
+
     void Awake()
     {
         Instance = this;
@@ -95,6 +123,7 @@ public class TeamStorageManager : MonoBehaviour
 
     public void Register(ResourceStorageContainer c)
     {
+        nearestCache.Clear();
         if (c == null) return;
 
         RemoveFromAllTeams(c);
@@ -109,6 +138,7 @@ public class TeamStorageManager : MonoBehaviour
 
     public void Unregister(ResourceStorageContainer c)
     {
+        nearestCache.Clear();
         if (c == null) return;
         RemoveFromAllTeams(c);
     }
@@ -493,4 +523,35 @@ public class TeamStorageManager : MonoBehaviour
 
         return best;
     }
+    public ResourceStorageContainer FindNearestStorageCached(int teamID, ResourceType type, Vector3 pos, bool requiresFree)
+    {
+        float cell = Mathf.Max(1f, nearestCacheCellSize);
+        StorageCacheKey key = new StorageCacheKey
+        {
+            teamID = teamID,
+            resourceType = type,
+            requiresFree = requiresFree,
+            cellX = Mathf.RoundToInt(pos.x / cell),
+            cellZ = Mathf.RoundToInt(pos.z / cell)
+        };
+
+        if (nearestCache.TryGetValue(key, out var cached) && cached != null)
+        {
+            if (requiresFree && cached.GetFree(type) <= 0)
+                cached = null;
+            if (!requiresFree && cached.GetStored(type) <= 0)
+                cached = null;
+
+            if (cached != null)
+                return cached;
+        }
+
+        ResourceStorageContainer found = requiresFree
+            ? FindNearestStorageWithFree(teamID, type, pos)
+            : FindNearestStorageWithStored(teamID, type, pos);
+
+        nearestCache[key] = found;
+        return found;
+    }
+
 }

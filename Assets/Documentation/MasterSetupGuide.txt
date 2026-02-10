@@ -19,6 +19,13 @@ Create one bootstrap GameObject (for example: "_Systems") and attach:
 - ProjectilePool
 
 Recommended global managers also used by current scripts:
+
+Production-chain managers (required for full crafting economy):
+- CraftingJobManager
+- ProductionNotificationManager
+
+Optional compatibility manager:
+- CraftingSystem (keeps ToolItem crafting calls functional)
 - SaveLoadManager
 - EventManager
 - AIManager
@@ -162,6 +169,38 @@ Dropoff/pickup wiring:
 - ResourceDropoff for valid deposit points.
 - Civilians query nearest compatible storage via TeamStorageManager.
 
+
+-----------------------------------------------------------------
+7B) Production-chain Crafting Economy Setup
+-----------------------------------------------------------------
+Crafting building prefab minimum:
+- CraftingBuilding (inherits Building)
+- Define ProductionRecipe (inputs, outputs, craftTimeSeconds, batchSize, requiredJobType)
+- Configure InputSlot + OutputSlot transforms
+- Configure WorkPoints[] where workers physically stand to craft
+
+Recommended crafting add-ons:
+- ProductionStatusVisualizer (missing input / output full / no worker icons)
+- ParticleSystem + AudioSource assigned in CraftingBuilding for production feedback
+
+Worker specialization + assignment:
+- Civilian now supports CivilianJobType (Generalist, Blacksmith, Carpenter, Farmer, Cook, Engineer)
+- Recipe.requiredJobType gates who can operate the building
+- Automatic assignment is handled by CraftingJobManager and building assignmentPriority
+- Manual assignment can be performed through JobManager.AssignCivilianToCraftingBuilding(...)
+
+Logistics workflow now expected:
+1) Worker fetches required recipe input from nearest storage (cached storage lookup)
+2) Worker delivers materials to building InputSlot
+3) Worker moves to available WorkPoint and operates production
+4) Outputs appear in building queue / OutputSlot
+5) Worker carries crafted goods to nearest compatible storage
+
+Throughput + expansion:
+- Use maxWorkers, maxInputCapacityPerResource, maxOutputCapacityPerResource, craftingSpeedModifier
+- Optional upgrades increase slots/speed/efficiency
+- Recipes include forward-looking fields for power/fuel requirements and multi-tier chains
+
 -----------------------------------------------------------------
 8) Selection + Inspector System
 -----------------------------------------------------------------
@@ -198,5 +237,7 @@ Before pressing Play, verify:
 [ ] Build catalog entries point to valid prefabs.
 [ ] Buildable prefabs needing larger footprints have BuildingFootprint set.
 [ ] Storage buildings have both ResourceStorageContainer and ResourceStorageProvider.
+[ ] Crafting buildings have CraftingBuilding + ProductionRecipe + input/output/workpoint transforms configured.
+[ ] CraftingJobManager + ProductionNotificationManager exist in scene for assignment/bottleneck alerts.
 [ ] Resource nodes have ResourceNode with type/remaining/maxGatherers configured.
 [ ] UI objects exist (SelectionManager, UnitInspectorUI, BuildMenuUI, EconomyUI).
