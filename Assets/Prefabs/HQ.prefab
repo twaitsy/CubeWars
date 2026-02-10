@@ -201,6 +201,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   selectionRing: {fileID: 0}
+  hoverRing: {fileID: 0}
+  attackRangeCircle: {fileID: 0}
+  visionRangeCircle: {fileID: 0}
 --- !u!114 &-7298252083313165663
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -230,13 +233,13 @@ MonoBehaviour:
   teamID: 0
   capacities:
   - type: 1
-    capacity: 5000
+    capacity: 50000
   - type: 0
-    capacity: 5000
+    capacity: 50000
   - type: 4
-    capacity: 5000
+    capacity: 50000
   - type: 2
-    capacity: 5000
+    capacity: 50000
   - type: 3
     capacity: 5000
   - type: 5
@@ -299,3 +302,6 @@ MonoBehaviour:
   isBuilding: 1
   maxHealth: 100
   canBeRepaired: 1
+  flashRenderer: {fileID: 0}
+  hitFlashColor: {r: 1, g: 0.3, b: 0.3, a: 1}
+  hitFlashDuration: 0.08

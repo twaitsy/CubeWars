@@ -938,6 +938,7 @@ MonoBehaviour:
   defaultAttackableLayers:
     serializedVersion: 2
     m_Bits: 4294967295
+  defaultVisionRange: 16
   attackableLayer: -1
 --- !u!1 &350036671
 GameObject:
@@ -1548,6 +1549,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 306e1e09803d58c428c870c0cb203274, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  formationSpacing: 1.4
 --- !u!1 &671167609
 GameObject:
   m_ObjectHideFlags: 0
@@ -2905,6 +2907,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mainCamera: {fileID: 963194227}
   inspectorUI: {fileID: 1993793588}
+  dragThreshold: 8
 --- !u!4 &1324085896
 Transform:
   m_ObjectHideFlags: 0
@@ -3319,7 +3322,6 @@ MonoBehaviour:
   show: 0
   toggleKey: 27
   panelWidth: 300
-  panelHeight: 400
   buttonHeight: 40
   buttonSpacing: 10
   fontSize: 18
@@ -3328,6 +3330,7 @@ MonoBehaviour:
   creditsText: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
     tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
     quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+  teams: []
 --- !u!4 &1532313530
 Transform:
   m_ObjectHideFlags: 0
@@ -3681,7 +3684,15 @@ MonoBehaviour:
     y: 10
     width: 200
     height: 200
+  expandedRect:
+    serializedVersion: 2
+    x: 10
+    y: 10
+    width: 400
+    height: 400
+  isExpanded: 0
   dotSize: 4
+  rotationOffset: 270
 --- !u!1 &1663846817
 GameObject:
   m_ObjectHideFlags: 0

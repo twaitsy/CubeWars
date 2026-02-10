@@ -21,6 +21,7 @@ GameObject:
   - component: {fileID: -3108631485046487415}
   - component: {fileID: 7308953244192399137}
   - component: {fileID: 4156195193998033707}
+  - component: {fileID: -8658835610250245775}
   m_Layer: 11
   m_Name: Unit
   m_TagString: Untagged
@@ -224,6 +225,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   selectionRing: {fileID: 0}
+  hoverRing: {fileID: 0}
+  attackRangeCircle: {fileID: 0}
+  visionRangeCircle: {fileID: 0}
 --- !u!114 &7308953244192399137
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -241,6 +245,9 @@ MonoBehaviour:
   isBuilding: 0
   maxHealth: 1000
   canBeRepaired: 1
+  flashRenderer: {fileID: 0}
+  hitFlashColor: {r: 1, g: 0.3, b: 0.3, a: 1}
+  hitFlashDuration: 0.08
 --- !u!114 &4156195193998033707
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -259,9 +266,31 @@ MonoBehaviour:
   fallbackDamage: 10
   fallbackCooldown: 0.8
   fallbackProjectileSpeed: 25
+  visionRange: 16
   canAttackCivilians: 1
   attackableLayers:
     serializedVersion: 2
     m_Bits: 4294967295
+  targetRefreshSeconds: 0.1
   currentTarget: {fileID: 0}
   stance: 1
+  behaviorState: 0
+--- !u!114 &-8658835610250245775
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1254357736737325336}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5ca14c6727f1c8468cb313e78b51dea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 10
+  fireCooldown: 0.75
+  range: 8
+  projectilePrefab: {fileID: 8817490132780034785, guid: 9c0f5c9cab70a5840b0762071cccf2bf,
+    type: 3}
+  muzzle: {fileID: 0}
+  muzzleFlashFX: {fileID: 0}

@@ -20,6 +20,7 @@ GameObject:
   - component: {fileID: -1746909664416513417}
   - component: {fileID: -8887945087164268857}
   - component: {fileID: 126259076976815159}
+  - component: {fileID: 6294540286386591285}
   m_Layer: 13
   m_Name: Civilian
   m_TagString: Untagged
@@ -115,9 +116,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   teamID: 1
   role: 0
+  jobType: 0
   maxHealth: 50
   speed: 2.5
   stopDistance: 5
+  useRoadBonus: 1
+  roadSpeedMultiplier: 1.2
   carryCapacity: 300
   gatherTickSeconds: 0.8
   harvestPerTick: 100
@@ -229,6 +233,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   selectionRing: {fileID: 0}
+  hoverRing: {fileID: 0}
+  attackRangeCircle: {fileID: 0}
+  visionRangeCircle: {fileID: 0}
 --- !u!114 &-8887945087164268857
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -246,6 +253,9 @@ MonoBehaviour:
   isBuilding: 0
   maxHealth: 100
   canBeRepaired: 0
+  flashRenderer: {fileID: 0}
+  hitFlashColor: {r: 1, g: 0.3, b: 0.3, a: 1}
+  hitFlashDuration: 0.08
 --- !u!114 &126259076976815159
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -258,3 +268,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d756813491c064147b5a9288ce69358e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &6294540286386591285
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5538168870909510437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ee6f4facf3c3fd44937e53c2787e554, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  offset: {x: 0, y: 1.2, z: 0}
+  width: 1.2
+  height: 0.12
+  depth: 0.08
+  onlyShowForBuildings: 0
+  hideWhenFullHealth: 1
+  smoothSpeed: 18
+  glowStrength: 1.8
+  billboardToCamera: 1
