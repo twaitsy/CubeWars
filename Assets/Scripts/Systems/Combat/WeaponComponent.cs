@@ -1,24 +1,5 @@
 ﻿// =============================================================
 // WeaponComponent.cs
-//
-// PURPOSE:
-// - Shared firing logic for Units, Turrets, and any future ranged entity.
-// - Handles projectile pooling, muzzle FX, fire cooldowns.
-//
-// DEPENDENCIES:
-// - ProjectilePool:
-//      * Spawns/despawns projectiles.
-// - Projectile:
-//      * Unified projectile logic.
-// - Attackable:
-//      * Target interface for damage application.
-// - UnitCombatController:
-//      * Calls FireAtTarget() when ready to shoot.
-//
-// NOTES FOR FUTURE MAINTENANCE:
-// - If you add different weapon types (burst, beam, AoE), extend this class.
-// - If you add ammo or overheating, add checks before firing.
-// - If you add sound FX, trigger them here.
 // =============================================================
 
 using UnityEngine;
@@ -59,10 +40,34 @@ public class WeaponComponent : MonoBehaviour
         if (muzzleFlashFX != null)
             Instantiate(muzzleFlashFX, muzzle.position, muzzle.rotation);
 
-        if (ProjectilePool.Instance == null || projectilePrefab == null)
+        if (ProjectilePool.Instance != null && projectilePrefab != null)
+        {
+            Projectile proj = ProjectilePool.Instance.Spawn(projectilePrefab, muzzle.position, muzzle.rotation);
+            proj.Init(target, damage, teamID);
+            return;
+        }
+
+        if (ProjectilePool.Instance == null)
+            Debug.LogWarning($"[WeaponComponent] ProjectilePool missing in scene; using runtime fallback projectile for {name}.", this);
+
+        if (projectilePrefab == null)
+            Debug.LogWarning($"[WeaponComponent] Projectile prefab missing on {name}; using runtime fallback projectile.", this);
+
+        SpawnFallbackProjectile(muzzle, target, damage, teamID, 25f);
+    }
+
+    public static void SpawnFallbackProjectile(Transform origin, Attackable target, float damage, int teamID, float speed)
+    {
+        if (origin == null || target == null)
             return;
 
-        Projectile proj = ProjectilePool.Instance.Spawn(projectilePrefab, muzzle.position, muzzle.rotation);
-        proj.Init(target, damage, teamID);
+        var go = new GameObject("FallbackProjectile");
+        go.transform.position = origin.position;
+        go.transform.rotation = origin.rotation;
+
+        var projectile = go.AddComponent<Projectile>();
+        projectile.speed = Mathf.Max(1f, speed);
+        projectile.maxLifetime = 4f;
+        projectile.Init(target, damage, teamID);
     }
 }

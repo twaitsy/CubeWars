@@ -1,91 +1,33 @@
-﻿// =============================================================
-// UnitCommandController.cs
-//
-// DEPENDENCIES:
-// - NavMeshAgent:
-//      * Handles movement for move/defend/follow behaviours.
-// - ICommandable (interface):
-//      * Allows external systems (e.g., player input) to issue commands.
-// - CombatStance (enum):
-//      * This is a separate stance enum from UnitCombatController.CombatStance,
-//        used for movement/command behaviour.
-//
-// NOTES FOR FUTURE MAINTENANCE:
-// - If you unify stances between movement and combat, consider merging the
-//   CombatStance definitions or creating a shared enum.
-// - If this is not used by your current input system, you can safely remove it.
-// =============================================================
+﻿using UnityEngine;
 
-using UnityEngine;
-using UnityEngine.AI;
-
-[RequireComponent(typeof(NavMeshAgent))]
+/// <summary>
+/// Legacy command shim kept for backward compatibility.
+///
+/// This script no longer owns stances/AI movement so there is only one combat stance
+/// authority in the project: UnitCombatController.
+///
+/// Existing callers that still use ICommandable can keep issuing move commands.
+/// </summary>
 public class UnitCommandController : MonoBehaviour, ICommandable
 {
-    public CombatStance stance = CombatStance.Defend;
-
-    [Header("Follow/Defend")]
-    public Transform followTarget;
-    public float defendRadius = 8f;
-
-    private NavMeshAgent agent;
-    private Vector3 defendAnchor;
-    private bool hasDefendAnchor;
+    private Unit unit;
 
     void Awake()
     {
-        agent = GetComponent<NavMeshAgent>();
-    }
-
-    void Update()
-    {
-        if (stance == CombatStance.FollowTarget && followTarget != null)
-        {
-            agent.SetDestination(followTarget.position);
-        }
-        else if (stance == CombatStance.Defend)
-        {
-            if (!hasDefendAnchor)
-            {
-                defendAnchor = transform.position;
-                hasDefendAnchor = true;
-            }
-
-            float d = (transform.position - defendAnchor).sqrMagnitude;
-            if (d > defendRadius * defendRadius)
-                agent.SetDestination(defendAnchor);
-        }
+        unit = GetComponent<Unit>();
+        if (unit == null)
+            Debug.LogWarning($"[UnitCommandController] {name} has no Unit component; movement commands will be ignored.", this);
     }
 
     public void IssueMove(Vector3 worldPos)
     {
-        stance = CombatStance.TakePoint;
-        followTarget = null;
-        hasDefendAnchor = false;
-        agent.SetDestination(worldPos);
+        if (unit != null)
+            unit.MoveTo(worldPos);
     }
 
-    public void SetDefendHere()
-    {
-        stance = CombatStance.Defend;
-        followTarget = null;
-        defendAnchor = transform.position;
-        hasDefendAnchor = true;
-    }
+    public void SetDefendHere() { }
 
-    public void SetFollow(Transform target)
-    {
-        stance = CombatStance.FollowTarget;
-        followTarget = target;
-        hasDefendAnchor = false;
-    }
+    public void SetFollow(Transform target) { }
 
-    public void ClearFollow()
-    {
-        if (stance == CombatStance.FollowTarget)
-            stance = CombatStance.Defend;
-
-        followTarget = null;
-        hasDefendAnchor = false;
-    }
+    public void ClearFollow() { }
 }

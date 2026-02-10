@@ -7,15 +7,7 @@ public class AIMilitary : MonoBehaviour
 
     [Header("Attack Rules")]
     public int attackThreshold = 4;
-    public float attackRange = 40f;
-
-    // -----------------------------
-    // DEPENDENCIES:
-    // - Unit: must implement MoveTo(Vector3)
-    // - UnitCombatController: used for combat targeting
-    // - DiplomacyManager: used for war checks
-    // - Attackable: enemy target interface
-    // -----------------------------
+    public float attackRange = 80f;
 
     public void DefendLocation(Vector3 pos)
     {
@@ -27,7 +19,7 @@ public class AIMilitary : MonoBehaviour
             if (!u.combatEnabled) continue;
 
             u.MoveTo(pos);
-            return; // send ONE unit
+            return;
         }
     }
 
@@ -44,12 +36,21 @@ public class AIMilitary : MonoBehaviour
             return;
 
         Attackable target = FindEnemyTarget();
-        if (target == null) return;
+        if (target == null)
+        {
+            Debug.Log($"[AIMilitary] Team {teamID} found no enemy target in range {attackRange}.", this);
+            return;
+        }
 
         foreach (var unit in units)
         {
             if (unit.teamID != teamID) continue;
+
             unit.SetManualTarget(target);
+
+            var mover = unit.GetComponent<Unit>();
+            if (mover != null)
+                mover.MoveTo(target.transform.position);
         }
     }
 
@@ -64,12 +65,11 @@ public class AIMilitary : MonoBehaviour
             if (!a.IsAlive) continue;
             if (a.teamID == teamID) continue;
 
-            if (!DiplomacyManager.Instance.AreAtWar(teamID, a.teamID))
+            if (DiplomacyManager.Instance != null && !DiplomacyManager.Instance.AreAtWar(teamID, a.teamID))
                 continue;
 
             float score = Vector3.Distance(transform.position, a.transform.position);
 
-            // Personality bias
             if (personality == AIPersonality.Aggressive && a.isCivilian)
                 score *= 0.7f;
 
