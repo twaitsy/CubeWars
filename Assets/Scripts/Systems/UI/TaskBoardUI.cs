@@ -1,17 +1,3 @@
-﻿// =============================================================
-// TaskBoardUI.cs
-//
-// DEPENDENCIES:
-// - JobManager: GetRoleCounts(), GetActiveConstructionSiteCount()
-// - CivilianRole: expects Gatherer, Builder, Hauler, Idle
-// - TeamStorageManager: building-only stored/capacity/reserved totals
-// - IMGUIInputBlocker: prevents clicks through the panel
-//
-// NOTES FOR FUTURE MAINTENANCE:
-// - If you add new roles, update the display line for civilians.
-// - If storage logic changes, update the resource lines accordingly.
-// =============================================================
-
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -26,13 +12,13 @@ public class TaskBoardUI : MonoBehaviour
 
     [Header("Panel Layout (Bottom Left)")]
     public int panelWidth = 460;
-    public int panelHeight = 320;
+    public int panelHeight = 380;
     public int marginLeft = 12;
     public int marginBottom = 12;
 
     [Header("Display")]
-    public int maxResourceLines = 14;
-
+    public int maxResourceLines = 10;
+    public int maxNotificationLines = 6;
 
     void Start()
     {
@@ -48,13 +34,7 @@ public class TaskBoardUI : MonoBehaviour
             playerTeamID = GameManager.playerTeam.teamID;
     }
 
-    GameManager GameManager
-    {
-        get
-        {
-            return FindObjectOfType<GameManager>();
-        }
-    }
+    GameManager GameManager => FindObjectOfType<GameManager>();
 
     void Update()
     {
@@ -66,45 +46,57 @@ public class TaskBoardUI : MonoBehaviour
     {
         if (!show) return;
 
-        float left = marginLeft;
-        float top = Screen.height - panelHeight - marginBottom;
+        float scale = RTSGameSettings.UIScale;
+        float width = panelWidth * scale;
+        float height = panelHeight * scale;
 
-        Rect panelRect = new Rect(left, top, panelWidth, panelHeight);
+        float left = marginLeft;
+        float top = Screen.height - height - marginBottom;
+
+        Rect panelRect = new Rect(left, top, width, height);
         IMGUIInputBlocker.Register(panelRect);
 
-        GUI.Box(panelRect, $"TASK BOARD (Team {playerTeamID})");
+        GUI.Box(panelRect, $"TASK BOARD | Team {playerTeamID}");
 
-        float x = panelRect.x + 10;
-        float y = panelRect.y + 24;
+        float x = panelRect.x + (10 * scale);
+        float y = panelRect.y + (24 * scale);
+        float row = 18 * scale;
 
+        DrawRolesAndSites(x, ref y, panelRect.width - 20 * scale, row);
+        DrawResources(x, ref y, panelRect.width - 20 * scale, row);
+        DrawNotifications(x, ref y, panelRect.width - 20 * scale, row);
+    }
+
+    void DrawRolesAndSites(float x, ref float y, float width, float row)
+    {
         if (JobManager.Instance != null)
         {
             Dictionary<CivilianRole, int> counts = JobManager.Instance.GetRoleCounts(playerTeamID);
-
-            GUI.Label(new Rect(x, y, panelWidth - 20, 20),
-                BuildRoleSummary(counts));
-            y += 22;
+            GUI.Label(new Rect(x, y, width, row), BuildRoleSummary(counts));
+            y += row;
 
             int sites = JobManager.Instance.GetActiveConstructionSiteCount(playerTeamID);
-            GUI.Label(new Rect(x, y, panelWidth - 20, 20), $"Construction Sites: {sites}");
-            y += 26;
+            GUI.Label(new Rect(x, y, width, row), $"Construction Sites: {sites}");
+            y += row + 8;
         }
         else
         {
-            var counts = BuildFallbackRoleCounts();
-            GUI.Label(new Rect(x, y, panelWidth - 20, 20),
-                BuildRoleSummary(counts));
-            y += 22;
+            GUI.Label(new Rect(x, y, width, row), BuildRoleSummary(BuildFallbackRoleCounts()));
+            y += row + 8;
         }
+    }
+
+    void DrawResources(float x, ref float y, float width, float row)
+    {
+        GUI.Label(new Rect(x, y, width, row), "Resources (Stored/Cap) [Reserved]");
+        y += row;
 
         if (TeamStorageManager.Instance == null)
         {
-            GUI.Label(new Rect(x, y, panelWidth - 20, 20), "TeamStorageManager missing (add it to the scene).");
+            GUI.Label(new Rect(x, y, width, row), "TeamStorageManager missing.");
+            y += row;
             return;
         }
-
-        GUI.Label(new Rect(x, y, panelWidth - 20, 20), "Stored in Buildings (Stored/Cap)  [Reserved]");
-        y += 20;
 
         int lines = 0;
         foreach (ResourceType t in Enum.GetValues(typeof(ResourceType)))
@@ -114,19 +106,42 @@ public class TaskBoardUI : MonoBehaviour
             int reserved = TeamStorageManager.Instance.GetReservedTotal(playerTeamID, t);
 
             string line = $"{t}: {stored}/{cap}";
-            if (reserved > 0) line += $"  [{reserved}]";
-            if (cap > 0 && stored >= cap) line += " (FULL)";
-            if (cap == 0) line += " (NO STORAGE)";
+            if (reserved > 0) line += $" [{reserved}]";
+            if (cap > 0 && stored >= cap) line += " FULL";
+            if (cap == 0) line += " NO STORAGE";
 
-            GUI.Label(new Rect(x, y, panelWidth - 20, 18), line);
-            y += 18;
+            GUI.Label(new Rect(x, y, width, row), line);
+            y += row;
 
             lines++;
             if (lines >= maxResourceLines) break;
-            if (y > panelRect.yMax - 20) break;
         }
 
+        y += 6;
     }
+
+    void DrawNotifications(float x, ref float y, float width, float row)
+    {
+        GUI.Label(new Rect(x, y, width, row), "Recent Notifications");
+        y += row;
+
+        List<string> recent = AlertManager.Instance != null
+            ? AlertManager.Instance.GetRecent(maxNotificationLines)
+            : new List<string>();
+
+        if (recent.Count == 0)
+        {
+            GUI.Label(new Rect(x, y, width, row), "No recent notifications.");
+            return;
+        }
+
+        for (int i = recent.Count - 1; i >= 0; i--)
+        {
+            GUI.Label(new Rect(x, y, width, row), $"• {recent[i]}");
+            y += row;
+        }
+    }
+
     Dictionary<CivilianRole, int> BuildFallbackRoleCounts()
     {
         var result = new Dictionary<CivilianRole, int>();
@@ -156,5 +171,4 @@ public class TaskBoardUI : MonoBehaviour
 
         return "Civilians: " + string.Join(" | ", parts);
     }
-
 }

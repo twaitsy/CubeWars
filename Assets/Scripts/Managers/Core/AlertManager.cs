@@ -12,6 +12,9 @@ public class AlertManager : MonoBehaviour
     }
 
     List<Alert> alerts = new List<Alert>();
+    readonly List<string> recentMessages = new List<string>();
+
+    [Min(1)] public int maxRecent = 8;
 
     void Awake()
     {
@@ -38,5 +41,18 @@ public class AlertManager : MonoBehaviour
     public void Push(string text, float duration = 3f)
     {
         alerts.Add(new Alert { text = text, timer = duration });
+
+        recentMessages.Add(text);
+        while (recentMessages.Count > maxRecent)
+            recentMessages.RemoveAt(0);
+    }
+
+    public List<string> GetRecent(int maxCount)
+    {
+        if (maxCount <= 0 || recentMessages.Count == 0)
+            return new List<string>();
+
+        int count = Mathf.Min(maxCount, recentMessages.Count);
+        return recentMessages.GetRange(recentMessages.Count - count, count);
     }
 }

@@ -1,496 +1,243 @@
-﻿// =============================================================
-// UnitInspectorUI.cs
-//
-// PURPOSE:
-// - On-screen inspector for the currently selected object.
-// - Shows health, team, civilian/unit info, barracks queue, combat stance,
-//   construction progress, storage contents, and turret info.
-//
-// DEPENDENCIES:
-// - SelectionManager (or equivalent):
-//      * Must call SetSelected(GameObject) when selection changes.
-// - Barracks:
-//      * Expected API:
-//          - List<UnitProductionDefinition> producibleUnits
-//          - bool CanQueue(UnitProductionDefinition def)
-//          - void QueueUnit(UnitProductionDefinition def)
-//          - float CurrentBuildTime
-//          - float CurrentProgress
-//          - void CancelLast()
-// - UnitCombatController:
-//      * Used for target display, stance, and "Attack Civilians" toggle.
-//      * Must implement:
-//          - string GetTargetStatus()
-//          - bool canAttackCivilians
-//          - void ToggleAttackCivilians()
-//          - CombatStance stance
-//          - void SetStance(CombatStance newStance)
-// - Turret:
-//      * Marker component for turret-specific UI.
-// - Unit:
-//      * Exposes teamID, combatEnabled, damage, attackRange.
-// - Civilian:
-//      * Exposes teamID.
-// - ConstructionSite:
-//      * Expected API:
-//          - int teamID
-//          - string GetStatusLine()
-//          - ResourceCost[] GetRequiredCosts()
-//          - int GetDeliveredAmount(ResourceType type)
-// - ResourceStorageContainer:
-//      * Expected API:
-//          - int teamID
-//          - int GetCapacity(ResourceType type)
-//          - int GetStored(ResourceType type)
-// - IHasHealth:
-//      * Interface with:
-//          - float CurrentHealth { get; }
-//          - float MaxHealth { get; }
-//
-// NOTES FOR FUTURE MAINTENANCE:
-// - If you change any of the dependent APIs (Barracks, ConstructionSite, etc.),
-//   update this UI to match.
-// - Keep this script UI-only: do not put game logic here.
-// - If you add new unit types or systems, add new DrawX() sections rather than
-//   overloading existing ones.
-// =============================================================
-
+using System;
 using UnityEngine;
 
 public class UnitInspectorUI : MonoBehaviour
 {
+    enum InspectorTab { Overview, Stats, SkillsTools, Storage, Production, Combat }
+
     [Header("Layout (OnGUI)")]
-    public float width = 320f;
-    public float height = 420f;
+    public float width = 340f;
+    public float height = 440f;
     public float padding = 10f;
 
     private GameObject selected;
+    private InspectorTab currentTab;
 
-    // Called by SelectionManager
+    public bool show = true;
+
     public void SetSelected(GameObject obj)
     {
         selected = obj;
-
-        if (selected != null)
-            Debug.Log("UnitInspectorUI: Selected " + selected.name);
-        else
-            Debug.Log("UnitInspectorUI: Selection cleared");
     }
 
     void OnGUI()
     {
-        if (selected == null)
+        if (!show || selected == null)
             return;
 
+        float scale = RTSGameSettings.UIScale;
         Rect rect = new Rect(
-            Screen.width - width - padding,
-            Screen.height - height - padding,
-            width,
-            height
+            Screen.width - (width * scale) - padding,
+            Screen.height - (height * scale) - padding,
+            width * scale,
+            height * scale
         );
 
         IMGUIInputBlocker.Register(rect);
         GUILayout.BeginArea(rect, GUI.skin.window);
-        GUILayout.BeginVertical();
 
         DrawHeader();
-        DrawHealth();
-        DrawCivilian();
-        DrawUnit();
-        DrawBuilding();
-        DrawBarracks();
-        DrawCombat();
-        DrawConstruction();
-        DrawStorage();
-        DrawResourceNode();
-        DrawTurret();
-        DrawCombatStance();
-        DrawHeadquartersDiplomacy();
+        DrawTabs();
 
+        GUILayout.BeginVertical(GUI.skin.box);
+        switch (currentTab)
+        {
+            case InspectorTab.Overview: DrawOverview(); break;
+            case InspectorTab.Stats: DrawStats(); break;
+            case InspectorTab.SkillsTools: DrawSkillsAndTools(); break;
+            case InspectorTab.Storage: DrawStorage(); break;
+            case InspectorTab.Production: DrawProduction(); break;
+            case InspectorTab.Combat: DrawCombat(); break;
+        }
         GUILayout.EndVertical();
+
         GUILayout.EndArea();
     }
 
     void DrawHeader()
     {
         GUILayout.Label(SanitizeName(selected.name), GUI.skin.box);
-
         int team = GetTeamID();
         if (team >= 0)
             GUILayout.Label($"Team: {team}");
     }
 
-    void DrawHealth()
+    void DrawTabs()
     {
-        if (selected.TryGetComponent<IHasHealth>(out var health))
-        {
-            GUILayout.Label($"Health: {health.CurrentHealth:0}/{health.MaxHealth:0}");
-        }
+        currentTab = (InspectorTab)GUILayout.Toolbar((int)currentTab,
+            new[] { "Overview", "Stats", "Skills", "Storage", "Production", "Combat" });
     }
 
-    void DrawCivilian()
+    void DrawOverview()
     {
+        if (selected.TryGetComponent<IHasHealth>(out var health))
+            GUILayout.Label($"Health: {health.CurrentHealth:0}/{health.MaxHealth:0}");
+
         if (selected.TryGetComponent<Civilian>(out var civ))
         {
-            GUILayout.Space(6);
-            GUILayout.Label("Civilian", GUI.skin.box);
-            GUILayout.Label($"Role: {civ.role}");
-            GUILayout.Label($"Job Type: {civ.JobType}");
+            GUILayout.Label("Type: Civilian");
+            GUILayout.Label($"Assignment: {ResolveAssignment(civ)}");
             GUILayout.Label($"Task: {civ.CurrentTaskLabel}");
             GUILayout.Label($"State: {civ.CurrentState}");
             GUILayout.Label($"Target: {civ.CurrentTargetName}");
-            GUILayout.Label($"Team: {civ.teamID}");
+        }
+        else if (selected.TryGetComponent<Unit>(out _))
+        {
+            GUILayout.Label("Type: Unit");
+        }
+        else if (selected.TryGetComponent<Building>(out var building))
+        {
+            GUILayout.Label($"Type: {building.GetType().Name}");
+        }
+        else if (selected.TryGetComponent<ResourceNode>(out var node))
+        {
+            GUILayout.Label($"Resource Node: {node.type}");
+            GUILayout.Label($"Remaining: {node.remaining}");
+        }
+    }
+
+    void DrawStats()
+    {
+        if (selected.TryGetComponent<Civilian>(out var civ))
+        {
             GUILayout.Label($"Move Speed: {civ.speed:0.0}");
             GUILayout.Label($"Gather Tick: {civ.gatherTickSeconds:0.00}s");
             GUILayout.Label($"Harvest/Tick: {civ.harvestPerTick}");
-            GUILayout.Label($"Carrying: {civ.CarriedType} {civ.CarriedAmount}/{civ.carryCapacity}");
-            if (civ.AssignedCraftingBuilding != null)
-                GUILayout.Label($"Craft Target: {civ.AssignedCraftingBuilding.name}");
-            GUILayout.Label($"Craft Progress: {civ.CraftingProgress:P0}");
-
-            DrawRoleButtons(civ);
-            DrawJobTypeButtons(civ);
+            GUILayout.Label($"Carry Capacity: {civ.carryCapacity}");
         }
-    }
 
-    void DrawUnit()
-    {
         if (selected.TryGetComponent<Unit>(out var unit))
         {
-            GUILayout.Space(6);
-            GUILayout.Label("Unit", GUI.skin.box);
-            GUILayout.Label($"Combat Enabled: {(unit.combatEnabled ? "Yes" : "No")}");
             GUILayout.Label($"Damage: {unit.damage}");
             GUILayout.Label($"Range: {unit.attackRange}");
-        }
-    }
-
-
-    void DrawBuilding()
-    {
-        if (!TryGetSelectedComponent(out Building building))
-            return;
-
-        GUILayout.Space(6);
-        GUILayout.Label("Building", GUI.skin.box);
-        GUILayout.Label($"Team: {building.teamID}");
-        GUILayout.Label($"Type: {building.GetType().Name}");
-
-        if (building is CraftingBuilding crafting)
-        {
-            DrawCraftingBuilding(crafting);
+            GUILayout.Label($"Combat Enabled: {(unit.combatEnabled ? "Yes" : "No")}");
         }
 
-        int playerTeam = GetPlayerTeamID();
-        bool canDemolish = playerTeam < 0 || building.teamID == playerTeam;
-
-        GUI.enabled = canDemolish;
-        if (GUILayout.Button("Demolish Building"))
+        if (TryGetSelectedComponent(out ConstructionSite site))
         {
-            building.Demolish();
-            selected = null;
-        }
-        GUI.enabled = true;
-
-        if (!canDemolish)
-            GUILayout.Label("You can only demolish your own buildings.");
-    }
-
-
-    void DrawCraftingBuilding(CraftingBuilding crafting)
-    {
-        GUILayout.Space(4);
-        GUILayout.Label("Production", GUI.skin.box);
-
-        string recipeName = crafting.recipe != null ? crafting.recipe.recipeName : "None";
-        GUILayout.Label($"Recipe: {recipeName}");
-        GUILayout.Label($"State: {crafting.State}");
-        GUILayout.Label($"Missing Inputs: {crafting.GetMissingInputSummary()}");
-        GUILayout.Label($"Output Progress: {crafting.CraftProgress01:P0}");
-
-        GUILayout.Label($"Workers: {crafting.AssignedWorkers.Count}/{crafting.GetMaxWorkers()}");
-        GUILayout.Label($"WorkPoint Occupancy: {crafting.GetWorkPointOccupancy()}");
-
-        if (crafting.recipe?.inputs != null)
-        {
-            GUILayout.Label("Delivered Inputs:");
-            foreach (var input in crafting.recipe.inputs)
+            GUILayout.Label(site.GetStatusLine());
+            var costs = site.GetRequiredCosts();
+            if (costs != null)
             {
-                int delivered = crafting.InputBuffer[input.resourceType];
-                GUILayout.Label($"  {input.resourceType}: {delivered}");
-            }
-        }
-
-        if (crafting.recipe?.outputs != null)
-        {
-            GUILayout.Label("Output Queue:");
-            foreach (var output in crafting.recipe.outputs)
-            {
-                int queued = crafting.OutputQueue[output.resourceType];
-                GUILayout.Label($"  {output.resourceType}: {queued}");
+                foreach (var c in costs)
+                    GUILayout.Label($"{c.type}: {site.GetDeliveredAmount(c.type)}/{c.amount}");
             }
         }
     }
 
-    void DrawBarracks()
+    void DrawSkillsAndTools()
     {
-        if (!selected.TryGetComponent<Barracks>(out var barracks))
+        if (!selected.TryGetComponent<Civilian>(out var civ))
+        {
+            GUILayout.Label("No skills/tools for this selection.");
             return;
+        }
 
-        GUILayout.Space(6);
-        GUILayout.Label("Barracks", GUI.skin.box);
+        GUILayout.Label("Assignment", GUI.skin.box);
+        GUILayout.Label(ResolveAssignment(civ));
 
-        if (barracks.producibleUnits != null)
+        GUILayout.Label("Role", GUI.skin.box);
+        DrawRoleButtons(civ);
+
+        GUILayout.Label("Job Specialization", GUI.skin.box);
+        DrawJobTypeButtons(civ);
+    }
+
+    void DrawStorage()
+    {
+        if (selected.TryGetComponent<Civilian>(out var civ))
+            GUILayout.Label($"Carrying: {civ.CarriedType} {civ.CarriedAmount}/{civ.carryCapacity}");
+
+        if (selected.TryGetComponent<ResourceStorageContainer>(out var storage))
+        {
+            foreach (ResourceType t in Enum.GetValues(typeof(ResourceType)))
+            {
+                int cap = storage.GetCapacity(t);
+                if (cap <= 0) continue;
+                GUILayout.Label($"{t}: {storage.GetStored(t)}/{cap}");
+            }
+        }
+        else
+        {
+            GUILayout.Label("No storage component.");
+        }
+    }
+
+    void DrawProduction()
+    {
+        if (selected.TryGetComponent<Barracks>(out var barracks))
         {
             foreach (var def in barracks.producibleUnits)
             {
                 if (def == null) continue;
-
-                GUILayout.BeginHorizontal(GUI.skin.box);
-
-                GUILayout.Label(def.unitName, GUILayout.Width(120));
-
                 bool canAfford = barracks.CanQueue(def);
                 GUI.enabled = canAfford;
-
-                if (GUILayout.Button("Train"))
-                {
-                    barracks.QueueUnit(def);
-                }
-
+                if (GUILayout.Button("Train " + def.unitName)) barracks.QueueUnit(def);
                 GUI.enabled = true;
-                GUILayout.EndHorizontal();
-
-                if (def.costs != null)
-                {
-                    foreach (var c in def.costs)
-                    {
-                        GUILayout.Label($"  {c.type}: {c.amount}");
-                    }
-                }
             }
+            if (GUILayout.Button("Cancel Last")) barracks.CancelLast();
         }
 
-        GUILayout.Space(4);
-        GUILayout.Label("Queue", GUI.skin.box);
-
-        if (barracks.CurrentBuildTime > 0f)
+        if (TryGetSelectedComponent(out CraftingBuilding crafting))
         {
-            float pct = barracks.CurrentProgress / barracks.CurrentBuildTime;
-            GUILayout.HorizontalSlider(pct, 0f, 1f);
-        }
-
-        if (GUILayout.Button("Cancel Last"))
-        {
-            barracks.CancelLast();
+            string recipeName = crafting.recipe != null ? crafting.recipe.recipeName : "None";
+            GUILayout.Label($"Recipe: {recipeName}");
+            GUILayout.Label($"State: {crafting.State}");
+            GUILayout.Label($"Missing Inputs: {crafting.GetMissingInputSummary()}");
+            GUILayout.Label($"Progress: {crafting.CraftProgress01:P0}");
         }
     }
 
     void DrawCombat()
     {
         if (!selected.TryGetComponent<UnitCombatController>(out var combat))
+        {
+            GUILayout.Label("No combat controls for this selection.");
             return;
-
-        GUILayout.Space(6);
-        GUILayout.Label("Combat", GUI.skin.box);
+        }
 
         GUILayout.Label("Target: " + combat.GetTargetStatus());
-        GUILayout.Label($"Stance: {combat.stance}");
-        GUILayout.Label($"Vision Range: {combat.visionRange:0.0}");
-        GUILayout.Label($"Attack Range: {(combat.weapon != null ? combat.weapon.range : combat.fallbackRange):0.0}");
-        GUILayout.Label($"Behavior: {combat.behaviorState}");
-        GUILayout.Label($"Follow/Guard Target: None");
 
-        bool showRanges = GUILayout.Toggle(combat.ShowRangeGizmos, "Show Attack/Vision Circles (R)");
-        if (showRanges != combat.ShowRangeGizmos)
-            combat.ToggleRangeGizmos();
-
-        bool newToggle = GUILayout.Toggle(
-            combat.canAttackCivilians,
-            "Attack Civilians"
-        );
-
-        if (newToggle != combat.canAttackCivilians)
-        {
+        bool attackCivilians = GUILayout.Toggle(combat.canAttackCivilians, "Attack Civilians");
+        if (attackCivilians != combat.canAttackCivilians)
             combat.ToggleAttackCivilians();
-        }
-    }
-
-
-    void DrawResourceNode()
-    {
-        if (selected.TryGetComponent<ResourceNode>(out var node))
-        {
-            GUILayout.Space(6);
-            GUILayout.Label("Resource Node", GUI.skin.box);
-            GUILayout.Label($"Type: {node.type}");
-            GUILayout.Label($"Remaining: {node.remaining}");
-        }
-    }
-
-    void DrawTurret()
-    {
-        if (!selected.TryGetComponent<Turret>(out var turret))
-            return;
-
-        GUILayout.Space(6);
-        GUILayout.Label("Turret", GUI.skin.box);
-
-        if (selected.TryGetComponent<UnitCombatController>(out var combat))
-        {
-            GUILayout.Label("Target: " + combat.GetTargetStatus());
-
-            bool newToggle = GUILayout.Toggle(
-                combat.canAttackCivilians,
-                "Attack Civilians"
-            );
-
-            if (newToggle != combat.canAttackCivilians)
-                combat.ToggleAttackCivilians();
-        }
-    }
-
-    void DrawCombatStance()
-    {
-        if (!selected.TryGetComponent<UnitCombatController>(out var combat))
-            return;
-
-        GUILayout.Space(6);
-        GUILayout.Label("Combat Stance", GUI.skin.box);
 
         var newStance = (UnitCombatController.CombatStance)
-            GUILayout.SelectionGrid(
-                (int)combat.stance,
-                new[] { "Hold", "Guard", "Aggressive" },
-                3
-            );
-
+            GUILayout.SelectionGrid((int)combat.stance, new[] { "Hold", "Guard", "Aggressive" }, 3);
         if (newStance != combat.stance)
             combat.SetStance(newStance);
     }
 
-    void DrawHeadquartersDiplomacy()
+    static string ResolveAssignment(Civilian civ)
     {
-        if (!TryGetSelectedComponent(out Headquarters hq))
-            return;
+        if (civ.JobType != CivilianJobType.Generalist)
+            return civ.JobType.ToString();
 
-        GUILayout.Space(6);
-        GUILayout.Label("HQ Diplomacy", GUI.skin.box);
-
-        var diplomacy = DiplomacyManager.Instance;
-        if (diplomacy == null)
-        {
-            GUILayout.Label("DiplomacyManager missing in scene.");
-            return;
-        }
-
-        var teams = diplomacy.GetKnownTeams();
-        foreach (int otherTeam in teams)
-        {
-            if (otherTeam == hq.teamID)
-                continue;
-
-            bool atWar = diplomacy.AreAtWar(hq.teamID, otherTeam);
-            GUILayout.BeginHorizontal();
-            GUILayout.Label($"Team {otherTeam}", GUILayout.Width(90f));
-
-            if (GUILayout.Button(atWar ? "Set Peace" : "Set War"))
-            {
-                diplomacy.SetWarState(hq.teamID, otherTeam, !atWar);
-            }
-
-            GUILayout.Label(atWar ? "WAR" : "PEACE", GUILayout.Width(60f));
-            GUILayout.EndHorizontal();
-        }
-    }
-
-    void DrawConstruction()
-    {
-        if (selected.TryGetComponent<ConstructionSite>(out var site))
-        {
-            GUILayout.Space(6);
-            GUILayout.Label("Construction", GUI.skin.box);
-            GUILayout.Label(site.GetStatusLine());
-
-            var costs = site.GetRequiredCosts();
-            if (costs != null)
-            {
-                foreach (var c in costs)
-                {
-                    int delivered = site.GetDeliveredAmount(c.type);
-                    GUILayout.Label($"{c.type}: {delivered}/{c.amount}");
-                }
-            }
-        }
-    }
-
-    void DrawStorage()
-    {
-        if (selected.TryGetComponent<ResourceStorageContainer>(out var storage))
-        {
-            GUILayout.Space(6);
-            GUILayout.Label("Storage", GUI.skin.box);
-            foreach (ResourceType t in System.Enum.GetValues(typeof(ResourceType)))
-            {
-                int cap = storage.GetCapacity(t);
-                if (cap <= 0) continue;
-                int stored = storage.GetStored(t);
-                GUILayout.Label($"{t}: {stored}/{cap}");
-            }
-        }
+        return civ.role.ToString();
     }
 
     void DrawRoleButtons(Civilian civ)
     {
-        if (civ == null) return;
-
-        var roles = (CivilianRole[])System.Enum.GetValues(typeof(CivilianRole));
-        const int columns = 3;
-
-        for (int i = 0; i < roles.Length; i += columns)
-        {
-            GUILayout.BeginHorizontal();
-            for (int c = 0; c < columns; c++)
-            {
-                int idx = i + c;
-                if (idx >= roles.Length)
-                {
-                    GUILayout.FlexibleSpace();
-                    continue;
-                }
-
-                var role = roles[idx];
-                if (GUILayout.Button(role.ToString()))
-                    civ.SetRole(role);
-            }
-            GUILayout.EndHorizontal();
-        }
+        var roles = (CivilianRole[])Enum.GetValues(typeof(CivilianRole));
+        DrawButtonGrid(roles, 3, role => civ.SetRole(role), role => role.ToString());
     }
-
 
     void DrawJobTypeButtons(Civilian civ)
     {
-        GUILayout.Space(4);
-        GUILayout.Label("Job Specialization", GUI.skin.box);
+        var jobs = (CivilianJobType[])Enum.GetValues(typeof(CivilianJobType));
+        DrawButtonGrid(jobs, 3, job => civ.SetJobType(job), job => job.ToString());
+    }
 
-        var jobs = (CivilianJobType[])System.Enum.GetValues(typeof(CivilianJobType));
-        const int columns = 3;
-
-        for (int i = 0; i < jobs.Length; i += columns)
+    void DrawButtonGrid<T>(T[] values, int columns, Action<T> onSelect, Func<T, string> label)
+    {
+        for (int i = 0; i < values.Length; i += columns)
         {
             GUILayout.BeginHorizontal();
-            for (int c = 0; c < columns; c++)
+            for (int col = 0; col < columns; col++)
             {
-                int idx = i + c;
-                if (idx >= jobs.Length)
-                {
-                    GUILayout.FlexibleSpace();
-                    continue;
-                }
-
-                var job = jobs[idx];
-                if (GUILayout.Button(job.ToString()))
-                    civ.SetJobType(job);
+                int idx = i + col;
+                if (idx >= values.Length) { GUILayout.FlexibleSpace(); continue; }
+                if (GUILayout.Button(label(values[idx]))) onSelect(values[idx]);
             }
             GUILayout.EndHorizontal();
         }
@@ -509,15 +256,6 @@ public class UnitInspectorUI : MonoBehaviour
         if (TryGetSelectedComponent(out Building building)) return building.teamID;
         if (TryGetSelectedComponent(out ConstructionSite site)) return site.teamID;
         if (TryGetSelectedComponent(out ResourceStorageContainer storage)) return storage.teamID;
-        return -1;
-    }
-
-    int GetPlayerTeamID()
-    {
-        var gm = FindObjectOfType<GameManager>();
-        if (gm != null && gm.playerTeam != null)
-            return gm.playerTeam.teamID;
-
         return -1;
     }
 

@@ -40,6 +40,9 @@ public class TeamResources : MonoBehaviour
 
     public bool CanAfford(int teamID, ResourceCost[] costs)
     {
+        if (RTSGameSettings.IsCheatActive(c => c.infiniteResources || c.unlockAllBuilds))
+            return true;
+
         if (TeamStorageManager.Instance == null) return false;
         return TeamStorageManager.Instance.CanAffordAvailable(teamID, costs);
     }
@@ -57,6 +60,9 @@ public class TeamResources : MonoBehaviour
 
     public bool SpendResource(int teamID, ResourceType type, int amount)
     {
+        if (RTSGameSettings.IsCheatActive(c => c.infiniteResources))
+            return true;
+
         if (TeamStorageManager.Instance == null) return false;
         if (amount <= 0) return true;
 
