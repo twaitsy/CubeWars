@@ -105,6 +105,7 @@ public class UnitInspectorUI : MonoBehaviour
         DrawResourceNode();
         DrawTurret();
         DrawCombatStance();
+        DrawHeadquartersDiplomacy();
 
         GUILayout.EndVertical();
         GUILayout.EndArea();
@@ -298,6 +299,41 @@ public class UnitInspectorUI : MonoBehaviour
             combat.SetStance(newStance);
     }
 
+    void DrawHeadquartersDiplomacy()
+    {
+        if (!selected.TryGetComponent<Headquarters>(out var hq))
+            return;
+
+        GUILayout.Space(6);
+        GUILayout.Label("HQ Diplomacy", GUI.skin.box);
+
+        var diplomacy = DiplomacyManager.Instance;
+        if (diplomacy == null)
+        {
+            GUILayout.Label("DiplomacyManager missing in scene.");
+            return;
+        }
+
+        var teams = diplomacy.GetKnownTeams();
+        foreach (int otherTeam in teams)
+        {
+            if (otherTeam == hq.teamID)
+                continue;
+
+            bool atWar = diplomacy.AreAtWar(hq.teamID, otherTeam);
+            GUILayout.BeginHorizontal();
+            GUILayout.Label($"Team {otherTeam}", GUILayout.Width(90f));
+
+            if (GUILayout.Button(atWar ? "Set Peace" : "Set War"))
+            {
+                diplomacy.SetWarState(hq.teamID, otherTeam, !atWar);
+            }
+
+            GUILayout.Label(atWar ? "WAR" : "PEACE", GUILayout.Width(60f));
+            GUILayout.EndHorizontal();
+        }
+    }
+
     void DrawConstruction()
     {
         if (selected.TryGetComponent<ConstructionSite>(out var site))
@@ -371,6 +407,7 @@ public class UnitInspectorUI : MonoBehaviour
     {
         if (selected.TryGetComponent<Unit>(out var unit)) return unit.teamID;
         if (selected.TryGetComponent<Civilian>(out var civ)) return civ.teamID;
+        if (selected.TryGetComponent<Building>(out var building)) return building.teamID;
         if (selected.TryGetComponent<ConstructionSite>(out var site)) return site.teamID;
         if (selected.TryGetComponent<ResourceStorageContainer>(out var storage)) return storage.teamID;
         return -1;
