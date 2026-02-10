@@ -1,20 +1,3 @@
-﻿// =============================================================
-// Projectile.cs (Unified + Pooling Compatible)
-//
-// DEPENDENCIES:
-// - Attackable:
-//      * Must expose: teamID, IsAlive, TakeDamage(float)
-// - ProjectilePool:
-//      * Handles pooling.
-// - WeaponComponent:
-//      * Spawns this projectile.
-//
-// NOTES FOR FUTURE MAINTENANCE:
-// - This is a homing projectile. For ballistic or physics-based,
-//   replace Update() with Rigidbody logic.
-// - If you add armor/resistance, wrap TakeDamage() in a damage system.
-// =============================================================
-
 using UnityEngine;
 
 public class Projectile : MonoBehaviour
@@ -24,20 +7,21 @@ public class Projectile : MonoBehaviour
     [Header("Movement")]
     public float speed = 25f;
     public float maxLifetime = 5f;
+    [Min(0.05f)] public float impactDistance = 0.25f;
 
     [Header("FX")]
     public GameObject impactFX;
 
-    private Attackable target;
-    private float damage;
-    private int sourceTeam;
-    private float lifeTimer;
+    Attackable target;
+    float damage;
+    int sourceTeam;
+    float lifeTimer;
 
     public void Init(Attackable target, float damage, int teamID)
     {
         this.target = target;
         this.damage = damage;
-        this.sourceTeam = teamID;
+        sourceTeam = teamID;
         lifeTimer = 0f;
     }
 
@@ -46,27 +30,26 @@ public class Projectile : MonoBehaviour
         lifeTimer += Time.deltaTime;
         if (lifeTimer >= maxLifetime)
         {
-            ProjectilePool.Instance.Despawn(this);
+            Despawn();
             return;
         }
 
         if (target == null || !target.IsAlive)
         {
-            ProjectilePool.Instance.Despawn(this);
+            Despawn();
             return;
         }
 
-        Vector3 dir = target.transform.position - transform.position;
-        float dist = dir.magnitude;
+        Vector3 targetPos = target.AimPoint != null ? target.AimPoint.position : target.transform.position;
+        Vector3 next = Vector3.MoveTowards(transform.position, targetPos, speed * Time.deltaTime);
+        Vector3 dir = (targetPos - transform.position);
 
-        if (dist < 0.2f)
-        {
+        transform.position = next;
+        if (dir.sqrMagnitude > 0.0001f)
+            transform.forward = dir.normalized;
+
+        if (Vector3.Distance(transform.position, targetPos) <= impactDistance)
             HitTarget();
-            return;
-        }
-
-        transform.position += dir.normalized * speed * Time.deltaTime;
-        transform.forward = dir.normalized;
     }
 
     void HitTarget()
@@ -77,6 +60,14 @@ public class Projectile : MonoBehaviour
         if (impactFX != null)
             Instantiate(impactFX, transform.position, Quaternion.identity);
 
-        ProjectilePool.Instance.Despawn(this);
+        Despawn();
+    }
+
+    void Despawn()
+    {
+        if (ProjectilePool.Instance != null)
+            ProjectilePool.Instance.Despawn(this);
+        else
+            Destroy(gameObject);
     }
 }

@@ -341,6 +341,27 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         }
     }
 
+
+
+    public void IssueMoveCommand(Vector3 worldPos)
+    {
+        forcedNode = null;
+        SetTargetNode(null);
+        targetSite = null;
+        targetStorage = null;
+        CurrentAssignedSite = null;
+        CurrentDeliverySite = null;
+        CurrentReservedNode = null;
+        HasJob = false;
+        CurrentNode = null;
+        state = State.Idle;
+
+        if (agent != null && agent.enabled)
+        {
+            agent.isStopped = false;
+            agent.SetDestination(worldPos);
+        }
+    }
     // ---------- Gatherer ----------
 
     void TickSearchNode()

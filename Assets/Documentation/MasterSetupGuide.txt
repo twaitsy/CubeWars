@@ -241,3 +241,45 @@ Before pressing Play, verify:
 [ ] CraftingJobManager + ProductionNotificationManager exist in scene for assignment/bottleneck alerts.
 [ ] Resource nodes have ResourceNode with type/remaining/maxGatherers configured.
 [ ] UI objects exist (SelectionManager, UnitInspectorUI, BuildMenuUI, EconomyUI).
+
+-----------------------------------------------------------------
+11) RTS Controls + Combat Modernization (new)
+-----------------------------------------------------------------
+Selection + input:
+- SelectionManager now supports:
+  - Left click single select
+  - Left-drag selection rectangle for box select
+  - Shift + click/drag to add or remove from selection
+  - Hover highlighting through Selectable.SetHovered
+- Right-click contextual commands:
+  - Ground: Move order (formation offsets from UnitManager)
+  - Enemy Attackable: Attack order via UnitCombatController.SetManualTarget
+  - ResourceNode: Civilian gather order via Civilian.AssignPreferredNode
+- Hold A + Right Click: Attack-move order for combat units.
+
+Unit combat behavior:
+- UnitCombatController now includes:
+  - visionRange (separate from attack range)
+  - stance-aware auto targeting (Hold / Guard / Aggressive)
+  - behaviorState debug state
+  - attack-move destination tracking
+  - faster target refresh (targetRefreshSeconds)
+- Attack and sight circles can be toggled with R for the primary selected combat unit.
+
+Combat responsiveness + feedback:
+- Projectile uses consistent MoveTowards travel and impactDistance.
+- Attackable supports optional hit flash feedback (renderer color pulse).
+- Unit nav agents receive varied avoidance priority to reduce clumping.
+
+HQ diplomacy selection fix:
+- UnitInspectorUI HQ diplomacy panel now resolves Headquarters using parent lookup,
+  so clicking enemy HQ colliders reliably shows team and diplomacy controls.
+
+Main menu expansion:
+- MainMenuUI now includes "Match Setup (AoE Style)" with:
+  - Team rows
+  - Team color (RGB)
+  - AI difficulty
+  - Starting resources
+  - Diplomacy stance (Ally/Neutral/Enemy)
+- Setup can be applied to DiplomacyManager before game start.
