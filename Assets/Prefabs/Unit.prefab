@@ -133,7 +133,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   teamID: 1
-  combatEnabled: 0
+  combatEnabled: 1
   attackRange: 100
   damage: 10
   MaxHealth: 100
@@ -293,7 +293,7 @@ MonoBehaviour:
   isCivilian: 0
   isBuilding: 0
   maxHealth: 100
-  currentHealth: 0
+  canBeRepaired: 1
 --- !u!114 &-3420414400679710039
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -307,11 +307,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   teamID: 0
-  range: 80
-  damage: 10
-  fireCooldown: 0.75
+  weapon: {fileID: 0}
   canAttackCivilians: 1
   attackableLayers:
     serializedVersion: 2
     m_Bits: 14336
   currentTarget: {fileID: 0}
+  stance: 1
