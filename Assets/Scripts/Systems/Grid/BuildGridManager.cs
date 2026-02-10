@@ -50,6 +50,22 @@ using UnityEngine;
 
 public class BuildGridManager : MonoBehaviour
 {
+    struct CellKey : System.IEquatable<CellKey>
+    {
+        public int teamID;
+        public Vector2Int coord;
+
+        public CellKey(int teamID, Vector2Int coord)
+        {
+            this.teamID = teamID;
+            this.coord = coord;
+        }
+
+        public bool Equals(CellKey other) => teamID == other.teamID && coord == other.coord;
+        public override bool Equals(object obj) => obj is CellKey other && Equals(other);
+        public override int GetHashCode() => (teamID * 397) ^ coord.GetHashCode();
+    }
+
     [Header("Player")]
     public int playerTeamID = 0;
 
@@ -71,7 +87,9 @@ public class BuildGridManager : MonoBehaviour
     private bool isVisible = false;
 
     private readonly List<GameObject> allCells = new List<GameObject>();
+    private readonly Dictionary<CellKey, BuildGridCell> cellLookup = new Dictionary<CellKey, BuildGridCell>();
     private BuildGridCell selectedCell;
+    private BuildGridCell hoveredCell;
 
     void Start()
     {
@@ -119,7 +137,9 @@ public class BuildGridManager : MonoBehaviour
             if (allCells[i] != null) Destroy(allCells[i]);
 
         allCells.Clear();
+        cellLookup.Clear();
         selectedCell = null;
+        hoveredCell = null;
 
         Headquarters[] hqs = FindObjectsOfType<Headquarters>();
         Debug.Log($"[BuildGridManager] Found HQs: {hqs.Length}");
@@ -172,8 +192,36 @@ public class BuildGridManager : MonoBehaviour
                 cell.Init(this, teamID, new Vector2Int(gx, gz), center);
 
                 allCells.Add(cellObj);
+                cellLookup[new CellKey(teamID, cell.gridCoord)] = cell;
             }
         }
+    }
+
+    public bool TryGetCell(int teamID, Vector2Int coord, out BuildGridCell cell)
+    {
+        return cellLookup.TryGetValue(new CellKey(teamID, coord), out cell);
+    }
+
+    public List<BuildGridCell> GetFootprintCells(int teamID, Vector2Int anchor, Vector2Int dimensions)
+    {
+        List<BuildGridCell> result = new List<BuildGridCell>();
+
+        int width = Mathf.Max(1, dimensions.x);
+        int depth = Mathf.Max(1, dimensions.y);
+
+        for (int dx = 0; dx < width; dx++)
+        {
+            for (int dz = 0; dz < depth; dz++)
+            {
+                Vector2Int coord = new Vector2Int(anchor.x + dx, anchor.y + dz);
+                if (!TryGetCell(teamID, coord, out BuildGridCell cell))
+                    return null;
+
+                result.Add(cell);
+            }
+        }
+
+        return result;
     }
 
     void EnforceNonPlayerHiddenAndUnclickable()
@@ -272,10 +320,45 @@ public class BuildGridManager : MonoBehaviour
             SetCellMaterial(selectedCell, selectedMaterial);
     }
 
+    public void OnCellHovered(BuildGridCell cell)
+    {
+        hoveredCell = cell;
+
+        if (!isVisible || cell == null || cell.teamID != playerTeamID)
+        {
+            BuildPlacementManager.Instance?.ClearPreview();
+            return;
+        }
+
+        BuildPlacementManager.Instance?.ShowPreviewAt(cell);
+    }
+
+    public void OnCellHoverExit(BuildGridCell cell)
+    {
+        if (hoveredCell == cell)
+            hoveredCell = null;
+
+        BuildPlacementManager.Instance?.ClearPreview();
+    }
+
+    public void RefreshHoveredPreview()
+    {
+        if (hoveredCell == null)
+            return;
+
+        OnCellHovered(hoveredCell);
+    }
+
     void SetCellMaterial(BuildGridCell cell, Material mat)
     {
         if (cell == null || mat == null) return;
         var r = cell.GetComponent<Renderer>();
         if (r != null) r.sharedMaterial = mat;
+    }
+
+    void LateUpdate()
+    {
+        if (!isVisible)
+            BuildPlacementManager.Instance?.ClearPreview();
     }
 }

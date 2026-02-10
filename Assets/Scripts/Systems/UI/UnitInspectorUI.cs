@@ -169,6 +169,12 @@ public class UnitInspectorUI : MonoBehaviour
         GUILayout.Label("Building", GUI.skin.box);
         GUILayout.Label($"Team: {building.teamID}");
         GUILayout.Label($"Type: {building.GetType().Name}");
+
+        if (GUILayout.Button("Demolish Building"))
+        {
+            building.Demolish();
+            selected = null;
+        }
     }
 
     void DrawBarracks()
