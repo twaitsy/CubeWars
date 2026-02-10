@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3f33cf4722378784086bcf14af60e604, type: 3}
-  m_Name: BuildItem_ Wall
+  m_Name: BuildItem_Wall_2
   m_EditorClassIdentifier: 
-  displayName: WallMan
+  displayName: Wall 2
   icon: {fileID: 0}
-  prefab: {fileID: 96089464860108064, guid: e03e86496940efe4ebfd25ec847256f2, type: 3}
+  prefab: {fileID: 80484433716603407, guid: 613112ef23267824bb1792f2f8226930, type: 3}
   yOffset: 0
   placementOffset: {x: 0, y: 0, z: 0}
   costs:
-  - type: 4
-    amount: 40
+  - type: 1
+    amount: 1
   buildTime: 0
   category: Defense
-  aiPriority: 0
+  aiPriority: 1
