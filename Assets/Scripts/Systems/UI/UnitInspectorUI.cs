@@ -295,6 +295,15 @@ public class UnitInspectorUI : MonoBehaviour
         GUILayout.Label("Combat", GUI.skin.box);
 
         GUILayout.Label("Target: " + combat.GetTargetStatus());
+        GUILayout.Label($"Stance: {combat.stance}");
+        GUILayout.Label($"Vision Range: {combat.visionRange:0.0}");
+        GUILayout.Label($"Attack Range: {(combat.weapon != null ? combat.weapon.range : combat.fallbackRange):0.0}");
+        GUILayout.Label($"Behavior: {combat.behaviorState}");
+        GUILayout.Label($"Follow/Guard Target: None");
+
+        bool showRanges = GUILayout.Toggle(combat.ShowRangeGizmos, "Show Attack/Vision Circles (R)");
+        if (showRanges != combat.ShowRangeGizmos)
+            combat.ToggleRangeGizmos();
 
         bool newToggle = GUILayout.Toggle(
             combat.canAttackCivilians,
@@ -362,7 +371,7 @@ public class UnitInspectorUI : MonoBehaviour
 
     void DrawHeadquartersDiplomacy()
     {
-        if (!selected.TryGetComponent<Headquarters>(out var hq))
+        if (!TryGetSelectedComponent(out Headquarters hq))
             return;
 
         GUILayout.Space(6);

@@ -1,89 +1,87 @@
-﻿// =============================================================
-// UnitCombatController.cs (Updated for WeaponComponent + UI)
-// =============================================================
-
 using UnityEngine;
 using UnityEngine.AI;
 
 public class UnitCombatController : MonoBehaviour
 {
     public enum CombatStance { Hold, Guard, Aggressive }
+    public enum BehaviorState { Idle, Moving, AttackMoving, Chasing, Attacking, Holding }
 
     [Header("Owner")]
     public int teamID;
 
     [Header("Weapon")]
     public WeaponComponent weapon;
-
-    [Header("Fallback Weapon (used when WeaponComponent is missing)")]
     public float fallbackRange = 8f;
     public float fallbackDamage = 10f;
-    public float fallbackCooldown = 0.8f;
+    public float fallbackCooldown = 0.5f;
     public float fallbackProjectileSpeed = 25f;
 
-    [Header("Target Rules")]
+    [Header("Awareness")]
+    [Min(1f)] public float visionRange = 16f;
     public bool canAttackCivilians = false;
-
-    [Header("Detection")]
-    public LayerMask attackableLayers;
+    public LayerMask attackableLayers = ~0;
+    [Min(0.1f)] public float targetRefreshSeconds = 0.1f;
 
     [Header("Runtime")]
     public Attackable currentTarget;
-
     public CombatStance stance = CombatStance.Guard;
+    public BehaviorState behaviorState = BehaviorState.Idle;
 
-    private bool hasManualTarget;
-    private NavMeshAgent agent;
-    private float fallbackFireTimer;
-    private float nextRetargetLogTime;
+    public bool ShowRangeGizmos => showRangeGizmos;
+
+    NavMeshAgent agent;
+    bool hasManualTarget;
+    bool attackMoveActive;
+    Vector3 attackMoveDestination;
+    float fallbackFireTimer;
+    float retargetTimer;
+    bool showRangeGizmos;
+
+    float AttackRange => weapon != null ? weapon.range : fallbackRange;
 
     void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
-
         if (weapon == null)
             weapon = GetComponent<WeaponComponent>();
-
-        if (weapon == null)
-            Debug.LogWarning($"[UnitCombatController] {name} has no WeaponComponent. Using fallback projectile settings.", this);
     }
 
     void Update()
     {
         fallbackFireTimer -= Time.deltaTime;
+        retargetTimer -= Time.deltaTime;
 
-        if (currentTarget == null || !IsValidTarget(currentTarget))
+        if (currentTarget == null || !IsValidTarget(currentTarget) || OutOfVision(currentTarget))
         {
             currentTarget = null;
             hasManualTarget = false;
         }
 
-        if (!hasManualTarget && stance != CombatStance.Hold)
+        if (ShouldAutoAcquire())
             AcquireTarget();
 
         if (currentTarget == null)
-            return;
-
-        float attackRange = weapon != null ? weapon.range : fallbackRange;
-        float dist = Vector3.Distance(transform.position, currentTarget.transform.position);
-
-        if (dist > attackRange)
         {
-            TryMoveTowardsTarget();
+            UpdatePassiveState();
             return;
         }
 
-        if (agent != null && agent.enabled)
-            agent.isStopped = true;
+        float dist = Vector3.Distance(transform.position, currentTarget.transform.position);
+        float desiredStop = Mathf.Max(0.4f, AttackRange * 0.9f);
 
-        Vector3 toTarget = currentTarget.transform.position - transform.position;
-        toTarget.y = 0f;
-        if (toTarget.sqrMagnitude > 0.01f)
-            transform.rotation = Quaternion.Slerp(
-                transform.rotation,
-                Quaternion.LookRotation(toTarget),
-                Time.deltaTime * 10f
-            );
+        if (dist > desiredStop)
+        {
+            if (stance != CombatStance.Hold)
+            {
+                MoveToward(currentTarget.transform.position);
+                behaviorState = BehaviorState.Chasing;
+            }
+            return;
+        }
+
+        StopMove();
+        behaviorState = BehaviorState.Attacking;
+        FaceTarget(currentTarget.transform.position);
 
         if (weapon != null)
         {
@@ -99,92 +97,82 @@ public class UnitCombatController : MonoBehaviour
         }
     }
 
-    void TryMoveTowardsTarget()
+    bool ShouldAutoAcquire()
     {
-        if (agent == null || !agent.enabled)
+        if (stance == CombatStance.Hold || hasManualTarget)
+            return false;
+
+        if (retargetTimer > 0f)
+            return false;
+
+        if (attackMoveActive)
+            return true;
+
+        return currentTarget == null;
+    }
+
+    void UpdatePassiveState()
+    {
+        if (attackMoveActive)
         {
-            Debug.LogWarning($"[UnitCombatController] {name} cannot move toward targets because NavMeshAgent is missing/disabled.", this);
+            float dist = Vector3.Distance(transform.position, attackMoveDestination);
+            if (dist <= Mathf.Max(0.6f, agent != null ? agent.stoppingDistance + 0.25f : 0.6f))
+            {
+                attackMoveActive = false;
+                behaviorState = BehaviorState.Idle;
+                StopMove();
+            }
+            else
+            {
+                MoveToward(attackMoveDestination);
+                behaviorState = BehaviorState.AttackMoving;
+            }
             return;
         }
 
-        agent.isStopped = false;
-        agent.SetDestination(currentTarget.transform.position);
+        behaviorState = stance == CombatStance.Hold ? BehaviorState.Holding : BehaviorState.Idle;
     }
 
-    float GetSearchRange()
+    bool OutOfVision(Attackable target)
     {
-        float baseRange = weapon != null ? weapon.range : fallbackRange;
-        return stance == CombatStance.Aggressive ? Mathf.Max(baseRange, 40f) : baseRange;
-    }
-
-    void LogTargetingIssue(string reason)
-    {
-        if (Time.time < nextRetargetLogTime)
-            return;
-
-        nextRetargetLogTime = Time.time + 3f;
-        Debug.Log($"[UnitCombatController] {name} cannot acquire a target: {reason}", this);
+        return target != null && Vector3.Distance(transform.position, target.transform.position) > visionRange;
     }
 
     void AcquireTarget()
     {
-        float searchRange = GetSearchRange();
-        Collider[] hits = Physics.OverlapSphere(transform.position, searchRange, attackableLayers);
-
-        if (hits == null || hits.Length == 0)
-        {
-            LogTargetingIssue($"no colliders found in layers {attackableLayers.value} within range {searchRange:0.0}");
-            currentTarget = null;
-            return;
-        }
+        retargetTimer = targetRefreshSeconds;
+        var hits = Physics.OverlapSphere(transform.position, visionRange, attackableLayers);
 
         Attackable best = null;
-        float bestDist = float.MaxValue;
-        bool foundEnemyTeam = false;
-        bool foundEnemyNotAtWar = false;
-        bool foundCivilianOnly = false;
+        float bestScore = float.MaxValue;
 
         foreach (var hit in hits)
         {
             var atk = hit.GetComponentInParent<Attackable>();
-            if (atk == null || !atk.IsAlive) continue;
-            if (atk.teamID == teamID) continue;
-
-            foundEnemyTeam = true;
-
-            if (atk.isCivilian && !canAttackCivilians)
-            {
-                foundCivilianOnly = true;
+            if (!IsValidTarget(atk))
                 continue;
+
+            float dist = Vector3.Distance(transform.position, atk.transform.position);
+            float score = dist;
+
+            if (dist <= AttackRange)
+                score -= 3f;
+
+            if (attackMoveActive)
+            {
+                float pathBias = Vector3.Distance(atk.transform.position, attackMoveDestination);
+                score += pathBias * 0.25f;
             }
 
-            if (DiplomacyManager.Instance != null && !DiplomacyManager.Instance.AreAtWar(teamID, atk.teamID))
+            if (score < bestScore)
             {
-                foundEnemyNotAtWar = true;
-                continue;
-            }
-
-            float d = Vector3.Distance(transform.position, atk.transform.position);
-            if (d < bestDist)
-            {
-                bestDist = d;
+                bestScore = score;
                 best = atk;
             }
         }
 
-        if (best == null)
-        {
-            if (!foundEnemyTeam)
-                LogTargetingIssue("all nearby attackables are same team");
-            else if (foundEnemyNotAtWar)
-                LogTargetingIssue("enemy teams detected but diplomacy is not set to war");
-            else if (foundCivilianOnly)
-                LogTargetingIssue("only civilians were found while civilian attacks are disabled");
-            else
-                LogTargetingIssue("no valid attackable target passed filters");
-        }
-
-        currentTarget = best;
+        if (best != null)
+            currentTarget = best;
     }
 
     bool IsValidTarget(Attackable a)
@@ -192,21 +180,40 @@ public class UnitCombatController : MonoBehaviour
         if (a == null || !a.IsAlive) return false;
         if (a.teamID == teamID) return false;
         if (a.isCivilian && !canAttackCivilians) return false;
+        return DiplomacyManager.Instance == null || DiplomacyManager.Instance.AreAtWar(teamID, a.teamID);
+    }
 
-        return DiplomacyManager.Instance == null ||
-               DiplomacyManager.Instance.AreAtWar(teamID, a.teamID);
+    void MoveToward(Vector3 position)
+    {
+        if (agent == null || !agent.enabled)
+            return;
+
+        agent.isStopped = false;
+        if (!agent.hasPath || Vector3.Distance(agent.destination, position) > 0.5f)
+            agent.SetDestination(position);
+    }
+
+    void StopMove()
+    {
+        if (agent != null && agent.enabled)
+            agent.isStopped = true;
+    }
+
+    void FaceTarget(Vector3 worldTarget)
+    {
+        Vector3 toTarget = worldTarget - transform.position;
+        toTarget.y = 0f;
+        if (toTarget.sqrMagnitude < 0.001f) return;
+
+        transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(toTarget), Time.deltaTime * 14f);
     }
 
     public void SetManualTarget(Attackable target)
     {
-        if (!IsValidTarget(target))
-        {
-            Debug.LogWarning($"[UnitCombatController] {name} ignored manual target because it is invalid.", this);
-            return;
-        }
-
+        if (!IsValidTarget(target)) return;
         currentTarget = target;
         hasManualTarget = true;
+        attackMoveActive = false;
     }
 
     public void ClearManualTarget()
@@ -218,26 +225,49 @@ public class UnitCombatController : MonoBehaviour
     public void SetStance(CombatStance newStance)
     {
         stance = newStance;
-
         if (stance == CombatStance.Hold)
-        {
-            if (agent != null && agent.enabled)
-                agent.isStopped = true;
-            if (!hasManualTarget)
-                currentTarget = null;
-        }
+            StopMove();
     }
 
-    public string GetTargetStatus()
-    {
-        if (currentTarget == null)
-            return "None";
+    public void ToggleAttackCivilians() => canAttackCivilians = !canAttackCivilians;
 
-        return currentTarget.name + (hasManualTarget ? " (Ordered)" : "");
+    public string GetTargetStatus() => currentTarget == null ? "None" : currentTarget.name + (hasManualTarget ? " (Ordered)" : "");
+
+    public void IssueMoveOrder(Vector3 worldPos)
+    {
+        hasManualTarget = false;
+        currentTarget = null;
+        attackMoveActive = false;
+        MoveToward(worldPos);
+        behaviorState = BehaviorState.Moving;
     }
 
-    public void ToggleAttackCivilians()
+    public void IssueAttackMoveOrder(Vector3 worldPos)
     {
-        canAttackCivilians = !canAttackCivilians;
+        attackMoveActive = true;
+        hasManualTarget = false;
+        attackMoveDestination = worldPos;
+        MoveToward(worldPos);
+        behaviorState = BehaviorState.AttackMoving;
+    }
+
+    public void CancelCurrentEngagement()
+    {
+        hasManualTarget = false;
+        currentTarget = null;
+        attackMoveActive = false;
+    }
+
+    public void ToggleRangeGizmos() => showRangeGizmos = !showRangeGizmos;
+
+    void OnDrawGizmosSelected()
+    {
+        if (!showRangeGizmos) return;
+
+        Gizmos.color = new Color(0.2f, 0.9f, 1f, 0.7f);
+        Gizmos.DrawWireSphere(transform.position, visionRange);
+
+        Gizmos.color = new Color(1f, 0.2f, 0.2f, 0.7f);
+        Gizmos.DrawWireSphere(transform.position, weapon != null ? weapon.range : fallbackRange);
     }
 }

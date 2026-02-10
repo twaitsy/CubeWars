@@ -52,3 +52,23 @@ Notes
 
 - Civilians assigned to crafting need matching CivilianJobType (Blacksmith, Carpenter, Farmer, Cook, Engineer) for recipe.requiredJobType.
 - Crafting buildings should define inputSlot, outputSlot, workPoints[], throughput caps, and recipe batches for full logistics behavior.
+
+RTS control/combat modernization additions
+- SelectionManager (updated: drag-select, shift add/remove, contextual right-click command routing)
+- UnitManager (updated: formation offset utility for group move spacing)
+- UnitCombatController (updated: visionRange, behaviorState, attack-move handling, stance-aware auto-acquire)
+- CombatManager (updated: default vision/combatant configuration)
+- ProjectilePool + Projectile (updated: consistent pooled projectile motion/impact timing)
+- Selectable (updated: selected + hover indicator support)
+- UnitInspectorUI (updated: combat debug fields + robust HQ diplomacy panel lookup)
+- MainMenuUI (updated: team/diplomacy match setup screen)
+
+Prefab/component notes for updated behavior
+- Combat unit prefab should include: Unit, Attackable, UnitCombatController, WeaponComponent, NavMeshAgent, Selectable.
+- Civilian prefab should include: Civilian, NavMeshAgent, Selectable.
+- Selectable can optionally reference:
+  - selectionRing
+  - hoverRing
+  - attackRangeCircle
+  - visionRangeCircle
+- Attackable can optionally reference flashRenderer for damage flash feedback.

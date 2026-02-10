@@ -1,29 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.AI;
 
-/// <summary>
-/// Base class for all units in Cube Wars.
-///
-/// DEPENDENCIES:
-/// - NavMeshAgent:
-///     Movement and pathfinding.
-/// - UnitCombatController:
-///     Handles combat behaviour.
-/// - AIMilitary:
-///     Issues MoveTo commands.
-/// - IHasHealth / IAttackable:
-///     Used by UI, AI, and combat systems.
-///
-/// RESPONSIBILITIES:
-/// - Movement
-/// - Health + damage
-/// - Combat targeting info
-///
-/// IMPORTANT:
-/// - Does NOT delete teams.
-/// - Only destroys THIS unit on death.
-/// </summary>
-public class Unit : MonoBehaviour, IHasHealth, IAttackable
+public class Unit : MonoBehaviour, IHasHealth, IAttackable, ICommandable
 {
     [Header("Team")]
     public int teamID;
@@ -37,7 +15,7 @@ public class Unit : MonoBehaviour, IHasHealth, IAttackable
     public float MaxHealth = 100f;
     public float CurrentHealth = 100f;
 
-    private NavMeshAgent agent;
+    NavMeshAgent agent;
 
     void Awake()
     {
@@ -46,19 +24,27 @@ public class Unit : MonoBehaviour, IHasHealth, IAttackable
         {
             agent.stoppingDistance = 0.5f;
             agent.updateRotation = true;
+            agent.avoidancePriority = Random.Range(20, 80);
         }
     }
 
-    public void SetTeamID(int newTeamID)
-    {
-        teamID = newTeamID;
-    }
+    void OnEnable() => UnitManager.Instance?.Register(this);
+    void OnDisable() => UnitManager.Instance?.Unregister(this);
+
+    public void SetTeamID(int newTeamID) => teamID = newTeamID;
 
     public void MoveTo(Vector3 pos)
     {
         if (agent == null) return;
         agent.isStopped = false;
         agent.SetDestination(pos);
+    }
+
+    public void IssueMove(Vector3 worldPos)
+    {
+        MoveTo(worldPos);
+        var combat = GetComponent<UnitCombatController>();
+        combat?.CancelCurrentEngagement();
     }
 
     float IHasHealth.CurrentHealth => CurrentHealth;

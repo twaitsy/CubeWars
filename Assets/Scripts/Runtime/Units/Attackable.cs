@@ -1,12 +1,3 @@
-﻿// ============================================================================
-// Attackable.cs
-//
-// PURPOSE:
-// - Universal health + damage interface for ANY object that can be attacked.
-// - Used by units, civilians, buildings, turrets, and future entities.
-// - Provides a consistent API for combat, AI, UI, and projectiles.
-// ============================================================================
-
 using UnityEngine;
 
 public class Attackable : MonoBehaviour, IHasHealth, IAttackable
@@ -23,9 +14,17 @@ public class Attackable : MonoBehaviour, IHasHealth, IAttackable
     [Header("Repair")]
     public bool canBeRepaired = true;
 
+    [Header("Hit Feedback")]
+    public Renderer flashRenderer;
+    public Color hitFlashColor = new Color(1f, 0.3f, 0.3f, 1f);
+    public float hitFlashDuration = 0.08f;
+
     IAttackable attackProxy;
     IHasHealth healthProxy;
     Civilian civilianProxy;
+    MaterialPropertyBlock block;
+    Color baseColor = Color.white;
+    float flashTimer;
 
     public int TeamID => teamID;
     public Transform AimPoint => transform;
@@ -63,6 +62,39 @@ public class Attackable : MonoBehaviour, IHasHealth, IAttackable
 
         if (healthProxy == null)
             currentHealth = maxHealth;
+
+        if (flashRenderer == null)
+            flashRenderer = GetComponentInChildren<Renderer>();
+
+        if (flashRenderer != null)
+        {
+            block = new MaterialPropertyBlock();
+            if (flashRenderer.sharedMaterial != null && flashRenderer.sharedMaterial.HasProperty("_Color"))
+                baseColor = flashRenderer.sharedMaterial.color;
+        }
+    }
+
+    void Update()
+    {
+        if (flashRenderer == null || block == null)
+            return;
+
+        if (flashTimer > 0f)
+        {
+            flashTimer -= Time.deltaTime;
+            float t = Mathf.Clamp01(flashTimer / Mathf.Max(0.01f, hitFlashDuration));
+            Color c = Color.Lerp(baseColor, hitFlashColor, t);
+            flashRenderer.GetPropertyBlock(block);
+            block.SetColor("_Color", c);
+            flashRenderer.SetPropertyBlock(block);
+
+            if (flashTimer <= 0f)
+            {
+                flashRenderer.GetPropertyBlock(block);
+                block.SetColor("_Color", baseColor);
+                flashRenderer.SetPropertyBlock(block);
+            }
+        }
     }
 
     public void Repair(float amount)
@@ -74,6 +106,8 @@ public class Attackable : MonoBehaviour, IHasHealth, IAttackable
     public void TakeDamage(float dmg)
     {
         if (!IsAlive) return;
+
+        flashTimer = hitFlashDuration;
 
         if (attackProxy != null)
         {
@@ -89,8 +123,7 @@ public class Attackable : MonoBehaviour, IHasHealth, IAttackable
 
         currentHealth -= dmg;
 
-        if (AlertManager.Instance != null)
-            AlertManager.Instance.Push($"{name} is under attack!");
+        AlertManager.Instance?.Push($"{name} is under attack!");
 
         if (currentHealth <= 0)
             Die();
@@ -98,9 +131,7 @@ public class Attackable : MonoBehaviour, IHasHealth, IAttackable
 
     void Die()
     {
-        if (AlertManager.Instance != null)
-            AlertManager.Instance.Push($"{name} destroyed");
-
+        AlertManager.Instance?.Push($"{name} destroyed");
         Destroy(gameObject);
     }
 }
