@@ -1,0 +1,35 @@
+CubeWars - Unit Prefab Creation Instructions
+
+1) Create prefab root
+- Add a root GameObject with collider + mesh/visuals.
+- Add NavMeshAgent for movement.
+
+2) Add required gameplay scripts
+- Unit (set teamID defaults and health)
+- Attackable (auto-resolves health/team from Unit)
+- UnitCombatController
+
+3) Optional ranged weapon setup
+- Add WeaponComponent if you want custom weapon stats.
+- Assign projectilePrefab and (optional) muzzle transform.
+- If WeaponComponent or projectilePrefab is missing, UnitCombatController now falls back to runtime projectile spawning.
+
+4) Layer and target setup
+- Ensure the unit collider is on a layer included in other units' UnitCombatController.attackableLayers.
+- Ensure enemy units/buildings have Attackable.
+
+5) Team visuals and selection
+- Add Selectable for click selection.
+- Add TeamVisual (if used in your project) for team color tinting.
+
+6) Inspector stance setup
+- On UnitCombatController, choose stance:
+  - Hold: no auto-acquire (manual orders only)
+  - Guard: standard acquire range
+  - Aggressive: extended acquire range and pursuit
+
+7) Validation checklist
+- Unit moves with NavMeshAgent.
+- Unit can acquire and pursue hostile target.
+- Unit fires projectile even without WeaponComponent.
+- Unit appears in inspector and stance can be changed.
