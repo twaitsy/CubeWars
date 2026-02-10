@@ -20,5 +20,8 @@ public enum CivilianRole
     Technician,
     Scientist,
     Engineer,
+    Blacksmith,
+    Carpenter,
+    Cook,
     Idle
 }

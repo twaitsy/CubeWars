@@ -84,6 +84,25 @@ public class JobManager : MonoBehaviour
         return result;
     }
 
+    public bool AssignCivilianToCraftingBuilding(Civilian civilian, CraftingBuilding building, bool manual = true)
+    {
+        if (civilian == null || building == null)
+            return false;
+
+        if (CraftingJobManager.Instance == null)
+            return false;
+
+        return CraftingJobManager.Instance.TryAssignManually(civilian, building);
+    }
+
+    public void SetCraftingBuildingPriority(CraftingBuilding building, int priority)
+    {
+        if (building == null)
+            return;
+
+        building.assignmentPriority = Mathf.Clamp(priority, 0, 10);
+    }
+
     public int GetActiveConstructionSiteCount(int teamID)
     {
         int count = 0;

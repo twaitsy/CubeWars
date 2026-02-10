@@ -10,12 +10,19 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     [Header("Role")]
     public CivilianRole role = CivilianRole.Gatherer;
 
+    [Header("Job Specialization")]
+    public CivilianJobType jobType = CivilianJobType.Generalist;
+
+    public CivilianJobType JobType => jobType;
+
     [Header("Health")]
     public float maxHealth = 50f;
 
     [Header("Movement")]
     public float speed = 2.5f;
     public float stopDistance = 1.2f;
+    public bool useRoadBonus = true;
+    public float roadSpeedMultiplier = 1.2f;
 
     [Header("Carrying")]
     public int carryCapacity = 30;
@@ -57,6 +64,14 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     private ConstructionSite targetSite;
     private ResourceStorageContainer targetStorage;
 
+    private CraftingBuilding targetCraftingBuilding;
+    private Transform targetWorkPoint;
+    private bool manualCraftingAssignment;
+
+    public CraftingBuilding AssignedCraftingBuilding => targetCraftingBuilding;
+    public string CurrentTaskLabel => BuildTaskLabel();
+    public float CraftingProgress => targetCraftingBuilding != null ? targetCraftingBuilding.CraftProgress01 : 0f;
+
     // IHasHealth / ITargetable style properties
     public int TeamID => teamID;
     public bool IsAlive => currentHealth > 0f;
@@ -82,7 +97,14 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         GoingToPickupStorage,
         PickingUp,
         GoingToDeliverSite,
-        Delivering
+        Delivering,
+
+        FetchingCraftInput,
+        DeliveringCraftInput,
+        GoingToWorkPoint,
+        CraftingAtWorkPoint,
+        CollectingCraftOutput,
+        DeliveringCraftOutput
     }
 
     private State state;
@@ -92,6 +114,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     {
         get
         {
+            if (targetCraftingBuilding != null) return SanitizeName(targetCraftingBuilding.name);
             if (targetSite != null) return SanitizeName(targetSite.name);
             if (targetNode != null) return SanitizeName(targetNode.name);
             if (targetStorage != null) return SanitizeName(targetStorage.name);
@@ -115,7 +138,10 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     {
         // Only register here if Start has already run (prevents wrong-team registration on Instantiate)
         if (started)
+        {
             RegisterWithJobManager();
+            CraftingJobManager.Instance?.RegisterCivilian(this);
+        }
     }
 
     void OnDisable()
@@ -124,6 +150,8 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
         if (registeredWithJobManager)
             UnregisterFromJobManager();
+
+        CraftingJobManager.Instance?.UnregisterCivilian(this);
     }
 
     void Start()
@@ -133,6 +161,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
         started = true;
         RegisterWithJobManager();
+        CraftingJobManager.Instance?.RegisterCivilian(this);
     }
 
     void RegisterWithJobManager()
@@ -161,7 +190,10 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         if (registeredWithJobManager)
             UnregisterFromJobManager();
 
+        CraftingJobManager.Instance?.UnregisterCivilian(this);
+
         RegisterWithJobManager();
+        CraftingJobManager.Instance?.RegisterCivilian(this);
     }
 
     public void SetTeamID(int newTeamID)
@@ -175,7 +207,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     {
         if (!IsAlive) return;
 
-        agent.speed = speed;
+        agent.speed = speed * GetMovementSpeedMultiplier();
         agent.stoppingDistance = stopDistance;
 
         switch (state)
@@ -197,12 +229,25 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             case State.PickingUp: TickPickup(); break;
             case State.GoingToDeliverSite: TickGoDeliver(); break;
             case State.Delivering: TickDeliver(); break;
+
+            case State.FetchingCraftInput: TickFetchCraftInput(); break;
+            case State.DeliveringCraftInput: TickDeliverCraftInput(); break;
+            case State.GoingToWorkPoint: TickGoWorkPoint(); break;
+            case State.CraftingAtWorkPoint: TickCraftAtWorkPoint(); break;
+            case State.CollectingCraftOutput: TickCollectCraftOutput(); break;
+            case State.DeliveringCraftOutput: TickDeliverCraftOutput(); break;
         }
     }
 
     public void SetRole(CivilianRole newRole)
     {
         role = newRole;
+
+        if (newRole == CivilianRole.Blacksmith) jobType = CivilianJobType.Blacksmith;
+        else if (newRole == CivilianRole.Carpenter) jobType = CivilianJobType.Carpenter;
+        else if (newRole == CivilianRole.Farmer) jobType = CivilianJobType.Farmer;
+        else if (newRole == CivilianRole.Cook) jobType = CivilianJobType.Cook;
+        else if (newRole == CivilianRole.Engineer) jobType = CivilianJobType.Engineer;
 
         SetTargetNode(null);
         targetSite = null;
@@ -211,6 +256,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         CurrentReservedNode = null;
         CurrentAssignedSite = null;
         CurrentDeliverySite = null;
+        ClearCraftingAssignment();
 
         if (carriedAmount > 0)
         {
@@ -224,6 +270,16 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             case CivilianRole.Gatherer: state = State.SearchingNode; break;
             case CivilianRole.Builder: state = State.SearchingBuildSite; break;
             case CivilianRole.Hauler: state = State.SearchingSupplySite; break;
+            case CivilianRole.Crafter:
+            case CivilianRole.Farmer:
+            case CivilianRole.Technician:
+            case CivilianRole.Scientist:
+            case CivilianRole.Engineer:
+            case CivilianRole.Blacksmith:
+            case CivilianRole.Carpenter:
+            case CivilianRole.Cook:
+                state = State.FetchingCraftInput;
+                break;
             default: state = State.Idle; break;
         }
     }
@@ -808,6 +864,217 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
         neededType = bestType;
         return true;
+    }
+
+
+    public void SetJobType(CivilianJobType newJobType)
+    {
+        jobType = newJobType;
+    }
+
+    public bool CanTakeCraftingAssignment(CivilianJobType requiredType)
+    {
+        if (targetCraftingBuilding != null && !manualCraftingAssignment)
+            return false;
+
+        return requiredType == CivilianJobType.Generalist || jobType == requiredType;
+    }
+
+    public void AssignCraftingBuilding(CraftingBuilding building, bool manual = false)
+    {
+        targetCraftingBuilding = building;
+        manualCraftingAssignment = manual;
+
+        if (role == CivilianRole.Idle || role == CivilianRole.Gatherer || role == CivilianRole.Builder || role == CivilianRole.Hauler)
+            role = CivilianRole.Crafter;
+
+        state = State.FetchingCraftInput;
+    }
+
+    public void ClearCraftingAssignment()
+    {
+        if (targetCraftingBuilding != null)
+            targetCraftingBuilding.ReleaseWorkPoint(this);
+
+        targetCraftingBuilding = null;
+        targetWorkPoint = null;
+        manualCraftingAssignment = false;
+    }
+
+    void TickFetchCraftInput()
+    {
+        if (targetCraftingBuilding == null)
+        {
+            state = State.Idle;
+            return;
+        }
+
+        if (carriedAmount > 0)
+        {
+            state = State.DeliveringCraftInput;
+            return;
+        }
+
+        if (targetCraftingBuilding.TryGetInputRequest(transform.position, out carriedType, out int amount, out targetStorage))
+        {
+            if (targetStorage == null)
+            {
+                ProductionNotificationManager.Instance?.NotifyIfReady($"missing-storage-{targetCraftingBuilding.GetInstanceID()}", $"{targetCraftingBuilding.name}: no storage with {carriedType} found.");
+                return;
+            }
+
+            agent.SetDestination(targetStorage.transform.position);
+            if (Arrived())
+            {
+                int took = targetStorage.Withdraw(carriedType, Mathf.Min(amount, GetCarryCapacity()));
+                carriedAmount = took;
+                state = took > 0 ? State.DeliveringCraftInput : State.FetchingCraftInput;
+            }
+            return;
+        }
+
+        state = State.CollectingCraftOutput;
+    }
+
+    void TickDeliverCraftInput()
+    {
+        if (targetCraftingBuilding == null)
+        {
+            state = State.GoingToDepositStorage;
+            return;
+        }
+
+        Vector3 slot = targetCraftingBuilding.inputSlot != null ? targetCraftingBuilding.inputSlot.position : targetCraftingBuilding.transform.position;
+        agent.SetDestination(slot);
+
+        if (!Arrived()) return;
+
+        if (carriedAmount <= 0)
+        {
+            state = State.FetchingCraftInput;
+            return;
+        }
+
+        targetCraftingBuilding.TryDeliverInput(carriedType, carriedAmount, out int accepted);
+        carriedAmount -= accepted;
+
+        if (carriedAmount > 0)
+            state = State.GoingToDepositStorage;
+        else
+            state = State.GoingToWorkPoint;
+    }
+
+    void TickGoWorkPoint()
+    {
+        if (targetCraftingBuilding == null)
+        {
+            state = State.Idle;
+            return;
+        }
+
+        if (!targetCraftingBuilding.TryReserveWorkPoint(this, out targetWorkPoint) || targetWorkPoint == null)
+            return;
+
+        agent.SetDestination(targetWorkPoint.position);
+        if (Arrived())
+            state = State.CraftingAtWorkPoint;
+    }
+
+    void TickCraftAtWorkPoint()
+    {
+        if (targetCraftingBuilding == null)
+        {
+            state = State.Idle;
+            return;
+        }
+
+        if (targetCraftingBuilding.State == CraftingBuilding.ProductionState.WaitingForInputs)
+            state = State.FetchingCraftInput;
+        else if (targetCraftingBuilding.State == CraftingBuilding.ProductionState.OutputReady || targetCraftingBuilding.State == CraftingBuilding.ProductionState.WaitingForPickup)
+            state = State.CollectingCraftOutput;
+    }
+
+    void TickCollectCraftOutput()
+    {
+        if (targetCraftingBuilding == null)
+        {
+            state = State.Idle;
+            return;
+        }
+
+        if (!targetCraftingBuilding.TryGetOutputRequest(transform.position, out carriedType, out int amount, out targetStorage))
+        {
+            state = State.FetchingCraftInput;
+            return;
+        }
+
+        Vector3 slot = targetCraftingBuilding.outputSlot != null ? targetCraftingBuilding.outputSlot.position : targetCraftingBuilding.transform.position;
+        agent.SetDestination(slot);
+        if (!Arrived()) return;
+
+        carriedAmount = targetCraftingBuilding.CollectOutput(carriedType, Mathf.Min(amount, GetCarryCapacity()));
+        state = carriedAmount > 0 ? State.DeliveringCraftOutput : State.FetchingCraftInput;
+    }
+
+    void TickDeliverCraftOutput()
+    {
+        if (carriedAmount <= 0)
+        {
+            state = State.FetchingCraftInput;
+            return;
+        }
+
+        if (targetStorage == null)
+            targetStorage = TeamStorageManager.Instance?.FindNearestStorageCached(teamID, carriedType, transform.position, true);
+
+        if (targetStorage == null)
+        {
+            ProductionNotificationManager.Instance?.NotifyIfReady($"full-output-{teamID}-{carriedType}", $"No free storage for {carriedType}. Production stalled.");
+            return;
+        }
+
+        agent.SetDestination(targetStorage.transform.position);
+        if (!Arrived()) return;
+
+        int accepted = targetStorage.Deposit(carriedType, carriedAmount);
+        carriedAmount -= accepted;
+
+        if (carriedAmount > 0)
+            ProductionNotificationManager.Instance?.NotifyIfReady($"full-output-{targetStorage.GetInstanceID()}-{carriedType}", $"Storage full for {carriedType}. Output queue blocked.");
+
+        if (carriedAmount > 0)
+            state = State.DeliveringCraftOutput;
+        else
+            state = State.FetchingCraftInput;
+    }
+
+    float GetMovementSpeedMultiplier()
+    {
+        if (!useRoadBonus)
+            return 1f;
+
+        Vector3 probe = transform.position + Vector3.up * 0.2f;
+        if (Physics.Raycast(probe, Vector3.down, out RaycastHit hit, 2f))
+        {
+            if (hit.collider != null && hit.collider.CompareTag("Road"))
+                return Mathf.Max(1f, roadSpeedMultiplier);
+        }
+
+        return 1f;
+    }
+
+    string BuildTaskLabel()
+    {
+        switch (state)
+        {
+            case State.FetchingCraftInput: return "Fetching crafting inputs";
+            case State.DeliveringCraftInput: return "Delivering crafting inputs";
+            case State.GoingToWorkPoint: return "Moving to work point";
+            case State.CraftingAtWorkPoint: return "Operating work point";
+            case State.CollectingCraftOutput: return "Collecting outputs";
+            case State.DeliveringCraftOutput: return "Delivering crafted goods";
+            default: return state.ToString();
+        }
     }
 
     public void TakeDamage(float damage)
