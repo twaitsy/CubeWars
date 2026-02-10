@@ -61,4 +61,14 @@ public class BuildGridCell : MonoBehaviour
         if (manager != null)
             manager.OnCellClicked(this);
     }
+
+    void OnMouseEnter()
+    {
+        manager?.OnCellHovered(this);
+    }
+
+    void OnMouseExit()
+    {
+        manager?.OnCellHoverExit(this);
+    }
 }

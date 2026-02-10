@@ -62,6 +62,7 @@ public class ConstructionSite : MonoBehaviour
     public int teamID;
     public BuildItemDefinition buildItem;   // what we’re building
     public BuildGridCell gridCell;         // cell this site occupies
+    private readonly List<BuildGridCell> occupiedCells = new List<BuildGridCell>();
 
     [Header("Build Settings")]
     public float baseBuildTime = 10f;      // fallback if item has no override
@@ -129,10 +130,21 @@ public class ConstructionSite : MonoBehaviour
 
     public void Init(BuildGridCell cell, int team, BuildItemDefinition item, bool reserveResources)
     {
+        Init(cell, team, item, reserveResources, null);
+    }
+
+    public void Init(BuildGridCell cell, int team, BuildItemDefinition item, bool reserveResources, List<BuildGridCell> footprintCells)
+    {
         teamID = team;
         gridCell = cell;
         buildItem = item;
         costs = item != null ? item.costs : costs;
+
+        occupiedCells.Clear();
+        if (footprintCells != null && footprintCells.Count > 0)
+            occupiedCells.AddRange(footprintCells);
+        else if (cell != null)
+            occupiedCells.Add(cell);
 
         delivered.Clear();
         if (costs != null)
@@ -223,7 +235,7 @@ public class ConstructionSite : MonoBehaviour
         if (buildItem != null && buildItem.prefab != null)
         {
             Vector3 pos = transform.position;
-            Quaternion rot = Quaternion.identity;
+            Quaternion rot = transform.rotation;
 
             GameObject placed = Instantiate(buildItem.prefab, pos, rot);
 
@@ -233,11 +245,9 @@ public class ConstructionSite : MonoBehaviour
 
             ApplyTeamToPlacedObject(placed, teamID);
 
-            if (gridCell != null)
-            {
-                gridCell.isOccupied = true;
-                gridCell.placedObject = placed;
-            }
+            BuildGridOccupant occ = placed.GetComponent<BuildGridOccupant>();
+            if (occ == null) occ = placed.AddComponent<BuildGridOccupant>();
+            occ.SetOccupiedCells(occupiedCells, placed);
         }
 
         // IMPORTANT:

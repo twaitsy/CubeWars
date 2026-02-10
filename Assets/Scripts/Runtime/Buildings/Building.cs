@@ -65,4 +65,11 @@ public abstract class Building : MonoBehaviour, ITargetable, IHasHealth, IAttack
         // Only destroys THIS building, not the team.
         Destroy(gameObject);
     }
+
+    public virtual void Demolish()
+    {
+        if (!IsAlive) return;
+        currentHealth = 0f;
+        Die();
+    }
 }
