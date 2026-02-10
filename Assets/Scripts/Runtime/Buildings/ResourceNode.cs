@@ -8,8 +8,15 @@ public class ResourceNode : MonoBehaviour
     [FormerlySerializedAs("amount")]
     public int remaining = 500;
 
+    [Header("Gathering")]
+    [Tooltip("Maximum number of civilians that can gather from this node at once.")]
+    [Min(1)] public int maxGatherers = 2;
+
     [HideInInspector]
     public int claimedByTeam = -1;
+
+    private readonly System.Collections.Generic.HashSet<int> gathererIds =
+        new System.Collections.Generic.HashSet<int>();
 
     public bool IsDepleted => remaining <= 0;
 
@@ -23,6 +30,8 @@ public class ResourceNode : MonoBehaviour
     {
         if (ResourceRegistry.Instance != null)
             ResourceRegistry.Instance.Unregister(this);
+
+        gathererIds.Clear();
     }
 
     void Update()
@@ -33,10 +42,36 @@ public class ResourceNode : MonoBehaviour
 
     // Legacy compatibility: some code uses node.amount
     public int amount => remaining;
+    public int ActiveGatherers => gathererIds.Count;
+    public bool HasAvailableGatherSlots => gathererIds.Count < Mathf.Max(1, maxGatherers);
 
     public bool IsClaimedByOther(int teamID)
     {
         return claimedByTeam != -1 && claimedByTeam != teamID;
+    }
+
+    public bool TryReserveGatherSlot(Civilian civilian)
+    {
+        if (civilian == null || IsDepleted)
+            return false;
+
+        int id = civilian.GetInstanceID();
+        if (gathererIds.Contains(id))
+            return true;
+
+        if (gathererIds.Count >= Mathf.Max(1, maxGatherers))
+            return false;
+
+        gathererIds.Add(id);
+        return true;
+    }
+
+    public void ReleaseGatherSlot(Civilian civilian)
+    {
+        if (civilian == null)
+            return;
+
+        gathererIds.Remove(civilian.GetInstanceID());
     }
 
     /// <summary>

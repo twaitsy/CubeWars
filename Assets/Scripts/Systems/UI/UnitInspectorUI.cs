@@ -162,7 +162,7 @@ public class UnitInspectorUI : MonoBehaviour
 
     void DrawBuilding()
     {
-        if (!selected.TryGetComponent<Building>(out var building))
+        if (!TryGetSelectedComponent(out Building building))
             return;
 
         GUILayout.Space(6);
@@ -170,11 +170,19 @@ public class UnitInspectorUI : MonoBehaviour
         GUILayout.Label($"Team: {building.teamID}");
         GUILayout.Label($"Type: {building.GetType().Name}");
 
+        int playerTeam = GetPlayerTeamID();
+        bool canDemolish = playerTeam < 0 || building.teamID == playerTeam;
+
+        GUI.enabled = canDemolish;
         if (GUILayout.Button("Demolish Building"))
         {
             building.Demolish();
             selected = null;
         }
+        GUI.enabled = true;
+
+        if (!canDemolish)
+            GUILayout.Label("You can only demolish your own buildings.");
     }
 
     void DrawBarracks()
@@ -411,11 +419,33 @@ public class UnitInspectorUI : MonoBehaviour
 
     int GetTeamID()
     {
-        if (selected.TryGetComponent<Unit>(out var unit)) return unit.teamID;
-        if (selected.TryGetComponent<Civilian>(out var civ)) return civ.teamID;
-        if (selected.TryGetComponent<Building>(out var building)) return building.teamID;
-        if (selected.TryGetComponent<ConstructionSite>(out var site)) return site.teamID;
-        if (selected.TryGetComponent<ResourceStorageContainer>(out var storage)) return storage.teamID;
+        if (TryGetSelectedComponent(out Unit unit)) return unit.teamID;
+        if (TryGetSelectedComponent(out Civilian civ)) return civ.teamID;
+        if (TryGetSelectedComponent(out Building building)) return building.teamID;
+        if (TryGetSelectedComponent(out ConstructionSite site)) return site.teamID;
+        if (TryGetSelectedComponent(out ResourceStorageContainer storage)) return storage.teamID;
         return -1;
+    }
+
+    int GetPlayerTeamID()
+    {
+        var gm = FindObjectOfType<GameManager>();
+        if (gm != null && gm.playerTeam != null)
+            return gm.playerTeam.teamID;
+
+        return -1;
+    }
+
+    bool TryGetSelectedComponent<T>(out T component) where T : Component
+    {
+        component = null;
+        if (selected == null)
+            return false;
+
+        if (selected.TryGetComponent(out component))
+            return true;
+
+        component = selected.GetComponentInParent<T>();
+        return component != null;
     }
 }

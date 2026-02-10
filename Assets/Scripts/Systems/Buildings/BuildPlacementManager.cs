@@ -130,7 +130,7 @@ public class BuildPlacementManager : MonoBehaviour
             return false;
         }
 
-        BuildingFootprint footprint = item.prefab.GetComponent<BuildingFootprint>();
+        BuildingFootprint footprint = BuildingFootprint.FindOnPrefab(item.prefab);
         Vector2Int dimensions = footprint != null
             ? footprint.GetDimensionsForQuarterTurns(placementQuarterTurns)
             : Vector2Int.one;
@@ -292,7 +292,7 @@ public class BuildPlacementManager : MonoBehaviour
             return;
         }
 
-        BuildingFootprint footprint = selectedItem.prefab.GetComponent<BuildingFootprint>();
+        BuildingFootprint footprint = BuildingFootprint.FindOnPrefab(selectedItem.prefab);
         Vector2Int dimensions = footprint != null
             ? footprint.GetDimensionsForQuarterTurns(placementQuarterTurns)
             : Vector2Int.one;

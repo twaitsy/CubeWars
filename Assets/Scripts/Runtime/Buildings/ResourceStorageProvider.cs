@@ -7,8 +7,14 @@ public class ResourceStorageProvider : MonoBehaviour
     [Header("Capacities provided by this building")]
     public ResourceCapacityEntry[] capacities;
 
+    [Header("Optional starting resources")]
+    [Tooltip("If enabled, these resources are granted once when this provider first registers.")]
+    public bool grantStartingResources = false;
+    public ResourceCost[] startingResources;
+
     private bool started;
     private bool registered;
+    private bool grantedStartingResources;
 
     // ---------------------------------------------------------
     // DEPENDENCIES:
@@ -47,6 +53,19 @@ public class ResourceStorageProvider : MonoBehaviour
                 if (cap > 0)
                     TeamStorageManager.Instance.AddCapacity(teamID, capacities[i].type, cap);
             }
+        }
+
+        if (grantStartingResources && !grantedStartingResources && TeamResources.Instance != null && startingResources != null)
+        {
+            for (int i = 0; i < startingResources.Length; i++)
+            {
+                int amount = Mathf.Max(0, startingResources[i].amount);
+                if (amount <= 0) continue;
+
+                TeamResources.Instance.Deposit(teamID, startingResources[i].type, amount);
+            }
+
+            grantedStartingResources = true;
         }
 
         registered = true;

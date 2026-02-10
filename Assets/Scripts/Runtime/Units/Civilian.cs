@@ -120,6 +120,8 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
     void OnDisable()
     {
+        ReleaseNodeReservation();
+
         if (registeredWithJobManager)
             UnregisterFromJobManager();
     }
@@ -202,7 +204,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     {
         role = newRole;
 
-        targetNode = null;
+        SetTargetNode(null);
         targetSite = null;
         targetStorage = null;
 
@@ -244,8 +246,8 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
         role = CivilianRole.Gatherer;
         forcedNode = node;
-        targetNode = node;
-        CurrentReservedNode = node;
+        bool reserved = TrySetTargetNode(node);
+        CurrentReservedNode = reserved ? targetNode : null;
 
         if (targetNode != null)
         {
@@ -265,8 +267,8 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         if (role != CivilianRole.Gatherer)
             SetRole(CivilianRole.Gatherer);
 
-        targetNode = forcedNode;
-        CurrentReservedNode = forcedNode;
+        bool reserved = TrySetTargetNode(forcedNode);
+        CurrentReservedNode = reserved ? targetNode : null;
 
         if (targetNode != null)
         {
@@ -291,10 +293,12 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         if (searchTimer < searchRetrySeconds) return;
         searchTimer = 0f;
 
+        bool assigned = false;
         if (forcedNode != null && forcedNode.amount > 0)
-            targetNode = forcedNode;
-        else
-            targetNode = FindClosestResourceNode();
+            assigned = TrySetTargetNode(forcedNode);
+
+        if (!assigned)
+            assigned = TrySetTargetNode(FindClosestResourceNode());
 
         CurrentReservedNode = targetNode;
 
@@ -312,7 +316,15 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             if (forcedNode == targetNode)
                 forcedNode = null;
 
-            targetNode = null;
+            SetTargetNode(null);
+            CurrentReservedNode = null;
+            state = State.SearchingNode;
+            return;
+        }
+
+        if (!targetNode.TryReserveGatherSlot(this))
+        {
+            SetTargetNode(null);
             CurrentReservedNode = null;
             state = State.SearchingNode;
             return;
@@ -339,7 +351,15 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             if (forcedNode == targetNode)
                 forcedNode = null;
 
-            targetNode = null;
+            SetTargetNode(null);
+            CurrentReservedNode = null;
+            state = (carriedAmount > 0) ? State.GoingToDepositStorage : State.SearchingNode;
+            return;
+        }
+
+        if (!targetNode.TryReserveGatherSlot(this))
+        {
+            SetTargetNode(null);
             CurrentReservedNode = null;
             state = (carriedAmount > 0) ? State.GoingToDepositStorage : State.SearchingNode;
             return;
@@ -680,19 +700,57 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         {
             var n = nodes[i];
             if (n == null || n.amount <= 0) continue;
+            if (!n.TryReserveGatherSlot(this)) continue;
 
             if (TeamStorageManager.Instance != null && TeamStorageManager.Instance.GetTotalFreeInBuildings(teamID, n.type) <= 0)
+            {
+                n.ReleaseGatherSlot(this);
                 continue;
+            }
 
             float d = (n.transform.position - transform.position).sqrMagnitude;
             if (d < bestD)
             {
+                if (best != null)
+                    best.ReleaseGatherSlot(this);
+
                 bestD = d;
                 best = n;
+            }
+            else
+            {
+                n.ReleaseGatherSlot(this);
             }
         }
 
         return best;
+    }
+
+    bool TrySetTargetNode(ResourceNode newNode)
+    {
+        if (newNode != null && !newNode.TryReserveGatherSlot(this))
+            return false;
+
+        if (targetNode == newNode)
+            return true;
+
+        if (targetNode != null)
+            targetNode.ReleaseGatherSlot(this);
+
+        targetNode = newNode;
+        return true;
+    }
+
+    void SetTargetNode(ResourceNode newNode)
+    {
+        TrySetTargetNode(newNode);
+    }
+
+    void ReleaseNodeReservation()
+    {
+        SetTargetNode(null);
+        forcedNode = null;
+        CurrentReservedNode = null;
     }
 
     static string SanitizeName(string raw)
