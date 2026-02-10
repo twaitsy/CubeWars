@@ -18,6 +18,18 @@ public class BuildingFootprint : MonoBehaviour
     [Tooltip("Optional additional local Y rotation in degrees.")]
     public float extraYRotation;
 
+    public static BuildingFootprint FindOnPrefab(GameObject prefab)
+    {
+        if (prefab == null)
+            return null;
+
+        var footprint = prefab.GetComponent<BuildingFootprint>();
+        if (footprint != null)
+            return footprint;
+
+        return prefab.GetComponentInChildren<BuildingFootprint>(true);
+    }
+
     /// <summary>
     /// Returns footprint dimensions for the specified quarter-turn rotation.
     /// </summary>

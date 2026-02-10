@@ -1,34 +1,44 @@
 CubeWars - Required Scene Scripts Before Gameplay
 
-Core bootstrap/system scripts:
+Core bootstrap/system scripts (required)
 - GameManager
+- TeamStorageManager
+- TeamResources
+- DiplomacyManager
+- BuildPlacementManager
+- BuildGridManager
+- ResourceRegistry
+- JobManager
+- ProjectilePool
+
+Common global managers (recommended / used by existing systems)
 - SaveLoadManager
 - EventManager
 - AIManager
-- DiplomacyManager
 - UnitManager
 - CombatManager
-- TeamStorageManager
 - TeamColorManager
 - WinConditionManager
-- BuildGridManager
-- ProjectilePool
 
-UI/interaction scripts:
+UI/interaction scripts
 - SelectionManager
 - UnitInspectorUI
 - EconomyUI
 - BuildMenuUI
 - Minimap
 - IMGUIInputBlocker
+- TaskBoardUI (if using civilian role/task management UI)
 
-Scene camera/input scripts:
+Scene camera/input scripts
 - RTSCamera
 
-Team setup scripts (at least one):
+Team setup scripts (at least one)
 - TeamBootstrap OR SixTeamBootstrap OR HQSpawner
 
-Notes:
+Notes
 - DiplomacyManager should have "Initialize All Teams At War" enabled unless manually configured.
-- Every unit prefab should include UnitCombatController and Attackable.
+- BuildPlacementManager must have constructionSitePrefab assigned when useConstructionSites is true.
+- Every combat unit prefab should include UnitCombatController and Attackable.
+- Every civilian prefab should include Civilian + NavMeshAgent.
 - ProjectilePool must exist so pooled projectiles are reused.
+- Resource nodes require ResourceNode and rely on ResourceRegistry for discovery.
