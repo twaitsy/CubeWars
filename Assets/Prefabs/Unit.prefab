@@ -22,7 +22,7 @@ GameObject:
   - component: {fileID: -2566191475746055583}
   - component: {fileID: -3108631485046487415}
   - component: {fileID: 7308953244192399137}
-  - component: {fileID: -3420414400679710039}
+  - component: {fileID: 4156195193998033707}
   m_Layer: 11
   m_Name: Unit
   m_TagString: Untagged
@@ -294,7 +294,7 @@ MonoBehaviour:
   isBuilding: 0
   maxHealth: 100
   canBeRepaired: 1
---- !u!114 &-3420414400679710039
+--- !u!114 &4156195193998033707
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -308,9 +308,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   teamID: 0
   weapon: {fileID: 0}
-  canAttackCivilians: 1
+  canAttackCivilians: 0
   attackableLayers:
     serializedVersion: 2
-    m_Bits: 14336
+    m_Bits: 0
   currentTarget: {fileID: 0}
   stance: 1
