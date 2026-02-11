@@ -18,6 +18,8 @@ public class Minimap : MonoBehaviour
     [Header("Rotation")]
     public float rotationOffset = 90f;
     // Fixes the 90-degree mismatch between world and minimap
+    
+    public bool useIMGUI = true;
 
     Camera mainCam;
 
@@ -37,6 +39,8 @@ public class Minimap : MonoBehaviour
 
     void OnGUI()
     {
+        if (!useIMGUI) return;
+
         Rect r = isExpanded ? expandedRect : minimapRect;
 
         GUI.Box(r, "Minimap");
