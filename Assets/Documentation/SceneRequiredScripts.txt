@@ -72,3 +72,11 @@ Prefab/component notes for updated behavior
   - attackRangeCircle
   - visionRangeCircle
 - Attackable can optionally reference flashRenderer for damage flash feedback.
+
+Needs/Housing additions
+- House (required for civilian sleep recovery)
+- FoodResourceDatabase asset assigned to Civilian prefab (recommended)
+- Civilian prefab uses hunger/tiredness fields for runtime survival
+
+Editor productivity
+- ResourceAuthoringWindow (Editor-only) for creating ResourceNode prefabs quickly

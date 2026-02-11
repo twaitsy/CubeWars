@@ -1,0 +1,48 @@
+CubeWars Dependency List (Core Gameplay)
+========================================
+
+Core Scene Bootstrap
+- GameManager
+- TeamStorageManager
+- TeamResources
+- BuildPlacementManager
+- BuildGridManager
+- ResourceRegistry
+- JobManager
+- ProjectilePool
+
+Civilian Needs + Housing Dependencies
+- Civilian
+- House
+- FoodResourceDatabase (optional but recommended)
+- ResourceStorageContainer
+- UnitInspectorUI
+
+Economy / Crafting
+- CraftingJobManager
+- CraftingBuilding
+- ProductionNotificationManager
+- TeamInventory
+- TeamStorageManager
+
+UI / Input
+- SelectionManager
+- BuildMenuUI
+- UnitInspectorUI
+- IMGUIInputBlocker
+- Minimap
+- TaskBoardUI (optional)
+
+AI / Combat / Systems
+- DiplomacyManager
+- AIManager
+- UnitManager
+- CombatManager
+- TeamColorManager
+- WinConditionManager
+- SaveLoadManager (optional)
+- EventManager (optional)
+
+Editor Tools
+- ScriptDocumentationExporter
+- ResourceAuthoringWindow (new)

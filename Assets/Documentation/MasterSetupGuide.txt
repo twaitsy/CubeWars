@@ -283,3 +283,24 @@ Main menu expansion:
   - Starting resources
   - Diplomacy stance (Ally/Neutral/Enemy)
 - Setup can be applied to DiplomacyManager before game start.
+
+-----------------------------------------------------------------
+11) Civilian Needs + Housing Setup
+-----------------------------------------------------------------
+Civilian prefab additions (new survival system):
+- Food tuning: hungerRatePerSecond, maxHunger, seekFoodThreshold01, foodToEatPerMeal, eatDurationSeconds, starvationDamagePerSecond
+- Sleep tuning: tirednessRatePerSecond, maxTiredness, seekSleepThreshold01, sleepDurationSeconds, exhaustionDamagePerSecond
+- Optional: assign a FoodResourceDatabase to drive food ranking/quality.
+
+House building setup:
+- Add House component (inherits Building)
+- Configure prestige, comfort, storage, maxInhabitants
+- Ensure teamID is assigned correctly at placement/spawn time
+
+Behavior summary:
+- Hungry civilians move to best available food storage.
+- Tired civilians move to nearest valid house.
+- If needs are ignored, civilians take survival damage.
+
+Editor tooling:
+- Use CubeWars/Tools/Resource Authoring to quickly create new ResourceNode prefabs.

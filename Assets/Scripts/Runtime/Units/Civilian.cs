@@ -36,6 +36,23 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     public bool buildersCanHaulMaterials = true;
     public float retargetSeconds = 0.6f;
 
+    [Header("Needs - Food")]
+    [Tooltip("Optional database to classify food resources. If empty, defaults are used.")]
+    public FoodResourceDatabase foodDatabase;
+    [Min(0.01f)] public float hungerRatePerSecond = 0.45f;
+    [Min(1f)] public float maxHunger = 100f;
+    [Range(0.1f, 1f)] public float seekFoodThreshold01 = 0.55f;
+    [Min(1)] public int foodToEatPerMeal = 10;
+    [Min(0.1f)] public float eatDurationSeconds = 1.2f;
+    [Min(0f)] public float starvationDamagePerSecond = 2f;
+
+    [Header("Needs - Sleep")]
+    [Min(0.01f)] public float tirednessRatePerSecond = 0.3f;
+    [Min(1f)] public float maxTiredness = 100f;
+    [Range(0.1f, 1f)] public float seekSleepThreshold01 = 0.6f;
+    [Min(0.1f)] public float sleepDurationSeconds = 5f;
+    [Min(0f)] public float exhaustionDamagePerSecond = 1f;
+
     // Compatibility fields referenced elsewhere
     public ResourceNode CurrentReservedNode { get; set; }
     public ConstructionSite CurrentAssignedSite { get; set; }
@@ -72,6 +89,10 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     public string CurrentTaskLabel => BuildTaskLabel();
     public float CraftingProgress => targetCraftingBuilding != null ? targetCraftingBuilding.CraftProgress01 : 0f;
 
+    public float CurrentHunger => currentHunger;
+    public float CurrentTiredness => currentTiredness;
+    public House AssignedHouse => assignedHouse;
+
     // IHasHealth / ITargetable style properties
     public int TeamID => teamID;
     public bool IsAlive => currentHealth > 0f;
@@ -82,6 +103,11 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     private enum State
     {
         Idle,
+
+        SeekingFoodStorage,
+        Eating,
+        SeekingHouse,
+        Sleeping,
 
         SearchingNode,
         GoingToNode,
@@ -108,6 +134,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     }
 
     private State state;
+    private State stateBeforeNeed;
 
     public string CurrentState => state.ToString();
     public string CurrentTargetName
@@ -126,6 +153,16 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     // So we register with JobManager in Start, and only re-register on OnEnable if Start has run.
     private bool started;
     private bool registeredWithJobManager;
+
+    private float currentHunger;
+    private float currentTiredness;
+    private float needActionTimer;
+    private bool hasStoredRoleState;
+    private ResourceStorageContainer targetFoodStorage;
+    private ResourceType targetFoodType;
+    private int pendingFoodAmount;
+    private House targetHouse;
+    private House assignedHouse;
 
     void Awake()
     {
@@ -147,6 +184,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     void OnDisable()
     {
         ReleaseNodeReservation();
+        ClearAssignedHouse();
 
         if (registeredWithJobManager)
             UnregisterFromJobManager();
@@ -157,6 +195,8 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     void Start()
     {
         currentHealth = maxHealth;
+        currentHunger = 0f;
+        currentTiredness = 0f;
         SetRole(role);
 
         started = true;
@@ -207,12 +247,19 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     {
         if (!IsAlive) return;
 
+        TickNeeds();
+
         agent.speed = speed * GetMovementSpeedMultiplier();
         agent.stoppingDistance = stopDistance;
 
         switch (state)
         {
             case State.Idle: break;
+
+            case State.SeekingFoodStorage: TickSeekFoodStorage(); break;
+            case State.Eating: TickEating(); break;
+            case State.SeekingHouse: TickSeekHouse(); break;
+            case State.Sleeping: TickSleeping(); break;
 
             case State.SearchingNode: TickSearchNode(); break;
             case State.GoingToNode: TickGoNode(); break;
@@ -237,6 +284,254 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             case State.CollectingCraftOutput: TickCollectCraftOutput(); break;
             case State.DeliveringCraftOutput: TickDeliverCraftOutput(); break;
         }
+    }
+
+    void TickNeeds()
+    {
+        currentHunger = Mathf.Clamp(currentHunger + hungerRatePerSecond * Time.deltaTime, 0f, maxHunger);
+        currentTiredness = Mathf.Clamp(currentTiredness + tirednessRatePerSecond * Time.deltaTime, 0f, maxTiredness);
+
+        if (currentHunger >= maxHunger)
+            TakeDamage(starvationDamagePerSecond * Time.deltaTime);
+
+        if (currentTiredness >= maxTiredness)
+            TakeDamage(exhaustionDamagePerSecond * Time.deltaTime);
+
+        if (!IsAlive)
+            return;
+
+        if (state == State.Eating || state == State.Sleeping || state == State.SeekingFoodStorage || state == State.SeekingHouse)
+            return;
+
+        if (NeedsSleep())
+        {
+            PushNeedState(State.SeekingHouse);
+            return;
+        }
+
+        if (NeedsFood())
+            PushNeedState(State.SeekingFoodStorage);
+    }
+
+    bool NeedsFood() => currentHunger >= maxHunger * Mathf.Clamp01(seekFoodThreshold01);
+    bool NeedsSleep() => currentTiredness >= maxTiredness * Mathf.Clamp01(seekSleepThreshold01);
+
+    void PushNeedState(State needState)
+    {
+        if (!hasStoredRoleState)
+        {
+            stateBeforeNeed = state;
+            hasStoredRoleState = true;
+        }
+
+        state = needState;
+        targetStorage = null;
+        targetFoodStorage = null;
+    }
+
+    void ResumeAfterNeed()
+    {
+        State fallback = ResolveRoleFallbackState();
+        if (hasStoredRoleState)
+        {
+            state = stateBeforeNeed;
+            hasStoredRoleState = false;
+
+            if (state == State.SeekingFoodStorage || state == State.Eating || state == State.SeekingHouse || state == State.Sleeping)
+                state = fallback;
+        }
+        else
+        {
+            state = fallback;
+        }
+    }
+
+    State ResolveRoleFallbackState()
+    {
+        switch (role)
+        {
+            case CivilianRole.Gatherer: return State.SearchingNode;
+            case CivilianRole.Builder: return State.SearchingBuildSite;
+            case CivilianRole.Hauler: return State.SearchingSupplySite;
+            case CivilianRole.Crafter:
+            case CivilianRole.Farmer:
+            case CivilianRole.Technician:
+            case CivilianRole.Scientist:
+            case CivilianRole.Engineer:
+            case CivilianRole.Blacksmith:
+            case CivilianRole.Carpenter:
+            case CivilianRole.Cook:
+                return State.FetchingCraftInput;
+            default: return State.Idle;
+        }
+    }
+
+    void TickSeekFoodStorage()
+    {
+        if (TeamStorageManager.Instance == null)
+            return;
+
+        if (targetFoodStorage == null || targetFoodStorage.teamID != teamID || targetFoodStorage.GetStored(targetFoodType) <= 0)
+        {
+            if (!TryFindBestFoodStorage(out targetFoodStorage, out targetFoodType))
+                return;
+        }
+
+        agent.SetDestination(targetFoodStorage.transform.position);
+        if (!Arrived())
+            return;
+
+        pendingFoodAmount = Mathf.Max(1, foodToEatPerMeal);
+        int eatenUnits = targetFoodStorage.Withdraw(targetFoodType, pendingFoodAmount);
+        if (eatenUnits <= 0)
+        {
+            targetFoodStorage = null;
+            return;
+        }
+
+        pendingFoodAmount = eatenUnits;
+        needActionTimer = 0f;
+        state = State.Eating;
+    }
+
+    void TickEating()
+    {
+        needActionTimer += Time.deltaTime;
+        if (needActionTimer < eatDurationSeconds)
+            return;
+
+        float restore = FoodResourceDatabase.GetHungerRestore(foodDatabase, targetFoodType) * Mathf.Max(1, pendingFoodAmount);
+        currentHunger = Mathf.Max(0f, currentHunger - restore);
+        pendingFoodAmount = 0;
+        targetFoodStorage = null;
+
+        if (NeedsSleep())
+            state = State.SeekingHouse;
+        else if (!NeedsFood())
+            ResumeAfterNeed();
+        else
+            state = State.SeekingFoodStorage;
+    }
+
+    void TickSeekHouse()
+    {
+        if (targetHouse == null || !targetHouse.IsAlive)
+            targetHouse = FindClosestAvailableHouse();
+
+        if (targetHouse == null)
+            return;
+
+        agent.SetDestination(targetHouse.transform.position);
+        if (!Arrived())
+            return;
+
+        if (!targetHouse.TryAddResident(this))
+        {
+            targetHouse = null;
+            return;
+        }
+
+        if (assignedHouse != targetHouse)
+        {
+            ClearAssignedHouse();
+            assignedHouse = targetHouse;
+        }
+
+        needActionTimer = 0f;
+        state = State.Sleeping;
+    }
+
+    void TickSleeping()
+    {
+        if (assignedHouse == null)
+        {
+            state = State.SeekingHouse;
+            return;
+        }
+
+        needActionTimer += Time.deltaTime;
+        currentTiredness = Mathf.Max(0f, currentTiredness - (maxTiredness / Mathf.Max(0.1f, sleepDurationSeconds)) * Time.deltaTime);
+
+        if (needActionTimer < sleepDurationSeconds)
+            return;
+
+        currentTiredness = 0f;
+        targetHouse = assignedHouse;
+        ResumeAfterNeed();
+    }
+
+    bool TryFindBestFoodStorage(out ResourceStorageContainer bestStorage, out ResourceType bestType)
+    {
+        bestStorage = null;
+        bestType = ResourceType.Food;
+
+        ResourceStorageContainer[] storages = FindObjectsOfType<ResourceStorageContainer>();
+        float bestScore = float.MinValue;
+
+        for (int s = 0; s < storages.Length; s++)
+        {
+            ResourceStorageContainer storage = storages[s];
+            if (storage == null || storage.teamID != teamID)
+                continue;
+
+            foreach (ResourceType type in System.Enum.GetValues(typeof(ResourceType)))
+            {
+                if (!FoodResourceDatabase.IsFood(foodDatabase, type))
+                    continue;
+
+                int stored = storage.GetStored(type);
+                if (stored <= 0)
+                    continue;
+
+                int hungerRestore = FoodResourceDatabase.GetHungerRestore(foodDatabase, type);
+                int ranking = FoodResourceDatabase.GetRanking(foodDatabase, type);
+                float distancePenalty = (storage.transform.position - transform.position).sqrMagnitude * 0.001f;
+                float score = (hungerRestore * 20f) + ranking - distancePenalty;
+
+                if (score <= bestScore)
+                    continue;
+
+                bestScore = score;
+                bestStorage = storage;
+                bestType = type;
+            }
+        }
+
+        return bestStorage != null;
+    }
+
+    House FindClosestAvailableHouse()
+    {
+        House[] houses = FindObjectsOfType<House>();
+        House best = null;
+        float bestD = float.MaxValue;
+
+        for (int i = 0; i < houses.Length; i++)
+        {
+            House house = houses[i];
+            if (house == null || house.teamID != teamID || !house.IsAlive)
+                continue;
+
+            if (!house.CanAcceptResident(this))
+                continue;
+
+            float d = (house.transform.position - transform.position).sqrMagnitude;
+            if (d < bestD)
+            {
+                bestD = d;
+                best = house;
+            }
+        }
+
+        return best;
+    }
+
+    void ClearAssignedHouse()
+    {
+        if (assignedHouse != null)
+            assignedHouse.RemoveResident(this);
+
+        assignedHouse = null;
     }
 
     public void SetRole(CivilianRole newRole)
@@ -265,23 +560,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             return;
         }
 
-        switch (role)
-        {
-            case CivilianRole.Gatherer: state = State.SearchingNode; break;
-            case CivilianRole.Builder: state = State.SearchingBuildSite; break;
-            case CivilianRole.Hauler: state = State.SearchingSupplySite; break;
-            case CivilianRole.Crafter:
-            case CivilianRole.Farmer:
-            case CivilianRole.Technician:
-            case CivilianRole.Scientist:
-            case CivilianRole.Engineer:
-            case CivilianRole.Blacksmith:
-            case CivilianRole.Carpenter:
-            case CivilianRole.Cook:
-                state = State.FetchingCraftInput;
-                break;
-            default: state = State.Idle; break;
-        }
+        state = ResolveRoleFallbackState();
     }
 
     /// <summary>
@@ -1088,6 +1367,10 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     {
         switch (state)
         {
+            case State.SeekingFoodStorage: return "Seeking food";
+            case State.Eating: return "Eating";
+            case State.SeekingHouse: return "Seeking house";
+            case State.Sleeping: return "Sleeping";
             case State.FetchingCraftInput: return "Fetching crafting inputs";
             case State.DeliveringCraftInput: return "Delivering crafting inputs";
             case State.GoingToWorkPoint: return "Moving to work point";
@@ -1107,6 +1390,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         {
             currentHealth = 0f;
             if (agent != null) agent.isStopped = true;
+            ClearAssignedHouse();
             Destroy(gameObject);
         }
     }

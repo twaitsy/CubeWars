@@ -1,0 +1,49 @@
+CubeWars Civilian Needs System
+=============================
+
+Overview
+- Civilians now track two survival needs:
+  - Hunger
+  - Tiredness
+- Needs increase over time and can damage/kill civilians if ignored.
+
+How It Works
+1) Hunger increases by `hungerRatePerSecond`.
+2) Tiredness increases by `tirednessRatePerSecond`.
+3) When hunger passes `seekFoodThreshold01 * maxHunger`, the civilian pauses normal work and looks for food.
+4) When tiredness passes `seekSleepThreshold01 * maxTiredness`, the civilian pauses normal work and looks for a house.
+5) If hunger reaches `maxHunger`, the civilian takes starvation damage every second.
+6) If tiredness reaches `maxTiredness`, the civilian takes exhaustion damage every second.
+
+Food Behavior
+- Civilians move to the best available storage that contains valid food resources.
+- They withdraw `foodToEatPerMeal` units (or less if limited).
+- After `eatDurationSeconds`, hunger is reduced by food quality * amount consumed.
+
+Sleep Behavior
+- Civilians move to the closest house on their team with available slots.
+- They sleep for `sleepDurationSeconds`.
+- Tiredness decreases while sleeping and is fully reset after sleep completes.
+
+Prefab Configuration (Civilian.prefab)
+- Needs - Food:
+  - foodDatabase
+  - hungerRatePerSecond
+  - maxHunger
+  - seekFoodThreshold01
+  - foodToEatPerMeal
+  - eatDurationSeconds
+  - starvationDamagePerSecond
+- Needs - Sleep:
+  - tirednessRatePerSecond
+  - maxTiredness
+  - seekSleepThreshold01
+  - sleepDurationSeconds
+  - exhaustionDamagePerSecond
+
+Inspector Visibility
+- UnitInspectorUI now shows:
+  - Current hunger / max hunger
+  - Current tiredness / max tiredness
+  - Assigned house
+  - Needs rates and food-per-meal values in Stats tab
