@@ -1,6 +1,48 @@
-# Civilian.prefab
-- **Path:** `Assets/Prefabs/Civilian.prefab`
-- **Gameplay role:** Worker unit for gathering, hauling, and construction tasks.
-- **Referenced by scripts:** `Civilian`, `JobManager`, `UnitInspectorUI` civilian role controls, spawner systems.
-- **Required components (minimum):** `Civilian`, movement/selection components, collider.
-- **Notes:** Inspector role buttons rely on this prefab exposing `Civilian` behavior.
+CubeWars Civilian Prefab Setup Guide
+===================================
+
+Prefab Path
+- Assets/Prefabs/Civilian.prefab
+
+Civilian Core Role
+- Worker unit for gathering, hauling, building, crafting, survival needs.
+
+Required Components
+- Civilian
+- NavMeshAgent
+- Selectable
+- Collider
+
+Recommended Components
+- CharacterStats (optional stat override support)
+- TeamVisual (visual ownership)
+
+New Survival Needs Configuration
+- Hunger
+  - hungerRatePerSecond
+  - maxHunger
+  - seekFoodThreshold01
+  - foodToEatPerMeal
+  - eatDurationSeconds
+  - starvationDamagePerSecond
+- Sleep
+  - tirednessRatePerSecond
+  - maxTiredness
+  - seekSleepThreshold01
+  - sleepDurationSeconds
+  - exhaustionDamagePerSecond
+
+Food Quality / Subtype Configuration
+- Assign `FoodResourceDatabase` on the prefab to define:
+  - which ResourceType values count as food
+  - hunger restore values
+  - ranking priorities
+
+Gameplay Behavior
+- Civilians continue their assigned jobs until needs cross thresholds.
+- Hunger priority: go to best team storage with food.
+- Sleep priority: go to nearest available same-team house.
+- If no food/house is available long enough, civilians lose health.
+
+Inspector Integration
+- UnitInspectorUI now shows current hunger, tiredness, assigned house, and needs-related stats.

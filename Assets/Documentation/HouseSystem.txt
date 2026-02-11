@@ -1,0 +1,31 @@
+CubeWars House Building System
+==============================
+
+Overview
+- New `House` building type inherits from `Building`.
+- Houses are used by civilians when they need sleep.
+
+House Stats
+- prestige
+- comfort
+- storage
+- maxInhabitants
+- civilians (runtime list of current residents)
+
+Resident Flow
+1) Civilian gets tired.
+2) Civilian searches nearest same-team house with free space.
+3) Civilian enters house and is added to resident list.
+4) Civilian sleeps and then resumes normal tasks.
+
+Inspector Support
+- Selecting a House now shows:
+  - Prestige
+  - Comfort
+  - Storage
+  - Inhabitants count
+  - Resident civilian names
+
+Notes
+- If no house exists, civilians cannot recover tiredness and may suffer exhaustion damage.
+- A house must belong to the same team as the civilian.

@@ -80,6 +80,9 @@ public class UnitInspectorUI : MonoBehaviour
             GUILayout.Label($"Task: {civ.CurrentTaskLabel}");
             GUILayout.Label($"State: {civ.CurrentState}");
             GUILayout.Label($"Target: {civ.CurrentTargetName}");
+            GUILayout.Label($"Hunger: {civ.CurrentHunger:0.0}/{civ.maxHunger:0.0}");
+            GUILayout.Label($"Tiredness: {civ.CurrentTiredness:0.0}/{civ.maxTiredness:0.0}");
+            GUILayout.Label($"House: {(civ.AssignedHouse != null ? SanitizeName(civ.AssignedHouse.name) : "None")}");
         }
         else if (selected.TryGetComponent<Unit>(out _))
         {
@@ -104,6 +107,23 @@ public class UnitInspectorUI : MonoBehaviour
             GUILayout.Label($"Gather Tick: {civ.gatherTickSeconds:0.00}s");
             GUILayout.Label($"Harvest/Tick: {civ.harvestPerTick}");
             GUILayout.Label($"Carry Capacity: {civ.carryCapacity}");
+            GUILayout.Label($"Hunger Rate/s: {civ.hungerRatePerSecond:0.00}");
+            GUILayout.Label($"Food/Meal: {civ.foodToEatPerMeal}");
+            GUILayout.Label($"Tiredness Rate/s: {civ.tirednessRatePerSecond:0.00}");
+        }
+
+        if (selected.TryGetComponent<House>(out var house))
+        {
+            GUILayout.Label($"Prestige: {house.prestige}");
+            GUILayout.Label($"Comfort: {house.comfort}");
+            GUILayout.Label($"Storage: {house.storage}");
+            GUILayout.Label($"Inhabitants: {house.Civilians.Count}/{house.maxInhabitants}");
+            for (int i = 0; i < house.Civilians.Count; i++)
+            {
+                var resident = house.Civilians[i];
+                if (resident == null) continue;
+                GUILayout.Label($"- {SanitizeName(resident.name)}");
+            }
         }
 
         if (selected.TryGetComponent<Unit>(out var unit))
