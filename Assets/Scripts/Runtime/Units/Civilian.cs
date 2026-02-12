@@ -1286,7 +1286,9 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         targetCraftingBuilding = building;
         manualCraftingAssignment = manual;
 
-        if (role == CivilianRole.Idle || role == CivilianRole.Gatherer || role == CivilianRole.Builder || role == CivilianRole.Hauler)
+        // Keep haulers in the Hauler role so requireHaulerLogistics buildings
+        // can continue to route them through fetch/deliver logistics states.
+        if (role == CivilianRole.Idle || role == CivilianRole.Gatherer || role == CivilianRole.Builder)
             role = CivilianRole.Crafter;
 
         state = State.FetchingCraftInput;

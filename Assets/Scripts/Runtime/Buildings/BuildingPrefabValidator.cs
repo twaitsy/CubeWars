@@ -19,6 +19,12 @@ public class BuildingPrefabValidator : MonoBehaviour
         var missing = new List<string>();
         var conflicts = new List<string>();
 
+        bool hasCrafting = TryGetComponent<CraftingBuilding>(out _);
+        bool hasStorageContainer = TryGetComponent<ResourceStorageContainer>(out _);
+        bool hasStorageProvider = TryGetComponent<ResourceStorageProvider>(out _);
+        bool hasDropoff = TryGetComponent<ResourceDropoff>(out _);
+        int localStorageContainerCount = GetComponentsInChildren<ResourceStorageContainer>(true).Length;
+
         if (!TryGetComponent<Building>(out _))
             missing.Add("Building (required)");
 
@@ -34,17 +40,20 @@ public class BuildingPrefabValidator : MonoBehaviour
         if (!TryGetComponent<TeamVisual>(out _) && includeOptionalWarnings)
             missing.Add("TeamVisual (recommended)");
 
-        if (!TryGetComponent<ResourceStorageContainer>(out _) && includeOptionalWarnings)
+        if (!hasStorageContainer && includeOptionalWarnings)
             missing.Add("ResourceStorageContainer (optional, needed for storage/logistics buildings)");
 
-        if (!TryGetComponent<ResourceStorageProvider>(out _) && includeOptionalWarnings)
+        if (!hasStorageProvider && includeOptionalWarnings)
             missing.Add("ResourceStorageProvider (optional, needed for adding storage capacity)");
+
+        if (hasCrafting && !hasStorageContainer)
+            missing.Add("ResourceStorageContainer (required on CraftingBuilding so inspector storage and hauler logistics target the same container)");
 
         if (missing.Count == 0)
         {
             Debug.Log($"[BuildingPrefabValidator] {name}: all checked components are present.", this);
 
-        ValidateConflictingScripts(conflicts);
+        ValidateConflictingScripts(conflicts, hasCrafting, hasStorageContainer, hasStorageProvider, hasDropoff, localStorageContainerCount);
 
         if (conflicts.Count > 0)
             Debug.LogWarning($"[BuildingPrefabValidator] {name}: conflicting/not-required components => {string.Join(", ", conflicts)}", this);
@@ -54,17 +63,17 @@ public class BuildingPrefabValidator : MonoBehaviour
 
         Debug.Log($"[BuildingPrefabValidator] {name}: missing components => {string.Join(", ", missing)}", this);
 
-        ValidateConflictingScripts(conflicts);
+        ValidateConflictingScripts(conflicts, hasCrafting, hasStorageContainer, hasStorageProvider, hasDropoff, localStorageContainerCount);
 
         if (conflicts.Count > 0)
             Debug.LogWarning($"[BuildingPrefabValidator] {name}: conflicting/not-required components => {string.Join(", ", conflicts)}", this);
 
     }
 
-    void ValidateConflictingScripts(List<string> conflicts)
+    void ValidateConflictingScripts(List<string> conflicts, bool hasCrafting, bool hasStorageContainer, bool hasStorageProvider, bool hasDropoff, int localStorageContainerCount)
     {
         int productionScriptCount = 0;
-        if (TryGetComponent<CraftingBuilding>(out _)) productionScriptCount++;
+        if (hasCrafting) productionScriptCount++;
         if (TryGetComponent<Farm>(out _)) productionScriptCount++;
         if (TryGetComponent<Barracks>(out _)) productionScriptCount++;
         if (TryGetComponent<WeaponsFactory>(out _)) productionScriptCount++;
@@ -72,13 +81,16 @@ public class BuildingPrefabValidator : MonoBehaviour
         if (productionScriptCount > 1)
             conflicts.Add("Multiple production scripts detected (CraftingBuilding/Farm/Barracks/WeaponsFactory)");
 
-        if (TryGetComponent<ProductionStatusVisualizer>(out _) && !TryGetComponent<CraftingBuilding>(out _))
+        if (TryGetComponent<ProductionStatusVisualizer>(out _) && !hasCrafting)
             conflicts.Add("ProductionStatusVisualizer present without CraftingBuilding");
 
-        if (TryGetComponent<ResourceStorageProvider>(out _) && !TryGetComponent<ResourceStorageContainer>(out _))
+        if (hasStorageProvider && !hasStorageContainer)
             conflicts.Add("ResourceStorageProvider present without ResourceStorageContainer");
 
-        if (TryGetComponent<ResourceDropoff>(out _) && TryGetComponent<CraftingBuilding>(out _))
+        if (hasDropoff && hasCrafting)
             conflicts.Add("ResourceDropoff on CraftingBuilding may conflict with dedicated crafting input/output logistics");
+
+        if (hasCrafting && localStorageContainerCount > 1)
+            conflicts.Add($"CraftingBuilding has {localStorageContainerCount} ResourceStorageContainer components in hierarchy (use exactly one to avoid split logistics/inspector storage)");
     }
 }
