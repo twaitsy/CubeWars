@@ -251,6 +251,17 @@ Before pressing Play, verify:
 [ ] UI objects exist (SelectionManager, UnitInspectorUI, BuildMenuUI, EconomyUI).
 
 -----------------------------------------------------------------
+10B) Crafting Logistics Consistency Notes (latest)
+-----------------------------------------------------------------
+
+Crafting logistics consistency (latest)
+- Crafting hauler assignments now preserve CivilianRole.Hauler when assigned to a CraftingBuilding.
+  This is required so requireHaulerLogistics buildings continue executing fetch/deliver loops.
+- On CraftingBuilding prefabs, keep exactly one ResourceStorageContainer in the prefab hierarchy.
+  Multiple local storage containers can split inspector-visible storage from logistics targets.
+- Avoid pairing ResourceDropoff with CraftingBuilding unless intentionally using mixed logistics.
+
+-----------------------------------------------------------------
 11) RTS Controls + Combat Modernization (new)
 -----------------------------------------------------------------
 Selection + input:

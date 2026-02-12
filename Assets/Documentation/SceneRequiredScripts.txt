@@ -102,3 +102,8 @@ Storage/crafting logistics validation checklist (latest)
 
 - BuildingPrefabValidator now warns about conflicting/not-required script combinations (for example: multiple production scripts on one prefab, ProductionStatusVisualizer without CraftingBuilding, ResourceStorageProvider without ResourceStorageContainer).
 - Crafting logistics expectation: haulers should prioritize crafting input refills, then move crafted outputs to external storage providers.
+
+
+- Crafting hauler assignment should not force Hauler -> Crafter role conversion; otherwise requireHaulerLogistics stalls.
+- CraftingBuilding prefab hierarchies should contain exactly one ResourceStorageContainer to prevent local storage split/conflicts.
+- BuildingPrefabValidator now warns when CraftingBuilding has multiple ResourceStorageContainer components in hierarchy.
