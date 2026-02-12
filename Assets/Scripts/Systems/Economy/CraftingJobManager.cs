@@ -89,6 +89,17 @@ public class CraftingJobManager : MonoBehaviour
 
     Civilian FindBestCandidate(CraftingBuilding building)
     {
+        bool needsHauler = building.requireHaulerLogistics && !building.HasAssignedHauler();
+
+        Civilian best = FindBestCandidate(building, c => !needsHauler || c.role == CivilianRole.Hauler);
+        if (best != null)
+            return best;
+
+        return FindBestCandidate(building, c => true);
+    }
+
+    Civilian FindBestCandidate(CraftingBuilding building, System.Predicate<Civilian> extraFilter)
+    {
         Civilian best = null;
         float bestDistance = float.MaxValue;
 
@@ -97,6 +108,7 @@ public class CraftingJobManager : MonoBehaviour
             var civ = civilians[i];
             if (civ == null) continue;
             if (civ.teamID != building.teamID) continue;
+            if (!extraFilter(civ)) continue;
             if (!civ.CanTakeCraftingAssignment(building.recipe?.requiredJobType ?? CivilianJobType.Generalist)) continue;
 
             float d = (civ.transform.position - building.transform.position).sqrMagnitude;

@@ -91,6 +91,10 @@ public class UnitInspectorUI : MonoBehaviour
         else if (selected.TryGetComponent<Building>(out var building))
         {
             GUILayout.Label($"Type: {building.GetType().Name}");
+            GUI.enabled = building.IsAlive;
+            if (GUILayout.Button("Demolish Building"))
+                building.Demolish();
+            GUI.enabled = true;
         }
         else if (selected.TryGetComponent<ResourceNode>(out var node))
         {
@@ -111,6 +115,9 @@ public class UnitInspectorUI : MonoBehaviour
             GUILayout.Label($"Food/Meal: {civ.foodToEatPerMeal}");
             GUILayout.Label($"Tiredness Rate/s: {civ.tirednessRatePerSecond:0.00}");
         }
+
+        if (selected.TryGetComponent<Building>(out var anyBuilding))
+            DrawBuildingStats(anyBuilding);
 
         if (selected.TryGetComponent<House>(out var house))
         {
@@ -142,6 +149,67 @@ public class UnitInspectorUI : MonoBehaviour
                 foreach (var c in costs)
                     GUILayout.Label($"{c.type}: {site.GetDeliveredAmount(c.type)}/{c.amount}");
             }
+        }
+    }
+
+
+    void DrawBuildingStats(Building building)
+    {
+        if (building == null)
+            return;
+
+        GUILayout.Label($"Max Health: {building.maxHealth:0}");
+
+        if (building.TryGetComponent<Headquarters>(out _))
+            GUILayout.Label("Role: Team Core / Spawn Anchor");
+
+        if (building.TryGetComponent<Farm>(out var farm))
+        {
+            GUILayout.Label($"Farm Level: {farm.level}/{farm.maxLevel}");
+            GUILayout.Label($"Production Interval: {farm.productionInterval:0.00}s");
+            int idx = Mathf.Clamp(farm.level - 1, 0, farm.foodPerTickByLevel.Length - 1);
+            int output = farm.foodPerTickByLevel.Length > 0 ? farm.foodPerTickByLevel[idx] : 0;
+            GUILayout.Label($"Food Per Tick: {output}");
+        }
+
+        if (building.TryGetComponent<DefenseTurret>(out var turret))
+        {
+            GUILayout.Label($"Range: {turret.range:0.0}");
+            GUILayout.Label($"Fire Rate: {turret.fireRate:0.00}/s");
+            GUILayout.Label($"Damage: {turret.damage:0.0}");
+            GUILayout.Label($"Targets Civilians: {(turret.canTargetCivilians ? "Yes" : "No")}");
+        }
+
+        if (building.TryGetComponent<VehicleFactory>(out var vf))
+        {
+            GUILayout.Label($"Vehicle Build Time: {vf.buildSeconds:0.00}s");
+            GUILayout.Label($"Vehicle Prefab: {(vf.vehiclePrefab != null ? vf.vehiclePrefab.name : "None")}");
+        }
+
+        if (building.TryGetComponent<WeaponsFactory>(out var wf))
+        {
+            GUILayout.Label($"Craft Time: {wf.craftSeconds:0.00}s");
+            GUILayout.Label($"Weapon Tool: {(wf.weaponTool != null ? wf.weaponTool.name : "None")}");
+        }
+
+        if (building.TryGetComponent<CraftingBuilding>(out var crafting))
+        {
+            GUILayout.Label($"Max Workers: {crafting.GetMaxWorkers()}");
+            GUILayout.Label($"Assigned Workers: {crafting.AssignedWorkers.Count}");
+            GUILayout.Label($"Hauler Logistics: {(crafting.requireHaulerLogistics ? "Required" : "Worker-handled")}");
+            GUILayout.Label($"Input Buffer: {crafting.GetMissingInputSummary()}");
+        }
+
+        if (building.TryGetComponent<ResourceStorageContainer>(out var storage))
+        {
+            int totalStored = 0;
+            int totalCapacity = 0;
+            foreach (ResourceType t in Enum.GetValues(typeof(ResourceType)))
+            {
+                totalStored += storage.GetStored(t);
+                totalCapacity += storage.GetCapacity(t);
+            }
+            GUILayout.Label($"Storage Total: {totalStored}/{totalCapacity}");
         }
     }
 

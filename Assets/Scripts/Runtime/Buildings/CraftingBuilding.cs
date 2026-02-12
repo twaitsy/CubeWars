@@ -37,6 +37,9 @@ public class CraftingBuilding : Building
     [Min(1)] public int maxOutputCapacityPerResource = 50;
     [Min(0.1f)] public float craftingSpeedModifier = 1f;
 
+    [Header("Logistics")]
+    public bool requireHaulerLogistics = true;
+
     [Header("Assignment")]
     [Range(0, 10)] public int assignmentPriority = 5;
     public bool allowAutomaticAssignment = true;
@@ -417,6 +420,25 @@ public class CraftingBuilding : Building
             amount = available;
             nearestStorage = storage;
             return true;
+        }
+
+        return false;
+    }
+
+
+    public bool HasAssignedHauler()
+    {
+        for (int i = assignedWorkers.Count - 1; i >= 0; i--)
+        {
+            var worker = assignedWorkers[i];
+            if (worker == null)
+            {
+                assignedWorkers.RemoveAt(i);
+                continue;
+            }
+
+            if (worker.role == CivilianRole.Hauler)
+                return true;
         }
 
         return false;

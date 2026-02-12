@@ -254,7 +254,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
         switch (state)
         {
-            case State.Idle: break;
+            case State.Idle: TickIdle(); break;
 
             case State.SeekingFoodStorage: TickSeekFoodStorage(); break;
             case State.Eating: TickEating(); break;
@@ -366,6 +366,27 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         }
     }
 
+    void TickIdle()
+    {
+        if (role != CivilianRole.Idle)
+            return;
+
+        if (assignedHouse == null || !assignedHouse.IsAlive)
+        {
+            targetHouse = FindClosestAvailableHouse();
+            if (targetHouse != null)
+            {
+                if (targetHouse.TryAddResident(this))
+                    assignedHouse = targetHouse;
+            }
+        }
+
+        if (assignedHouse == null)
+            return;
+
+        MoveTo(assignedHouse.transform.position, assignedHouse.transform, BuildingStopDistanceType.House);
+    }
+
     void TickSeekFoodStorage()
     {
         if (TeamStorageManager.Instance == null)
@@ -377,7 +398,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
                 return;
         }
 
-        agent.SetDestination(targetFoodStorage.transform.position);
+        MoveTo(targetFoodStorage.transform.position, targetFoodStorage.transform, BuildingStopDistanceType.Storage);
         if (!Arrived())
             return;
 
@@ -421,7 +442,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         if (targetHouse == null)
             return;
 
-        agent.SetDestination(targetHouse.transform.position);
+        MoveTo(targetHouse.transform.position, targetHouse.transform, BuildingStopDistanceType.House);
         if (!Arrived())
             return;
 
@@ -587,7 +608,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         if (targetNode != null)
         {
             state = State.GoingToNode;
-            agent.SetDestination(targetNode.transform.position);
+            MoveTo(targetNode.transform.position, targetNode.transform);
         }
         else
         {
@@ -608,7 +629,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         if (targetNode != null)
         {
             state = State.GoingToNode;
-            agent.SetDestination(targetNode.transform.position);
+            MoveTo(targetNode.transform.position, targetNode.transform);
         }
         else if (carriedAmount > 0)
         {
@@ -638,7 +659,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         if (agent != null && agent.enabled)
         {
             agent.isStopped = false;
-            agent.SetDestination(worldPos);
+            MoveTo(worldPos, null);
         }
     }
     // ---------- Gatherer ----------
@@ -661,7 +682,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         if (targetNode != null)
         {
             state = State.GoingToNode;
-            agent.SetDestination(targetNode.transform.position);
+            MoveTo(targetNode.transform.position, targetNode.transform);
         }
     }
 
@@ -690,7 +711,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         if (retargetTimer >= retargetSeconds)
         {
             retargetTimer = 0f;
-            agent.SetDestination(targetNode.transform.position);
+            MoveTo(targetNode.transform.position, targetNode.transform);
         }
 
         if (Arrived())
@@ -789,7 +810,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             return;
         }
 
-        agent.SetDestination(targetStorage.transform.position);
+        MoveTo(targetStorage.transform.position, targetStorage.transform, BuildingStopDistanceType.Storage);
 
         if (Arrived())
             state = State.Depositing;
@@ -833,7 +854,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         }
 
         state = State.GoingToBuildSite;
-        agent.SetDestination(targetSite.transform.position);
+        MoveTo(targetSite.transform.position, targetSite.transform, BuildingStopDistanceType.Construction);
     }
 
     void TickGoBuildSite()
@@ -852,7 +873,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             return;
         }
 
-        agent.SetDestination(targetSite.transform.position);
+        MoveTo(targetSite.transform.position, targetSite.transform, BuildingStopDistanceType.Construction);
         if (Arrived()) state = State.Building;
     }
 
@@ -932,7 +953,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         if (targetStorage == null)
             return;
 
-        agent.SetDestination(targetStorage.transform.position);
+        MoveTo(targetStorage.transform.position, targetStorage.transform, BuildingStopDistanceType.Storage);
 
         if (Arrived())
             state = State.PickingUp;
@@ -974,7 +995,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
         targetStorage = null;
         state = State.GoingToDeliverSite;
-        agent.SetDestination(targetSite.transform.position);
+        MoveTo(targetSite.transform.position, targetSite.transform, BuildingStopDistanceType.Construction);
     }
 
     void TickGoDeliver()
@@ -985,7 +1006,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             return;
         }
 
-        agent.SetDestination(targetSite.transform.position);
+        MoveTo(targetSite.transform.position, targetSite.transform, BuildingStopDistanceType.Construction);
         if (Arrived()) state = State.Delivering;
     }
 
@@ -1011,6 +1032,34 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     }
 
     // ---------- Helpers ----------
+
+    bool IsCraftingLogisticsHauler()
+    {
+        return targetCraftingBuilding != null
+            && targetCraftingBuilding.requireHaulerLogistics
+            && role == CivilianRole.Hauler;
+    }
+
+    float ResolveStopDistance(Transform destination, BuildingStopDistanceType stopType)
+    {
+        if (destination == null)
+            return Mathf.Max(0.1f, stopDistance);
+
+        var settings = destination.GetComponentInParent<BuildingInteractionSettings>();
+        if (settings == null)
+            return Mathf.Max(0.1f, stopDistance);
+
+        return settings.GetStopDistance(stopType, stopDistance);
+    }
+
+    void MoveTo(Vector3 destination, Transform destinationContext, BuildingStopDistanceType stopType = BuildingStopDistanceType.Default)
+    {
+        if (agent == null || !agent.enabled)
+            return;
+
+        agent.stoppingDistance = ResolveStopDistance(destinationContext, stopType);
+        agent.SetDestination(destination);
+    }
 
     bool Arrived()
     {
@@ -1209,6 +1258,12 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             return;
         }
 
+        if (targetCraftingBuilding.requireHaulerLogistics && role != CivilianRole.Hauler)
+        {
+            state = State.GoingToWorkPoint;
+            return;
+        }
+
         if (carriedAmount > 0)
         {
             state = State.DeliveringCraftInput;
@@ -1223,7 +1278,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
                 return;
             }
 
-            agent.SetDestination(targetStorage.transform.position);
+            MoveTo(targetStorage.transform.position, targetStorage.transform, BuildingStopDistanceType.Storage);
             if (Arrived())
             {
                 int took = targetStorage.Withdraw(carriedType, Mathf.Min(amount, GetCarryCapacity()));
@@ -1245,7 +1300,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         }
 
         Vector3 slot = targetCraftingBuilding.inputSlot != null ? targetCraftingBuilding.inputSlot.position : targetCraftingBuilding.transform.position;
-        agent.SetDestination(slot);
+        MoveTo(slot, targetCraftingBuilding != null ? targetCraftingBuilding.transform : null, BuildingStopDistanceType.CraftInput);
 
         if (!Arrived()) return;
 
@@ -1261,7 +1316,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         if (carriedAmount > 0)
             state = State.GoingToDepositStorage;
         else
-            state = State.GoingToWorkPoint;
+            state = IsCraftingLogisticsHauler() ? State.FetchingCraftInput : State.GoingToWorkPoint;
     }
 
     void TickGoWorkPoint()
@@ -1272,10 +1327,16 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             return;
         }
 
+        if (IsCraftingLogisticsHauler())
+        {
+            state = State.FetchingCraftInput;
+            return;
+        }
+
         if (!targetCraftingBuilding.TryReserveWorkPoint(this, out targetWorkPoint) || targetWorkPoint == null)
             return;
 
-        agent.SetDestination(targetWorkPoint.position);
+        MoveTo(targetWorkPoint.position, targetCraftingBuilding != null ? targetCraftingBuilding.transform : targetWorkPoint, BuildingStopDistanceType.CraftWork);
         if (Arrived())
             state = State.CraftingAtWorkPoint;
     }
@@ -1288,10 +1349,19 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             return;
         }
 
-        if (targetCraftingBuilding.State == CraftingBuilding.ProductionState.WaitingForInputs)
+        if (IsCraftingLogisticsHauler())
+        {
             state = State.FetchingCraftInput;
-        else if (targetCraftingBuilding.State == CraftingBuilding.ProductionState.OutputReady || targetCraftingBuilding.State == CraftingBuilding.ProductionState.WaitingForPickup)
-            state = State.CollectingCraftOutput;
+            return;
+        }
+
+        if (!targetCraftingBuilding.requireHaulerLogistics)
+        {
+            if (targetCraftingBuilding.State == CraftingBuilding.ProductionState.WaitingForInputs)
+                state = State.FetchingCraftInput;
+            else if (targetCraftingBuilding.State == CraftingBuilding.ProductionState.OutputReady || targetCraftingBuilding.State == CraftingBuilding.ProductionState.WaitingForPickup)
+                state = State.CollectingCraftOutput;
+        }
     }
 
     void TickCollectCraftOutput()
@@ -1302,6 +1372,12 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             return;
         }
 
+        if (targetCraftingBuilding.requireHaulerLogistics && role != CivilianRole.Hauler)
+        {
+            state = State.GoingToWorkPoint;
+            return;
+        }
+
         if (!targetCraftingBuilding.TryGetOutputRequest(transform.position, out carriedType, out int amount, out targetStorage))
         {
             state = State.FetchingCraftInput;
@@ -1309,7 +1385,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         }
 
         Vector3 slot = targetCraftingBuilding.outputSlot != null ? targetCraftingBuilding.outputSlot.position : targetCraftingBuilding.transform.position;
-        agent.SetDestination(slot);
+        MoveTo(slot, targetCraftingBuilding != null ? targetCraftingBuilding.transform : null, BuildingStopDistanceType.CraftOutput);
         if (!Arrived()) return;
 
         carriedAmount = targetCraftingBuilding.CollectOutput(carriedType, Mathf.Min(amount, GetCarryCapacity()));
@@ -1333,7 +1409,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             return;
         }
 
-        agent.SetDestination(targetStorage.transform.position);
+        MoveTo(targetStorage.transform.position, targetStorage.transform, BuildingStopDistanceType.Storage);
         if (!Arrived()) return;
 
         int accepted = targetStorage.Deposit(carriedType, carriedAmount);
@@ -1345,7 +1421,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         if (carriedAmount > 0)
             state = State.DeliveringCraftOutput;
         else
-            state = State.FetchingCraftInput;
+            state = IsCraftingLogisticsHauler() ? State.FetchingCraftInput : State.GoingToWorkPoint;
     }
 
     float GetMovementSpeedMultiplier()
