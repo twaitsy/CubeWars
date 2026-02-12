@@ -258,9 +258,14 @@ public class UnitInspectorUI : MonoBehaviour
         foreach (ResourceType t in Enum.GetValues(typeof(ResourceType)))
         {
             int cap = storage.GetCapacity(t);
-            if (cap <= 0) continue;
+            int stored = storage.GetStored(t);
+            var flow = storage.GetFlowSetting(t);
+
+            if (cap <= 0 && stored <= 0 && flow == ResourceStorageContainer.ResourceFlowMode.ReceiveAndSupply)
+                continue;
+
             any = true;
-            GUILayout.Label($"{t}: {storage.GetStored(t)}/{cap}");
+            GUILayout.Label($"{t} Storage — {stored}/{cap} | Flow: {flow}");
         }
 
         if (!any)

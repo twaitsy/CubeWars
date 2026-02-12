@@ -358,3 +358,30 @@ Storage/Crafting Logistics Fix Notes (Latest)
 Reference
 - Detailed crafting prefab walkthrough: Assets/Documentation/CraftingBuildingPrefabSetup.txt
 
+
+-----------------------------------------------------------------
+13) Per-resource storage send/receive controls (new)
+-----------------------------------------------------------------
+Resource storages now support per-resource hauling flow permissions.
+
+Where to configure in Unity:
+- On each `ResourceStorageContainer` component.
+- Inspector displays one row per ResourceType:
+  `<Resource> Flow (Hauler Pickup/Dropoff)`.
+
+Flow mode meaning:
+- Disabled: no hauling in or out for that resource.
+- ReceiveOnly: haulers can drop off only.
+- SupplyOnly: haulers can pick up only.
+- ReceiveAndSupply: both directions allowed.
+
+Behavior impact:
+- TeamStorageManager nearest-storage queries now filter by flow mode:
+  - pickup requests only consider `SupplyOnly` / `ReceiveAndSupply`.
+  - drop-off requests only consider `ReceiveOnly` / `ReceiveAndSupply`.
+- Crafting output delivery also respects target storage `CanReceive` flow settings.
+- UnitInspectorUI storage panel now displays flow state per resource at runtime.
+
+Prefab setup reminder:
+- For each crafting building, verify every relevant storage resource row is configured intentionally (not left ambiguous).
+- Keep exactly one ResourceStorageContainer per crafting building hierarchy.

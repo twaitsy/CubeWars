@@ -486,6 +486,7 @@ public class TeamStorageManager : MonoBehaviour
         {
             var s = list[i];
             if (s == null) continue;
+            if (!s.CanReceive(type)) continue;
             if (s.GetFree(type) <= 0) continue;
 
             float d = (s.transform.position - pos).sqrMagnitude;
@@ -511,6 +512,7 @@ public class TeamStorageManager : MonoBehaviour
         {
             var s = list[i];
             if (s == null) continue;
+            if (!s.CanSupply(type)) continue;
             if (s.GetStored(type) <= 0) continue;
 
             float d = (s.transform.position - pos).sqrMagnitude;

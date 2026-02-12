@@ -100,3 +100,26 @@ Quick troubleshooting
 - "Inputs never arrive": verify storage capacity and logistics roles/pathing.
 - "Output jam": ensure output destination storage has free capacity.
 - "Placement weird": verify footprint size, collider bounds, and offsets.
+
+------------------------------------------------------------
+7) Configure storage flow permissions (send/receive/both)
+------------------------------------------------------------
+Each crafting/storage building should expose one `ResourceStorageContainer` and configure per-resource hauling flow.
+
+In Unity Inspector (ResourceStorageContainer):
+- Each resource now appears as: `<Resource> Flow (Hauler Pickup/Dropoff)`.
+- Valid modes:
+  - `Disabled` = no hauling for that resource.
+  - `ReceiveOnly` = can only accept drop-offs.
+  - `SupplyOnly` = can only be picked up from.
+  - `ReceiveAndSupply` = both drop-off and pickup allowed.
+
+Recommended crafting defaults:
+- Raw inputs (ore/logs/food inputs): set source storages to `SupplyOnly` or `ReceiveAndSupply`.
+- Crafting output destinations: set to `ReceiveOnly` or `ReceiveAndSupply`.
+- Block accidental loops by setting non-target storages to `Disabled` when needed.
+
+Runtime inspector visibility:
+- UnitInspectorUI now shows local storage lines in this format:
+  `<Resource> Storage — <stored>/<capacity> | Flow: <mode>`.
+- Use this to verify send/receive behavior in play mode while selecting buildings.
