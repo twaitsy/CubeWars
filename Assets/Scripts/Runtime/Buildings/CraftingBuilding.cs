@@ -203,6 +203,37 @@ public class CraftingBuilding : Building
         return false;
     }
 
+    public bool NeedsAnyInput()
+    {
+        if (recipe?.inputs == null || recipe.inputs.Length == 0)
+            return false;
+
+        for (int i = 0; i < recipe.inputs.Length; i++)
+        {
+            var entry = recipe.inputs[i];
+            int needed = GetEffectiveInputRequirement(entry);
+            if (inputBuffer[entry.resourceType] < needed)
+                return true;
+        }
+
+        return false;
+    }
+
+    public bool HasAnyOutputQueued()
+    {
+        if (recipe?.outputs == null || recipe.outputs.Length == 0)
+            return false;
+
+        for (int i = 0; i < recipe.outputs.Length; i++)
+        {
+            var entry = recipe.outputs[i];
+            if (outputQueue[entry.resourceType] > 0)
+                return true;
+        }
+
+        return false;
+    }
+
     bool HasRequiredInputs()
     {
         if (recipe?.inputs == null || recipe.inputs.Length == 0)

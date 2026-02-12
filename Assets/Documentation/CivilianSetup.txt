@@ -46,3 +46,11 @@ Gameplay Behavior
 
 Inspector Integration
 - UnitInspectorUI now shows current hunger, tiredness, assigned house, and needs-related stats.
+
+
+Crafting Role Split (current design)
+- Hauler civilians handle crafting logistics:
+  - Deliver input resources into crafting buildings first.
+  - Remove crafted outputs to external storage only after input demand is satisfied.
+- Non-hauler civilians assigned to crafting buildings should remain near work points to drive production progress.
+- This avoids mixed pickup/dropoff behavior and keeps input/output directions explicit.

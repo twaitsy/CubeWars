@@ -36,7 +36,8 @@ Set these fields on `CraftingBuilding`:
 - `outputSlot` (Transform where output is visualized)
 - `workPoints[]` (where workers stand while crafting)
 - Throughput/capacity fields used by your current crafting flow
-- `requireHaulerLogistics` only if you have active hauler civilians available
+- `requireHaulerLogistics` should be enabled for the simplified logistics workflow
+  (haulers deliver inputs and evacuate outputs; workers stay at workPoints)
 
 Production feedback (recommended):
 - Assign optional particle and audio references on CraftingBuilding.
@@ -90,9 +91,10 @@ When using logistics-heavy setups also ensure:
 ------------------------------------------------------------
 - Prefab places correctly with expected footprint/alignment.
 - Building can be selected and inspected.
-- Inputs are delivered to the building.
-- A correctly skilled worker reaches a work point and starts crafting.
-- Outputs are produced and moved to storage (or stay in output as designed).
+- Inputs are delivered to the building by haulers before output pickup begins.
+- A correctly skilled non-hauler worker reaches a work point and remains in operating range while production runs.
+- Outputs are produced in-building first, then moved to external storage by haulers only after input demand is satisfied.
+- No input resources are hauled out of the building output slot, and no output resources are dropped into input slot logic.
 - No validator warnings for missing/conflicting production components.
 
 Quick troubleshooting
