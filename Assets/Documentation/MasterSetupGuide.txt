@@ -355,3 +355,6 @@ Storage/Crafting Logistics Fix Notes (Latest)
 - Building inspector storage should be treated as local-only: inspect per-building stored/capacity values, not team-global totals.
 - Gatherers/haulers should only deposit to storages with free capacity for the carried resource type.
 - If a target storage fills during transit, civilians should retarget another valid storage instead of dropping carried materials.
+Reference
+- Detailed crafting prefab walkthrough: Assets/Documentation/CraftingBuildingPrefabSetup.txt
+
