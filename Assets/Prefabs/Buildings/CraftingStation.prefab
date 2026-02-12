@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 2536297441936231210}
   - component: {fileID: 896611701238560346}
   - component: {fileID: 3973487017848187574}
-  - component: {fileID: 4309303904043656852}
   - component: {fileID: 7966352210135232285}
   - component: {fileID: -6308112382038516522}
   - component: {fileID: 5423684157595310526}
@@ -141,29 +140,15 @@ MonoBehaviour:
   workPoints:
   - {fileID: 1766575201802066558}
   maxWorkers: 1
-  maxInputCapacityPerResource: 500
-  maxOutputCapacityPerResource: 500
+  maxInputCapacityPerResource: 100
+  maxOutputCapacityPerResource: 100
   craftingSpeedModifier: 1
-  requireHaulerLogistics: 1
+  requireHaulerLogistics: 0
   assignmentPriority: 5
   allowAutomaticAssignment: 1
   productionEffects: []
   productionLoopAudio: {fileID: 0}
   upgrades: []
---- !u!114 &4309303904043656852
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2971650436058892313}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b5d327dcf4845434abc6e897f4d3ad3a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  teamID: 0
-  acceptsOnly: 
 --- !u!114 &7966352210135232285
 MonoBehaviour:
   m_ObjectHideFlags: 0
