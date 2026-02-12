@@ -64,6 +64,30 @@ public class CraftingJobManager : MonoBehaviour
         return true;
     }
 
+    public CraftingBuilding FindNearestBuildingNeedingInput(int teamID, ResourceType type, Vector3 position)
+    {
+        CraftingBuilding best = null;
+        float bestDistance = float.MaxValue;
+
+        for (int i = 0; i < buildings.Count; i++)
+        {
+            CraftingBuilding building = buildings[i];
+            if (building == null) continue;
+            if (building.teamID != teamID) continue;
+            if (!building.isActiveAndEnabled) continue;
+            if (!building.NeedsInput(type)) continue;
+
+            float distance = (building.transform.position - position).sqrMagnitude;
+            if (distance < bestDistance)
+            {
+                bestDistance = distance;
+                best = building;
+            }
+        }
+
+        return best;
+    }
+
     void AutoAssignWorkers()
     {
         buildings.Sort((a, b) => b.assignmentPriority.CompareTo(a.assignmentPriority));

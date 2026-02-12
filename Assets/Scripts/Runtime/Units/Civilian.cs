@@ -799,6 +799,25 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         if (targetStorage == null || targetStorage.teamID != teamID || targetStorage.GetFree(carriedType) <= 0)
             targetStorage = TeamStorageManager.Instance.FindNearestStorageWithFree(teamID, carriedType, transform.position);
 
+        if (role == CivilianRole.Gatherer && carriedAmount > 0)
+        {
+            CraftingBuilding inputBuilding = CraftingJobManager.Instance?.FindNearestBuildingNeedingInput(teamID, carriedType, transform.position);
+            if (inputBuilding != null)
+            {
+                float craftingDistance = (inputBuilding.transform.position - transform.position).sqrMagnitude;
+                float storageDistance = targetStorage != null
+                    ? (targetStorage.transform.position - transform.position).sqrMagnitude
+                    : float.MaxValue;
+
+                if (craftingDistance <= storageDistance)
+                {
+                    targetCraftingBuilding = inputBuilding;
+                    state = State.DeliveringCraftInput;
+                    return;
+                }
+            }
+        }
+
         if (targetStorage == null)
         {
             if (!TeamStorageManager.Instance.HasAnyPhysicalStorage(teamID))
@@ -904,6 +923,9 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
     void TickSearchSupplySite()
     {
+        if (role == CivilianRole.Hauler && TryHandleCraftingHaulerPriority())
+            return;
+
         if (carriedAmount > 0 && targetSite != null)
         {
             state = State.GoingToDeliverSite;
@@ -933,6 +955,32 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         }
 
         state = State.GoingToPickupStorage;
+    }
+
+
+    bool TryHandleCraftingHaulerPriority()
+    {
+        if (targetCraftingBuilding != null)
+        {
+            state = carriedAmount > 0 ? State.DeliveringCraftOutput : State.FetchingCraftInput;
+            return true;
+        }
+
+        if (carriedAmount > 0)
+        {
+            var outputBuilding = CraftingJobManager.Instance?.FindNearestBuildingNeedingInput(teamID, carriedType, transform.position);
+            if (outputBuilding != null)
+            {
+                targetCraftingBuilding = outputBuilding;
+                state = State.DeliveringCraftInput;
+                return true;
+            }
+
+            state = State.GoingToDepositStorage;
+            return true;
+        }
+
+        return false;
     }
 
     void TickGoPickup()
@@ -1318,9 +1366,21 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         carriedAmount -= accepted;
 
         if (carriedAmount > 0)
+        {
             state = State.GoingToDepositStorage;
+            return;
+        }
+
+        if (IsCraftingLogisticsHauler())
+        {
+            state = State.FetchingCraftInput;
+            return;
+        }
+
+        if (role == CivilianRole.Crafter)
+            state = State.GoingToWorkPoint;
         else
-            state = IsCraftingLogisticsHauler() ? State.FetchingCraftInput : State.GoingToWorkPoint;
+            state = ResolveRoleFallbackState();
     }
 
     void TickGoWorkPoint()

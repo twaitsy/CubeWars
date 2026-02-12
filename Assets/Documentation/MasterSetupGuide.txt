@@ -193,6 +193,12 @@ Worker specialization + assignment:
 
 Logistics workflow now expected:
 1) Worker fetches required recipe input from nearest storage (cached storage lookup)
+
+Crafting logistics rules (latest):
+- Crafting stations should receive recipe inputs via direct deliveries from haulers/crafters, plus gatherers when the crafting station is their nearest valid dropoff for that carried resource.
+- Crafted outputs should be hauled from the crafting station output queue to a different storage provider (do not route crafted output back into the station's own local container).
+- Haulers should prioritize refilling crafting input buffers before resuming generic construction hauling.
+- Crafting production can advance when assigned workers are occupying work points or standing within immediate working distance of the station/work points.
 2) Worker delivers materials to building InputSlot
 3) Worker moves to available WorkPoint and operates production
 4) Outputs appear in building queue / OutputSlot

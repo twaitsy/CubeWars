@@ -245,10 +245,29 @@ public class CraftingBuilding : Building
                 continue;
             }
 
-            if (occupiedWorkpoints.ContainsKey(worker))
+            if (occupiedWorkpoints.ContainsKey(worker) || IsWorkerInOperatingRange(worker))
                 count++;
         }
         return count;
+    }
+
+
+    bool IsWorkerInOperatingRange(Civilian worker)
+    {
+        if (worker == null) return false;
+
+        Vector3 anchor = transform.position;
+        if (workPoints != null)
+        {
+            for (int i = 0; i < workPoints.Length; i++)
+            {
+                if (workPoints[i] == null) continue;
+                if ((worker.transform.position - workPoints[i].position).sqrMagnitude <= 2.25f)
+                    return true;
+            }
+        }
+
+        return (worker.transform.position - anchor).sqrMagnitude <= 4f;
     }
 
     void CompleteCraft()
@@ -404,7 +423,7 @@ public class CraftingBuilding : Building
         amount = 0;
         nearestStorage = null;
 
-        if (recipe?.outputs == null || TeamStorageManager.Instance == null)
+        if (recipe?.outputs == null)
             return false;
 
         for (int i = 0; i < recipe.outputs.Length; i++)
@@ -413,7 +432,7 @@ public class CraftingBuilding : Building
             int available = outputQueue[entry.resourceType];
             if (available <= 0) continue;
 
-            var storage = TeamStorageManager.Instance.FindNearestStorageWithFree(teamID, entry.resourceType, workerPosition);
+            var storage = FindNearestExternalStorageWithFree(entry.resourceType);
             if (storage == null) continue;
 
             outputType = entry.resourceType;
@@ -423,6 +442,44 @@ public class CraftingBuilding : Building
         }
 
         return false;
+    }
+
+    ResourceStorageContainer FindNearestExternalStorageWithFree(ResourceType type)
+    {
+        var storages = FindObjectsOfType<ResourceStorageContainer>();
+        var localStorages = GetComponentsInChildren<ResourceStorageContainer>(true);
+
+        ResourceStorageContainer best = null;
+        float bestDistance = float.MaxValue;
+
+        for (int i = 0; i < storages.Length; i++)
+        {
+            var storage = storages[i];
+            if (storage == null) continue;
+            if (storage.teamID != teamID) continue;
+            if (storage.GetFree(type) <= 0) continue;
+
+            bool isLocal = false;
+            for (int j = 0; j < localStorages.Length; j++)
+            {
+                if (storage == localStorages[j])
+                {
+                    isLocal = true;
+                    break;
+                }
+            }
+
+            if (isLocal) continue;
+
+            float distance = (storage.transform.position - transform.position).sqrMagnitude;
+            if (distance < bestDistance)
+            {
+                bestDistance = distance;
+                best = storage;
+            }
+        }
+
+        return best;
     }
 
 
