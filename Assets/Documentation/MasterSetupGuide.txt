@@ -385,3 +385,10 @@ Behavior impact:
 Prefab setup reminder:
 - For each crafting building, verify every relevant storage resource row is configured intentionally (not left ambiguous).
 - Keep exactly one ResourceStorageContainer per crafting building hierarchy.
+
+
+- Simplified crafting workflow baseline:
+  - Haulers are responsible for logistics only (deliver recipe inputs to crafting buildings, then remove outputs).
+  - Assigned crafters/non-haulers should stand near workPoints to enable production and should not run logistics loops.
+  - Input resources should only be delivered into crafting building input buffers.
+  - Output resources should only be taken away from crafting building output queues.

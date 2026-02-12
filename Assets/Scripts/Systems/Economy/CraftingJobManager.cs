@@ -88,6 +88,52 @@ public class CraftingJobManager : MonoBehaviour
         return best;
     }
 
+
+    public CraftingBuilding FindNearestBuildingWithInputPriority(int teamID, Vector3 position)
+    {
+        CraftingBuilding bestInput = null;
+        float bestInputDistance = float.MaxValue;
+
+        for (int i = 0; i < buildings.Count; i++)
+        {
+            CraftingBuilding building = buildings[i];
+            if (building == null) continue;
+            if (building.teamID != teamID) continue;
+            if (!building.isActiveAndEnabled) continue;
+            if (!building.NeedsAnyInput()) continue;
+
+            float distance = (building.transform.position - position).sqrMagnitude;
+            if (distance < bestInputDistance)
+            {
+                bestInputDistance = distance;
+                bestInput = building;
+            }
+        }
+
+        if (bestInput != null)
+            return bestInput;
+
+        CraftingBuilding bestOutput = null;
+        float bestOutputDistance = float.MaxValue;
+
+        for (int i = 0; i < buildings.Count; i++)
+        {
+            CraftingBuilding building = buildings[i];
+            if (building == null) continue;
+            if (building.teamID != teamID) continue;
+            if (!building.isActiveAndEnabled) continue;
+            if (!building.HasAnyOutputQueued()) continue;
+
+            float distance = (building.transform.position - position).sqrMagnitude;
+            if (distance < bestOutputDistance)
+            {
+                bestOutputDistance = distance;
+                bestOutput = building;
+            }
+        }
+
+        return bestOutput;
+    }
     void AutoAssignWorkers()
     {
         buildings.Sort((a, b) => b.assignmentPriority.CompareTo(a.assignmentPriority));

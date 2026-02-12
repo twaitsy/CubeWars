@@ -101,7 +101,7 @@ Storage/crafting logistics validation checklist (latest)
 
 
 - BuildingPrefabValidator now warns about conflicting/not-required script combinations (for example: multiple production scripts on one prefab, ProductionStatusVisualizer without CraftingBuilding, ResourceStorageProvider without ResourceStorageContainer).
-- Crafting logistics expectation: haulers should prioritize crafting input refills, then move crafted outputs to external storage providers.
+- Crafting logistics expectation: haulers should always stock crafting input buffers first, then move crafted outputs to external storage providers second.
 
 
 - Crafting hauler assignment should not force Hauler -> Crafter role conversion; otherwise requireHaulerLogistics stalls.
@@ -119,3 +119,8 @@ Storage flow configuration requirements (new)
   - ReceiveAndSupply
 - Configure these for every crafting/storage building so haulers know valid pickup/drop-off targets.
 - UnitInspectorUI shows per-resource flow at runtime under the Storage tab.
+
+
+- Simplified crafting role split:
+  - Haulers perform crafting transport (input-in first, output-out second).
+  - Other selected civilians (matching required job type) are expected to stay near crafting work points to keep production active.

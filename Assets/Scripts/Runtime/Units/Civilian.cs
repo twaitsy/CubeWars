@@ -962,21 +962,50 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     {
         if (targetCraftingBuilding != null)
         {
-            state = carriedAmount > 0 ? State.DeliveringCraftOutput : State.FetchingCraftInput;
+            if (carriedAmount > 0)
+            {
+                if (targetCraftingBuilding.NeedsInput(carriedType))
+                    state = State.DeliveringCraftInput;
+                else
+                    state = State.DeliveringCraftOutput;
+                return true;
+            }
+
+            if (targetCraftingBuilding.NeedsAnyInput())
+            {
+                state = State.FetchingCraftInput;
+                return true;
+            }
+
+            if (targetCraftingBuilding.HasAnyOutputQueued())
+            {
+                state = State.CollectingCraftOutput;
+                return true;
+            }
+
+            state = State.FetchingCraftInput;
             return true;
         }
 
         if (carriedAmount > 0)
         {
-            var outputBuilding = CraftingJobManager.Instance?.FindNearestBuildingNeedingInput(teamID, carriedType, transform.position);
-            if (outputBuilding != null)
+            var inputBuilding = CraftingJobManager.Instance?.FindNearestBuildingNeedingInput(teamID, carriedType, transform.position);
+            if (inputBuilding != null)
             {
-                targetCraftingBuilding = outputBuilding;
+                targetCraftingBuilding = inputBuilding;
                 state = State.DeliveringCraftInput;
                 return true;
             }
 
             state = State.GoingToDepositStorage;
+            return true;
+        }
+
+        CraftingBuilding prioritized = CraftingJobManager.Instance?.FindNearestBuildingWithInputPriority(teamID, transform.position);
+        if (prioritized != null)
+        {
+            targetCraftingBuilding = prioritized;
+            state = prioritized.NeedsAnyInput() ? State.FetchingCraftInput : State.CollectingCraftOutput;
             return true;
         }
 
@@ -1320,7 +1349,9 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
         if (carriedAmount > 0)
         {
-            state = State.DeliveringCraftInput;
+            state = targetCraftingBuilding.NeedsInput(carriedType)
+                ? State.DeliveringCraftInput
+                : State.GoingToDepositStorage;
             return;
         }
 
@@ -1342,7 +1373,10 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             return;
         }
 
-        state = State.CollectingCraftOutput;
+        if (targetCraftingBuilding.requireHaulerLogistics)
+            state = targetCraftingBuilding.HasAnyOutputQueued() ? State.CollectingCraftOutput : State.FetchingCraftInput;
+        else
+            state = targetCraftingBuilding.HasAnyOutputQueued() ? State.CollectingCraftOutput : State.GoingToWorkPoint;
     }
 
     void TickDeliverCraftInput()
@@ -1444,6 +1478,20 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             return;
         }
 
+        if (targetCraftingBuilding.NeedsAnyInput())
+        {
+            state = State.FetchingCraftInput;
+            return;
+        }
+
+        if (carriedAmount > 0)
+        {
+            state = targetCraftingBuilding.NeedsInput(carriedType)
+                ? State.DeliveringCraftInput
+                : State.DeliveringCraftOutput;
+            return;
+        }
+
         if (!targetCraftingBuilding.TryGetOutputRequest(transform.position, out carriedType, out int amount, out targetStorage))
         {
             state = State.FetchingCraftInput;
@@ -1463,6 +1511,12 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         if (carriedAmount <= 0)
         {
             state = State.FetchingCraftInput;
+            return;
+        }
+
+        if (targetCraftingBuilding != null && targetCraftingBuilding.NeedsInput(carriedType))
+        {
+            state = State.DeliveringCraftInput;
             return;
         }
 
