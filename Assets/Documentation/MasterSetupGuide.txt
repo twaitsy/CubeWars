@@ -329,3 +329,12 @@ Related docs:
 UI behavior notes (latest)
 - TaskBoardUI tab toggle now syncs with RTSGameSettings display flags.
 - UnitInspectorUI includes Demolish Building action and expanded building stats (including Barracks/crafting/storage/stop-distance info).
+
+-----------------------------------------------------------------
+Storage/Crafting Logistics Fix Notes (Latest)
+-----------------------------------------------------------------
+- ResourceStorageProvider capacities are now applied only to the local ResourceStorageContainer on that building.
+- This prevents crafting/storage buildings from exposing unrelated resource capacities just because other team storages exist.
+- Building inspector storage should be treated as local-only: inspect per-building stored/capacity values, not team-global totals.
+- Gatherers/haulers should only deposit to storages with free capacity for the carried resource type.
+- If a target storage fills during transit, civilians should retarget another valid storage instead of dropping carried materials.

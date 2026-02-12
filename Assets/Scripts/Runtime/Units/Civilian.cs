@@ -796,7 +796,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             return;
         }
 
-        if (targetStorage == null || targetStorage.teamID != teamID)
+        if (targetStorage == null || targetStorage.teamID != teamID || targetStorage.GetFree(carriedType) <= 0)
             targetStorage = TeamStorageManager.Instance.FindNearestStorageWithFree(teamID, carriedType, transform.position);
 
         if (targetStorage == null)
@@ -827,8 +827,12 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         int accepted = targetStorage.Deposit(carriedType, carriedAmount);
         carriedAmount -= accepted;
 
-        // If storage was full, drop remaining (simple)
-        if (carriedAmount > 0) carriedAmount = 0;
+        if (carriedAmount > 0)
+        {
+            targetStorage = null;
+            state = State.GoingToDepositStorage;
+            return;
+        }
 
         targetStorage = null;
         state = (role == CivilianRole.Gatherer) ? State.SearchingNode : State.SearchingBuildSite;
@@ -1400,7 +1404,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             return;
         }
 
-        if (targetStorage == null)
+        if (targetStorage == null || targetStorage.teamID != teamID || targetStorage.GetFree(carriedType) <= 0)
             targetStorage = TeamStorageManager.Instance?.FindNearestStorageCached(teamID, carriedType, transform.position, true);
 
         if (targetStorage == null)
