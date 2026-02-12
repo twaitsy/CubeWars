@@ -92,3 +92,9 @@ Startup placement/alignment requirements (new)
 Recent behavior requirements
 - CraftingBuilding.requireHaulerLogistics can enforce hauler-only transport for production input/output.
 - Ensure at least one Civilian with role Hauler is available per production cluster when hauler logistics is enabled.
+
+Storage/crafting logistics validation checklist (latest)
+- ResourceStorageProvider must share a GameObject hierarchy with a ResourceStorageContainer so local capacities can be applied correctly.
+- Do not rely on team-wide mirrored capacities for building-local inspector storage views.
+- Ensure CraftingBuilding recipes only request resources that have actual storage capacity configured in scene setup.
+- Keep at least one reachable storage with free capacity for each gathered/crafted resource type to avoid logistics stalls.

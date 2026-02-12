@@ -248,19 +248,23 @@ public class UnitInspectorUI : MonoBehaviour
         if (selected.TryGetComponent<Civilian>(out var civ))
             GUILayout.Label($"Carrying: {civ.CarriedType} {civ.CarriedAmount}/{civ.carryCapacity}");
 
-        if (selected.TryGetComponent<ResourceStorageContainer>(out var storage))
+        if (!TryGetSelectedComponent(out ResourceStorageContainer storage))
         {
-            foreach (ResourceType t in Enum.GetValues(typeof(ResourceType)))
-            {
-                int cap = storage.GetCapacity(t);
-                if (cap <= 0) continue;
-                GUILayout.Label($"{t}: {storage.GetStored(t)}/{cap}");
-            }
+            GUILayout.Label("No local storage component.");
+            return;
         }
-        else
+
+        bool any = false;
+        foreach (ResourceType t in Enum.GetValues(typeof(ResourceType)))
         {
-            GUILayout.Label("No storage component.");
+            int cap = storage.GetCapacity(t);
+            if (cap <= 0) continue;
+            any = true;
+            GUILayout.Label($"{t}: {storage.GetStored(t)}/{cap}");
         }
+
+        if (!any)
+            GUILayout.Label("Local storage: none configured.");
     }
 
     void DrawProduction()
