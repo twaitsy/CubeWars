@@ -119,7 +119,7 @@ MonoBehaviour:
   jobType: 0
   maxHealth: 50
   speed: 2.5
-  stopDistance: 5
+  stopDistance: 3
   useRoadBonus: 1
   roadSpeedMultiplier: 1.2
   carryCapacity: 300
@@ -128,6 +128,18 @@ MonoBehaviour:
   searchRetrySeconds: 2
   buildersCanHaulMaterials: 1
   retargetSeconds: 0.6
+  foodDatabase: {fileID: 0}
+  hungerRatePerSecond: 0.45
+  maxHunger: 100
+  seekFoodThreshold01: 0.55
+  foodToEatPerMeal: 10
+  eatDurationSeconds: 1.2
+  starvationDamagePerSecond: 2
+  tirednessRatePerSecond: 0.3
+  maxTiredness: 100
+  seekSleepThreshold01: 0.6
+  sleepDurationSeconds: 5
+  exhaustionDamagePerSecond: 1
   HasJob: 0
   CurrentNode: {fileID: 0}
 --- !u!114 &5931790422279658392

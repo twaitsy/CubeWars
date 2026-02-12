@@ -4320,7 +4320,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &674366428
 Transform:
   m_ObjectHideFlags: 0
@@ -4947,13 +4947,50 @@ MonoBehaviour:
     type: 3}
   workerPrefab: {fileID: 5538168870909510437, guid: ce51064a809c1c74ea9b7d4891fb23aa,
     type: 3}
-  startingWorkers: 30
-  startingWorkerRole: 1
+  civilianGroups:
+  - prefab: {fileID: 5538168870909510437, guid: ce51064a809c1c74ea9b7d4891fb23aa,
+      type: 3}
+    count: 2
+    role: 1
+    jobType: 0
+  - prefab: {fileID: 5538168870909510437, guid: ce51064a809c1c74ea9b7d4891fb23aa,
+      type: 3}
+    count: 2
+    role: 7
+    jobType: 0
+  - prefab: {fileID: 5538168870909510437, guid: ce51064a809c1c74ea9b7d4891fb23aa,
+      type: 3}
+    count: 5
+    role: 0
+    jobType: 0
+  startingWorkers: 0
+  startingWorkerRole: 3
+  startingUnitGroups: []
   startingUnitPrefab: {fileID: 1254357736737325336, guid: 9a227d5f58819b64b848e7915c88b548,
     type: 3}
-  startingUnits: 1
+  startingUnits: 5
+  startingBuildings:
+  - prefab: {fileID: 2971650436058892313, guid: db4be7d8501df9749a5d97e3ee27b5cd,
+      type: 3}
+    gridCoord: {x: 3, y: 5}
+    quarterTurns: 0
+    yOffset: 1
+  - prefab: {fileID: 6648784137539417351, guid: a97fe9133d0b0c54782bbca2dc49cc4c,
+      type: 3}
+    gridCoord: {x: 4, y: 5}
+    quarterTurns: 0
+    yOffset: 0
+  - prefab: {fileID: 2609521548526753214, guid: ac24891f5744bdd4987e9779f1fb68e1,
+      type: 3}
+    gridCoord: {x: 5, y: 5}
+    quarterTurns: 0
+    yOffset: 0
+  - prefab: {fileID: 0}
+    gridCoord: {x: 0, y: 0}
+    quarterTurns: 0
+    yOffset: 0
   hqSpawnOffset: {x: 0, y: 0, z: 0}
-  workerSpawnOffset: {x: 2, y: 0, z: 2}
+  unitSpawnOffset: {x: 20, y: 20, z: 20}
 --- !u!1 &762303205
 GameObject:
   m_ObjectHideFlags: 0
@@ -7333,7 +7370,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1251590178
 Transform:
   m_ObjectHideFlags: 0
@@ -8128,7 +8165,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1398812742}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 10, y: 5, z: 0}
+  m_LocalPosition: {x: 48.17, y: 5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 649124373}

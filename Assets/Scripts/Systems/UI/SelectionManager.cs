@@ -12,18 +12,21 @@ public class SelectionManager : MonoBehaviour
     [Header("Selection")]
     [Min(4f)] public float dragThreshold = 8f;
 
+    // Internal state
     readonly List<GameObject> selected = new List<GameObject>(32);
     Vector2 dragStart;
     bool isDragging;
     Selectable hovered;
 
+    // Public API
     public IReadOnlyList<GameObject> CurrentSelection => selected;
     public GameObject PrimarySelection => selected.Count > 0 ? selected[0] : null;
 
     void Awake()
     {
         Instance = this;
-        if (mainCamera == null) mainCamera = Camera.main;
+        if (mainCamera == null)
+            mainCamera = Camera.main;
     }
 
     void Update()
@@ -33,33 +36,45 @@ public class SelectionManager : MonoBehaviour
 
         UpdateHover();
 
+        // Begin click or drag
         if (Input.GetMouseButtonDown(0))
         {
             dragStart = Input.mousePosition;
             isDragging = false;
         }
 
+        // Detect drag threshold
         if (Input.GetMouseButton(0) && !isDragging)
             isDragging = Vector2.Distance(dragStart, Input.mousePosition) > dragThreshold;
 
+        // Release click
         if (Input.GetMouseButtonUp(0))
         {
-            if (IMGUIInputBlocker.IsMouseOverUI(Input.mousePosition))
-                return;
-
-            if (isDragging) HandleDragSelection();
-            else HandleClickSelection();
+            if (!IMGUIInputBlocker.IsMouseOverUI(Input.mousePosition))
+            {
+                if (isDragging) HandleDragSelection();
+                else HandleClickSelection();
+            }
 
             isDragging = false;
         }
 
+        // Right-click commands
         if (Input.GetMouseButtonDown(1))
             HandleContextCommand();
 
-        if (Input.GetKeyDown(KeyCode.R) && PrimarySelection != null && PrimarySelection.TryGetComponent<UnitCombatController>(out var combat))
+        // Debug toggle
+        if (Input.GetKeyDown(KeyCode.R) &&
+            PrimarySelection != null &&
+            PrimarySelection.TryGetComponent<UnitCombatController>(out var combat))
+        {
             combat.ToggleRangeGizmos();
+        }
     }
 
+    // ---------------------------------------------------------
+    // Hover Logic
+    // ---------------------------------------------------------
     void UpdateHover()
     {
         var prev = hovered;
@@ -81,6 +96,9 @@ public class SelectionManager : MonoBehaviour
         }
     }
 
+    // ---------------------------------------------------------
+    // Click Selection
+    // ---------------------------------------------------------
     void HandleClickSelection()
     {
         bool shift = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
@@ -104,6 +122,9 @@ public class SelectionManager : MonoBehaviour
         }
     }
 
+    // ---------------------------------------------------------
+    // Drag Selection
+    // ---------------------------------------------------------
     void HandleDragSelection()
     {
         bool shift = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
@@ -115,8 +136,10 @@ public class SelectionManager : MonoBehaviour
         foreach (var sel in allSelectables)
         {
             if (sel == null) continue;
+
             Vector3 screen = mainCamera.WorldToScreenPoint(sel.transform.position);
             if (screen.z < 0f) continue;
+
             Vector2 p = new Vector2(screen.x, screen.y);
             if (rect.Contains(p))
                 inside.Add(sel.gameObject);
@@ -141,6 +164,9 @@ public class SelectionManager : MonoBehaviour
         SyncInspector();
     }
 
+    // ---------------------------------------------------------
+    // Right-Click Commands
+    // ---------------------------------------------------------
     void HandleContextCommand()
     {
         if (IMGUIInputBlocker.IsMouseOverUI(Input.mousePosition) || selected.Count == 0)
@@ -194,12 +220,16 @@ public class SelectionManager : MonoBehaviour
         }
     }
 
+    // ---------------------------------------------------------
+    // Selection Helpers
+    // ---------------------------------------------------------
     GameObject GetSelectionObjectAtMouse()
     {
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
         if (!Physics.Raycast(ray, out var hit, 600f))
             return null;
 
+        // Priority: Selectable → Civilian → Unit → Building → ResourceNode
         var sel = hit.collider.GetComponentInParent<Selectable>();
         if (sel != null) return sel.gameObject;
 
@@ -222,12 +252,14 @@ public class SelectionManager : MonoBehaviour
     {
         Vector3 sum = Vector3.zero;
         int count = 0;
+
         foreach (var go in selected)
         {
             if (go == null) continue;
             sum += go.transform.position;
             count++;
         }
+
         return count == 0 ? Vector3.zero : sum / count;
     }
 
@@ -238,6 +270,9 @@ public class SelectionManager : MonoBehaviour
         return Rect.MinMaxRect(min.x, min.y, max.x, max.y);
     }
 
+    // ---------------------------------------------------------
+    // Core Selection Operations
+    // ---------------------------------------------------------
     void ReplaceSelection(GameObject go)
     {
         ClearSelection();
@@ -247,32 +282,74 @@ public class SelectionManager : MonoBehaviour
 
     void AddToSelection(GameObject go)
     {
-        if (go == null || selected.Contains(go)) return;
+        if (go == null) return;
+
+        PruneDestroyed();
+
+        if (selected.Contains(go))
+            return;
+
         selected.Add(go);
-        go.GetComponentInParent<Selectable>()?.SetSelected(true);
+
+        var sel = go.GetComponentInParent<Selectable>();
+        if (sel != null)
+            sel.SetSelected(true);
     }
 
     void RemoveFromSelection(GameObject go)
     {
         if (go == null) return;
+
+        PruneDestroyed();
+
         if (selected.Remove(go))
-            go.GetComponentInParent<Selectable>()?.SetSelected(false);
+        {
+            var sel = go.GetComponentInParent<Selectable>();
+            if (sel != null)
+                sel.SetSelected(false);
+        }
     }
 
     void ClearSelection()
     {
+        PruneDestroyed();
+
         for (int i = 0; i < selected.Count; i++)
-            selected[i]?.GetComponentInParent<Selectable>()?.SetSelected(false);
+        {
+            var go = selected[i];
+            if (go == null) continue;
+
+            var sel = go.GetComponentInParent<Selectable>();
+            if (sel != null)
+                sel.SetSelected(false);
+        }
+
         selected.Clear();
         SyncInspector();
     }
 
+    // Removes Unity-destroyed objects from the list
+    void PruneDestroyed()
+    {
+        for (int i = selected.Count - 1; i >= 0; i--)
+        {
+            if (selected[i] == null)
+                selected.RemoveAt(i);
+        }
+    }
+
+    // ---------------------------------------------------------
+    // Inspector Sync
+    // ---------------------------------------------------------
     void SyncInspector()
     {
         if (inspectorUI != null)
             inspectorUI.SetSelected(PrimarySelection);
     }
 
+    // ---------------------------------------------------------
+    // Drag Rectangle Rendering
+    // ---------------------------------------------------------
     void OnGUI()
     {
         if (!isDragging) return;
@@ -282,8 +359,10 @@ public class SelectionManager : MonoBehaviour
 
         GUI.color = new Color(0.2f, 0.8f, 1f, 0.15f);
         GUI.DrawTexture(rect, Texture2D.whiteTexture);
+
         GUI.color = new Color(0.2f, 0.8f, 1f, 0.85f);
         GUI.Box(rect, GUIContent.none);
+
         GUI.color = Color.white;
     }
 }

@@ -23,7 +23,7 @@ public class AlertManager : MonoBehaviour
 
     void OnGUI()
     {
-        float y = Screen.height - 200;
+        float y = Screen.height - 500;
 
         for (int i = alerts.Count - 1; i >= 0; i--)
         {
