@@ -98,3 +98,7 @@ Storage/crafting logistics validation checklist (latest)
 - Do not rely on team-wide mirrored capacities for building-local inspector storage views.
 - Ensure CraftingBuilding recipes only request resources that have actual storage capacity configured in scene setup.
 - Keep at least one reachable storage with free capacity for each gathered/crafted resource type to avoid logistics stalls.
+
+
+- BuildingPrefabValidator now warns about conflicting/not-required script combinations (for example: multiple production scripts on one prefab, ProductionStatusVisualizer without CraftingBuilding, ResourceStorageProvider without ResourceStorageContainer).
+- Crafting logistics expectation: haulers should prioritize crafting input refills, then move crafted outputs to external storage providers.
