@@ -21,6 +21,7 @@ GameObject:
   - component: {fileID: -6845052091626525489}
   - component: {fileID: -106629887826787657}
   - component: {fileID: 1022117379780279856}
+  - component: {fileID: 7390252300050527218}
   m_Layer: 0
   m_Name: CraftingStation
   m_TagString: Untagged
@@ -156,7 +157,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2971650436058892313}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d63cafae41c5ef14a8927532fb972d1b, type: 3}
   m_Name: 
@@ -275,6 +276,25 @@ MonoBehaviour:
   teamID: 0
   kind: 2
   applyOnStart: 1
+--- !u!114 &7390252300050527218
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2971650436058892313}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d80263f4eb147628e3797654ad1dade, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultStopDistance: 1.2
+  houseStopDistance: 1
+  constructionStopDistance: 1.25
+  storageStopDistance: 1.1
+  craftInputStopDistance: 2
+  craftOutputStopDistance: 2
+  craftWorkStopDistance: 2
 --- !u!1 &4013298796735140841
 GameObject:
   m_ObjectHideFlags: 0
