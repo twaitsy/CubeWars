@@ -110,3 +110,12 @@ Storage/crafting logistics validation checklist (latest)
 Related documentation
 - Crafting building prefab setup: Assets/Documentation/CraftingBuildingPrefabSetup.txt
 
+
+Storage flow configuration requirements (new)
+- ResourceStorageContainer now includes per-resource hauling flow controls in Inspector:
+  - Disabled
+  - ReceiveOnly
+  - SupplyOnly
+  - ReceiveAndSupply
+- Configure these for every crafting/storage building so haulers know valid pickup/drop-off targets.
+- UnitInspectorUI shows per-resource flow at runtime under the Storage tab.

@@ -457,6 +457,7 @@ public class CraftingBuilding : Building
             var storage = storages[i];
             if (storage == null) continue;
             if (storage.teamID != teamID) continue;
+            if (!storage.CanReceive(type)) continue;
             if (storage.GetFree(type) <= 0) continue;
 
             bool isLocal = false;

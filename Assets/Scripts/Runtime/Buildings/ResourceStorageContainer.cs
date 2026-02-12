@@ -37,18 +37,98 @@ using System.Collections.Generic;
 
 public class ResourceStorageContainer : MonoBehaviour
 {
+    public enum ResourceFlowMode
+    {
+        Disabled,
+        ReceiveOnly,
+        SupplyOnly,
+        ReceiveAndSupply
+    }
+
+    [System.Serializable]
+    public struct ResourceFlowEntry
+    {
+        public ResourceType type;
+
+        [Tooltip("Disabled = no hauling, ReceiveOnly = drop-off only, SupplyOnly = pickup only, ReceiveAndSupply = both pickup and drop-off.")]
+        public ResourceFlowMode flowMode;
+    }
+
     public int teamID;
+
+    [Header("Per-Resource Hauler Permissions")]
+    [Tooltip("Controls whether haulers can deposit to and/or withdraw from this storage for each resource type.")]
+    public List<ResourceFlowEntry> resourceFlow = new List<ResourceFlowEntry>();
 
     Dictionary<ResourceType, int> stored = new Dictionary<ResourceType, int>();
     Dictionary<ResourceType, int> capacity = new Dictionary<ResourceType, int>();
 
     void Awake()
     {
+        EnsureFlowEntries();
+
         foreach (ResourceType t in System.Enum.GetValues(typeof(ResourceType)))
         {
             stored[t] = 0;
             capacity[t] = 0;
         }
+    }
+
+    void OnValidate()
+    {
+        EnsureFlowEntries();
+    }
+
+    void EnsureFlowEntries()
+    {
+        if (resourceFlow == null)
+            resourceFlow = new List<ResourceFlowEntry>();
+
+        foreach (ResourceType t in System.Enum.GetValues(typeof(ResourceType)))
+        {
+            bool exists = false;
+            for (int i = 0; i < resourceFlow.Count; i++)
+            {
+                if (resourceFlow[i].type != t) continue;
+                exists = true;
+                break;
+            }
+
+            if (exists) continue;
+            resourceFlow.Add(new ResourceFlowEntry
+            {
+                type = t,
+                flowMode = ResourceFlowMode.ReceiveAndSupply
+            });
+        }
+    }
+
+    ResourceFlowMode GetFlowMode(ResourceType type)
+    {
+        for (int i = 0; i < resourceFlow.Count; i++)
+        {
+            if (resourceFlow[i].type == type)
+                return resourceFlow[i].flowMode;
+        }
+
+        return ResourceFlowMode.ReceiveAndSupply;
+    }
+
+    public ResourceFlowMode GetFlowSetting(ResourceType type)
+    {
+        return GetFlowMode(type);
+    }
+
+    public bool CanReceive(ResourceType type)
+    {
+        ResourceFlowMode mode = GetFlowMode(type);
+        return mode == ResourceFlowMode.ReceiveOnly || mode == ResourceFlowMode.ReceiveAndSupply;
+    }
+
+    public bool CanSupply(ResourceType type)
+    {
+        ResourceFlowMode mode = GetFlowMode(type);
+        return mode == ResourceFlowMode.SupplyOnly || mode == ResourceFlowMode.ReceiveAndSupply;
     }
 
     void OnEnable()
@@ -80,6 +160,8 @@ public class ResourceStorageContainer : MonoBehaviour
 
     public int Deposit(ResourceType type, int amount)
     {
+        if (!CanReceive(type)) return 0;
+
         int free = GetFree(type);
         int accepted = Mathf.Min(free, amount);
         stored[type] += accepted;
@@ -88,6 +170,8 @@ public class ResourceStorageContainer : MonoBehaviour
 
     public int Withdraw(ResourceType type, int amount)
     {
+        if (!CanSupply(type)) return 0;
+
         int taken = Mathf.Min(stored[type], amount);
         stored[type] -= taken;
         return taken;
