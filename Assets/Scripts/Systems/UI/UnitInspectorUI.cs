@@ -192,6 +192,18 @@ public class UnitInspectorUI : MonoBehaviour
             GUILayout.Label($"Weapon Tool: {(wf.weaponTool != null ? wf.weaponTool.name : "None")}");
         }
 
+        if (building.TryGetComponent<Barracks>(out var barracks))
+        {
+            GUILayout.Label($"Queue Size: {barracks.QueueCount}");
+            GUILayout.Label($"Build Progress: {barracks.CurrentProgress:P0}");
+            GUILayout.Label($"Current Build Time: {barracks.CurrentBuildTime:0.00}s");
+        }
+
+        if (building.TryGetComponent<BuildingInteractionSettings>(out var interaction))
+        {
+            GUILayout.Label($"Stop Distances: D {interaction.defaultStopDistance:0.00} | H {interaction.houseStopDistance:0.00} | S {interaction.storageStopDistance:0.00}");
+        }
+
         if (building.TryGetComponent<CraftingBuilding>(out var crafting))
         {
             GUILayout.Label($"Max Workers: {crafting.GetMaxWorkers()}");

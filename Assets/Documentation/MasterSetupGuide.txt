@@ -71,6 +71,8 @@ A buildable structure prefab should usually include:
 - Building (required for health/team/demolish hooks)
 - BuildItemInstance (auto-added at runtime if missing)
 - TeamVisual (if team colors are required)
+- BuildingInteractionSettings (configure per-building civilian stop distances)
+- BuildingPrefabValidator (optional runtime/component validation logging)
 
 If it should occupy more than one grid cell:
 - Add BuildingFootprint
@@ -323,3 +325,7 @@ This means startup buildings now obey the same occupancy model as manual build p
 
 Related docs:
 - See Assets/Documentation/BuildingFootprint.txt for full prefab alignment rules.
+
+UI behavior notes (latest)
+- TaskBoardUI tab toggle now syncs with RTSGameSettings display flags.
+- UnitInspectorUI includes Demolish Building action and expanded building stats (including Barracks/crafting/storage/stop-distance info).
