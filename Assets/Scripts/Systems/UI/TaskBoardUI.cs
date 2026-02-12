@@ -39,7 +39,15 @@ public class TaskBoardUI : MonoBehaviour
     void Update()
     {
         if (Input.GetKeyDown(toggleKey))
-            show = !show;
+            ToggleShow();
+    }
+
+    void ToggleShow()
+    {
+        show = !show;
+
+        if (RTSGameSettings.Instance != null)
+            RTSGameSettings.Instance.display.showTaskBoard = show;
     }
 
     void OnGUI()

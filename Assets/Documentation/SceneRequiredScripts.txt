@@ -24,6 +24,8 @@ Common global managers (recommended / used by existing systems)
 - WinConditionManager
 
 Production-chain building scripts (required if using crafting economy)
+- BuildingInteractionSettings (attach to building prefabs to configure civilian stop distances)
+- BuildingPrefabValidator (optional prefab self-check logger for missing required components)
 - CraftingBuilding
 - ProductionStatusVisualizer (optional but recommended for missing-input/full-output icons)
 
@@ -86,3 +88,7 @@ Startup placement/alignment requirements (new)
 - TeamBootstrap startingBuildings uses grid coordinates and footprint occupancy checks.
 - Building prefabs that occupy multiple cells should include BuildingFootprint.
 - See Assets/Documentation/BuildingFootprint.txt for full setup and rotation alignment guidance.
+
+Recent behavior requirements
+- CraftingBuilding.requireHaulerLogistics can enforce hauler-only transport for production input/output.
+- Ensure at least one Civilian with role Hauler is available per production cluster when hauler logistics is enabled.
