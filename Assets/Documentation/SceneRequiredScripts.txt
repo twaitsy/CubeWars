@@ -107,3 +107,6 @@ Storage/crafting logistics validation checklist (latest)
 - Crafting hauler assignment should not force Hauler -> Crafter role conversion; otherwise requireHaulerLogistics stalls.
 - CraftingBuilding prefab hierarchies should contain exactly one ResourceStorageContainer to prevent local storage split/conflicts.
 - BuildingPrefabValidator now warns when CraftingBuilding has multiple ResourceStorageContainer components in hierarchy.
+Related documentation
+- Crafting building prefab setup: Assets/Documentation/CraftingBuildingPrefabSetup.txt
+

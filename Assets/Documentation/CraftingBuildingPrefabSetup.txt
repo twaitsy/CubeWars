@@ -1,0 +1,102 @@
+CubeWars Crafting Building Prefab Setup
+======================================
+
+Purpose
+- Step-by-step checklist for creating a new crafting building prefab and wiring it into gameplay.
+- Use this when adding a station like a forge, workshop, kitchen, or refinery.
+
+------------------------------------------------------------
+1) Create the prefab root
+------------------------------------------------------------
+1. Create a new GameObject in scene (example name: "Forge").
+2. Add base visual mesh and collider(s).
+3. Make sure at least one collider is present for selection and placement checks.
+4. Drag it into `Assets/Prefabs/Buildings/` to create the prefab.
+
+Required root components:
+- CraftingBuilding
+- (Inherited) Building fields on CraftingBuilding must be configured
+
+Recommended root components:
+- TeamVisual
+- BuildingInteractionSettings
+- BuildingPrefabValidator
+- ResourceStorageContainer (for local input/output storage)
+- ResourceStorageProvider (if this building should add team storage capacity)
+
+Important hierarchy rule:
+- Keep exactly one ResourceStorageContainer in the prefab hierarchy.
+
+------------------------------------------------------------
+2) Configure CraftingBuilding
+------------------------------------------------------------
+Set these fields on `CraftingBuilding`:
+- `recipe` (ProductionRecipe asset)
+- `inputSlot` (Transform where input handoff is visualized)
+- `outputSlot` (Transform where output is visualized)
+- `workPoints[]` (where workers stand while crafting)
+- Throughput/capacity fields used by your current crafting flow
+- `requireHaulerLogistics` only if you have active hauler civilians available
+
+Production feedback (recommended):
+- Assign optional particle and audio references on CraftingBuilding.
+- Add ProductionStatusVisualizer for missing input/full output/no worker indicators.
+
+------------------------------------------------------------
+3) Create and assign a ProductionRecipe
+------------------------------------------------------------
+Create a ProductionRecipe asset and set:
+- `inputs` (resource type + amount)
+- `outputs` (resource type + amount)
+- `craftTimeSeconds`
+- `batchSize`
+- `requiredJobType` (must match an available CivilianJobType)
+
+Job type alignment:
+- Ensure at least one civilian role can satisfy `requiredJobType`
+  (Blacksmith, Carpenter, Farmer, Cook, Engineer, etc.).
+
+------------------------------------------------------------
+4) Add build menu/catalog entry
+------------------------------------------------------------
+Create or update a BuildItemDefinition asset:
+- `prefab` = your crafting building prefab
+- `costs[]`
+- `buildTime`
+- `yOffset` / `placementOffset`
+- category/priority values as needed
+
+Then add this definition to `BuildCatalog` so it appears in BuildMenuUI.
+
+------------------------------------------------------------
+5) Scene setup requirements
+------------------------------------------------------------
+The active scene should include:
+- TeamStorageManager
+- TeamResources
+- BuildPlacementManager
+- BuildGridManager
+- ResourceRegistry
+- JobManager
+- CraftingJobManager
+- ProductionNotificationManager
+
+When using logistics-heavy setups also ensure:
+- reachable storage exists with free capacity for crafted resource types
+- at least one hauler civilian is available if hauler logistics is required
+
+------------------------------------------------------------
+6) Validation checklist before playtest
+------------------------------------------------------------
+- Prefab places correctly with expected footprint/alignment.
+- Building can be selected and inspected.
+- Inputs are delivered to the building.
+- A correctly skilled worker reaches a work point and starts crafting.
+- Outputs are produced and moved to storage (or stay in output as designed).
+- No validator warnings for missing/conflicting production components.
+
+Quick troubleshooting
+- "No crafting starts": check recipe assignment, requiredJobType, and worker availability.
+- "Inputs never arrive": verify storage capacity and logistics roles/pathing.
+- "Output jam": ensure output destination storage has free capacity.
+- "Placement weird": verify footprint size, collider bounds, and offsets.
