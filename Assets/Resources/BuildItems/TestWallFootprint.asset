@@ -10,18 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3f33cf4722378784086bcf14af60e604, type: 3}
-  m_Name: BuildItem_ Floor_2
+  m_Name: TestWallFootprint
   m_EditorClassIdentifier: 
-  displayName: House
+  displayName: TestFootprintWall
   icon: {fileID: 0}
-  prefab: {fileID: 7618349653826479655, guid: 35867c2e1c47bef49b7c5cb9dde8e85c, type: 3}
+  prefab: {fileID: 5201265865671636463, guid: 07b45e22832986c4592be27f480af2cd, type: 3}
   yOffset: 0
   placementOffset: {x: 0, y: 0, z: 0}
   costs:
   - type: 1
-    amount: 20
-  - type: 4
-    amount: 20
-  buildTime: 0
-  category: Economy
+    amount: 1
+  buildTime: 1
+  category: House
   aiPriority: 0
