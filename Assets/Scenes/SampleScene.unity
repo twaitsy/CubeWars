@@ -4320,7 +4320,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &674366428
 Transform:
   m_ObjectHideFlags: 0
@@ -4381,6 +4381,56 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxRecent: 8
+--- !u!1 &686473024
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 686473025}
+  - component: {fileID: 686473026}
+  m_Layer: 0
+  m_Name: BuildingInteraction
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &686473025
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 686473024}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1154909047}
+  m_RootOrder: 8
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &686473026
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 686473024}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d80263f4eb147628e3797654ad1dade, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultStopDistance: 1.2
+  houseStopDistance: 1
+  constructionStopDistance: 1.25
+  storageStopDistance: 1.1
+  craftInputStopDistance: 1
+  craftOutputStopDistance: 1
+  craftWorkStopDistance: 1
 --- !u!1 &691309993
 GameObject:
   m_ObjectHideFlags: 0
@@ -4963,6 +5013,11 @@ MonoBehaviour:
     count: 5
     role: 0
     jobType: 0
+  - prefab: {fileID: 5538168870909510437, guid: ce51064a809c1c74ea9b7d4891fb23aa,
+      type: 3}
+    count: 3
+    role: 2
+    jobType: 0
   startingWorkers: 0
   startingWorkerRole: 3
   startingUnitGroups: []
@@ -4972,7 +5027,7 @@ MonoBehaviour:
   startingBuildings:
   - prefab: {fileID: 2971650436058892313, guid: db4be7d8501df9749a5d97e3ee27b5cd,
       type: 3}
-    gridCoord: {x: 3, y: 5}
+    gridCoord: {x: -10, y: -5}
     quarterTurns: 0
     yOffset: 1
   - prefab: {fileID: 6648784137539417351, guid: a97fe9133d0b0c54782bbca2dc49cc4c,
@@ -5926,7 +5981,7 @@ Transform:
   - {fileID: 878141689}
   - {fileID: 407506890}
   m_Father: {fileID: 1154909047}
-  m_RootOrder: 11
+  m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &871614471
 GameObject:
@@ -6786,6 +6841,7 @@ Transform:
   - {fileID: 1529903025}
   - {fileID: 1227994}
   - {fileID: 1162214667}
+  - {fileID: 686473025}
   - {fileID: 1679487130}
   - {fileID: 1820960279}
   - {fileID: 2030613693}
@@ -7370,7 +7426,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1251590178
 Transform:
   m_ObjectHideFlags: 0
@@ -9621,7 +9677,7 @@ Transform:
   - {fileID: 1599740292}
   - {fileID: 762303206}
   m_Father: {fileID: 1154909047}
-  m_RootOrder: 8
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1685873209
 GameObject:
@@ -10559,7 +10615,7 @@ Transform:
   - {fileID: 968593097}
   - {fileID: 319869356}
   m_Father: {fileID: 1154909047}
-  m_RootOrder: 9
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1827148384
 GameObject:
@@ -12038,7 +12094,7 @@ Transform:
   - {fileID: 747396012}
   - {fileID: 445260352}
   m_Father: {fileID: 1154909047}
-  m_RootOrder: 10
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2040223731
 GameObject:
@@ -13336,7 +13392,7 @@ Transform:
   m_Children:
   - {fileID: 192044362}
   m_Father: {fileID: 1154909047}
-  m_RootOrder: 12
+  m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &3967459670190021545
 PrefabInstance:
