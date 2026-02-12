@@ -136,9 +136,18 @@ public class BuildPlacementManager : MonoBehaviour
             : Vector2Int.one;
 
         BuildGridManager grid = FindObjectOfType<BuildGridManager>();
-        List<BuildGridCell> cells = grid != null
-            ? grid.GetFootprintCells(cell.teamID, cell.gridCoord, dimensions)
-            : new List<BuildGridCell> { cell };
+        Vector3 footprintCenter = cell.worldCenter;
+        List<BuildGridCell> cells = null;
+
+        if (grid != null)
+        {
+            if (!grid.TryGetCenteredFootprintCells(cell.teamID, cell.gridCoord, dimensions, out cells, out footprintCenter))
+                return false;
+        }
+        else
+        {
+            cells = new List<BuildGridCell> { cell };
+        }
 
         if (cells == null || cells.Count == 0)
             return false;
@@ -173,7 +182,7 @@ public class BuildPlacementManager : MonoBehaviour
                 return false;
         }
 
-        Vector3 pos = GetPlacementPosition(cell, item, footprint);
+        Vector3 pos = GetPlacementPosition(footprintCenter, item, footprint);
         Quaternion rot = GetPlacementRotation(footprint);
 
         GameObject placed;
@@ -298,9 +307,21 @@ public class BuildPlacementManager : MonoBehaviour
             : Vector2Int.one;
 
         var grid = FindObjectOfType<BuildGridManager>();
-        List<BuildGridCell> cells = grid != null
-            ? grid.GetFootprintCells(cell.teamID, cell.gridCoord, dimensions)
-            : new List<BuildGridCell> { cell };
+        Vector3 footprintCenter = cell.worldCenter;
+        List<BuildGridCell> cells = null;
+
+        if (grid != null)
+        {
+            if (!grid.TryGetCenteredFootprintCells(cell.teamID, cell.gridCoord, dimensions, out cells, out footprintCenter))
+            {
+                ClearPreview();
+                return;
+            }
+        }
+        else
+        {
+            cells = new List<BuildGridCell> { cell };
+        }
 
         if (cells == null || cells.Count == 0)
         {
@@ -327,7 +348,7 @@ public class BuildPlacementManager : MonoBehaviour
             }
         }
 
-        Vector3 pos = GetPlacementPosition(cell, selectedItem, footprint);
+        Vector3 pos = GetPlacementPosition(footprintCenter, selectedItem, footprint);
         Quaternion rot = GetPlacementRotation(footprint);
 
         if (previewObj == null || previewItem != selectedItem)
@@ -352,9 +373,9 @@ public class BuildPlacementManager : MonoBehaviour
             previewObj.SetActive(false);
     }
 
-    Vector3 GetPlacementPosition(BuildGridCell anchorCell, BuildItemDefinition item, BuildingFootprint footprint)
+    Vector3 GetPlacementPosition(Vector3 footprintCenter, BuildItemDefinition item, BuildingFootprint footprint)
     {
-        Vector3 pos = anchorCell.worldCenter
+        Vector3 pos = footprintCenter
                       + new Vector3(item.placementOffset.x, item.yOffset + item.placementOffset.y, item.placementOffset.z);
 
         if (footprint != null)

@@ -1,0 +1,92 @@
+CubeWars Building Footprint Authoring Guide
+==========================================
+
+Purpose
+- Explain exactly how to build prefabs that align correctly to the build grid.
+- Explain how centered pivots behave for multi-cell footprints and rotations.
+
+-----------------------------------------------------------------
+1) Core rule: author buildings with centered pivots
+-----------------------------------------------------------------
+- Building models/prefabs should keep their pivot at the visual center of the structure.
+- Do NOT move the model pivot to a corner just to fit the grid.
+- Grid alignment is now solved by footprint cell-center averaging (runtime), not by corner pivots.
+
+What this means in practice:
+- 1x1 footprint: pivot lands exactly on the selected grid cell center.
+- 2x1 / 1x2 footprint: pivot lands halfway between the two occupied cells.
+- 2x2 footprint: pivot lands in the center of all four occupied cells.
+
+-----------------------------------------------------------------
+2) Required prefab component
+-----------------------------------------------------------------
+Add component: BuildingFootprint
+
+Fields:
+- width: number of cells along local X before rotation.
+- depth: number of cells along local Z before rotation.
+- worldOffset: optional final placement offset in world units after grid centering.
+- extraYRotation: optional prefab-specific yaw correction (degrees).
+
+Notes:
+- width/depth are automatically swapped when rotating by quarter turns (R key or spawn config).
+- Keep width/depth as authored orientation values; do not pre-swap for rotated variants.
+
+-----------------------------------------------------------------
+3) Alignment workflow (recommended)
+-----------------------------------------------------------------
+1. Author mesh/model with centered pivot.
+2. Put mesh under prefab root (root at pivot center).
+3. Add BuildingFootprint to prefab root.
+4. Set width/depth to occupied cell count in default orientation.
+5. Leave worldOffset = (0,0,0) initially.
+6. Test placement in-game at 0°, 90°, 180°, 270°.
+7. Only if necessary, adjust worldOffset slightly for art overhangs.
+8. If model forward axis is not aligned, set extraYRotation (typically 90 or 180).
+
+-----------------------------------------------------------------
+4) How rotation + centering now work
+-----------------------------------------------------------------
+- The system computes the full footprint cell set around the anchor coordinate.
+- It calculates the average center of those cells.
+- The building is placed at that averaged center, then rotated.
+- worldOffset is applied in rotated space so manual offsets follow orientation.
+
+Result:
+- Multi-cell buildings stay aligned to the exact cells they occupy.
+- Rotation no longer drifts the prefab off the occupied footprint.
+
+-----------------------------------------------------------------
+5) Common mistakes and fixes
+-----------------------------------------------------------------
+Mistake: width/depth do not match actual footprint.
+- Symptom: blocked placement where it should fit, or overlap into neighbors.
+- Fix: recount occupied cells and update width/depth.
+
+Mistake: using large worldOffset to "force" alignment.
+- Symptom: looks correct in one rotation but wrong in others.
+- Fix: reset worldOffset near zero and rely on centered footprint behavior.
+
+Mistake: prefab has nested BuildingFootprint conflicting with root.
+- Symptom: confusing dimensions/offset behavior.
+- Fix: keep one BuildingFootprint on root only.
+
+Mistake: placing starting buildings out of grid bounds.
+- Symptom: TeamBootstrap warning and building not spawned.
+- Fix: choose valid gridCoord and/or increase BuildGridManager.halfExtent.
+
+-----------------------------------------------------------------
+6) TeamBootstrap starting building notes
+-----------------------------------------------------------------
+TeamBootstrap > Starting Buildings entries place buildings by:
+- prefab
+- gridCoord (anchor)
+- quarterTurns
+- yOffset
+
+During spawn:
+- Footprint dimensions are rotation-adjusted.
+- All footprint cells must exist and be free.
+- Cells are marked occupied using BuildGridOccupant.
+
+This guarantees starting buildings respect the same footprint occupancy rules as runtime placement.

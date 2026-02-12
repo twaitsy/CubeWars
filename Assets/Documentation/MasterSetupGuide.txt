@@ -304,3 +304,22 @@ Behavior summary:
 
 Editor tooling:
 - Use CubeWars/Tools/Resource Authoring to quickly create new ResourceNode prefabs.
+
+-----------------------------------------------------------------
+12) TeamBootstrap advanced spawn configuration (new)
+-----------------------------------------------------------------
+TeamBootstrap now supports per-team startup lists:
+- civilianGroups[]: choose different civilian prefabs, counts, CivilianRole, and CivilianJobType.
+- startingUnitGroups[]: choose multiple combat unit prefabs and counts.
+- startingBuildings[]: choose building prefabs and exact grid coordinates/rotations for initial placement.
+
+Starting building placement behavior:
+- Uses BuildGridManager centered-footprint queries per team grid.
+- Uses BuildingFootprint width/depth (rotation-aware).
+- Rejects blocked/out-of-bounds/occupied cells.
+- Marks every footprint cell occupied through BuildGridOccupant.
+
+This means startup buildings now obey the same occupancy model as manual build placement.
+
+Related docs:
+- See Assets/Documentation/BuildingFootprint.txt for full prefab alignment rules.

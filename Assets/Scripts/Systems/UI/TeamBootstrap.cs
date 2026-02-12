@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
 /// <summary>
 /// TeamBootstrap
@@ -6,68 +8,81 @@
 /// PURPOSE:
 /// - Initialize each Team object at runtime.
 /// - Spawn HQs for teams missing one.
-/// - Spawn starting workers.
+/// - Spawn configurable starting civilians, units, and buildings.
 /// - Attach AI subsystems to AI teams.
-///
-/// DEPENDENCIES:
-/// - Team.cs:
-///     * Provides teamID, teamType, hqRoot, unitsRoot.
-/// - Building.cs:
-///     * HQ prefab must contain a Building component for teamID assignment.
-/// - Unit.cs:
-///     * Worker prefab must contain a Unit component for teamID assignment.
-/// - AIPlayer / AIEconomy / AIMilitary / AIBuilder / AIResourceManager / AIThreatDetector:
-///     * Added automatically to AI teams if missing.
-/// - GameManager:
-///     * Detects teams after bootstrap runs.
-/// - TeamColorManager (optional):
-///     * HQ and workers may use TeamVisual to apply colors.
-/// - TeamVisual (optional):
-///     * If present on prefabs, will apply team colors automatically.
-///
-/// NOTES FOR FUTURE MAINTENANCE:
-/// - This script NEVER deletes teams.
-/// - This script NEVER enforces a maximum team count.
-/// - This script NEVER modifies teamIDs.
-/// - This script NEVER spawns UI, camera, or global systems.
-/// - HQ and worker prefabs MUST have correct components (Building / Unit).
-/// - If you add new AI subsystems, include them in SetupAI().
-/// - If you add new team roots (e.g., Vehicles), extend SetupWorkers().
-///
-/// ARCHITECTURE:
-/// - Runs once at scene start.
-/// - Safe to use with any number of Team objects.
-/// - Designed to work with your multi-team RTS architecture.
 /// </summary>
 public class TeamBootstrap : MonoBehaviour
 {
+    [System.Serializable]
+    public class StartingCivilianGroup
+    {
+        public GameObject prefab;
+        [Min(0)] public int count = 1;
+        public CivilianRole role = CivilianRole.Gatherer;
+        public CivilianJobType jobType = CivilianJobType.Generalist;
+    }
+
+    [System.Serializable]
+    public class StartingUnitGroup
+    {
+        public GameObject prefab;
+        [Min(0)] public int count = 1;
+    }
+
+    [System.Serializable]
+    public class StartingBuildingSpawn
+    {
+        [Tooltip("Building prefab to place on the build grid.")]
+        public GameObject prefab;
+
+        [Tooltip("Grid coordinate (relative to this team's HQ grid) used as the footprint anchor.")]
+        public Vector2Int gridCoord;
+
+        [Range(0, 3)]
+        [Tooltip("Rotation in quarter turns (0=0°, 1=90°, 2=180°, 3=270°).")]
+        public int quarterTurns;
+
+        [Tooltip("Optional additional world-space Y offset.")]
+        public float yOffset;
+    }
+
     [Header("Prefabs")]
     [Tooltip("HQ building prefab for each team.")]
     public GameObject hqPrefab;
 
-    [Tooltip("Worker unit prefab spawned at game start.")]
+    [Tooltip("Legacy/default worker prefab. Used when civilianGroups is empty.")]
     public GameObject workerPrefab;
 
     [Header("Starting Civilians")]
-    [Tooltip("How many workers each team starts with.")]
+    [Tooltip("Detailed civilian setup. If empty, legacy worker fields are used.")]
+    public List<StartingCivilianGroup> civilianGroups = new List<StartingCivilianGroup>();
+
+    [Tooltip("Legacy fallback: how many workers each team starts with when civilianGroups is empty.")]
     public int startingWorkers = 3;
 
-    [Tooltip("Role assigned to spawned workers.")]
+    [Tooltip("Legacy fallback role assigned to spawned workers when civilianGroups is empty.")]
     public CivilianRole startingWorkerRole = CivilianRole.Gatherer;
 
     [Header("Starting Combat Units")]
-    [Tooltip("Combat unit prefab spawned for each team at start.")]
+    [Tooltip("Detailed starting combat unit setup. If empty, legacy unit fields are used.")]
+    public List<StartingUnitGroup> startingUnitGroups = new List<StartingUnitGroup>();
+
+    [Tooltip("Legacy fallback combat unit prefab when startingUnitGroups is empty.")]
     public GameObject startingUnitPrefab;
 
-    [Tooltip("How many combat units to spawn for each team.")]
+    [Tooltip("Legacy fallback number of combat units when startingUnitGroups is empty.")]
     public int startingUnits = 1;
+
+    [Header("Starting Buildings")]
+    [Tooltip("Starting building prefabs to place directly on team build-grid cells.")]
+    public List<StartingBuildingSpawn> startingBuildings = new List<StartingBuildingSpawn>();
 
     [Header("Spawn Offsets")]
     [Tooltip("Offset applied when spawning HQs.")]
     public Vector3 hqSpawnOffset = Vector3.zero;
 
-    [Tooltip("Offset applied when spawning workers relative to HQ.")]
-    public Vector3 workerSpawnOffset = new Vector3(2f, 0f, 2f);
+    [Tooltip("Base offset used for civilian/unit spawn rings around HQ.")]
+    public Vector3 unitSpawnOffset = new Vector3(2f, 0f, 2f);
 
     void Start()
     {
@@ -76,15 +91,36 @@ public class TeamBootstrap : MonoBehaviour
         foreach (var team in teams)
         {
             SetupHQ(team);
-            SetupWorkers(team);
+            SetupCivilians(team);
             SetupStartingUnits(team);
             SetupAI(team);
         }
+
+        StartCoroutine(SetupStartingBuildingsAfterGridReady(teams));
     }
 
-    // -------------------------------------------------------------
-    // 1. HQ SETUP
-    // -------------------------------------------------------------
+    private IEnumerator SetupStartingBuildingsAfterGridReady(Team[] teams)
+    {
+        if (startingBuildings == null || startingBuildings.Count == 0)
+            yield break;
+
+        // BuildGridManager performs delayed setup; wait until grids exist.
+        yield return null;
+        yield return null;
+
+        BuildGridManager grid = FindObjectOfType<BuildGridManager>();
+        if (grid == null)
+        {
+            Debug.LogWarning("[TeamBootstrap] Cannot place starting buildings: no BuildGridManager found.");
+            yield break;
+        }
+
+        foreach (var team in teams)
+            SetupStartingBuildings(team, grid);
+
+        grid.RefreshPlayerGridVisibility();
+    }
+
     private void SetupHQ(Team team)
     {
         if (team.hqRoot == null)
@@ -93,99 +129,189 @@ public class TeamBootstrap : MonoBehaviour
             return;
         }
 
-        // Skip if HQ already exists
-        if (team.hqRoot.childCount > 0)
+        if (team.hqRoot.childCount > 0 || hqPrefab == null)
             return;
 
-        // Spawn HQ
         Vector3 spawnPos = team.hqRoot.position + hqSpawnOffset;
         GameObject hq = Instantiate(hqPrefab, spawnPos, Quaternion.identity);
         hq.transform.SetParent(team.hqRoot);
 
-        // Assign team ownership via Building base class
         TeamAssignmentUtility.ApplyTeamToHierarchy(hq, team.teamID);
-
-        Debug.Log($"Spawned HQ for Team {team.teamID}");
     }
 
-    // -------------------------------------------------------------
-    // 2. WORKER SETUP
-    // -------------------------------------------------------------
-    private void SetupWorkers(Team team)
+    private void SetupCivilians(Team team)
     {
-        if (workerPrefab == null)
-            return;
-
-        if (team.unitsRoot == null)
-        {
-            Debug.LogWarning($"Team {team.teamID} has no Units root. Expected: Team_X -> Units.");
-            return;
-        }
-
-        // Spawn workers near HQ
-        Transform hq = team.hqRoot.childCount > 0 ? team.hqRoot.GetChild(0) : null;
-        if (hq == null)
-            return;
-
-        for (int i = 0; i < startingWorkers; i++)
-        {
-            Vector3 offset = workerSpawnOffset * i;
-            Vector3 spawnPos = hq.position + offset;
-
-            GameObject worker = Instantiate(workerPrefab, spawnPos, Quaternion.identity);
-            worker.transform.SetParent(team.unitsRoot);
-
-            TeamAssignmentUtility.ApplyTeamToHierarchy(worker, team.teamID);
-
-            var civ = worker.GetComponentInChildren<Civilian>();
-            if (civ != null)
-                civ.SetRole(startingWorkerRole);
-        }
-
-        Debug.Log($"Spawned {startingWorkers} workers for Team {team.teamID}");
-    }
-
-
-    private void SetupStartingUnits(Team team)
-    {
-        if (startingUnitPrefab == null || startingUnits <= 0)
-            return;
-
         if (team.unitsRoot == null || team.hqRoot == null || team.hqRoot.childCount == 0)
             return;
 
         Transform hq = team.hqRoot.GetChild(0);
+        int spawnIndex = 0;
 
-        for (int i = 0; i < startingUnits; i++)
+        if (civilianGroups != null && civilianGroups.Count > 0)
         {
-            Vector3 offset = workerSpawnOffset + new Vector3(i * 1.5f, 0f, -i * 1.5f);
-            Vector3 spawnPos = hq.position + offset;
+            for (int g = 0; g < civilianGroups.Count; g++)
+            {
+                StartingCivilianGroup group = civilianGroups[g];
+                if (group == null || group.prefab == null || group.count <= 0)
+                    continue;
 
-            GameObject unit = Instantiate(startingUnitPrefab, spawnPos, Quaternion.identity);
-            unit.transform.SetParent(team.unitsRoot);
-            TeamAssignmentUtility.ApplyTeamToHierarchy(unit, team.teamID);
+                for (int i = 0; i < group.count; i++)
+                {
+                    SpawnCivilian(team, hq, group.prefab, group.role, group.jobType, spawnIndex);
+                    spawnIndex++;
+                }
+            }
         }
-
-        Debug.Log($"Spawned {startingUnits} combat units for Team {team.teamID}");
+        else if (workerPrefab != null && startingWorkers > 0)
+        {
+            for (int i = 0; i < startingWorkers; i++)
+            {
+                SpawnCivilian(team, hq, workerPrefab, startingWorkerRole, CivilianJobType.Generalist, spawnIndex);
+                spawnIndex++;
+            }
+        }
     }
 
-    // -------------------------------------------------------------
-    // 3. AI SETUP
-    // -------------------------------------------------------------
+    private void SpawnCivilian(Team team, Transform hq, GameObject prefab, CivilianRole role, CivilianJobType jobType, int spawnIndex)
+    {
+        Vector3 spawnPos = GetSpawnPosition(hq.position, spawnIndex, 1.5f);
+        GameObject worker = Instantiate(prefab, spawnPos, Quaternion.identity);
+        worker.transform.SetParent(team.unitsRoot);
+
+        TeamAssignmentUtility.ApplyTeamToHierarchy(worker, team.teamID);
+
+        Civilian civ = worker.GetComponentInChildren<Civilian>();
+        if (civ != null)
+        {
+            civ.SetRole(role);
+            civ.SetJobType(jobType);
+        }
+    }
+
+    private void SetupStartingUnits(Team team)
+    {
+        if (team.unitsRoot == null || team.hqRoot == null || team.hqRoot.childCount == 0)
+            return;
+
+        Transform hq = team.hqRoot.GetChild(0);
+        int spawnIndex = 0;
+
+        if (startingUnitGroups != null && startingUnitGroups.Count > 0)
+        {
+            for (int g = 0; g < startingUnitGroups.Count; g++)
+            {
+                StartingUnitGroup group = startingUnitGroups[g];
+                if (group == null || group.prefab == null || group.count <= 0)
+                    continue;
+
+                for (int i = 0; i < group.count; i++)
+                {
+                    SpawnUnit(team, hq, group.prefab, spawnIndex);
+                    spawnIndex++;
+                }
+            }
+        }
+        else if (startingUnitPrefab != null && startingUnits > 0)
+        {
+            for (int i = 0; i < startingUnits; i++)
+            {
+                SpawnUnit(team, hq, startingUnitPrefab, spawnIndex);
+                spawnIndex++;
+            }
+        }
+    }
+
+    private void SpawnUnit(Team team, Transform hq, GameObject prefab, int spawnIndex)
+    {
+        Vector3 spawnPos = GetSpawnPosition(hq.position, spawnIndex, 2.25f);
+        GameObject unit = Instantiate(prefab, spawnPos, Quaternion.identity);
+        unit.transform.SetParent(team.unitsRoot);
+        TeamAssignmentUtility.ApplyTeamToHierarchy(unit, team.teamID);
+    }
+
+    private Vector3 GetSpawnPosition(Vector3 hqPos, int spawnIndex, float spacing)
+    {
+        int row = spawnIndex / 4;
+        int col = spawnIndex % 4;
+
+        Vector3 rowOffset = unitSpawnOffset.normalized * spacing * (row + 1);
+        Vector3 sideOffset = new Vector3((col - 1.5f) * spacing, 0f, 0f);
+        return hqPos + rowOffset + sideOffset;
+    }
+
+    private void SetupStartingBuildings(Team team, BuildGridManager grid)
+    {
+        if (startingBuildings == null || startingBuildings.Count == 0)
+            return;
+
+        Transform parent = team.buildingsRoot != null ? team.buildingsRoot : team.transform;
+
+        for (int i = 0; i < startingBuildings.Count; i++)
+        {
+            StartingBuildingSpawn spawn = startingBuildings[i];
+            if (spawn == null || spawn.prefab == null)
+                continue;
+
+            BuildingFootprint footprint = BuildingFootprint.FindOnPrefab(spawn.prefab);
+            Vector2Int dimensions = footprint != null
+                ? footprint.GetDimensionsForQuarterTurns(spawn.quarterTurns)
+                : Vector2Int.one;
+
+            if (!grid.TryGetCenteredFootprintCells(team.teamID, spawn.gridCoord, dimensions, out List<BuildGridCell> cells, out Vector3 footprintCenter) || cells == null || cells.Count == 0)
+            {
+                Debug.LogWarning($"[TeamBootstrap] Team {team.teamID} building '{spawn.prefab.name}' failed: grid footprint out of bounds at {spawn.gridCoord}.");
+                continue;
+            }
+
+            if (AnyCellOccupied(cells))
+            {
+                Debug.LogWarning($"[TeamBootstrap] Team {team.teamID} building '{spawn.prefab.name}' failed: one or more footprint cells are already occupied.");
+                continue;
+            }
+
+            Quaternion rot = Quaternion.Euler(0f, spawn.quarterTurns * 90f + (footprint != null ? footprint.extraYRotation : 0f), 0f);
+            Vector3 pos = footprintCenter + new Vector3(0f, spawn.yOffset, 0f);
+            if (footprint != null)
+                pos += rot * footprint.worldOffset;
+
+            GameObject building = Instantiate(spawn.prefab, pos, rot);
+            building.transform.SetParent(parent);
+            TeamAssignmentUtility.ApplyTeamToHierarchy(building, team.teamID);
+
+            BuildGridOccupant occupant = building.GetComponent<BuildGridOccupant>();
+            if (occupant == null)
+                occupant = building.AddComponent<BuildGridOccupant>();
+
+            occupant.SetOccupiedCells(cells, building);
+        }
+    }
+
+    private bool AnyCellOccupied(List<BuildGridCell> cells)
+    {
+        for (int i = 0; i < cells.Count; i++)
+        {
+            if (cells[i] == null || cells[i].isOccupied)
+                return true;
+
+            BuildCellReservation reservation = cells[i].GetComponent<BuildCellReservation>();
+            if (reservation != null && reservation.blockBuildingPlacement)
+                return true;
+        }
+
+        return false;
+    }
+
     private void SetupAI(Team team)
     {
         if (team.teamType != TeamType.AI)
             return;
 
-        // Add AI components ONLY if missing
         AddIfMissing<AIPlayer>(team.gameObject);
         AddIfMissing<AIEconomy>(team.gameObject);
         AddIfMissing<AIMilitary>(team.gameObject);
         AddIfMissing<AIBuilder>(team.gameObject);
         AddIfMissing<AIResourceManager>(team.gameObject);
         AddIfMissing<AIThreatDetector>(team.gameObject);
-
-        Debug.Log($"AI scripts assigned to Team {team.teamID}");
     }
 
     private void AddIfMissing<T>(GameObject obj) where T : Component

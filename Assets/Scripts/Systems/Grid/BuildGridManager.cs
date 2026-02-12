@@ -224,6 +224,39 @@ public class BuildGridManager : MonoBehaviour
         return result;
     }
 
+    public bool TryGetCenteredFootprintCells(int teamID, Vector2Int anchor, Vector2Int dimensions, out List<BuildGridCell> cells, out Vector3 footprintCenter)
+    {
+        cells = new List<BuildGridCell>();
+        footprintCenter = Vector3.zero;
+
+        int width = Mathf.Max(1, dimensions.x);
+        int depth = Mathf.Max(1, dimensions.y);
+
+        int minX = anchor.x - Mathf.FloorToInt((width - 1) * 0.5f);
+        int minZ = anchor.y - Mathf.FloorToInt((depth - 1) * 0.5f);
+
+        Vector3 centerAccumulator = Vector3.zero;
+
+        for (int dx = 0; dx < width; dx++)
+        {
+            for (int dz = 0; dz < depth; dz++)
+            {
+                Vector2Int coord = new Vector2Int(minX + dx, minZ + dz);
+                if (!TryGetCell(teamID, coord, out BuildGridCell cell))
+                {
+                    cells = null;
+                    return false;
+                }
+
+                cells.Add(cell);
+                centerAccumulator += cell.worldCenter;
+            }
+        }
+
+        footprintCenter = cells.Count > 0 ? centerAccumulator / cells.Count : Vector3.zero;
+        return cells.Count > 0;
+    }
+
     void EnforceNonPlayerHiddenAndUnclickable()
     {
         for (int i = 0; i < allCells.Count; i++)
@@ -303,7 +336,7 @@ public class BuildGridManager : MonoBehaviour
         {
             if (BuildPlacementManager.Instance.TryPlace(cell))
             {
-                ApplyCellVisibility(cell, isVisible);
+                RefreshPlayerGridVisibility();
 
                 if (selectedCell != null) SetCellMaterial(selectedCell, cellMaterial);
                 selectedCell = null;
@@ -318,6 +351,11 @@ public class BuildGridManager : MonoBehaviour
 
         if (selectedMaterial != null)
             SetCellMaterial(selectedCell, selectedMaterial);
+    }
+
+    public void RefreshPlayerGridVisibility()
+    {
+        SetPlayerGridVisible(isVisible);
     }
 
     public void OnCellHovered(BuildGridCell cell)

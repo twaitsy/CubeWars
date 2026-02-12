@@ -80,3 +80,9 @@ Needs/Housing additions
 
 Editor productivity
 - ResourceAuthoringWindow (Editor-only) for creating ResourceNode prefabs quickly
+
+Startup placement/alignment requirements (new)
+- BuildGridManager + BuildPlacementManager are required for centered multi-cell footprint placement.
+- TeamBootstrap startingBuildings uses grid coordinates and footprint occupancy checks.
+- Building prefabs that occupy multiple cells should include BuildingFootprint.
+- See Assets/Documentation/BuildingFootprint.txt for full setup and rotation alignment guidance.
