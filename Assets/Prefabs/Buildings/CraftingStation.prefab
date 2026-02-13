@@ -127,7 +127,7 @@ MonoBehaviour:
     - resourceType: 1
       amount: 1
     outputs:
-    - resourceType: 14
+    - resourceType: 0
       amount: 100
     craftTimeSeconds: 5
     batchSize: 5
@@ -136,6 +136,7 @@ MonoBehaviour:
     inputEfficiencyMultiplier: 1
     requiresPower: 0
     requiresFuel: 0
+  resourcesDatabase: {fileID: 11400000, guid: 87f27aa07d5d1b049bfb1818298c31c9, type: 2}
   inputSlot: {fileID: 1315570007274987185}
   outputSlot: {fileID: 4465389164846448858}
   workPoints:

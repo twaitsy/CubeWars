@@ -34,17 +34,17 @@ MonoBehaviour:
   - id: cocaine
     displayName: Cocaine
     icon: {fileID: 0}
-    category: 2
+    category: 1
     weight: 1
     baseValue: 1000
-  - id: 
-    displayName: 
+  - id: food
+    displayName: Food
     icon: {fileID: 0}
     category: 0
     weight: 0
     baseValue: 0
-  - id: 
-    displayName: 
+  - id: ironore
+    displayName: Iron Ore
     icon: {fileID: 0}
     category: 0
     weight: 0
