@@ -153,3 +153,10 @@ Latest crafting/needs runtime checks
 Database migration note
 - TeamAIBuild now references BuildingsDatabase (Assets/Data/Databases/BuildingsDatabase.asset) for buildable item catalog data.
 - BuildMenuUI now resolves build catalog data from BuildingsDatabase first (inspector ref -> GameDatabase.buildings -> editor fallback path Assets/Data/Databases/BuildingsDatabase.asset), then falls back to Resources path only if no database is available.
+
+Detailed build-menu database format support (new)
+- No new scene-level manager is required.
+- BuildMenuUI + BuildPlacementManager remain required for player build flow.
+- Ensure `BuildingsDatabase` is assigned (directly on BuildMenuUI, via GameDatabase.buildings, or at `Assets/Data/Databases/BuildingsDatabase.asset`).
+- For detailed catalog usage, populate `BuildingsDatabase.buildings` entries with at minimum: `displayName`/`id`, `prefab`, `category` or `subCategory`, and optional `constructionCost`.
+- `ResourceDefinition.id`/`displayName` values in `constructionCost` should map to existing `ResourceType` names (e.g., Wood, Gold, IronOre, Silicon, Lithium) for affordability checks.

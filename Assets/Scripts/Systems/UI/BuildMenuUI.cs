@@ -53,6 +53,12 @@ using UnityEditor;
 
 public class BuildMenuUI : MonoBehaviour
 {
+    class RuntimeBuildEntry
+    {
+        public BuildItemDefinition item;
+        public BuildingDefinition detailedDefinition;
+    }
+
     [Serializable]
     public class BuildCategory
     {
@@ -99,6 +105,9 @@ public class BuildMenuUI : MonoBehaviour
     private readonly StringBuilder sb = new StringBuilder(256);
 
     private readonly StringBuilder costSb = new StringBuilder(128);
+    private readonly StringBuilder detailsSb = new StringBuilder(96);
+    private readonly List<BuildItemDefinition> runtimeGeneratedItems = new List<BuildItemDefinition>();
+    private readonly Dictionary<BuildItemDefinition, BuildingDefinition> detailedByItem = new Dictionary<BuildItemDefinition, BuildingDefinition>();
 
     public bool IsVisible => show;
 
@@ -176,10 +185,26 @@ public class BuildMenuUI : MonoBehaviour
 
     BuildCategory[] DiscoverFromDatabase(BuildingsDatabase db)
     {
-        if (db == null || db.items == null || db.items.Count == 0)
+        if (db == null)
             return new BuildCategory[0];
 
-        return BuildCategoriesFromItems(db.items, db.categoryOrder);
+        List<RuntimeBuildEntry> catalogEntries = BuildRuntimeEntries(db);
+        if (catalogEntries.Count == 0)
+            return new BuildCategory[0];
+
+        List<BuildItemDefinition> items = new List<BuildItemDefinition>(catalogEntries.Count);
+        for (int i = 0; i < catalogEntries.Count; i++)
+        {
+            RuntimeBuildEntry entry = catalogEntries[i];
+            if (entry == null || entry.item == null)
+                continue;
+
+            items.Add(entry.item);
+            if (entry.detailedDefinition != null)
+                detailedByItem[entry.item] = entry.detailedDefinition;
+        }
+
+        return BuildCategoriesFromItems(items, db.categoryOrder);
     }
 
 
@@ -329,6 +354,13 @@ public class BuildMenuUI : MonoBehaviour
                     sb.Append(CostString(item.costs));
                 }
 
+                string details = BuildDetailsString(item);
+                if (!string.IsNullOrEmpty(details))
+                {
+                    sb.Append("  ");
+                    sb.Append(details);
+                }
+
                 if (showAffordability && !canAfford)
                     sb.Append("  (Need deposited resources)");
 
@@ -363,6 +395,9 @@ public class BuildMenuUI : MonoBehaviour
 
     BuildCategory[] DiscoverFromResources(string path)
     {
+        ClearRuntimeGeneratedItems();
+        detailedByItem.Clear();
+
         BuildItemDefinition[] all = Resources.LoadAll<BuildItemDefinition>(path);
         if (all == null || all.Length == 0) return new BuildCategory[0];
 
@@ -488,6 +523,205 @@ public class BuildMenuUI : MonoBehaviour
 
         costSb.Append("]");
         return costSb.ToString();
+    }
+
+    string BuildDetailsString(BuildItemDefinition item)
+    {
+        if (item == null)
+            return string.Empty;
+
+        if (!detailedByItem.TryGetValue(item, out var def) || def == null)
+            return string.Empty;
+
+        detailsSb.Length = 0;
+
+        if (def.buildTime > 0f)
+            detailsSb.Append($"Time {def.buildTime:0.#}s");
+
+        if (def.maxHealth > 0)
+        {
+            if (detailsSb.Length > 0) detailsSb.Append(" | ");
+            detailsSb.Append($"HP {def.maxHealth}");
+        }
+
+        if (def.workerSlots > 0)
+        {
+            if (detailsSb.Length > 0) detailsSb.Append(" | ");
+            detailsSb.Append($"Workers {def.workerSlots}");
+        }
+
+        if (def.isStorage && def.storageSettings != null && def.storageSettings.capacity > 0)
+        {
+            if (detailsSb.Length > 0) detailsSb.Append(" | ");
+            detailsSb.Append($"Storage {def.storageSettings.capacity}");
+        }
+
+        return detailsSb.ToString();
+    }
+
+    List<RuntimeBuildEntry> BuildRuntimeEntries(BuildingsDatabase db)
+    {
+        ClearRuntimeGeneratedItems();
+        detailedByItem.Clear();
+
+        List<RuntimeBuildEntry> entries = new List<RuntimeBuildEntry>();
+
+        if (db.buildings != null)
+        {
+            for (int i = 0; i < db.buildings.Count; i++)
+            {
+                BuildingDefinition def = db.buildings[i];
+                if (def == null || def.prefab == null)
+                    continue;
+
+                BuildItemDefinition generated = CreateBuildItemFromDetailed(def);
+                if (generated == null)
+                    continue;
+
+                entries.Add(new RuntimeBuildEntry { item = generated, detailedDefinition = def });
+            }
+        }
+
+        if (entries.Count > 0)
+            return entries;
+
+        if (db.items != null)
+        {
+            for (int i = 0; i < db.items.Count; i++)
+            {
+                BuildItemDefinition item = db.items[i];
+                if (item == null)
+                    continue;
+                entries.Add(new RuntimeBuildEntry { item = item, detailedDefinition = null });
+            }
+        }
+
+        return entries;
+    }
+
+    BuildItemDefinition CreateBuildItemFromDetailed(BuildingDefinition def)
+    {
+        if (def == null || def.prefab == null)
+            return null;
+
+        BuildItemDefinition generated = ScriptableObject.CreateInstance<BuildItemDefinition>();
+        generated.name = string.IsNullOrWhiteSpace(def.id) ? def.prefab.name : def.id;
+        generated.displayName = string.IsNullOrWhiteSpace(def.displayName) ? generated.name : def.displayName;
+        generated.icon = def.icon;
+        generated.prefab = def.prefab;
+        generated.buildTime = Mathf.Max(0f, def.buildTime);
+        generated.category = GetDetailedCategoryName(def);
+        generated.aiPriority = MapAIPriority(def.category);
+        generated.costs = ConvertConstructionCosts(def.constructionCost);
+
+        runtimeGeneratedItems.Add(generated);
+        return generated;
+    }
+
+    string GetDetailedCategoryName(BuildingDefinition def)
+    {
+        if (def == null)
+            return "Uncategorized";
+
+        if (!string.IsNullOrWhiteSpace(def.subCategory))
+            return def.subCategory.Trim();
+
+        return def.category.ToString();
+    }
+
+    ResourceCost[] ConvertConstructionCosts(List<ResourceAmount> costs)
+    {
+        if (costs == null || costs.Count == 0)
+            return Array.Empty<ResourceCost>();
+
+        List<ResourceCost> converted = new List<ResourceCost>(costs.Count);
+        for (int i = 0; i < costs.Count; i++)
+        {
+            ResourceAmount amount = costs[i];
+            if (amount == null || amount.resource == null || amount.amount <= 0)
+                continue;
+
+            if (!TryMapResourceType(amount.resource, out ResourceType type))
+                continue;
+
+            converted.Add(new ResourceCost { type = type, amount = amount.amount });
+        }
+
+        return converted.ToArray();
+    }
+
+    bool TryMapResourceType(ResourceDefinition resource, out ResourceType mapped)
+    {
+        mapped = ResourceType.Wood;
+        if (resource == null)
+            return false;
+
+        string id = NormalizeResourceToken(resource.id);
+        string displayName = NormalizeResourceToken(resource.displayName);
+
+        if (TryParseResourceToken(id, out mapped) || TryParseResourceToken(displayName, out mapped))
+            return true;
+
+        return false;
+    }
+
+    bool TryParseResourceToken(string token, out ResourceType parsed)
+    {
+        parsed = ResourceType.Wood;
+        if (string.IsNullOrEmpty(token))
+            return false;
+
+        switch (token)
+        {
+            case "iron":
+                token = "ironore";
+                break;
+        }
+
+        return Enum.TryParse(token, true, out parsed);
+    }
+
+    string NormalizeResourceToken(string raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+            return string.Empty;
+
+        return raw.Replace("_", string.Empty).Replace("-", string.Empty).Replace(" ", string.Empty).Trim();
+    }
+
+    AIBuildingPriority MapAIPriority(BuildingCategory category)
+    {
+        switch (category)
+        {
+            case BuildingCategory.Housing:
+                return AIBuildingPriority.Housing;
+            case BuildingCategory.Military:
+                return AIBuildingPriority.Defense;
+            case BuildingCategory.Utility:
+            case BuildingCategory.Research:
+                return AIBuildingPriority.Tech;
+            case BuildingCategory.Production:
+            case BuildingCategory.Farming:
+            case BuildingCategory.Mining:
+                return AIBuildingPriority.Industry;
+            default:
+                return AIBuildingPriority.Economy;
+        }
+    }
+
+    void OnDestroy()
+    {
+        ClearRuntimeGeneratedItems();
+    }
+
+    void ClearRuntimeGeneratedItems()
+    {
+        for (int i = 0; i < runtimeGeneratedItems.Count; i++)
+        {
+            if (runtimeGeneratedItems[i] != null)
+                Destroy(runtimeGeneratedItems[i]);
+        }
+        runtimeGeneratedItems.Clear();
     }
 
     void TrySyncGrid(bool visible)
