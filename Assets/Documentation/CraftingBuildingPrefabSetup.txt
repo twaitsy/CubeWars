@@ -125,3 +125,8 @@ Runtime inspector visibility:
 - UnitInspectorUI now shows local storage lines in this format:
   `<Resource> Storage — <stored>/<capacity> | Flow: <mode>`.
 - Use this to verify send/receive behavior in play mode while selecting buildings.
+
+
+Latest notes
+- Crafting input request generation now asks for full missing amount per resource (haulers still limited by their own carry capacity at withdrawal).
+- UnitInspectorUI Storage tab now shows per-recipe input-buffer and output-queue totals when selecting crafting buildings.

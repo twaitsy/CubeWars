@@ -29,3 +29,9 @@ Inspector Support
 Notes
 - If no house exists, civilians cannot recover tiredness and may suffer exhaustion damage.
 - A house must belong to the same team as the civilian.
+
+
+Latest notes
+- Houses now self-register in a global runtime list used for resident allocation.
+- New houses are given randomized names (prefix/suffix + serial) at runtime for easier inspector identification.
+- Civilians are allocated to available same-team houses using the runtime house register before sleep/idle movement logic.

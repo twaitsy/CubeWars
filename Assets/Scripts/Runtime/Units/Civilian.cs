@@ -202,6 +202,8 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         started = true;
         RegisterWithJobManager();
         CraftingJobManager.Instance?.RegisterCivilian(this);
+
+        TryAssignHouseIfNeeded();
     }
 
     void RegisterWithJobManager()
@@ -288,6 +290,9 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
     void TickNeeds()
     {
+        if (state == State.CraftingAtWorkPoint && targetCraftingBuilding != null && targetCraftingBuilding.State == CraftingBuilding.ProductionState.InProgress)
+            return;
+
         currentHunger = Mathf.Clamp(currentHunger + hungerRatePerSecond * Time.deltaTime, 0f, maxHunger);
         currentTiredness = Mathf.Clamp(currentTiredness + tirednessRatePerSecond * Time.deltaTime, 0f, maxTiredness);
 
@@ -371,15 +376,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         if (role != CivilianRole.Idle)
             return;
 
-        if (assignedHouse == null || !assignedHouse.IsAlive)
-        {
-            targetHouse = FindClosestAvailableHouse();
-            if (targetHouse != null)
-            {
-                if (targetHouse.TryAddResident(this))
-                    assignedHouse = targetHouse;
-            }
-        }
+        TryAssignHouseIfNeeded();
 
         if (assignedHouse == null)
             return;
@@ -437,7 +434,12 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     void TickSeekHouse()
     {
         if (targetHouse == null || !targetHouse.IsAlive)
-            targetHouse = FindClosestAvailableHouse();
+        {
+            TryAssignHouseIfNeeded();
+            targetHouse = assignedHouse != null && assignedHouse.IsAlive
+                ? assignedHouse
+                : FindClosestAvailableHouse();
+        }
 
         if (targetHouse == null)
             return;
@@ -523,28 +525,17 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
     House FindClosestAvailableHouse()
     {
-        House[] houses = FindObjectsOfType<House>();
-        House best = null;
-        float bestD = float.MaxValue;
+        return House.FindAvailableForTeam(teamID, this, transform.position);
+    }
 
-        for (int i = 0; i < houses.Length; i++)
-        {
-            House house = houses[i];
-            if (house == null || house.teamID != teamID || !house.IsAlive)
-                continue;
+    void TryAssignHouseIfNeeded()
+    {
+        if (assignedHouse != null && assignedHouse.IsAlive)
+            return;
 
-            if (!house.CanAcceptResident(this))
-                continue;
-
-            float d = (house.transform.position - transform.position).sqrMagnitude;
-            if (d < bestD)
-            {
-                bestD = d;
-                best = house;
-            }
-        }
-
-        return best;
+        targetHouse = FindClosestAvailableHouse();
+        if (targetHouse != null && targetHouse.TryAddResident(this))
+            assignedHouse = targetHouse;
     }
 
     void ClearAssignedHouse()

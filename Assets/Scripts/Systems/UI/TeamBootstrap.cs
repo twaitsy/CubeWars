@@ -133,6 +133,15 @@ public class TeamBootstrap : MonoBehaviour
             return;
 
         Vector3 spawnPos = team.hqRoot.position + hqSpawnOffset;
+        BuildGridManager grid = FindObjectOfType<BuildGridManager>();
+        if (grid != null)
+        {
+            float cellSize = Mathf.Max(0.1f, grid.cellSize);
+            spawnPos.x = Mathf.Round(spawnPos.x / cellSize) * cellSize;
+            spawnPos.z = Mathf.Round(spawnPos.z / cellSize) * cellSize;
+            spawnPos.y = grid.yOffset;
+        }
+
         GameObject hq = Instantiate(hqPrefab, spawnPos, Quaternion.identity);
         hq.transform.SetParent(team.hqRoot);
 

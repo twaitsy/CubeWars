@@ -124,3 +124,13 @@ Storage flow configuration requirements (new)
 - Simplified crafting role split:
   - Haulers perform crafting transport (input-in first, output-out second).
   - Other selected civilians (matching required job type) are expected to stay near crafting work points to keep production active.
+
+
+Latest script requirements/additions
+- WorldProgressBar (optional): attach to buildings/objects that need future world-space progress visualization (construction, upgrades, etc.).
+
+Behavioral expectations to verify in scenes
+- Crafting haulers should deliver up to their civilian carry capacity per trip when input buffers are missing resources.
+- Idle civilians should show an assigned house in inspector when capacity exists; otherwise inspector should display "Homeless".
+- Barracks and Turret should expose a demolish action from UnitInspectorUI Overview.
+- TeamBootstrap-spawned HQ positions should align to BuildGridManager cell coordinates.

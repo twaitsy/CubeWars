@@ -440,7 +440,7 @@ public class CraftingBuilding : Building
             if (storage == null) continue;
 
             neededType = entry.resourceType;
-            amount = Mathf.Min(missing, maxInputCapacityPerResource);
+            amount = missing;
             nearestStorage = storage;
             return true;
         }
