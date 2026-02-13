@@ -1,5 +1,5 @@
 # Cube Wars Script Index — Utilities
-Generated: 2026-02-07 20:58:10
+Generated: 2026-02-13 15:20:09
 
 ## Assets/Scripts/Utilities/Debug
 - FindTeamDuplicates.cs
@@ -8,5 +8,7 @@ Generated: 2026-02-07 20:58:10
 ## Assets/Scripts/Utilities/Helpers
 - ParentRenamer.cs
 - SelfRenamer.cs
+- TeamAssignmentUtility.cs
 - TeamColorUtils.cs
+- UnitNamePool.cs
 

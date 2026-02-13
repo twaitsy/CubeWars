@@ -1,8 +1,5 @@
 # Cube Wars Script Index — Core
-Generated: 2026-02-07 20:58:10
-
-## Assets/Scripts/Core
-- NewBehaviourScript.cs
+Generated: 2026-02-13 15:20:09
 
 ## Assets/Scripts/Core/Events
 - EventManager.cs

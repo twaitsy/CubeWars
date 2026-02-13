@@ -18,7 +18,7 @@ MonoBehaviour:
   yOffset: 0
   placementOffset: {x: 0, y: 0, z: 0}
   costs:
-  - type: 1
+  - type: 2
     amount: 20
   - type: 4
     amount: 20

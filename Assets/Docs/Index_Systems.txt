@@ -1,5 +1,5 @@
 === CUBE WARS SCRIPT INDEX — SYSTEMS ===
-Generated: 2026-02-07 20:58:10
+Generated: 2026-02-13 15:20:09
 
 Assets/Scripts/Managers/Systems
     AIManager.cs
@@ -29,6 +29,8 @@ Assets/Scripts/Systems/AI/Targeting
 
 Assets/Scripts/Systems/Buildings
     BuildCellReservation.cs
+    BuildGridOccupant.cs
+    BuildingFootprint.cs
     BuildPlacementManager.cs
 
 Assets/Scripts/Systems/Civilians
@@ -44,7 +46,9 @@ Assets/Scripts/Systems/Combat
     WeaponComponent.cs
 
 Assets/Scripts/Systems/Economy
+    CraftingJobManager.cs
     CraftingSystem.cs
+    ProductionNotificationManager.cs
     ResourceRegistry.cs
 
 Assets/Scripts/Systems/Grid
@@ -52,22 +56,31 @@ Assets/Scripts/Systems/Grid
     BuildGridManager.cs
 
 Assets/Scripts/Systems/UI
+    BuildMenuPanel.cs
     BuildMenuUI.cs
     ConstructionManager.cs
-    EconomyUI.cs
+    EconomyUILegacyBridge.cs
     IMGUIInputBlocker.cs
+    InspectorPanel.cs
     MainMenuUI.cs
     MapVisualsBootstrap.cs
     Minimap.cs
+    MiniMapPanel.cs
     NeonRing.cs
     ResourceVisualBuilder.cs
+    RTSGameSettings.cs
     SciFiTeamStyler.cs
     SelectionManager.cs
     SelectionRing.cs
+    TaskBoardPanel.cs
     TaskBoardUI.cs
     TeamBootstrap.cs
     UnitInspectorUI.cs
     WorldHealthBar.cs
+    WorldProgressBar.cs
+
+Assets/Scripts/Systems/UI/Editor
+    MainMenuUIMigrator.cs
 
 Assets/Scripts/Systems/Units
     CivilianSpawner.cs

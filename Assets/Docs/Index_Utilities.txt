@@ -1,5 +1,5 @@
 === CUBE WARS SCRIPT INDEX — UTILITIES ===
-Generated: 2026-02-07 20:58:10
+Generated: 2026-02-13 15:20:09
 
 Assets/Scripts/Utilities/Debug
     FindTeamDuplicates.cs
@@ -8,5 +8,7 @@ Assets/Scripts/Utilities/Debug
 Assets/Scripts/Utilities/Helpers
     ParentRenamer.cs
     SelfRenamer.cs
+    TeamAssignmentUtility.cs
     TeamColorUtils.cs
+    UnitNamePool.cs
 

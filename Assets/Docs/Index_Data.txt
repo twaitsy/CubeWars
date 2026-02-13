@@ -1,5 +1,5 @@
 === CUBE WARS SCRIPT INDEX — DATA ===
-Generated: 2026-02-07 20:58:10
+Generated: 2026-02-13 15:20:09
 
 Assets/Scripts/Data/AI
     AIDifficulty.cs
@@ -11,12 +11,14 @@ Assets/Scripts/Data/Buildings
     BuildCatalog.cs
     BuildItemDefinition.cs
     BuildTimeSettings.cs
+    ProductionRecipe.cs
     ToolItem.cs
 
 Assets/Scripts/Data/Combat
     SkirmishConfig.cs
 
 Assets/Scripts/Data/Resources
+    FoodResourceDatabase.cs
     ResourceCapacityEntry.cs
     ResourceCost.cs
     ResourceType.cs
@@ -24,7 +26,10 @@ Assets/Scripts/Data/Resources
 
 Assets/Scripts/Data/Units
     CharacterStats.cs
+    CivilianJobRegistry.cs
+    CivilianJobType.cs
     CivilianRole.cs
+    CivilianToolRegistry.cs
     CombatStance.cs
     SkillType.cs
     UnitProductionDefinition.cs

@@ -131,7 +131,7 @@ MonoBehaviour:
       amount: 100
     craftTimeSeconds: 5
     batchSize: 5
-    requiredJobType: 5
+    requiredJobType: 8
     outputEfficiencyMultiplier: 1
     inputEfficiencyMultiplier: 1
     requiresPower: 0

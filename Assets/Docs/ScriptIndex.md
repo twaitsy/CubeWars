@@ -1,10 +1,7 @@
 # Cube Wars Script Index
-Generated: 2026-02-07 20:58:10
+Generated: 2026-02-13 15:20:09
 
 ## Core
-
-### Assets/Scripts/Core
-- NewBehaviourScript.cs
 
 ### Assets/Scripts/Core/Events
 - EventManager.cs
@@ -39,12 +36,14 @@ Generated: 2026-02-07 20:58:10
 - BuildCatalog.cs
 - BuildItemDefinition.cs
 - BuildTimeSettings.cs
+- ProductionRecipe.cs
 - ToolItem.cs
 
 ### Assets/Scripts/Data/Combat
 - SkirmishConfig.cs
 
 ### Assets/Scripts/Data/Resources
+- FoodResourceDatabase.cs
 - ResourceCapacityEntry.cs
 - ResourceCost.cs
 - ResourceType.cs
@@ -52,7 +51,10 @@ Generated: 2026-02-07 20:58:10
 
 ### Assets/Scripts/Data/Units
 - CharacterStats.cs
+- CivilianJobRegistry.cs
+- CivilianJobType.cs
 - CivilianRole.cs
+- CivilianToolRegistry.cs
 - CombatStance.cs
 - SkillType.cs
 - UnitProductionDefinition.cs
@@ -69,11 +71,16 @@ Generated: 2026-02-07 20:58:10
 ### Assets/Scripts/Runtime/Buildings
 - Barracks.cs
 - Building.cs
+- BuildingInteractionSettings.cs
+- BuildingPrefabValidator.cs
 - BuildItemInstance.cs
 - ConstructionSite.cs
+- CraftingBuilding.cs
 - DefenseTurret.cs
 - Farm.cs
 - Headquarters.cs
+- House.cs
+- ProductionStatusVisualizer.cs
 - ResourceDropoff.cs
 - ResourceNode.cs
 - ResourceSpawner.cs
@@ -126,6 +133,8 @@ Generated: 2026-02-07 20:58:10
 
 ### Assets/Scripts/Systems/Buildings
 - BuildCellReservation.cs
+- BuildGridOccupant.cs
+- BuildingFootprint.cs
 - BuildPlacementManager.cs
 
 ### Assets/Scripts/Systems/Civilians
@@ -141,7 +150,9 @@ Generated: 2026-02-07 20:58:10
 - WeaponComponent.cs
 
 ### Assets/Scripts/Systems/Economy
+- CraftingJobManager.cs
 - CraftingSystem.cs
+- ProductionNotificationManager.cs
 - ResourceRegistry.cs
 
 ### Assets/Scripts/Systems/Grid
@@ -149,22 +160,31 @@ Generated: 2026-02-07 20:58:10
 - BuildGridManager.cs
 
 ### Assets/Scripts/Systems/UI
+- BuildMenuPanel.cs
 - BuildMenuUI.cs
 - ConstructionManager.cs
-- EconomyUI.cs
+- EconomyUILegacyBridge.cs
 - IMGUIInputBlocker.cs
+- InspectorPanel.cs
 - MainMenuUI.cs
 - MapVisualsBootstrap.cs
 - Minimap.cs
+- MiniMapPanel.cs
 - NeonRing.cs
 - ResourceVisualBuilder.cs
+- RTSGameSettings.cs
 - SciFiTeamStyler.cs
 - SelectionManager.cs
 - SelectionRing.cs
+- TaskBoardPanel.cs
 - TaskBoardUI.cs
 - TeamBootstrap.cs
 - UnitInspectorUI.cs
 - WorldHealthBar.cs
+- WorldProgressBar.cs
+
+### Assets/Scripts/Systems/UI/Editor
+- MainMenuUIMigrator.cs
 
 ### Assets/Scripts/Systems/Units
 - CivilianSpawner.cs
@@ -186,5 +206,7 @@ Generated: 2026-02-07 20:58:10
 ### Assets/Scripts/Utilities/Helpers
 - ParentRenamer.cs
 - SelfRenamer.cs
+- TeamAssignmentUtility.cs
 - TeamColorUtils.cs
+- UnitNamePool.cs
 

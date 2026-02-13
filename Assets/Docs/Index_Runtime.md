@@ -1,14 +1,19 @@
 # Cube Wars Script Index — Runtime
-Generated: 2026-02-07 20:58:10
+Generated: 2026-02-13 15:20:09
 
 ## Assets/Scripts/Runtime/Buildings
 - Barracks.cs
 - Building.cs
+- BuildingInteractionSettings.cs
+- BuildingPrefabValidator.cs
 - BuildItemInstance.cs
 - ConstructionSite.cs
+- CraftingBuilding.cs
 - DefenseTurret.cs
 - Farm.cs
 - Headquarters.cs
+- House.cs
+- ProductionStatusVisualizer.cs
 - ResourceDropoff.cs
 - ResourceNode.cs
 - ResourceSpawner.cs

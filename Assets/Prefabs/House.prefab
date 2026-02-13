@@ -13,6 +13,12 @@ GameObject:
   - component: {fileID: 1885238298750187165}
   - component: {fileID: 7173214579724961004}
   - component: {fileID: 9072237368166501742}
+  - component: {fileID: 5699066911974227261}
+  - component: {fileID: 1855731936033828936}
+  - component: {fileID: 7578670495944949064}
+  - component: {fileID: 3124892137413273334}
+  - component: {fileID: 1549477667382319587}
+  - component: {fileID: 7195897650002401758}
   m_Layer: 0
   m_Name: House
   m_TagString: Untagged
@@ -114,3 +120,124 @@ MonoBehaviour:
   storage: 300
   maxInhabitants: 8
   civilians: []
+--- !u!114 &5699066911974227261
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7618349653826479655}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14f1da7aff9846eaad3ce74c53a6ca09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  validateOnAwake: 1
+  includeOptionalWarnings: 1
+--- !u!114 &1855731936033828936
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7618349653826479655}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40ac1f6cf1431c149898946ed4448c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &7578670495944949064
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7618349653826479655}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 119cd2cd7e179eb48a9be3b6198bb38a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  width: 1
+  depth: 1
+  worldOffset: {x: 0, y: 0, z: 0}
+  extraYRotation: 0
+--- !u!114 &3124892137413273334
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7618349653826479655}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7e731a709d78b4458d603bae6a4ecf8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  teamID: 0
+  kind: 0
+  applyOnStart: 1
+--- !u!114 &1549477667382319587
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7618349653826479655}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f48b5562f8301542b97848a56fce485, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  teamID: 0
+  resourceFlow:
+  - type: 0
+    flowMode: 3
+  - type: 1
+    flowMode: 3
+  - type: 2
+    flowMode: 3
+  - type: 3
+    flowMode: 3
+  - type: 4
+    flowMode: 3
+  - type: 5
+    flowMode: 3
+  - type: 6
+    flowMode: 3
+  - type: 7
+    flowMode: 3
+  - type: 8
+    flowMode: 3
+  - type: 9
+    flowMode: 3
+  - type: 10
+    flowMode: 3
+  - type: 11
+    flowMode: 3
+  - type: 12
+    flowMode: 3
+  - type: 13
+    flowMode: 3
+  - type: 14
+    flowMode: 3
+  - type: 15
+    flowMode: 3
+--- !u!114 &7195897650002401758
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7618349653826479655}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0316fc440feb1e4479faf1e9075d7ebf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  teamID: 0
+  capacities:
+  - type: 0
+    capacity: 200
+  grantStartingResources: 0
+  startingResources: []
