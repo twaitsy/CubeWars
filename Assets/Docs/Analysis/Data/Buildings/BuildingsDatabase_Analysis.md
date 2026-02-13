@@ -1,11 +1,11 @@
-# Analysis — BuildCatalog.cs
+# Analysis — BuildingsDatabase.cs
 Generated: 2026-02-07 20:58:14
 
 ## Namespace
 
 
 ## Classes
-- BuildCatalog
+- BuildingsDatabase
 
 ## Base Classes
 - ScriptableObject

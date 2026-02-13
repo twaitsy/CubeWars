@@ -17,7 +17,7 @@
 // - BuildMenuUI:
 //      * Displays displayName, icon, costs, category.
 //      * Uses category for grouping.
-// - BuildCatalog:
+// - BuildingsDatabase:
 //      * Stores BuildItemDefinition assets.
 // - AIBuilder / TeamAIBuild / AIRebuildManager:
 //      * Uses category + aiPriority to decide what to build.

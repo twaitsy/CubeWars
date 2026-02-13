@@ -1488,7 +1488,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   teamID: 1
   playerTeamID: 0
-  catalog: {fileID: 11400000, guid: ad3f7d092a2f2294fb2dbfecdbd59a19, type: 2}
+  catalog: {fileID: 11400000, guid: fd593b86e9a21e64cb62b09e28e7b7b3, type: 2}
   buildInterval: 4
   categoryPriority:
   - Economy
@@ -4649,7 +4649,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   teamID: 4
   playerTeamID: 0
-  catalog: {fileID: 11400000, guid: ad3f7d092a2f2294fb2dbfecdbd59a19, type: 2}
+  catalog: {fileID: 11400000, guid: fd593b86e9a21e64cb62b09e28e7b7b3, type: 2}
   buildInterval: 4
   categoryPriority:
   - Economy
@@ -7151,7 +7151,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   teamID: 5
   playerTeamID: 0
-  catalog: {fileID: 11400000, guid: ad3f7d092a2f2294fb2dbfecdbd59a19, type: 2}
+  catalog: {fileID: 11400000, guid: fd593b86e9a21e64cb62b09e28e7b7b3, type: 2}
   buildInterval: 4
   categoryPriority:
   - Economy
@@ -8408,7 +8408,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   teamID: 3
   playerTeamID: 0
-  catalog: {fileID: 11400000, guid: ad3f7d092a2f2294fb2dbfecdbd59a19, type: 2}
+  catalog: {fileID: 11400000, guid: fd593b86e9a21e64cb62b09e28e7b7b3, type: 2}
   buildInterval: 4
   categoryPriority:
   - Economy
@@ -9358,7 +9358,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   teamID: 2
   playerTeamID: 0
-  catalog: {fileID: 11400000, guid: ad3f7d092a2f2294fb2dbfecdbd59a19, type: 2}
+  catalog: {fileID: 11400000, guid: fd593b86e9a21e64cb62b09e28e7b7b3, type: 2}
   buildInterval: 4
   categoryPriority:
   - Economy

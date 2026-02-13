@@ -215,7 +215,7 @@ Dependencies appears to be a core script derived from MonoBehaviour. It appears 
 Alphabetical, Based, but, Category, compiles, contains, Cube, Dependencies, Dependency, documentation, file, Global, logic, Map, MonoBehaviour, only, runtime, This, Wars
 
 ### Cross References
-**Uses:** AIBuilder, AIBuildingPriority, AIDifficulty, AIEconomy, AIManager, AIMilitary, AIPersonality, AIPlayer, AIRebuildManager, AIRepairManager, AIResourceManager, AIThreatDetector, AlertManager, Attackable, AutoDestroyFX, Barracks, BuildCatalog, BuildCellReservation, BuildGridCell, BuildGridManager, Building, BuildItemDefinition, BuildItemInstance, BuildMenuUI, BuildPlacementManager, BuildTimeSettings, CharacterStats, Civilian, CivilianRole, CivilianSpawner, CombatManager, CombatStance, CombatSystem, ConstructionManager, ConstructionSite, CraftingSystem, DefenseTurret, DiplomacyManager, EconomyUI, EventManager, Farm, FindTeamDuplicates, GameBootstrap, GameManager, Headquarters, HQSpawner, IAttackable, ICommandable, IHasHealth, IMGUIInputBlocker, ITargetable, JobManager, MainMenuUI, MapVisualsBootstrap, Minimap, MultiTeamAIDirector, NeonRing, ParentRenamer, Projectile, ProjectilePool, ResourceCapacityEntry, ResourceCost, ResourceDropoff, ResourceNode, ResourceRegistry, ResourceSpawner, ResourceStorageContainer, ResourceStorageProvider, ResourceType, ResourceVisualBuilder, RTSCamera, SaveLoadManager, SciFiMapBootstrap, SciFiTeamStyler, Selectable, SelectionManager, SelectionRing, SelfRenamer, SixTeamBootstrap, SkillType, SkirmishConfig, Spawner, TaskBoardUI, Team, TeamAIBuild, TeamBootstrap, TeamColorManager, TeamColorUtils, TeamInventory, TeamResources, TeamStorageManager, TeamVisual, TeamWatchdog, Turret, TurretProjectile, TurretProjectilePool, Unit, UnitCombatController, UnitCommandController, UnitInspectorUI, UnitManager, UnitProductionDefinition, UnitProductionQueue, VehicleFactory, WeaponComponent, WeaponsFactory, WinConditionManager, WorldHealthBar
+**Uses:** AIBuilder, AIBuildingPriority, AIDifficulty, AIEconomy, AIManager, AIMilitary, AIPersonality, AIPlayer, AIRebuildManager, AIRepairManager, AIResourceManager, AIThreatDetector, AlertManager, Attackable, AutoDestroyFX, Barracks, BuildingsDatabase, BuildCellReservation, BuildGridCell, BuildGridManager, Building, BuildItemDefinition, BuildItemInstance, BuildMenuUI, BuildPlacementManager, BuildTimeSettings, CharacterStats, Civilian, CivilianRole, CivilianSpawner, CombatManager, CombatStance, CombatSystem, ConstructionManager, ConstructionSite, CraftingSystem, DefenseTurret, DiplomacyManager, EconomyUI, EventManager, Farm, FindTeamDuplicates, GameBootstrap, GameManager, Headquarters, HQSpawner, IAttackable, ICommandable, IHasHealth, IMGUIInputBlocker, ITargetable, JobManager, MainMenuUI, MapVisualsBootstrap, Minimap, MultiTeamAIDirector, NeonRing, ParentRenamer, Projectile, ProjectilePool, ResourceCapacityEntry, ResourceCost, ResourceDropoff, ResourceNode, ResourceRegistry, ResourceSpawner, ResourceStorageContainer, ResourceStorageProvider, ResourceType, ResourceVisualBuilder, RTSCamera, SaveLoadManager, SciFiMapBootstrap, SciFiTeamStyler, Selectable, SelectionManager, SelectionRing, SelfRenamer, SixTeamBootstrap, SkillType, SkirmishConfig, Spawner, TaskBoardUI, Team, TeamAIBuild, TeamBootstrap, TeamColorManager, TeamColorUtils, TeamInventory, TeamResources, TeamStorageManager, TeamVisual, TeamWatchdog, Turret, TurretProjectile, TurretProjectilePool, Unit, UnitCombatController, UnitCommandController, UnitInspectorUI, UnitManager, UnitProductionDefinition, UnitProductionQueue, VehicleFactory, WeaponComponent, WeaponsFactory, WinConditionManager, WorldHealthBar
 **Used By:** -
 
 
@@ -354,18 +354,18 @@ amount, attach, bucket, component, Consider, counts, crafting, delete, DEPENDENC
 **Used By:** CraftingSystem, Dependencies, Team, WeaponsFactory
 
 
-## Assets/Data/DatabaseScripts/BuildCatalog.cs
-**Script:** BuildCatalog
+## Assets/Data/DatabaseScripts/BuildingsDatabase.cs
+**Script:** BuildingsDatabase
 **System Classification:** Buildings
 **Base Class:** ScriptableObject
 **Interfaces:** -
 
 ### Summary
-BuildCatalog appears to be a buildings script derived from ScriptableObject. It appears to be related to: BuildCatalog, ScriptableObject, PURPOSE, Defines, buildable, items, available, Organizes.
+BuildingsDatabase appears to be a buildings script derived from ScriptableObject. It appears to be related to: BuildingsDatabase, ScriptableObject, PURPOSE, Defines, buildable, items, available, Organizes.
 
 ### Comments & Documentation
 - // ============================================================================
-- // BuildCatalog.cs
+- // BuildingsDatabase.cs
 - // PURPOSE:
 - // - Defines the list of all buildable items available in the game.
 - // - Organizes items into high-level categories for UI and AI.
@@ -376,7 +376,7 @@ BuildCatalog appears to be a buildings script derived from ScriptableObject. It 
 - // - BuildMenuUI:
 
 ### Keywords
-Acts, add, AIBuilder, aiPriority, all, and, appear, are, assets, auto, available, build, buildable, BuildCatalog, building, buildings, BuildItemDefinition, BuildItems, BuildMenuUI, categories, category, categoryOrder, control, decision, Defines, DEPENDENCIES, describing, determine, determines, discovering, discovers, discovery, displayName, Each, ensure, entry, exist, expectations, folder, for, FUTURE, game, high, included, INSPECTOR, into, items, level, list, localization, localized, logic, MAINTENANCE, making, match, must, names, new, NOTES, optional, order, Organizes, path, placed, PURPOSE, Reads, references, REQUIREMENTS, Resources, ScriptableObject, should, sort, source, TeamAIBuild, the, they, truth, update, Uses, using, what, when, you
+Acts, add, AIBuilder, aiPriority, all, and, appear, are, assets, auto, available, build, buildable, BuildingsDatabase, building, buildings, BuildItemDefinition, BuildItems, BuildMenuUI, categories, category, categoryOrder, control, decision, Defines, DEPENDENCIES, describing, determine, determines, discovering, discovers, discovery, displayName, Each, ensure, entry, exist, expectations, folder, for, FUTURE, game, high, included, INSPECTOR, into, items, level, list, localization, localized, logic, MAINTENANCE, making, match, must, names, new, NOTES, optional, order, Organizes, path, placed, PURPOSE, Reads, references, REQUIREMENTS, Resources, ScriptableObject, should, sort, source, TeamAIBuild, the, they, truth, update, Uses, using, what, when, you
 
 ### Cross References
 **Uses:** AIBuilder, BuildItemDefinition, BuildMenuUI, TeamAIBuild
@@ -405,11 +405,11 @@ BuildItemDefinition appears to be a buildings script derived from ScriptableObje
 - // * Uses prefab, yOffset, placementOffset, costs.
 
 ### Keywords
-Acts, add, AIBuilder, aiPriority, AIRebuildManager, and, assets, based, build, buildable, BuildCatalog, building, buildings, BuildItemDefinition, BuildMenuUI, BuildPlacementManager, buildTime, category, cell, component, consider, constructing, construction, ConstructionSite, contain, container, cost, costs, Cube, decide, Defines, DEPENDENCIES, displayName, Displays, ensure, expectations, fail, final, footprint, for, FUTURE, grouping, here, icon, INSPECTOR, linking, logic, MAINTENANCE, match, metadata, multi, MUST, new, NOTES, override, placement, placementOffset, prefab, prerequisites, priority, PURPOSE, Reads, reference, requirements, resource, ResourceCost, ResourceType, rotation, rules, ScriptableObject, shown, Spawns, Stores, structure, systems, TeamAIBuild, tech, the, this, tree, UpgradeDefinition, upgrades, Used, Uses, Wars, what, will, yOffset, you
+Acts, add, AIBuilder, aiPriority, AIRebuildManager, and, assets, based, build, buildable, BuildingsDatabase, building, buildings, BuildItemDefinition, BuildMenuUI, BuildPlacementManager, buildTime, category, cell, component, consider, constructing, construction, ConstructionSite, contain, container, cost, costs, Cube, decide, Defines, DEPENDENCIES, displayName, Displays, ensure, expectations, fail, final, footprint, for, FUTURE, grouping, here, icon, INSPECTOR, linking, logic, MAINTENANCE, match, metadata, multi, MUST, new, NOTES, override, placement, placementOffset, prefab, prerequisites, priority, PURPOSE, Reads, reference, requirements, resource, ResourceCost, ResourceType, rotation, rules, ScriptableObject, shown, Spawns, Stores, structure, systems, TeamAIBuild, tech, the, this, tree, UpgradeDefinition, upgrades, Used, Uses, Wars, what, will, yOffset, you
 
 ### Cross References
-**Uses:** AIBuilder, AIBuildingPriority, AIRebuildManager, BuildCatalog, Building, BuildMenuUI, BuildPlacementManager, ConstructionSite, ResourceCost, ResourceType, TeamAIBuild
-**Used By:** AIBuilder, AIRebuildManager, BuildCatalog, BuildItemInstance, BuildMenuUI, BuildPlacementManager, BuildTimeSettings, ConstructionSite, Dependencies, MultiTeamAIDirector, TeamAIBuild
+**Uses:** AIBuilder, AIBuildingPriority, AIRebuildManager, BuildingsDatabase, Building, BuildMenuUI, BuildPlacementManager, ConstructionSite, ResourceCost, ResourceType, TeamAIBuild
+**Used By:** AIBuilder, AIRebuildManager, BuildingsDatabase, BuildItemInstance, BuildMenuUI, BuildPlacementManager, BuildTimeSettings, ConstructionSite, Dependencies, MultiTeamAIDirector, TeamAIBuild
 
 
 ## Assets/Scripts/Data/Buildings/BuildTimeSettings.cs
@@ -1819,7 +1819,7 @@ AIBuilder, and, BuildItemDefinition, BuildPlacementManager, buildTimer, CanAffor
 
 ### Cross References
 **Uses:** AIBuildingPriority, AIPersonality, BuildItemDefinition, BuildPlacementManager, ResourceStorageContainer, TeamResources
-**Used By:** AIPlayer, Barracks, BuildCatalog, BuildCellReservation, BuildItemDefinition, BuildItemInstance, BuildPlacementManager, BuildTimeSettings, Dependencies, TeamBootstrap
+**Used By:** AIPlayer, Barracks, BuildingsDatabase, BuildCellReservation, BuildItemDefinition, BuildItemInstance, BuildPlacementManager, BuildTimeSettings, Dependencies, TeamBootstrap
 
 
 ## Assets/Scripts/Systems/AI/DecisionMaking/AIBuildingPriority.cs
@@ -2030,7 +2030,7 @@ TeamAIBuild appears to be a ai script derived from MonoBehaviour. It appears to 
 - // / DEPENDENCIES:
 - // / - BuildGridCell
 - // / - BuildPlacementManager
-- // / - BuildCatalog
+- // / - BuildingsDatabase
 - // / - TeamResources
 - // /
 - // / RESPONSIBILITIES:
@@ -2039,18 +2039,18 @@ TeamAIBuild appears to be a ai script derived from MonoBehaviour. It appears to 
 - /// DEPENDENCIES:
 - /// - BuildGridCell
 - /// - BuildPlacementManager
-- /// - BuildCatalog
+- /// - BuildingsDatabase
 - /// - TeamResources
 - /// RESPONSIBILITIES:
 - /// - Periodically attempt to place buildings
 - /// - Choose affordable items
 
 ### Keywords
-affordable, attempt, BuildCatalog, BuildGridCell, building, buildings, BuildPlacementManager, category, Choose, delete, DEPENDENCIES, Does, for, Handles, IMPORTANT, items, modify, MonoBehaviour, NOT, objects, Periodically, place, placement, priorities, Respect, RESPONSIBILITIES, single, summary, team, TeamAIBuild, TeamResources, teams
+affordable, attempt, BuildingsDatabase, BuildGridCell, building, buildings, BuildPlacementManager, category, Choose, delete, DEPENDENCIES, Does, for, Handles, IMPORTANT, items, modify, MonoBehaviour, NOT, objects, Periodically, place, placement, priorities, Respect, RESPONSIBILITIES, single, summary, team, TeamAIBuild, TeamResources, teams
 
 ### Cross References
-**Uses:** BuildCatalog, BuildGridCell, BuildItemDefinition, BuildPlacementManager, Team, TeamResources
-**Used By:** BuildCatalog, BuildItemDefinition, Dependencies
+**Uses:** BuildingsDatabase, BuildGridCell, BuildItemDefinition, BuildPlacementManager, Team, TeamResources
+**Used By:** BuildingsDatabase, BuildItemDefinition, Dependencies
 
 
 ## Assets/Scripts/Systems/AI/Jobs/AIRebuildManager.cs
@@ -2897,11 +2897,11 @@ BuildMenuUI appears to be a ui script derived from MonoBehaviour. It appears to 
 - // * Provides displayName, icon, costs, category.
 
 ### Keywords
-add, affordability, Allows, and, assets, Auto, autoDiscover, based, Build, BuildCatalog, BuildGridManager, building, BuildItemDefinition, BuildItems, BuildMenuUI, BuildPlacementManager, button, CanAfford, CanAffordAvailable, categories, category, check, checks, Clamp, Clears, clicks, close, closes, costs, debugging, DEPENDENCIES, DiscoverFromResources, discovery, displayName, Displays, entire, expose, extend, false, filter, folder, for, from, FUTURE, game, grid, hotkeys, icon, IMGUIInputBlocker, indirect, INSPECTOR, Instance, integrate, item, items, key, Length, lists, loads, MAINTENANCE, manually, Mathf, Max, may, Menu, MonoBehaviour, multi, new, NOTES, null, off, open, optional, page, placement, player, playerTeamID, populated, Prevents, previews, Provides, PURPOSE, Receives, replaced, Representative, requirements, Resources, resourcesPath, script, scroll, search, select, selectedCategoryIndex, selection, SetSelected, show, showAffordability, showCosts, ShowPreviewAt, state, sync, Syncs, system, tab, TeamResources, TeamStorageManager, tech, the, them, this, through, toggleKey, toggles, Toolkit, tools, tree, trySyncBuildGridVisibility, TrySyncGrid, uGUI, Unity, unlock, Update, Used, Vector2, via, visibility, visible, when, with, you, zero
+add, affordability, Allows, and, assets, Auto, autoDiscover, based, Build, BuildingsDatabase, BuildGridManager, building, BuildItemDefinition, BuildItems, BuildMenuUI, BuildPlacementManager, button, CanAfford, CanAffordAvailable, categories, category, check, checks, Clamp, Clears, clicks, close, closes, costs, debugging, DEPENDENCIES, DiscoverFromResources, discovery, displayName, Displays, entire, expose, extend, false, filter, folder, for, from, FUTURE, game, grid, hotkeys, icon, IMGUIInputBlocker, indirect, INSPECTOR, Instance, integrate, item, items, key, Length, lists, loads, MAINTENANCE, manually, Mathf, Max, may, Menu, MonoBehaviour, multi, new, NOTES, null, off, open, optional, page, placement, player, playerTeamID, populated, Prevents, previews, Provides, PURPOSE, Receives, replaced, Representative, requirements, Resources, resourcesPath, script, scroll, search, select, selectedCategoryIndex, selection, SetSelected, show, showAffordability, showCosts, ShowPreviewAt, state, sync, Syncs, system, tab, TeamResources, TeamStorageManager, tech, the, them, this, through, toggleKey, toggles, Toolkit, tools, tree, trySyncBuildGridVisibility, TrySyncGrid, uGUI, Unity, unlock, Update, Used, Vector2, via, visibility, visible, when, with, you, zero
 
 ### Cross References
-**Uses:** BuildCatalog, BuildGridManager, BuildItemDefinition, BuildPlacementManager, IMGUIInputBlocker, ResourceCost, TeamResources, TeamStorageManager
-**Used By:** BuildCatalog, BuildGridCell, BuildGridManager, BuildItemDefinition, Dependencies
+**Uses:** BuildingsDatabase, BuildGridManager, BuildItemDefinition, BuildPlacementManager, IMGUIInputBlocker, ResourceCost, TeamResources, TeamStorageManager
+**Used By:** BuildingsDatabase, BuildGridCell, BuildGridManager, BuildItemDefinition, Dependencies
 
 
 ## Assets/Scripts/Systems/UI/ConstructionManager.cs

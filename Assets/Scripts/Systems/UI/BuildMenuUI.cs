@@ -10,7 +10,7 @@
 // DEPENDENCIES:
 // - BuildItemDefinition:
 //      * Provides displayName, icon, costs, category.
-// - BuildCatalog (optional):
+// - BuildingsDatabase (optional):
 //      * If autoDiscover is off, categories[] may be manually populated.
 // - BuildPlacementManager:
 //      * Receives SetSelected(item) when the player clicks a build button.

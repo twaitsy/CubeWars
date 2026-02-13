@@ -105,7 +105,7 @@ TeamInventory (TeamInventory.cs)
  - isActiveAndEnabled
  - hideFlags
 
-BuildCatalog (BuildCatalog.cs)
+BuildingsDatabase (BuildingsDatabase.cs)
  - hideFlags
 
 BuildItemDefinition (BuildItemDefinition.cs)

@@ -42,7 +42,7 @@ Generated: 2026-02-13 21:13:13
 
 ### Type References
 - bool
-- BuildCatalog
+- BuildingsDatabase
 - BuildGridCell
 - BuildItemDefinition
 - float
