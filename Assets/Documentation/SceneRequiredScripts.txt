@@ -149,3 +149,6 @@ Latest crafting/needs runtime checks
 - Civilian + CraftingBuilding pairing now expects valid NavMesh paths from civilian spawn areas to crafting work points; unreachable work points trigger stall recovery and assignment clear after ~10s.
 - House prefabs that should serve nearby resident meals must include a ResourceStorageContainer with edible resources (ReceiveOnly flow is acceptable; residents bypass hauling flow checks when eating at home).
 - Crafting production throughput depends on active workers physically present at site/workpoint, not just assigned worker count.
+
+Database migration note
+- TeamAIBuild now references BuildingsDatabase (Assets/Data/Databases/BuildingsDatabase.asset) for buildable item catalog data.

@@ -7,7 +7,7 @@ using UnityEngine;
 /// DEPENDENCIES:
 /// - BuildGridCell
 /// - BuildPlacementManager
-/// - BuildCatalog
+/// - BuildingsDatabase
 /// - TeamResources
 ///
 /// RESPONSIBILITIES:
@@ -26,7 +26,7 @@ public class TeamAIBuild : MonoBehaviour
     public int playerTeamID = 0;
 
     [Header("Build Settings")]
-    public BuildCatalog catalog;
+    public BuildingsDatabase catalog;
     public float buildInterval = 4f;
 
     [Tooltip("Categories the AI will try in order.")]

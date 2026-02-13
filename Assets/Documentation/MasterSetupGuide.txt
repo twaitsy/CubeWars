@@ -104,8 +104,8 @@ Build catalog linkage (catalog asset now stored under Assets/Data/Databases):
   - buildTime
   - yOffset/placementOffset
   - category/aiPriority
-- Add definition to BuildCatalog so it appears in BuildMenuUI.
-- Keep BuildCatalog.asset in Assets/Data/Databases/BuildCatalog.asset.
+- Add definition to BuildingsDatabase so it appears in BuildMenuUI.
+- Keep BuildingsDatabase.asset in Assets/Data/Databases/BuildingsDatabase.asset.
 
 -----------------------------------------------------------------
 4) Construction Site Prefab

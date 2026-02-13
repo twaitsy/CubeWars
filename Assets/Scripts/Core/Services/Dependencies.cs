@@ -28,7 +28,7 @@ public class dependencies : MonoBehaviour
     Attackable.cs — Base attackable component (Combat)
     AutoDestroyFX.cs — Auto-destroy particle effects (Combat)
     Barracks.cs — Produces infantry units (Buildings)
-    BuildCatalog.cs — Catalog of buildable items (Buildings)
+    BuildingsDatabase.cs — Catalog of buildable items (Buildings)
     BuildCellReservation.cs — Blocks grid cells for placement (Buildings)
     BuildGridCell.cs — Represents a buildable grid tile (Buildings)
     BuildGridManager.cs — Generates and manages build grid (Buildings)
@@ -142,7 +142,7 @@ public class dependencies : MonoBehaviour
     BUILDING SYSTEM
     ------------------------------------------------------------------------
     Barracks.cs
-    BuildCatalog.cs
+    BuildingsDatabase.cs
     BuildCellReservation.cs
     BuildGridCell.cs
     BuildGridManager.cs
