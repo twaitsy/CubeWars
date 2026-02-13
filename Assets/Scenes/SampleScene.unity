@@ -5002,9 +5002,9 @@ MonoBehaviour:
     jobType: 0
   - prefab: {fileID: 5538168870909510437, guid: ce51064a809c1c74ea9b7d4891fb23aa,
       type: 3}
-    count: 3
+    count: 5
     role: 2
-    jobType: 5
+    jobType: 0
   startingWorkers: 0
   startingWorkerRole: 3
   startingUnitGroups: []
@@ -5025,6 +5025,11 @@ MonoBehaviour:
   - prefab: {fileID: 2609521548526753214, guid: ac24891f5744bdd4987e9779f1fb68e1,
       type: 3}
     gridCoord: {x: 5, y: 5}
+    quarterTurns: 0
+    yOffset: 0
+  - prefab: {fileID: 7618349653826479655, guid: 35867c2e1c47bef49b7c5cb9dde8e85c,
+      type: 3}
+    gridCoord: {x: 7, y: 7}
     quarterTurns: 0
     yOffset: 0
   - prefab: {fileID: 0}

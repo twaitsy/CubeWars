@@ -112,5 +112,5 @@ MonoBehaviour:
   prestige: 5
   comfort: 10
   storage: 300
-  maxInhabitants: 10
+  maxInhabitants: 40
   civilians: []
