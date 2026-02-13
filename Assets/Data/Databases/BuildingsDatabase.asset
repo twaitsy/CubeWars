@@ -16,12 +16,7 @@ MonoBehaviour:
   - Economy
   - Industry
   - Defense
-  items:
-  - {fileID: 11400000, guid: d843dda0f7ca5444886c4b27d229dfbf, type: 2}
-  - {fileID: 11400000, guid: 77819375ff3383a409639417a4a63f7f, type: 2}
-  - {fileID: 11400000, guid: 23aa557afee749f4c8ab17495cd539ca, type: 2}
-  - {fileID: 11400000, guid: 987006a6d7b71c34eabf222735f3d2f2, type: 2}
-  - {fileID: 11400000, guid: af39f7049109a8d42ac57f9cc3dfcbe9, type: 2}
+  items: []
   buildings:
   - id: House
     displayName: House
@@ -30,93 +25,20 @@ MonoBehaviour:
       type: 3}
     category: 0
     subCategory: 
-    constructionCost: []
-    buildTime: 5
+    constructionCost:
+    - resource:
+        id: wood
+        displayName: Wood
+        icon: {fileID: 0}
+        category: 0
+        weight: 1
+        baseValue: 1
+      amount: 1
+    buildTime: 50
     maxHealth: 0
     upkeepCost: []
     upkeepInterval: 10
-    maxResidents: 0
-    comfortLevel: 0
-    isProducer: 0
-    recipes: []
-    workerSlots: 0
-    isStorage: 0
-    storageSettings:
-      capacity: 0
-      allowedCategories: 
-    isMilitary: 0
-    attackDamage: 0
-    attackRange: 0
-    garrisonSlots: 0
-    powerConsumption: 0
-    powerGeneration: 0
-    waterConsumption: 0
-  - id: 
-    displayName: 
-    icon: {fileID: 0}
-    prefab: {fileID: 0}
-    category: 0
-    subCategory: 
-    constructionCost: []
-    buildTime: 5
-    maxHealth: 0
-    upkeepCost: []
-    upkeepInterval: 10
-    maxResidents: 0
-    comfortLevel: 0
-    isProducer: 0
-    recipes: []
-    workerSlots: 0
-    isStorage: 0
-    storageSettings:
-      capacity: 0
-      allowedCategories: 
-    isMilitary: 0
-    attackDamage: 0
-    attackRange: 0
-    garrisonSlots: 0
-    powerConsumption: 0
-    powerGeneration: 0
-    waterConsumption: 0
-  - id: 
-    displayName: 
-    icon: {fileID: 0}
-    prefab: {fileID: 0}
-    category: 0
-    subCategory: 
-    constructionCost: []
-    buildTime: 5
-    maxHealth: 0
-    upkeepCost: []
-    upkeepInterval: 10
-    maxResidents: 0
-    comfortLevel: 0
-    isProducer: 0
-    recipes: []
-    workerSlots: 0
-    isStorage: 0
-    storageSettings:
-      capacity: 0
-      allowedCategories: 
-    isMilitary: 0
-    attackDamage: 0
-    attackRange: 0
-    garrisonSlots: 0
-    powerConsumption: 0
-    powerGeneration: 0
-    waterConsumption: 0
-  - id: 
-    displayName: 
-    icon: {fileID: 0}
-    prefab: {fileID: 0}
-    category: 0
-    subCategory: 
-    constructionCost: []
-    buildTime: 5
-    maxHealth: 0
-    upkeepCost: []
-    upkeepInterval: 10
-    maxResidents: 0
+    maxResidents: 13
     comfortLevel: 0
     isProducer: 0
     recipes: []

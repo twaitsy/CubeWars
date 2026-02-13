@@ -2,5 +2,9 @@
 {
     Economy,
     Military,
+    Industry,
+    Housing,
+    Defense,
+    Tech,
     Storage
 }

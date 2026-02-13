@@ -16,27 +16,27 @@ MonoBehaviour:
   - id: gold
     displayName: Gold
     icon: {fileID: 0}
-    category: 2
-    weight: 10
+    category: 0
+    weight: 50
+    baseValue: 100
+  - id: wood
+    displayName: Wood
+    icon: {fileID: 0}
+    category: 0
+    weight: 20
     baseValue: 5
-  - id: 
-    displayName: 
+  - id: drugz
+    displayName: Drugz
     icon: {fileID: 0}
-    category: 5
-    weight: 0
-    baseValue: 0
-  - id: 
-    displayName: 
+    category: 1
+    weight: 1
+    baseValue: 400
+  - id: cocaine
+    displayName: Cocaine
     icon: {fileID: 0}
-    category: 0
-    weight: 0
-    baseValue: 0
-  - id: 
-    displayName: 
-    icon: {fileID: 0}
-    category: 0
-    weight: 0
-    baseValue: 0
+    category: 2
+    weight: 1
+    baseValue: 1000
   - id: 
     displayName: 
     icon: {fileID: 0}
