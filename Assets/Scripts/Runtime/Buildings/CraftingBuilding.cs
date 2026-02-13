@@ -282,7 +282,6 @@ public class CraftingBuilding : Building
         return count;
     }
 
-
     bool IsWorkerInOperatingRange(Civilian worker)
     {
         if (worker == null) return false;
@@ -420,7 +419,14 @@ public class CraftingBuilding : Building
         return taken;
     }
 
-    public bool TryGetInputRequest(Vector3 workerPosition, out ResourceType neededType, out int amount, out ResourceStorageContainer nearestStorage)
+    // ---------------------------------------------------------
+    // UPDATED METHOD — OPTION A: Haulers fill to full capacity
+    // ---------------------------------------------------------
+    public bool TryGetInputRequest(
+        Vector3 workerPosition,
+        out ResourceType neededType,
+        out int amount,
+        out ResourceStorageContainer nearestStorage)
     {
         neededType = default;
         amount = 0;
@@ -432,14 +438,25 @@ public class CraftingBuilding : Building
         for (int i = 0; i < recipe.inputs.Length; i++)
         {
             var entry = recipe.inputs[i];
-            int need = GetEffectiveInputRequirement(entry);
-            int missing = Mathf.Max(0, need - inputBuffer[entry.resourceType]);
-            if (missing <= 0) continue;
+            var type = entry.resourceType;
 
-            var storage = TeamStorageManager.Instance.FindNearestStorageWithStored(teamID, entry.resourceType, workerPosition);
-            if (storage == null) continue;
+            // NEW BEHAVIOR:
+            // Request enough to fill the entire input buffer.
+            int current = inputBuffer[type];
+            int missing = Mathf.Max(0, maxInputCapacityPerResource - current);
 
-            neededType = entry.resourceType;
+            if (missing <= 0)
+                continue;
+
+            var storage = TeamStorageManager.Instance.FindNearestStorageWithStored(
+                teamID,
+                type,
+                workerPosition);
+
+            if (storage == null)
+                continue;
+
+            neededType = type;
             amount = missing;
             nearestStorage = storage;
             return true;
@@ -513,7 +530,6 @@ public class CraftingBuilding : Building
 
         return best;
     }
-
 
     public bool HasAssignedHauler()
     {

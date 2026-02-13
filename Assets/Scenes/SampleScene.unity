@@ -4992,7 +4992,7 @@ MonoBehaviour:
     jobType: 0
   - prefab: {fileID: 5538168870909510437, guid: ce51064a809c1c74ea9b7d4891fb23aa,
       type: 3}
-    count: 8
+    count: 1
     role: 7
     jobType: 0
   - prefab: {fileID: 5538168870909510437, guid: ce51064a809c1c74ea9b7d4891fb23aa,
@@ -5022,7 +5022,7 @@ MonoBehaviour:
     gridCoord: {x: 4, y: 5}
     quarterTurns: 0
     yOffset: 0
-  - prefab: {fileID: 2609521548526753214, guid: ac24891f5744bdd4987e9779f1fb68e1,
+  - prefab: {fileID: 6649371030592126936, guid: 4af69ddb22bcd404c952823400df9b8c,
       type: 3}
     gridCoord: {x: 5, y: 5}
     quarterTurns: 0

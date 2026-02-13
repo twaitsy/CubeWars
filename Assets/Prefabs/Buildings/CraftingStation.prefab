@@ -124,11 +124,11 @@ MonoBehaviour:
   recipe:
     recipeName: Coins
     inputs:
-    - resourceType: 0
-      amount: 10
-    outputs:
     - resourceType: 1
       amount: 1
+    outputs:
+    - resourceType: 0
+      amount: 100
     craftTimeSeconds: 5
     batchSize: 5
     requiredJobType: 5
