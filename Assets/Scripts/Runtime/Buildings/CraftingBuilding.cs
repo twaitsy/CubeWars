@@ -60,6 +60,7 @@ public class CraftingBuilding : Building
     readonly Dictionary<ResourceType, int> inputBuffer = new Dictionary<ResourceType, int>();
     readonly Dictionary<ResourceType, int> outputQueue = new Dictionary<ResourceType, int>();
     readonly Dictionary<Civilian, int> occupiedWorkpoints = new Dictionary<Civilian, int>();
+    readonly Dictionary<Civilian, float> inactiveAssignedWorkerTimers = new Dictionary<Civilian, float>();
     readonly List<Civilian> assignedWorkers = new List<Civilian>();
 
     ProductionState state;
@@ -122,7 +123,10 @@ public class CraftingBuilding : Building
             return;
         }
 
-        if (GetActiveWorkerCount() <= 0)
+        TickInactiveAssignedWorkers();
+
+        int activeWorkers = GetActiveWorkerCount();
+        if (activeWorkers <= 0)
         {
             state = ProductionState.InputsReady;
             ProductionNotificationManager.Instance?.NotifyIfReady($"workers-missing-{GetInstanceID()}", $"{name}: no workers assigned.");
@@ -134,9 +138,40 @@ public class CraftingBuilding : Building
         if (craftDuration <= 0f)
             craftDuration = GetCraftDuration();
 
-        craftTimer += Time.deltaTime;
+        craftTimer += Time.deltaTime * activeWorkers;
         if (craftTimer >= craftDuration)
             CompleteCraft();
+    }
+
+    void TickInactiveAssignedWorkers()
+    {
+        for (int i = assignedWorkers.Count - 1; i >= 0; i--)
+        {
+            Civilian worker = assignedWorkers[i];
+            if (worker == null)
+            {
+                assignedWorkers.RemoveAt(i);
+                continue;
+            }
+
+            if (IsWorkerActive(worker))
+            {
+                inactiveAssignedWorkerTimers[worker] = 0f;
+                continue;
+            }
+
+            float timer = inactiveAssignedWorkerTimers.TryGetValue(worker, out float value) ? value : 0f;
+            timer += Time.deltaTime;
+            inactiveAssignedWorkerTimers[worker] = timer;
+
+            if (allowAutomaticAssignment && timer >= 30f)
+            {
+                Debug.LogWarning($"[{nameof(CraftingBuilding)}] Unassigning inactive worker '{worker.name}' from '{name}'.");
+                inactiveAssignedWorkerTimers.Remove(worker);
+                worker.ClearCraftingAssignment();
+                RemoveWorker(worker);
+            }
+        }
     }
 
     void TickProductionFx()
@@ -283,7 +318,7 @@ public class CraftingBuilding : Building
         return false;
     }
 
-    int GetActiveWorkerCount()
+    public int GetActiveWorkerCount()
     {
         int count = 0;
         for (int i = assignedWorkers.Count - 1; i >= 0; i--)
@@ -295,10 +330,24 @@ public class CraftingBuilding : Building
                 continue;
             }
 
-            if (occupiedWorkpoints.ContainsKey(worker) || IsWorkerInOperatingRange(worker))
+            if (IsWorkerActive(worker))
                 count++;
         }
         return count;
+    }
+
+    bool IsWorkerActive(Civilian worker)
+    {
+        if (worker == null)
+            return false;
+
+        if (!worker.IsAtAssignedCraftingWorkPoint)
+            return false;
+
+        float workerRange = Mathf.Max(1f, worker.stopDistance * 1.5f);
+        return (worker.transform.position - transform.position).sqrMagnitude <= workerRange * workerRange
+               || occupiedWorkpoints.ContainsKey(worker)
+               || IsWorkerInOperatingRange(worker);
     }
 
     bool IsWorkerInOperatingRange(Civilian worker)
@@ -371,6 +420,7 @@ public class CraftingBuilding : Building
         if (civilian == null) return;
         assignedWorkers.Remove(civilian);
         occupiedWorkpoints.Remove(civilian);
+        inactiveAssignedWorkerTimers.Remove(civilian);
     }
 
     public bool TryReserveWorkPoint(Civilian civilian, out Transform workPoint)

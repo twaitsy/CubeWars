@@ -143,3 +143,9 @@ Scene setup checks
 - Ensure a TeamInventory exists in-scene for civilians to claim crafted tools.
 - Ensure house prefabs that should store food include one ResourceStorageContainer (it will run as ReceiveOnly for hauler flow).
 - Keep at least one non-house storage with Supply enabled for food so civilians can still retrieve food logistics when house stock is empty.
+
+
+Latest crafting/needs runtime checks
+- Civilian + CraftingBuilding pairing now expects valid NavMesh paths from civilian spawn areas to crafting work points; unreachable work points trigger stall recovery and assignment clear after ~10s.
+- House prefabs that should serve nearby resident meals must include a ResourceStorageContainer with edible resources (ReceiveOnly flow is acceptable; residents bypass hauling flow checks when eating at home).
+- Crafting production throughput depends on active workers physically present at site/workpoint, not just assigned worker count.

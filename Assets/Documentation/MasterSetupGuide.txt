@@ -439,3 +439,13 @@ Tool registry updates:
 
 Crafting speed integration:
 - `CraftingBuilding` now reads worker tool multipliers and applies them to craft duration.
+
+
+Latest civilian crafting/needs behavior (Fixes 1-3)
+- Crafting progress now scales with active (present) workers only; assigned workers who are not physically at active work range do not advance production.
+- CraftingBuilding can auto-unassign inactive auto-assigned workers after ~30s to recover from deadlocks.
+- Civilians now prioritize consuming food from their assigned house first when nearby (bypassing storage flow restrictions), then fall back to global storage search.
+- Food search prioritizes house storage containers higher when they contain edible resources.
+- Need interruption guard for crafters now only suppresses hunger/sleep interruption when the civilian is actually at the work point and production is in progress.
+- After food/sleep, civilians with crafting assignments are forced back to GoingToWorkPoint to prevent idle loopholes.
+- If a civilian stalls while trying to reach crafting work point for >10s, assignment is cleared to prevent permanent lock.
