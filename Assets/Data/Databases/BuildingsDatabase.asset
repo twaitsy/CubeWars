@@ -23,10 +23,11 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 987006a6d7b71c34eabf222735f3d2f2, type: 2}
   - {fileID: 11400000, guid: af39f7049109a8d42ac57f9cc3dfcbe9, type: 2}
   buildings:
-  - id: 
-    displayName: 
+  - id: House
+    displayName: House
     icon: {fileID: 0}
-    prefab: {fileID: 0}
+    prefab: {fileID: 7618349653826479655, guid: 35867c2e1c47bef49b7c5cb9dde8e85c,
+      type: 3}
     category: 0
     subCategory: 
     constructionCost: []
