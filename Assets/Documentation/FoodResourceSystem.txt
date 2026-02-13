@@ -6,7 +6,7 @@ Purpose
 - Supports future crafting chains where basic food can be refined into better food.
 
 Core Asset
-- `FoodResourceDatabase` (ScriptableObject)
+- `FoodResourceDatabase` (ScriptableObject, script path: `Assets/Data/DatabaseScripts/FoodResourceDatabase.cs`)
 - Each entry defines:
   - ResourceType
   - hungerRestore (how much hunger one unit removes)
@@ -30,7 +30,7 @@ Result
   while still considering travel distance.
 
 Extending the System
-1) Create or edit a FoodResourceDatabase asset.
+1) Create or edit a FoodResourceDatabase asset (recommended location: `Assets/Data/Databases/`).
 2) Add new ResourceType entries intended as edible resources.
 3) Tune hungerRestore and ranking.
 4) Assign the database on Civilian prefab(s).

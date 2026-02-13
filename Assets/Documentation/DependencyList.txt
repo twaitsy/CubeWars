@@ -14,7 +14,7 @@ Core Scene Bootstrap
 Civilian Needs + Housing Dependencies
 - Civilian
 - House
-- FoodResourceDatabase (optional but recommended)
+- FoodResourceDatabase (optional but recommended; script in Assets/Data/DatabaseScripts)
 - ResourceStorageContainer
 - UnitInspectorUI
 

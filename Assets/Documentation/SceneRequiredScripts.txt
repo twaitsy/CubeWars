@@ -77,7 +77,7 @@ Prefab/component notes for updated behavior
 
 Needs/Housing additions
 - House (required for civilian sleep recovery)
-- FoodResourceDatabase asset assigned to Civilian prefab (recommended)
+- FoodResourceDatabase asset assigned to Civilian prefab (recommended; script path: Assets/Data/DatabaseScripts/FoodResourceDatabase.cs)
 - Civilian prefab uses hunger/tiredness fields for runtime survival
 
 Editor productivity
