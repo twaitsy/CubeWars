@@ -107,3 +107,9 @@ Generated: 2026-02-07 20:58:14
 - i
 - RequireComponent
 
+## Latest Update Notes
+- Added assigned-house food-first consumption attempt in `TickSeekFoodStorage()`.
+- Added crafting return enforcement in `ResumeAfterNeed()` to force `GoingToWorkPoint` for active crafting assignments.
+- Added work-point stall recovery in `TickGoWorkPoint()` with assignment clear after 10 seconds.
+- Added `IsAtAssignedCraftingWorkPoint` debug/runtime property for crafting activity checks.
+

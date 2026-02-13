@@ -88,6 +88,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     public CraftingBuilding AssignedCraftingBuilding => targetCraftingBuilding;
     public string CurrentTaskLabel => BuildTaskLabel();
     public float CraftingProgress => targetCraftingBuilding != null ? targetCraftingBuilding.CraftProgress01 : 0f;
+    public bool IsAtAssignedCraftingWorkPoint => state == State.CraftingAtWorkPoint && Arrived();
 
     public float CurrentHunger => currentHunger;
     public float CurrentTiredness => currentTiredness;
@@ -168,6 +169,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     private float toolPickupTimer;
     private float idleWanderTimer;
     private Vector3 idleWanderTarget;
+    private float stalledAtWorkPointTimer;
 
     void Awake()
     {
@@ -295,7 +297,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
     void TickNeeds()
     {
-        if (state == State.CraftingAtWorkPoint && targetCraftingBuilding != null && targetCraftingBuilding.State == CraftingBuilding.ProductionState.InProgress)
+        if (state == State.CraftingAtWorkPoint && Arrived() && targetCraftingBuilding != null && targetCraftingBuilding.State == CraftingBuilding.ProductionState.InProgress)
             return;
 
         currentHunger = Mathf.Clamp(currentHunger + hungerRatePerSecond * Time.deltaTime, 0f, maxHunger);
@@ -344,6 +346,13 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     void ResumeAfterNeed()
     {
         State fallback = ResolveRoleFallbackState();
+        if (targetCraftingBuilding != null && (jobType == CivilianJobType.Crafter || CivilianJobRegistry.GetProfile(jobType).supportsCraftingAssignment))
+        {
+            state = State.GoingToWorkPoint;
+            hasStoredRoleState = false;
+            return;
+        }
+
         if (hasStoredRoleState)
         {
             state = stateBeforeNeed;
@@ -393,6 +402,9 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
     void TickSeekFoodStorage()
     {
+        if (TryConsumeFoodFromAssignedHouse())
+            return;
+
         if (TeamStorageManager.Instance == null)
             return;
 
@@ -417,6 +429,34 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         pendingFoodAmount = eatenUnits;
         needActionTimer = 0f;
         state = State.Eating;
+    }
+
+    bool TryConsumeFoodFromAssignedHouse()
+    {
+        if (assignedHouse == null)
+            return false;
+
+        float nearDistance = Mathf.Max(0.1f, stopDistance * 2f);
+        if ((transform.position - assignedHouse.transform.position).sqrMagnitude > nearDistance * nearDistance)
+            return false;
+
+        foreach (ResourceType type in System.Enum.GetValues(typeof(ResourceType)))
+        {
+            if (!FoodResourceDatabase.IsFood(foodDatabase, type))
+                continue;
+
+            if (!assignedHouse.TryConsumeFood(type, Mathf.Max(1, foodToEatPerMeal), out int consumed) || consumed <= 0)
+                continue;
+
+            targetFoodType = type;
+            pendingFoodAmount = consumed;
+            needActionTimer = 0f;
+            state = State.Eating;
+            targetFoodStorage = null;
+            return true;
+        }
+
+        return false;
     }
 
     void TickEating()
@@ -520,7 +560,9 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
                 int hungerRestore = FoodResourceDatabase.GetHungerRestore(foodDatabase, type);
                 int ranking = FoodResourceDatabase.GetRanking(foodDatabase, type);
                 float distancePenalty = (storage.transform.position - transform.position).sqrMagnitude * 0.001f;
-                float score = (hungerRestore * 20f) + ranking - distancePenalty;
+                bool isHouseStorage = storage.GetComponentInParent<House>() != null;
+                float housePriorityBonus = isHouseStorage ? 1000f : 0f;
+                float score = (hungerRestore * 20f) + ranking + housePriorityBonus - distancePenalty;
 
                 if (score <= bestScore)
                     continue;
@@ -1143,7 +1185,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     {
         if (agent.pathPending) return false;
         if (agent.remainingDistance == Mathf.Infinity) return false;
-        return agent.remainingDistance <= agent.stoppingDistance + 0.15f;
+        return agent.remainingDistance <= agent.stoppingDistance;
     }
 
     int GetCarryCapacity()
@@ -1431,7 +1473,21 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
         MoveTo(targetWorkPoint.position, targetCraftingBuilding != null ? targetCraftingBuilding.transform : targetWorkPoint, BuildingStopDistanceType.CraftWork);
         if (Arrived())
+        {
+            stalledAtWorkPointTimer = 0f;
             state = State.CraftingAtWorkPoint;
+            return;
+        }
+
+        stalledAtWorkPointTimer += Time.deltaTime;
+        if (stalledAtWorkPointTimer < 10f)
+            return;
+
+        Debug.LogWarning($"[{nameof(Civilian)}] Workpoint stalled for {name}. Clearing crafting assignment.");
+        stalledAtWorkPointTimer = 0f;
+        targetCraftingBuilding.RemoveWorker(this);
+        ClearCraftingAssignment();
+        state = ResolveRoleFallbackState();
     }
 
     void TickCraftAtWorkPoint()
