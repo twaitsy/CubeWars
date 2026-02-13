@@ -45,6 +45,8 @@ public class ResourceSpawner : MonoBehaviour
     public int maxAttemptsPerNode = 25;
 
     [Header("Resource Configs")]
+    [Tooltip("Only resources categorized as Raw in this database are spawned.")]
+    public ResourcesDatabase resourcesDatabase;
     public List<ResourceSpawnConfig> configs = new List<ResourceSpawnConfig>();
 
     [Header("Lifecycle")]
@@ -68,6 +70,11 @@ public class ResourceSpawner : MonoBehaviour
         foreach (var cfg in configs)
         {
             if (cfg == null || cfg.count <= 0 || cfg.prefab == null) continue;
+            if (!IsRawResource(cfg.type))
+            {
+                Debug.LogWarning($"[ResourceSpawner] Skipping {cfg.type}: only Raw resources are allowed for spawning.");
+                continue;
+            }
 
             for (int i = 0; i < cfg.count; i++)
             {
@@ -83,6 +90,14 @@ public class ResourceSpawner : MonoBehaviour
     {
         for (int i = transform.childCount - 1; i >= 0; i--)
             Destroy(transform.GetChild(i).gameObject);
+    }
+
+    bool IsRawResource(ResourceType type)
+    {
+        if (resourcesDatabase == null)
+            return true;
+
+        return ResourcesDatabase.IsCategory(resourcesDatabase, type, ResourceCategory.Raw);
     }
 
     bool TrySpawnOne(ResourceSpawnConfig cfg, out GameObject spawned)

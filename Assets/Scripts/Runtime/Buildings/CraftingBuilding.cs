@@ -25,6 +25,8 @@ public class CraftingBuilding : Building
 
     [Header("Recipe")]
     public ProductionRecipeDefinition recipe;
+    [Tooltip("When assigned, crafting outputs must be resources categorized as Refined in this database.")]
+    public ResourcesDatabase resourcesDatabase;
 
     [Header("Workflow Points")]
     public Transform inputSlot;
@@ -241,6 +243,14 @@ public class CraftingBuilding : Building
         return Mathf.Max(1, Mathf.RoundToInt(entry.amount * recipe.batchSize * combined));
     }
 
+    bool IsAllowedOutputType(ResourceType type)
+    {
+        if (resourcesDatabase == null)
+            return true;
+
+        return ResourcesDatabase.IsCategory(resourcesDatabase, type, ResourceCategory.Refined);
+    }
+
     public bool NeedsInput(ResourceType type)
     {
         if (recipe?.inputs == null) return false;
@@ -281,6 +291,7 @@ public class CraftingBuilding : Building
         for (int i = 0; i < recipe.outputs.Length; i++)
         {
             var entry = recipe.outputs[i];
+            if (!IsAllowedOutputType(entry.resourceType)) continue;
             if (outputQueue[entry.resourceType] > 0)
                 return true;
         }
@@ -311,6 +322,7 @@ public class CraftingBuilding : Building
         for (int i = 0; i < recipe.outputs.Length; i++)
         {
             var entry = recipe.outputs[i];
+            if (!IsAllowedOutputType(entry.resourceType)) continue;
             if (outputQueue[entry.resourceType] >= maxOutputCapacityPerResource)
                 return true;
         }
@@ -398,6 +410,12 @@ public class CraftingBuilding : Building
         for (int i = 0; i < recipe.outputs.Length; i++)
         {
             var entry = recipe.outputs[i];
+            if (!IsAllowedOutputType(entry.resourceType))
+            {
+                Debug.LogWarning($"[{nameof(CraftingBuilding)}] Ignoring output {entry.resourceType} on {name}: only Refined resources are allowed.");
+                continue;
+            }
+
             int produce = GetEffectiveOutputAmount(entry);
             outputQueue[entry.resourceType] = Mathf.Min(maxOutputCapacityPerResource, outputQueue[entry.resourceType] + produce);
         }
@@ -546,6 +564,8 @@ public class CraftingBuilding : Building
         for (int i = 0; i < recipe.outputs.Length; i++)
         {
             var entry = recipe.outputs[i];
+            if (!IsAllowedOutputType(entry.resourceType)) continue;
+
             int available = outputQueue[entry.resourceType];
             if (available <= 0) continue;
 

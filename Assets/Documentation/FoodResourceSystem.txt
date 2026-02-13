@@ -34,3 +34,9 @@ Extending the System
 2) Add new ResourceType entries intended as edible resources.
 3) Tune hungerRestore and ranking.
 4) Assign the database on Civilian prefab(s).
+
+
+Migration update
+- Civilian hunger logic now supports category-based food detection from `ResourcesDatabase`.
+- Any resource with category `Food` is edible.
+- `FoodResourceDatabase` can remain for legacy setups, but is not required by Civilian after this update.

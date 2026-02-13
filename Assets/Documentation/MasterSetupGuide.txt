@@ -459,3 +459,13 @@ Detailed build-menu database format support (new)
 - Build menu rows now include extra details from `BuildingDefinition` when available: build time, max HP, worker slots, and storage capacity.
 - Category tab grouping for detailed entries uses `subCategory` first, then `category` enum name.
 - Construction costs are translated from `BuildingDefinition.constructionCost` resources into runtime `ResourceCost[]`; unsupported resource IDs are skipped.
+
+
+-----------------------------------------------------------------
+Latest resource database migration notes
+-----------------------------------------------------------------
+- ResourceType enum ownership moved into `Assets/Data/DatabaseScripts/ResourcesDatabase.cs`.
+- `Assets/Data/Databases/ResourceType.cs` is now a migration stub and should not be edited for gameplay logic.
+- ResourceSpawner now enforces Raw-only resource spawning when `resourcesDatabase` is assigned.
+- CraftingBuilding now enforces Refined-only outputs when `resourcesDatabase` is assigned.
+- Civilian food checks now use ResourcesDatabase category matching (Food category) instead of FoodResourceDatabase ranking tables.

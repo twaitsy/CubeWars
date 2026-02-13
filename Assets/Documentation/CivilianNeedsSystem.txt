@@ -52,3 +52,9 @@ Latest behavior updates
 - Sleep/rest now also attempts to reduce hunger using food from the civilian's assigned house storage.
 - House comfort modifies tiredness accumulation continuously while the civilian is assigned to that house.
 - Food search excludes storages that are not allowed to supply resources via flow mode.
+
+
+Update: category-based food logic
+- Civilians now treat any resource in `ResourceCategory.Food` (from ResourcesDatabase) as edible.
+- Food choice scoring is simplified to favor nearby/high-stock storages (plus house-local bonus).
+- Hunger restoration is now 1 hunger point per consumed food unit (uniform per food category item).

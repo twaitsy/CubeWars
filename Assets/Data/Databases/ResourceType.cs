@@ -1,21 +1,2 @@
-﻿public enum ResourceType
-{
-    Food,
-    Gold,
-
-    Wood,
-    Stone,
-    IronOre,
-    Coal,
-    Copper,
-    Silicon,
-    Lithium,
-
-    IronIngot,
-    Steel,
-    Lumber,
-    Flour,
-    Bread,
-    Tools,
-    Fuel
-}
+// ResourceType enum moved to Assets/Data/DatabaseScripts/ResourcesDatabase.cs.
+// This file intentionally left as a migration stub.

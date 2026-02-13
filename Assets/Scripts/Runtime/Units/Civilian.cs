@@ -37,8 +37,8 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     public float retargetSeconds = 0.6f;
 
     [Header("Needs - Food")]
-    [Tooltip("Optional database to classify food resources. If empty, defaults are used.")]
-    public FoodResourceDatabase foodDatabase;
+    [Tooltip("Resource database used to detect which resources are edible (Food category).")]
+    public ResourcesDatabase resourcesDatabase;
     [Min(0.01f)] public float hungerRatePerSecond = 0.45f;
     [Min(1f)] public float maxHunger = 100f;
     [Range(0.1f, 1f)] public float seekFoodThreshold01 = 0.55f;
@@ -442,7 +442,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
         foreach (ResourceType type in System.Enum.GetValues(typeof(ResourceType)))
         {
-            if (!FoodResourceDatabase.IsFood(foodDatabase, type))
+            if (!IsFoodResource(type))
                 continue;
 
             if (!assignedHouse.TryConsumeFood(type, Mathf.Max(1, foodToEatPerMeal), out int consumed) || consumed <= 0)
@@ -465,7 +465,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         if (needActionTimer < eatDurationSeconds)
             return;
 
-        float restore = FoodResourceDatabase.GetHungerRestore(foodDatabase, targetFoodType) * Mathf.Max(1, pendingFoodAmount);
+        float restore = Mathf.Max(1, pendingFoodAmount);
         currentHunger = Mathf.Max(0f, currentHunger - restore);
         pendingFoodAmount = 0;
         targetFoodStorage = null;
@@ -547,7 +547,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
             foreach (ResourceType type in System.Enum.GetValues(typeof(ResourceType)))
             {
-                if (!FoodResourceDatabase.IsFood(foodDatabase, type))
+                if (!IsFoodResource(type))
                     continue;
 
                 if (!storage.CanSupply(type))
@@ -557,12 +557,10 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
                 if (stored <= 0)
                     continue;
 
-                int hungerRestore = FoodResourceDatabase.GetHungerRestore(foodDatabase, type);
-                int ranking = FoodResourceDatabase.GetRanking(foodDatabase, type);
                 float distancePenalty = (storage.transform.position - transform.position).sqrMagnitude * 0.001f;
                 bool isHouseStorage = storage.GetComponentInParent<House>() != null;
                 float housePriorityBonus = isHouseStorage ? 1000f : 0f;
-                float score = (hungerRestore * 20f) + ranking + housePriorityBonus - distancePenalty;
+                float score = stored + housePriorityBonus - distancePenalty;
 
                 if (score <= bestScore)
                     continue;
@@ -574,6 +572,14 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         }
 
         return bestStorage != null;
+    }
+
+    bool IsFoodResource(ResourceType type)
+    {
+        if (resourcesDatabase == null)
+            return type == ResourceType.Food || type == ResourceType.Bread || type == ResourceType.Flour;
+
+        return ResourcesDatabase.IsCategory(resourcesDatabase, type, ResourceCategory.Food);
     }
 
     House FindClosestAvailableHouse()
@@ -1696,13 +1702,13 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
         foreach (ResourceType type in System.Enum.GetValues(typeof(ResourceType)))
         {
-            if (!FoodResourceDatabase.IsFood(foodDatabase, type))
+            if (!IsFoodResource(type))
                 continue;
 
             if (!assignedHouse.TryConsumeFood(type, foodToEatPerMeal, out int consumed) || consumed <= 0)
                 continue;
 
-            float restore = FoodResourceDatabase.GetHungerRestore(foodDatabase, type) * consumed;
+            float restore = consumed;
             currentHunger = Mathf.Max(0f, currentHunger - restore);
             if (!NeedsFood())
                 return;
