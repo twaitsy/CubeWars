@@ -10,8 +10,9 @@
 // DEPENDENCIES:
 // - BuildItemDefinition:
 //      * Provides displayName, icon, costs, category.
-// - BuildingsDatabase (optional):
-//      * If autoDiscover is off, categories[] may be manually populated.
+// - BuildingsDatabase (optional but preferred):
+//      * Used as primary source when autoDiscover is on.
+//      * If missing, falls back to Resources discovery.
 // - BuildPlacementManager:
 //      * Receives SetSelected(item) when the player clicks a build button.
 //      * Clears selection when menu closes.
@@ -22,7 +23,7 @@
 // - IMGUIInputBlocker:
 //      * Prevents clicks through UI.
 // - Resources folder:
-//      * Auto-discovery loads BuildItemDefinition assets from Resources/BuildItems.
+//      * Auto-discovery fallback loads BuildItemDefinition assets from Resources/BuildItems.
 //
 // NOTES FOR FUTURE MAINTENANCE:
 // - If you add a new UI system (Unity UI Toolkit, uGUI), this script may be replaced.
@@ -46,6 +47,9 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class BuildMenuUI : MonoBehaviour
 {
@@ -73,6 +77,10 @@ public class BuildMenuUI : MonoBehaviour
     [Header("Catalog Source")]
     public bool autoDiscover = true;
     public string resourcesPath = "BuildItems";
+    [Tooltip("Preferred source for build items. If assigned, this takes priority over Resources path discovery.")]
+    public BuildingsDatabase buildingsDatabase;
+    [Tooltip("Editor-only path used to auto-assign the database when not explicitly assigned.")]
+    public string buildingsDatabaseAssetPath = "Assets/Data/Databases/BuildingsDatabase.asset";
     public bool useManualCatalogWhenAutoDiscoverOff = true;
 
     [Header("Manual Catalog (optional)")]
@@ -114,7 +122,7 @@ public class BuildMenuUI : MonoBehaviour
     {
         if (autoDiscover)
         {
-            categories = DiscoverFromResources(resourcesPath);
+            categories = DiscoverCatalog();
             selectedCategoryIndex = Mathf.Clamp(selectedCategoryIndex, 0, Mathf.Max(0, categories.Length - 1));
             scroll = Vector2.zero;
         }
@@ -123,7 +131,7 @@ public class BuildMenuUI : MonoBehaviour
     void Start()
     {
         AutoAssignPlayerTeam();
-        if (autoDiscover) categories = DiscoverFromResources(resourcesPath);
+        if (autoDiscover) categories = DiscoverCatalog();
         else if (!useManualCatalogWhenAutoDiscoverOff) categories = new BuildCategory[0];
 
         selectedCategoryIndex = (categories != null && categories.Length > 0)
@@ -132,6 +140,46 @@ public class BuildMenuUI : MonoBehaviour
 
         if (trySyncBuildGridVisibility)
             TrySyncGrid(show);
+    }
+
+    BuildCategory[] DiscoverCatalog()
+    {
+        BuildingsDatabase db = ResolveBuildingsDatabase();
+        if (db != null)
+            return DiscoverFromDatabase(db);
+
+        return DiscoverFromResources(resourcesPath);
+    }
+
+    BuildingsDatabase ResolveBuildingsDatabase()
+    {
+        if (buildingsDatabase != null)
+            return buildingsDatabase;
+
+        if (GameDatabase.Instance != null && GameDatabase.Instance.buildings != null)
+        {
+            buildingsDatabase = GameDatabase.Instance.buildings;
+            return buildingsDatabase;
+        }
+
+#if UNITY_EDITOR
+        if (!string.IsNullOrWhiteSpace(buildingsDatabaseAssetPath))
+        {
+            buildingsDatabase = AssetDatabase.LoadAssetAtPath<BuildingsDatabase>(buildingsDatabaseAssetPath);
+            if (buildingsDatabase != null)
+                return buildingsDatabase;
+        }
+#endif
+
+        return null;
+    }
+
+    BuildCategory[] DiscoverFromDatabase(BuildingsDatabase db)
+    {
+        if (db == null || db.items == null || db.items.Count == 0)
+            return new BuildCategory[0];
+
+        return BuildCategoriesFromItems(db.items, db.categoryOrder);
     }
 
 
@@ -170,7 +218,12 @@ public class BuildMenuUI : MonoBehaviour
 
             if (autoDiscover)
             {
-                GUI.Label(new Rect(x, y, panelWidth - 20, 20), $"Resources path: \"{resourcesPath}\"");
+                BuildingsDatabase db = ResolveBuildingsDatabase();
+                if (db != null)
+                    GUI.Label(new Rect(x, y, panelWidth - 20, 20), $"Database: {db.name}");
+                else
+                    GUI.Label(new Rect(x, y, panelWidth - 20, 20), $"Resources path: \"{resourcesPath}\"");
+
                 y += 20;
                 if (GUI.Button(new Rect(x, y, 160, 22), "Rebuild Catalog"))
                     RebuildCatalog();
@@ -313,11 +366,17 @@ public class BuildMenuUI : MonoBehaviour
         BuildItemDefinition[] all = Resources.LoadAll<BuildItemDefinition>(path);
         if (all == null || all.Length == 0) return new BuildCategory[0];
 
+        return BuildCategoriesFromItems(all, null);
+    }
+
+    BuildCategory[] BuildCategoriesFromItems(IEnumerable<BuildItemDefinition> sourceItems, List<string> preferredOrder)
+    {
+        if (sourceItems == null) return new BuildCategory[0];
+
         Dictionary<string, List<BuildItemDefinition>> grouped = new Dictionary<string, List<BuildItemDefinition>>(StringComparer.OrdinalIgnoreCase);
 
-        for (int i = 0; i < all.Length; i++)
+        foreach (var item in sourceItems)
         {
-            var item = all[i];
             if (item == null) continue;
 
             string cat = GetCategoryName(item);
@@ -331,8 +390,27 @@ public class BuildMenuUI : MonoBehaviour
             list.Add(item);
         }
 
-        List<string> catNames = new List<string>(grouped.Keys);
-        catNames.Sort(StringComparer.OrdinalIgnoreCase);
+        List<string> catNames = new List<string>();
+
+        if (preferredOrder != null)
+        {
+            for (int i = 0; i < preferredOrder.Count; i++)
+            {
+                string name = preferredOrder[i];
+                if (string.IsNullOrWhiteSpace(name)) continue;
+                if (grouped.ContainsKey(name) && !catNames.Contains(name))
+                    catNames.Add(name);
+            }
+        }
+
+        List<string> remaining = new List<string>();
+        foreach (var key in grouped.Keys)
+        {
+            if (!catNames.Contains(key))
+                remaining.Add(key);
+        }
+        remaining.Sort(StringComparer.OrdinalIgnoreCase);
+        catNames.AddRange(remaining);
 
         BuildCategory[] result = new BuildCategory[catNames.Count];
 

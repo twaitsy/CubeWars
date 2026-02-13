@@ -152,3 +152,4 @@ Latest crafting/needs runtime checks
 
 Database migration note
 - TeamAIBuild now references BuildingsDatabase (Assets/Data/Databases/BuildingsDatabase.asset) for buildable item catalog data.
+- BuildMenuUI now resolves build catalog data from BuildingsDatabase first (inspector ref -> GameDatabase.buildings -> editor fallback path Assets/Data/Databases/BuildingsDatabase.asset), then falls back to Resources path only if no database is available.
