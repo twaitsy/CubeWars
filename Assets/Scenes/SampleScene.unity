@@ -4992,7 +4992,7 @@ MonoBehaviour:
     jobType: 0
   - prefab: {fileID: 5538168870909510437, guid: ce51064a809c1c74ea9b7d4891fb23aa,
       type: 3}
-    count: 2
+    count: 8
     role: 7
     jobType: 0
   - prefab: {fileID: 5538168870909510437, guid: ce51064a809c1c74ea9b7d4891fb23aa,

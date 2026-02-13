@@ -140,9 +140,9 @@ MonoBehaviour:
   outputSlot: {fileID: 4465389164846448858}
   workPoints:
   - {fileID: 1766575201802066558}
-  maxWorkers: 5
-  maxInputCapacityPerResource: 100
-  maxOutputCapacityPerResource: 100
+  maxWorkers: 1
+  maxInputCapacityPerResource: 1000
+  maxOutputCapacityPerResource: 1000
   craftingSpeedModifier: 1
   requireHaulerLogistics: 1
   assignmentPriority: 5
@@ -214,7 +214,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   width: 1
   depth: 1
-  worldOffset: {x: 0, y: 0, z: 0}
+  worldOffset: {x: 0, y: 1, z: 0}
   extraYRotation: 0
 --- !u!114 &5880782493417446913
 MonoBehaviour:
