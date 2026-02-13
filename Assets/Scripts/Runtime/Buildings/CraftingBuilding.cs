@@ -24,7 +24,7 @@ public class CraftingBuilding : Building
     }
 
     [Header("Recipe")]
-    public ProductionRecipe recipe;
+    public ProductionRecipeDefinition recipe;
 
     [Header("Workflow Points")]
     public Transform inputSlot;

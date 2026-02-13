@@ -1,17 +1,11 @@
-using System;
+﻿using System;
 using UnityEngine;
 
 [Serializable]
-public class RecipeResourceAmount
-{
-    public ResourceType resourceType;
-    [Min(1)] public int amount = 1;
-}
-
-[Serializable]
-public class ProductionRecipe
+public class ProductionRecipeDefinition
 {
     public string recipeName = "New Recipe";
+
     public RecipeResourceAmount[] inputs;
     public RecipeResourceAmount[] outputs;
 

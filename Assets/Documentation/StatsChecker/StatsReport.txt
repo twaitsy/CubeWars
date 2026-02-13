@@ -1,0 +1,1807 @@
+=== Stats Checker Report ===
+13/02/2026 17:30:28
+
+GameBootstrap (GameBootstrap.cs)
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+HQSpawner (HQSpawner.cs)
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+RTSCamera (RTSCamera.cs)
+ - keyboardPanSpeed
+ - zoomSensitivity
+ - minY
+ - maxY
+ - edgeScrollEnabled
+ - edgeBorderPixels
+ - edgeScrollSpeed
+ - rightClickRotateEnabled
+ - rightClickYawSensitivity
+ - middleClickDragEnabled
+ - middleDragPanSensitivity
+ - enableQE
+ - rotateKeySpeed
+ - clampToBounds
+ - minX
+ - maxX
+ - minZ
+ - maxZ
+ - isRotating
+ - isDragging
+ - targetY
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+SciFiMapBootstrap (SciFiMapBootstrap.cs)
+ - teamCount
+ - hqRadius
+ - roadWidth
+ - roadThickness
+ - territoryRadius
+ - territoryThickness
+ - territoryEmission
+ - beaconHeight
+ - beaconEmission
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+SixTeamBootstrap (SixTeamBootstrap.cs)
+ - teamCount
+ - playerTeamID
+ - spawnRadius
+ - civilianOffset
+ - startingCiviliansPerTeam
+ - startingBuildersPerTeam
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+Spawner (Spawner.cs)
+ - teamID
+ - count
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+dependencies (dependencies.cs)
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+Team (Team.cs)
+ - teamID
+ - teamType
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+TeamInventory (TeamInventory.cs)
+ - teamCount
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+BuildCatalog (BuildCatalog.cs)
+ - hideFlags
+
+BuildItemDefinition (BuildItemDefinition.cs)
+ - yOffset
+ - buildTime
+ - aiPriority
+ - hideFlags
+
+BuildTimeSettings (BuildTimeSettings.cs)
+ - buildSeconds
+ - maxBuilders
+ - workRatePerBuilder
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+RecipeResourceAmount (RecipeResourceAmount.cs)
+ - resourceType
+ - amount
+
+ProductionRecipe (ProductionRecipe.cs)
+ - craftTimeSeconds
+ - batchSize
+ - requiredJobType
+ - outputEfficiencyMultiplier
+ - inputEfficiencyMultiplier
+ - requiresPower
+ - requiresFuel
+
+ToolItem (ToolItem.cs)
+ - moveSpeedBonus
+ - carryCapacityBonus
+ - harvestMultiplier
+ - buildMultiplier
+ - damageMultiplier
+ - hideFlags
+
+SkirmishConfig (SkirmishConfig.cs)
+ - aiCount
+ - difficulty
+ - allowAlliances
+
+FoodResourceDatabase (FoodResourceDatabase.cs)
+ - hideFlags
+
+TeamResources (TeamResources.cs)
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+CharacterStats (CharacterStats.cs)
+ - baseMoveSpeed
+ - baseCarryCapacity
+ - baseHarvestPerTick
+ - baseBuildMultiplier
+ - baseDamageMultiplier
+ - MoveSpeed
+ - CarryCapacity
+ - HarvestPerTick
+ - BuildWorkMultiplier
+ - DamageMultiplier
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+UnitProductionDefinition (UnitProductionDefinition.cs)
+ - buildTime
+ - hideFlags
+
+AlertManager (AlertManager.cs)
+ - maxRecent
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+GameManager (GameManager.cs)
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+SaveLoadManager (SaveLoadManager.cs)
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+AIManager (AIManager.cs)
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+CombatManager (CombatManager.cs)
+ - defaultVisionRange
+ - attackableLayer
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+DiplomacyManager (DiplomacyManager.cs)
+ - initializeAllTeamsAtWar
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+TeamColorManager (TeamColorManager.cs)
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+TeamStorageManager (TeamStorageManager.cs)
+ - defaultCapacityPerType
+ - nearestCacheCellSize
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+UnitManager (UnitManager.cs)
+ - formationSpacing
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+WinConditionManager (WinConditionManager.cs)
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+Barracks (Barracks.cs)
+ - teamID
+ - buildTime
+ - CurrentBuildTime
+ - CurrentProgress
+ - QueueCount
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+BuildItemInstance (BuildItemInstance.cs)
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+BuildingInteractionSettings (BuildingInteractionSettings.cs)
+ - defaultStopDistance
+ - houseStopDistance
+ - constructionStopDistance
+ - storageStopDistance
+ - craftInputStopDistance
+ - craftOutputStopDistance
+ - craftWorkStopDistance
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+ConstructionSite (ConstructionSite.cs)
+ - teamID
+ - baseBuildTime
+ - <InitOK>k__BackingField
+ - <SiteKey>k__BackingField
+ - buildProgress
+ - completed
+ - InitOK
+ - IsComplete
+ - MaterialsComplete
+ - SiteKey
+ - Progress01
+ - AssignedBuilderCount
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+CraftingBuilding (CraftingBuilding.cs)
+ - maxWorkers
+ - maxInputCapacityPerResource
+ - maxOutputCapacityPerResource
+ - craftingSpeedModifier
+ - requireHaulerLogistics
+ - assignmentPriority
+ - allowAutomaticAssignment
+ - state
+ - craftTimer
+ - craftDuration
+ - upgradeLevel
+ - teamID
+ - maxHealth
+ - currentHealth
+ - State
+ - CraftProgress01
+ - TeamID
+ - IsAlive
+ - CurrentHealth
+ - MaxHealth
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+DefenseTurret (DefenseTurret.cs)
+ - range
+ - scanInterval
+ - canTargetCivilians
+ - fireRate
+ - damage
+ - projectileSpeed
+ - turnSpeed
+ - flashSeconds
+ - flashEmission
+ - scanTimer
+ - fireTimer
+ - teamID
+ - maxHealth
+ - currentHealth
+ - TeamID
+ - IsAlive
+ - CurrentHealth
+ - MaxHealth
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+Farm (Farm.cs)
+ - level
+ - maxLevel
+ - productionInterval
+ - autoUpgrade
+ - autoUpgradeCheckInterval
+ - productionTimer
+ - upgradeTimer
+ - teamID
+ - maxHealth
+ - currentHealth
+ - TeamID
+ - IsAlive
+ - CurrentHealth
+ - MaxHealth
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+Headquarters (Headquarters.cs)
+ - teamID
+ - maxHealth
+ - currentHealth
+ - TeamID
+ - IsAlive
+ - CurrentHealth
+ - MaxHealth
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+House (House.cs)
+ - prestige
+ - comfort
+ - storage
+ - maxInhabitants
+ - teamID
+ - maxHealth
+ - currentHealth
+ - TeamID
+ - IsAlive
+ - CurrentHealth
+ - MaxHealth
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+ProductionStatusVisualizer (ProductionStatusVisualizer.cs)
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+ResourceDropoff (ResourceDropoff.cs)
+ - teamID
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+ResourceNode (ResourceNode.cs)
+ - isDestroyed
+ - type
+ - remaining
+ - maxGatherers
+ - claimedByTeam
+ - IsDepleted
+ - amount
+ - ActiveGatherers
+ - HasAvailableGatherSlots
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+ResourceSpawner (ResourceSpawner.cs)
+ - spawnHeight
+ - snapToGround
+ - groundRayLength
+ - avoidRadius
+ - maxAttemptsPerNode
+ - spawnOnStart
+ - clearPreviousChildren
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+ResourceStorageContainer (ResourceStorageContainer.cs)
+ - teamID
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+ResourceStorageProvider (ResourceStorageProvider.cs)
+ - teamID
+ - grantStartingResources
+ - started
+ - registered
+ - grantedStartingResources
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+Turret (Turret.cs)
+ - teamID
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+VehicleFactory (VehicleFactory.cs)
+ - buildSeconds
+ - timer
+ - building
+ - teamID
+ - maxHealth
+ - currentHealth
+ - TeamID
+ - IsAlive
+ - CurrentHealth
+ - MaxHealth
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+WeaponsFactory (WeaponsFactory.cs)
+ - craftSeconds
+ - timer
+ - crafting
+ - teamID
+ - maxHealth
+ - currentHealth
+ - TeamID
+ - IsAlive
+ - CurrentHealth
+ - MaxHealth
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+AutoDestroyFX (AutoDestroyFX.cs)
+ - lifetime
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+Projectile (Projectile.cs)
+ - speed
+ - maxLifetime
+ - impactDistance
+ - damage
+ - sourceTeam
+ - lifeTimer
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+TurretProjectile (TurretProjectile.cs)
+ - damage
+ - speed
+ - life
+ - ownerTeamID
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+Attackable (Attackable.cs)
+ - teamID
+ - isCivilian
+ - isBuilding
+ - maxHealth
+ - currentHealth
+ - canBeRepaired
+ - hitFlashDuration
+ - flashTimer
+ - TeamID
+ - IsAlive
+ - CurrentHealth
+ - MaxHealth
+ - IsDamaged
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+Civilian (Civilian.cs)
+ - teamID
+ - jobType
+ - role
+ - maxHealth
+ - speed
+ - stopDistance
+ - useRoadBonus
+ - roadSpeedMultiplier
+ - carryCapacity
+ - gatherTickSeconds
+ - harvestPerTick
+ - searchRetrySeconds
+ - buildersCanHaulMaterials
+ - retargetSeconds
+ - hungerRatePerSecond
+ - maxHunger
+ - seekFoodThreshold01
+ - foodToEatPerMeal
+ - eatDurationSeconds
+ - starvationDamagePerSecond
+ - tirednessRatePerSecond
+ - maxTiredness
+ - seekSleepThreshold01
+ - sleepDurationSeconds
+ - exhaustionDamagePerSecond
+ - currentHealth
+ - carriedType
+ - carriedAmount
+ - HasJob
+ - gatherTimer
+ - searchTimer
+ - retargetTimer
+ - manualCraftingAssignment
+ - state
+ - stateBeforeNeed
+ - started
+ - registeredWithJobManager
+ - currentHunger
+ - currentTiredness
+ - needActionTimer
+ - hasStoredRoleState
+ - targetFoodType
+ - pendingFoodAmount
+ - toolPickupTimer
+ - idleWanderTimer
+ - stalledAtWorkPointTimer
+ - JobType
+ - CarriedType
+ - CarriedAmount
+ - CraftingProgress
+ - IsAtAssignedCraftingWorkPoint
+ - CurrentHunger
+ - CurrentTiredness
+ - TeamID
+ - IsAlive
+ - CurrentHealth
+ - MaxHealth
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+TeamVisual (TeamVisual.cs)
+ - teamID
+ - kind
+ - applyOnStart
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+Unit (Unit.cs)
+ - teamID
+ - combatEnabled
+ - attackRange
+ - damage
+ - MaxHealth
+ - CurrentHealth
+ - TeamID
+ - IsAlive
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+AIBuilder (AIBuilder.cs)
+ - teamID
+ - personality
+ - buildRadius
+ - buildCooldown
+ - buildTimer
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+AIEconomy (AIEconomy.cs)
+ - teamID
+ - personality
+ - buildDelayMultiplier
+ - minQueueDelay
+ - buildTimer
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+AIMilitary (AIMilitary.cs)
+ - teamID
+ - personality
+ - attackThreshold
+ - attackRange
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+AIPlayer (AIPlayer.cs)
+ - teamID
+ - difficulty
+ - personality
+ - thinkInterval
+ - timer
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+MultiTeamAIDirector (MultiTeamAIDirector.cs)
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+TeamAIBuild (TeamAIBuild.cs)
+ - teamID
+ - playerTeamID
+ - buildInterval
+ - timer
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+AIRebuildManager (AIRebuildManager.cs)
+ - teamID
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+AIRepairManager (AIRepairManager.cs)
+ - teamID
+ - repairRange
+ - repairAmount
+ - repairInterval
+ - timer
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+AIResourceManager (AIResourceManager.cs)
+ - teamID
+ - claimRadius
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+AIThreatDetector (AIThreatDetector.cs)
+ - teamID
+ - threatRadius
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+BuildCellReservation (BuildCellReservation.cs)
+ - reservedForWalkway
+ - reservedForBorderDefense
+ - blockBuildingPlacement
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+BuildGridOccupant (BuildGridOccupant.cs)
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+BuildPlacementManager (BuildPlacementManager.cs)
+ - useConstructionSites
+ - requireAffordToPlace
+ - reserveResourcesForSites
+ - respectCellReservations
+ - showPreview
+ - previewAlpha
+ - placementQuarterTurns
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+BuildingFootprint (BuildingFootprint.cs)
+ - width
+ - depth
+ - extraYRotation
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+JobManager (JobManager.cs)
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+ProjectilePool (ProjectilePool.cs)
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+TurretProjectilePool (TurretProjectilePool.cs)
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+WeaponComponent (WeaponComponent.cs)
+ - damage
+ - fireCooldown
+ - range
+ - fireTimer
+ - CanFire
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+CraftingJobManager (CraftingJobManager.cs)
+ - assignmentTickSeconds
+ - timer
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+CraftingSystem (CraftingSystem.cs)
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+ProductionNotificationManager (ProductionNotificationManager.cs)
+ - repeatDelaySeconds
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+ResourceRegistry (ResourceRegistry.cs)
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+BuildGridCell (BuildGridCell.cs)
+ - teamID
+ - isOccupied
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+BuildGridManager (BuildGridManager.cs)
+ - playerTeamID
+ - toggleKey
+ - cellSize
+ - halfExtent
+ - yOffset
+ - isVisible
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+BuildMenuPanel (BuildMenuPanel.cs)
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+BuildMenuUI (BuildMenuUI.cs)
+ - playerTeamID
+ - show
+ - toggleKey
+ - panelWidth
+ - panelHeight
+ - marginRight
+ - marginTop
+ - autoDiscover
+ - useManualCatalogWhenAutoDiscoverOff
+ - trySyncBuildGridVisibility
+ - showCosts
+ - showAffordability
+ - selectedCategoryIndex
+ - IsVisible
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+ConstructionManager (ConstructionManager.cs)
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+EconomyUI (EconomyUI.cs)
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+InspectorPanel (InspectorPanel.cs)
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+MainMenuUI (MainMenuUI.cs)
+ - show
+ - toggleKey
+ - panelWidth
+ - buttonHeight
+ - buttonSpacing
+ - fontSize
+ - stylesInitialized
+ - teamCount
+ - screen
+ - IsVisible
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+MapVisualsBootstrap (MapVisualsBootstrap.cs)
+ - teamCount
+ - hqRadius
+ - roadWidth
+ - roadThickness
+ - territoryRadius
+ - territoryAlpha
+ - landmarkHeight
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+MiniMapPanel (MiniMapPanel.cs)
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+Minimap (Minimap.cs)
+ - isExpanded
+ - dotSize
+ - rotationOffset
+ - useIMGUI
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+NeonRing (NeonRing.cs)
+ - teamID
+ - kind
+ - radius
+ - height
+ - yOffset
+ - emissionStrength
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+RTSGameSettings (RTSGameSettings.cs)
+ - applyTimer
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+ResourceVisualBuilder (ResourceVisualBuilder.cs)
+ - type
+ - rebuild
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+SciFiTeamStyler (SciFiTeamStyler.cs)
+ - emissionStrength
+ - civilianLighten
+ - buildingDarken
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+SelectionManager (SelectionManager.cs)
+ - dragThreshold
+ - isDragging
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+SelectionRing (SelectionRing.cs)
+ - teamID
+ - kind
+ - radius
+ - height
+ - yOffset
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+TaskBoardPanel (TaskBoardPanel.cs)
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+TaskBoardUI (TaskBoardUI.cs)
+ - playerTeamID
+ - show
+ - toggleKey
+ - panelWidth
+ - panelHeight
+ - marginLeft
+ - marginBottom
+ - maxResourceLines
+ - maxNotificationLines
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+TeamBootstrap (TeamBootstrap.cs)
+ - startingWorkers
+ - startingWorkerRole
+ - startingUnits
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+UnitInspectorUI (UnitInspectorUI.cs)
+ - width
+ - height
+ - padding
+ - currentTab
+ - show
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+WorldHealthBar (WorldHealthBar.cs)
+ - width
+ - height
+ - depth
+ - onlyShowForBuildings
+ - hideWhenFullHealth
+ - smoothSpeed
+ - glowStrength
+ - billboardToCamera
+ - displayedT
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+WorldProgressBar (WorldProgressBar.cs)
+ - width
+ - height
+ - depth
+ - progress01
+ - hideWhenZero
+ - smoothSpeed
+ - glowStrength
+ - billboardToCamera
+ - displayedT
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+CivilianSpawner (CivilianSpawner.cs)
+ - teamID
+ - civilianCount
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+Selectable (Selectable.cs)
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+UnitCombatController (UnitCombatController.cs)
+ - teamID
+ - fallbackRange
+ - fallbackDamage
+ - fallbackCooldown
+ - fallbackProjectileSpeed
+ - visionRange
+ - canAttackCivilians
+ - targetRefreshSeconds
+ - stance
+ - behaviorState
+ - hasManualTarget
+ - attackMoveActive
+ - fallbackFireTimer
+ - retargetTimer
+ - showRangeGizmos
+ - ShowRangeGizmos
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+UnitCommandController (UnitCommandController.cs)
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+UnitProductionQueue (UnitProductionQueue.cs)
+ - IsBuilding
+ - Progress01
+ - CurrentBuildTime
+ - QueueCount
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+FindTeamDuplicates (FindTeamDuplicates.cs)
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+TeamWatchdog (TeamWatchdog.cs)
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+ParentRenamer (ParentRenamer.cs)
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+SelfRenamer (SelfRenamer.cs)
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+AchievementsPanel (AchievementsPanel.cs)
+ - IsVisible
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+CheatsPanel (CheatsPanel.cs)
+ - IsVisible
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+CraftablesPanel (CraftablesPanel.cs)
+ - IsVisible
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+CreditsPanel (CreditsPanel.cs)
+ - IsVisible
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+LoadGamePanel (LoadGamePanel.cs)
+ - IsVisible
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+MainMenuPanel (MainMenuPanel.cs)
+ - IsVisible
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+MainMenuToggleController (MainMenuToggleController.cs)
+ - toggleKey
+ - isOpen
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+MatchSetupPanel (MatchSetupPanel.cs)
+ - IsVisible
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+SettingsPanel (SettingsPanel.cs)
+ - IsVisible
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+StatisticsPanel (StatisticsPanel.cs)
+ - IsVisible
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+UIManager (UIManager.cs)
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+UIPanel (UIPanel.cs)
+ - IsVisible
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+ChatController (ChatController.cs)
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+EnvMapAnimator (EnvMapAnimator.cs)
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+TMP_DigitValidator (TMP_DigitValidator.cs)
+ - hideFlags
+
+TMP_PhoneNumberValidator (TMP_PhoneNumberValidator.cs)
+ - hideFlags
+
+TMP_TextEventHandler (TMP_TextEventHandler.cs)
+ - m_selectedLink
+ - m_lastCharIndex
+ - m_lastWordIndex
+ - m_lastLineIndex
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+Benchmark01 (Benchmark01.cs)
+ - BenchmarkType
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+Benchmark01_UGUI (Benchmark01_UGUI.cs)
+ - BenchmarkType
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+Benchmark02 (Benchmark02.cs)
+ - SpawnType
+ - NumberOfNPC
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+Benchmark03 (Benchmark03.cs)
+ - SpawnType
+ - NumberOfNPC
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+Benchmark04 (Benchmark04.cs)
+ - SpawnType
+ - MinPointSize
+ - MaxPointSize
+ - Steps
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+CameraController (CameraController.cs)
+ - FollowDistance
+ - MaxFollowDistance
+ - MinFollowDistance
+ - ElevationAngle
+ - MaxElevationAngle
+ - MinElevationAngle
+ - OrbitalAngle
+ - CameraMode
+ - MovementSmoothing
+ - RotationSmoothing
+ - previousSmoothing
+ - MovementSmoothingValue
+ - RotationSmoothingValue
+ - MoveSensitivity
+ - mouseX
+ - mouseY
+ - mouseWheel
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+ObjectSpin (ObjectSpin.cs)
+ - SpinSpeed
+ - RotationRange
+ - m_time
+ - frames
+ - Motion
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+ShaderPropAnimator (ShaderPropAnimator.cs)
+ - m_frame
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+SimpleScript (SimpleScript.cs)
+ - m_frame
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+SkewTextExample (SkewTextExample.cs)
+ - CurveScale
+ - ShearAmount
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+TMP_ExampleScript_01 (TMP_ExampleScript_01.cs)
+ - ObjectType
+ - isStatic
+ - count
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+TMP_FrameRateCounter (TMP_FrameRateCounter.cs)
+ - UpdateInterval
+ - m_LastInterval
+ - m_Frames
+ - AnchorPosition
+ - last_AnchorPosition
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+TMP_TextEventCheck (TMP_TextEventCheck.cs)
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+TMP_TextInfoDebugTool (TMP_TextInfoDebugTool.cs)
+ - ShowCharacters
+ - ShowWords
+ - ShowLinks
+ - ShowLines
+ - ShowMeshBounds
+ - ShowTextBounds
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+TMP_TextSelector_A (TMP_TextSelector_A.cs)
+ - m_isHoveringObject
+ - m_selectedLink
+ - m_lastCharIndex
+ - m_lastWordIndex
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+TMP_TextSelector_B (TMP_TextSelector_B.cs)
+ - isHoveringObject
+ - m_selectedWord
+ - m_selectedLink
+ - m_lastIndex
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+TMP_UiFrameRateCounter (TMP_UiFrameRateCounter.cs)
+ - UpdateInterval
+ - m_LastInterval
+ - m_Frames
+ - AnchorPosition
+ - last_AnchorPosition
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+TMPro_InstructionOverlay (TMPro_InstructionOverlay.cs)
+ - AnchorPosition
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+TeleType (TeleType.cs)
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+TextConsoleSimulator (TextConsoleSimulator.cs)
+ - hasTextChanged
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+TextMeshProFloatingText (TextMeshProFloatingText.cs)
+ - SpawnType
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+TextMeshSpawner (TextMeshSpawner.cs)
+ - SpawnType
+ - NumberOfNPC
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+VertexColorCycler (VertexColorCycler.cs)
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+VertexJitter (VertexJitter.cs)
+ - AngleMultiplier
+ - SpeedMultiplier
+ - CurveScale
+ - hasTextChanged
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+VertexShakeA (VertexShakeA.cs)
+ - AngleMultiplier
+ - SpeedMultiplier
+ - ScaleMultiplier
+ - RotationMultiplier
+ - hasTextChanged
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+VertexShakeB (VertexShakeB.cs)
+ - AngleMultiplier
+ - SpeedMultiplier
+ - CurveScale
+ - hasTextChanged
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+VertexZoom (VertexZoom.cs)
+ - AngleMultiplier
+ - SpeedMultiplier
+ - CurveScale
+ - hasTextChanged
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+WarpTextExample (WarpTextExample.cs)
+ - AngleMultiplier
+ - SpeedMultiplier
+ - CurveScale
+ - useGUILayout
+ - runInEditMode
+ - enabled
+ - isActiveAndEnabled
+ - hideFlags
+
+Alert (Alert.cs)
+ - timer
+
+BuildingUpgradeTier (BuildingUpgradeTier.cs)
+ - additionalWorkerSlots
+ - craftingSpeedMultiplier
+ - inputEfficiencyMultiplier
+ - outputEfficiencyMultiplier
+
+ResourceSpawnConfig (ResourceSpawnConfig.cs)
+ - type
+ - count
+ - scaleHeightByAmount
+ - referenceAmount
+ - minHeightScale
+ - maxHeightScale
+
+<>c__DisplayClass15_0 (<>c__DisplayClass15_0.cs)
+ - needsHauler
+
+<DelayedBuild>d__16 (<DelayedBuild>d__16.cs)
+ - <>1__state
+
+TeamSetupEntry (TeamSetupEntry.cs)
+ - teamID
+ - aiDifficulty
+ - startingResources
+ - diplomacy
+
+DisplayOptions (DisplayOptions.cs)
+ - uiScale
+ - showMinimap
+ - showTaskBoard
+ - showInspector
+
+GameplayOptions (GameplayOptions.cs)
+ - gameSpeed
+ - pauseOnMenuOpen
+
+CheatOptions (CheatOptions.cs)
+ - enabled
+ - infiniteResources
+ - fastSimulation
+ - unlockAllBuilds
+
+StartingCivilianGroup (StartingCivilianGroup.cs)
+ - count
+ - role
+ - jobType
+
+StartingUnitGroup (StartingUnitGroup.cs)
+ - count
+
+StartingBuildingSpawn (StartingBuildingSpawn.cs)
+ - quarterTurns
+ - yOffset
+
+<SetupStartingBuildingsAfterGridReady>d__15 (<SetupStartingBuildingsAfterGridReady>d__15.cs)
+ - <>1__state
+ - <>s__3
+
+QueueItem (QueueItem.cs)
+ - timeRemaining
+
+<Start>d__4 (<Start>d__4.cs)
+ - <>1__state
+ - <totalVisibleCharacters>5__1
+ - <counter>5__2
+ - <visibleCount>5__3
+
+<Start>d__10 (<Start>d__10.cs)
+ - <>1__state
+ - <i>5__1
+
+<AnimateProperties>d__6 (<AnimateProperties>d__6.cs)
+ - <>1__state
+ - <glowPower>5__1
+
+<WarpText>d__7 (<WarpText>d__7.cs)
+ - <>1__state
+ - <old_CurveScale>5__3
+ - <old_ShearValue>5__4
+ - <characterCount>5__7
+ - <boundsMinX>5__8
+ - <boundsMaxX>5__9
+ - <i>5__10
+ - <vertexIndex>5__11
+ - <materialIndex>5__12
+ - <shear_value>5__14
+ - <x0>5__17
+ - <x1>5__18
+ - <y0>5__19
+ - <y1>5__20
+ - <dot>5__23
+ - <angle>5__25
+
+<RevealCharacters>d__7 (<RevealCharacters>d__7.cs)
+ - <>1__state
+ - <totalVisibleCharacters>5__2
+ - <visibleCount>5__3
+
+<RevealWords>d__8 (<RevealWords>d__8.cs)
+ - <>1__state
+ - <totalWordCount>5__1
+ - <totalVisibleCharacters>5__2
+ - <counter>5__3
+ - <currentWord>5__4
+ - <visibleCount>5__5
+
+<DisplayTextMeshProFloatingText>d__12 (<DisplayTextMeshProFloatingText>d__12.cs)
+ - <>1__state
+ - <CountDuration>5__1
+ - <starting_Count>5__2
+ - <current_Count>5__3
+ - <alpha>5__6
+ - <int_counter>5__7
+ - <fadeDuration>5__8
+
+<DisplayTextMeshFloatingText>d__13 (<DisplayTextMeshFloatingText>d__13.cs)
+ - <>1__state
+ - <CountDuration>5__1
+ - <starting_Count>5__2
+ - <current_Count>5__3
+ - <alpha>5__6
+ - <int_counter>5__7
+ - <fadeDuration>5__8
+
+<AnimateVertexColors>d__3 (<AnimateVertexColors>d__3.cs)
+ - <>1__state
+ - <currentCharacter>5__2
+ - <characterCount>5__5
+ - <materialIndex>5__6
+ - <vertexIndex>5__7
+
+<AnimateVertexColors>d__11 (<AnimateVertexColors>d__11.cs)
+ - <>1__state
+ - <characterCount>5__4
+ - <lineCount>5__5
+ - <i>5__6
+ - <length>5__7
+ - <i>5__8
+ - <first>5__9
+ - <last>5__10
+ - <j>5__13
+ - <materialIndex>5__14
+ - <vertexIndex>5__15
+ - <randomScale>5__17
+ - <i>5__18
+
+<AnimateVertexColors>d__10 (<AnimateVertexColors>d__10.cs)
+ - <>1__state
+ - <characterCount>5__6
+ - <i>5__7
+ - <materialIndex>5__9
+ - <vertexIndex>5__10
+ - <randomScale>5__15
+ - <i>5__20
+
+<WarpText>d__8 (<WarpText>d__8.cs)
+ - <>1__state
+ - <old_CurveScale>5__3
+ - <characterCount>5__6
+ - <boundsMinX>5__7
+ - <boundsMaxX>5__8
+ - <i>5__9
+ - <vertexIndex>5__10
+ - <materialIndex>5__11
+ - <x0>5__13
+ - <x1>5__14
+ - <y0>5__15
+ - <y1>5__16
+ - <dot>5__19
+ - <angle>5__21
+
+=== Ignored Stats ===
+EventManager (EventManager.cs):hideFlags
+
+=== Ignored Scripts ===
+BuildingPrefabValidator (BuildingPrefabValidator.cs)
+EventManager (EventManager.cs)

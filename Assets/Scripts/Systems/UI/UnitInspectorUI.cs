@@ -1,9 +1,24 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class UnitInspectorUI : MonoBehaviour
 {
-    enum InspectorTab { Overview, Stats, SkillsTools, Storage, Production, Combat }
+    public enum InspectorTab
+    {
+        Info,
+        Attributes,
+        Needs,
+        RolesSkills,
+        Inventory,
+        BuildingStats,
+        Storage,
+        Production,
+        TrainingQueue,
+        CombatSettings,
+        ConstructionStatus
+    }
 
     [Header("Layout (OnGUI)")]
     public float width = 340f;
@@ -11,13 +26,15 @@ public class UnitInspectorUI : MonoBehaviour
     public float padding = 10f;
 
     private GameObject selected;
-    private InspectorTab currentTab;
+    private InspectorTab currentTab = InspectorTab.Info;
+    private readonly List<InspectorTab> activeTabs = new List<InspectorTab>();
 
     public bool show = true;
 
     public void SetSelected(GameObject obj)
     {
         selected = obj;
+        RebuildTabs();
     }
 
     void OnGUI()
@@ -42,17 +59,154 @@ public class UnitInspectorUI : MonoBehaviour
         GUILayout.BeginVertical(GUI.skin.box);
         switch (currentTab)
         {
-            case InspectorTab.Overview: DrawOverview(); break;
-            case InspectorTab.Stats: DrawStats(); break;
-            case InspectorTab.SkillsTools: DrawSkillsAndTools(); break;
-            case InspectorTab.Storage: DrawStorage(); break;
-            case InspectorTab.Production: DrawProduction(); break;
-            case InspectorTab.Combat: DrawCombat(); break;
+            case InspectorTab.Info:
+                DrawInfo();
+                break;
+            case InspectorTab.Attributes:
+                DrawAttributes();
+                break;
+            case InspectorTab.Needs:
+                DrawNeeds();
+                break;
+            case InspectorTab.RolesSkills:
+                DrawSkillsAndTools();
+                break;
+            case InspectorTab.Inventory:
+                DrawInventory();
+                break;
+            case InspectorTab.BuildingStats:
+                DrawBuildingStatsForSelected();
+                break;
+            case InspectorTab.Storage:
+                DrawStorage();
+                break;
+            case InspectorTab.Production:
+                DrawProductionForCrafting();
+                break;
+            case InspectorTab.TrainingQueue:
+                DrawTrainingQueue();
+                break;
+            case InspectorTab.CombatSettings:
+                DrawCombat();
+                break;
+            case InspectorTab.ConstructionStatus:
+                DrawConstructionStatus();
+                break;
         }
         GUILayout.EndVertical();
 
         GUILayout.EndArea();
     }
+
+    // -----------------------
+    // Tab configuration
+    // -----------------------
+
+    void RebuildTabs()
+    {
+        activeTabs.Clear();
+
+        if (selected == null)
+            return;
+
+        // Always have Info
+        activeTabs.Add(InspectorTab.Info);
+
+        // CIVILIAN
+        if (selected.TryGetComponent<Civilian>(out var civ))
+        {
+            activeTabs.Add(InspectorTab.Attributes);
+            activeTabs.Add(InspectorTab.Needs);
+            activeTabs.Add(InspectorTab.RolesSkills);
+            activeTabs.Add(InspectorTab.Inventory);
+            return;
+        }
+
+        // COMBAT UNIT
+        if (selected.TryGetComponent<UnitCombatController>(out _))
+        {
+            activeTabs.Add(InspectorTab.Attributes);
+            activeTabs.Add(InspectorTab.CombatSettings);
+            return;
+        }
+
+        // NON-COMBAT UNIT
+        if (selected.TryGetComponent<Unit>(out _))
+        {
+            activeTabs.Add(InspectorTab.Attributes);
+            return;
+        }
+
+        // BUILDINGS
+        if (selected.TryGetComponent<Building>(out var building))
+        {
+            activeTabs.Add(InspectorTab.BuildingStats);
+
+            if (building.TryGetComponent<ResourceStorageContainer>(out _))
+                activeTabs.Add(InspectorTab.Storage);
+
+            if (building.TryGetComponent<CraftingBuilding>(out _))
+                activeTabs.Add(InspectorTab.Production);
+
+            if (building.TryGetComponent<Barracks>(out _))
+                activeTabs.Add(InspectorTab.TrainingQueue);
+
+            return;
+        }
+
+        // CONSTRUCTION SITE
+        if (selected.TryGetComponent<ConstructionSite>(out _))
+        {
+            activeTabs.Add(InspectorTab.ConstructionStatus);
+            return;
+        }
+
+        // RESOURCE NODE → Info only
+    }
+
+    string GetTabLabel(InspectorTab tab)
+    {
+        switch (tab)
+        {
+            case InspectorTab.Info: return "Info";
+            case InspectorTab.Attributes: return "Attributes";
+            case InspectorTab.Needs: return "Needs";
+            case InspectorTab.RolesSkills: return "Roles & Skills";
+            case InspectorTab.Inventory: return "Inventory";
+            case InspectorTab.BuildingStats: return "Building Stats";
+            case InspectorTab.Storage: return "Storage";
+            case InspectorTab.Production: return "Production";
+            case InspectorTab.TrainingQueue: return "Training Queue";
+            case InspectorTab.CombatSettings: return "Combat Settings";
+            case InspectorTab.ConstructionStatus: return "Construction Status";
+            default: return tab.ToString();
+        }
+    }
+
+    void DrawTabs()
+    {
+        if (activeTabs.Count == 0)
+        {
+            // Fallback: rebuild if something went wrong
+            RebuildTabs();
+        }
+
+        string[] labels = activeTabs
+            .Select(t => GetTabLabel(t))
+            .ToArray();
+
+        int currentIndex = activeTabs.IndexOf(currentTab);
+        if (currentIndex < 0) currentIndex = 0;
+
+        int newIndex = GUILayout.Toolbar(currentIndex, labels);
+
+        if (newIndex != currentIndex && newIndex >= 0 && newIndex < activeTabs.Count)
+            currentTab = activeTabs[newIndex];
+    }
+
+    // -----------------------
+    // Header
+    // -----------------------
 
     void DrawHeader()
     {
@@ -62,11 +216,126 @@ public class UnitInspectorUI : MonoBehaviour
             GUILayout.Label($"Team: {team}");
     }
 
-    void DrawTabs()
+    // -----------------------
+    // Tab content routing
+    // -----------------------
+
+    void DrawInfo()
     {
-        currentTab = (InspectorTab)GUILayout.Toolbar((int)currentTab,
-            new[] { "Overview", "Stats", "Skills", "Storage", "Production", "Combat" });
+        DrawOverview();
     }
+
+    void DrawAttributes()
+    {
+        // Reuse existing stats logic; it already branches by type
+        DrawStats();
+    }
+
+    void DrawNeeds()
+    {
+        if (!selected.TryGetComponent<Civilian>(out var civ))
+        {
+            GUILayout.Label("No needs for this selection.");
+            return;
+        }
+
+        GUILayout.Label("Needs", GUI.skin.box);
+        GUILayout.Label($"Hunger: {civ.CurrentHunger:0.0}/{civ.maxHunger:0.0}");
+        GUILayout.Label($"Tiredness: {civ.CurrentTiredness:0.0}/{civ.maxTiredness:0.0}");
+        GUILayout.Label($"House: {(civ.AssignedHouse != null ? SanitizeName(civ.AssignedHouse.name) : "Homeless")}");
+    }
+
+    void DrawInventory()
+    {
+        bool any = false;
+
+        if (selected.TryGetComponent<Civilian>(out var civ))
+        {
+            GUILayout.Label("Inventory", GUI.skin.box);
+            GUILayout.Label($"Carrying: {civ.CarriedType} {civ.CarriedAmount}/{civ.carryCapacity}");
+            any = true;
+        }
+
+        if (!any)
+            GUILayout.Label("No inventory for this selection.");
+    }
+
+    void DrawBuildingStatsForSelected()
+    {
+        if (TryGetSelectedComponent(out Building building))
+        {
+            DrawBuildingStats(building);
+        }
+        else
+        {
+            GUILayout.Label("No building stats for this selection.");
+        }
+    }
+
+    void DrawProductionForCrafting()
+    {
+        if (TryGetSelectedComponent(out CraftingBuilding crafting))
+        {
+            string recipeName = crafting.recipe != null ? crafting.recipe.recipeName : "None";
+            GUILayout.Label($"Recipe: {recipeName}");
+            GUILayout.Label($"State: {crafting.State}");
+            GUILayout.Label($"Missing Inputs: {crafting.GetMissingInputSummary()}");
+            GUILayout.Label($"Progress: {crafting.CraftProgress01:P0}");
+        }
+        else
+        {
+            GUILayout.Label("No production for this selection.");
+        }
+    }
+
+    void DrawTrainingQueue()
+    {
+        if (!selected.TryGetComponent<Barracks>(out var barracks))
+        {
+            GUILayout.Label("No training queue for this selection.");
+            return;
+        }
+
+        GUILayout.Label("Training Queue", GUI.skin.box);
+
+        foreach (var def in barracks.producibleUnits)
+        {
+            if (def == null) continue;
+            bool canAfford = barracks.CanQueue(def);
+            GUI.enabled = canAfford;
+            if (GUILayout.Button("Train " + def.unitName)) barracks.QueueUnit(def);
+            GUI.enabled = true;
+        }
+
+        if (GUILayout.Button("Cancel Last")) barracks.CancelLast();
+
+        GUILayout.Space(4f);
+        GUILayout.Label($"Queue Size: {barracks.QueueCount}");
+        GUILayout.Label($"Build Progress: {barracks.CurrentProgress:P0}");
+        GUILayout.Label($"Current Build Time: {barracks.CurrentBuildTime:0.00}s");
+    }
+
+    void DrawConstructionStatus()
+    {
+        if (!TryGetSelectedComponent(out ConstructionSite site))
+        {
+            GUILayout.Label("No construction status for this selection.");
+            return;
+        }
+
+        GUILayout.Label("Construction Status", GUI.skin.box);
+        GUILayout.Label(site.GetStatusLine());
+        var costs = site.GetRequiredCosts();
+        if (costs != null)
+        {
+            foreach (var c in costs)
+                GUILayout.Label($"{c.type}: {site.GetDeliveredAmount(c.type)}/{c.amount}");
+        }
+    }
+
+    // -----------------------
+    // Original content methods
+    // -----------------------
 
     void DrawOverview()
     {
@@ -174,7 +443,6 @@ public class UnitInspectorUI : MonoBehaviour
         }
     }
 
-
     void DrawBuildingStats(Building building)
     {
         if (building == null)
@@ -251,7 +519,7 @@ public class UnitInspectorUI : MonoBehaviour
     {
         if (!selected.TryGetComponent<Civilian>(out var civ))
         {
-            GUILayout.Label("No skills/tools for this selection.");
+            GUILayout.Label("No roles or skills for this selection.");
             return;
         }
 
@@ -371,6 +639,10 @@ public class UnitInspectorUI : MonoBehaviour
         if (newStance != combat.stance)
             combat.SetStance(newStance);
     }
+
+    // -----------------------
+    // Helpers
+    // -----------------------
 
     static string ResolveAssignment(Civilian civ)
     {

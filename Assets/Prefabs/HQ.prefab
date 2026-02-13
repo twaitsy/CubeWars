@@ -243,7 +243,7 @@ MonoBehaviour:
     capacity: 50000
   - type: 3
     capacity: 5000
-  - type: 5
+  - type: 14
     capacity: 5000
   - type: 4
     capacity: 333
@@ -286,6 +286,39 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   teamID: 0
+  resourceFlow:
+  - type: 0
+    flowMode: 3
+  - type: 1
+    flowMode: 3
+  - type: 2
+    flowMode: 3
+  - type: 3
+    flowMode: 3
+  - type: 4
+    flowMode: 3
+  - type: 5
+    flowMode: 3
+  - type: 6
+    flowMode: 3
+  - type: 7
+    flowMode: 3
+  - type: 8
+    flowMode: 3
+  - type: 9
+    flowMode: 3
+  - type: 10
+    flowMode: 3
+  - type: 11
+    flowMode: 3
+  - type: 12
+    flowMode: 3
+  - type: 13
+    flowMode: 3
+  - type: 14
+    flowMode: 3
+  - type: 15
+    flowMode: 3
 --- !u!114 &-2677390483228081505
 MonoBehaviour:
   m_ObjectHideFlags: 0

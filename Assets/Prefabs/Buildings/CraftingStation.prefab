@@ -127,7 +127,7 @@ MonoBehaviour:
     - resourceType: 1
       amount: 1
     outputs:
-    - resourceType: 0
+    - resourceType: 14
       amount: 100
     craftTimeSeconds: 5
     batchSize: 5
