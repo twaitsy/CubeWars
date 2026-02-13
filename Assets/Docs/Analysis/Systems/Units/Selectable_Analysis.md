@@ -1,5 +1,5 @@
 # Analysis — Selectable.cs
-Generated: 2026-02-07 20:58:14
+Generated: 2026-02-13 21:13:13
 
 ## Namespace
 
@@ -14,6 +14,7 @@ Generated: 2026-02-07 20:58:14
 - None
 
 ## Methods
+- SetHovered
 - SetSelected
 
 ## Properties
@@ -23,12 +24,16 @@ Generated: 2026-02-07 20:58:14
 - None
 
 ## Fields
+- attackRangeCircle
+- hoverRing
 - selectionRing
+- visionRangeCircle
 
 ## Serialized Fields
 - None
 
 ## Attributes
+- Header
 - Tooltip
 
 ## Dependencies
@@ -42,7 +47,7 @@ Generated: 2026-02-07 20:58:14
 - void
 
 ### GetComponent<T>()
-- None
+- UnitCombatController
 
 ### RequireComponent
 - None
@@ -51,5 +56,6 @@ Generated: 2026-02-07 20:58:14
 - None
 
 ### Attribute Types
+- Header
 - Tooltip
 

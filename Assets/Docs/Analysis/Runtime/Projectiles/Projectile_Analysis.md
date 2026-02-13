@@ -1,5 +1,5 @@
 # Analysis — Projectile.cs
-Generated: 2026-02-07 20:58:14
+Generated: 2026-02-13 21:13:13
 
 ## Namespace
 
@@ -23,12 +23,8 @@ Generated: 2026-02-07 20:58:14
 - None
 
 ## Fields
-- damage
 - impactFX
-- lifeTimer
 - prefabKey
-- sourceTeam
-- target
 
 ## Serialized Fields
 - None
@@ -36,6 +32,7 @@ Generated: 2026-02-07 20:58:14
 ## Attributes
 - Header
 - HideInInspector
+- Min
 
 ## Dependencies
 
@@ -44,15 +41,14 @@ Generated: 2026-02-07 20:58:14
 
 ### Type References
 - Attackable
+- else
 - float
 - GameObject
 - int
 - Projectile
-- replace
 - using
 - Vector3
 - void
-- wrap
 
 ### GetComponent<T>()
 - None
@@ -62,9 +58,9 @@ Generated: 2026-02-07 20:58:14
 
 ### Event Subscriptions
 - lifeTimer
-- position
 
 ### Attribute Types
 - Header
 - HideInInspector
+- Min
 

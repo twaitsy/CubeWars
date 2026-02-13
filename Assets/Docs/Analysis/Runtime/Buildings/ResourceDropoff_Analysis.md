@@ -1,5 +1,5 @@
 # Analysis — ResourceDropoff.cs
-Generated: 2026-02-07 20:58:14
+Generated: 2026-02-13 21:13:13
 
 ## Namespace
 
@@ -17,6 +17,7 @@ Generated: 2026-02-07 20:58:14
 - CanAccept
 - Deposit
 - FindNearest
+- SetTeamID
 
 ## Properties
 - None

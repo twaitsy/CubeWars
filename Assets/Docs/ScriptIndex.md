@@ -1,5 +1,5 @@
 # Cube Wars Script Index
-Generated: 2026-02-13 15:20:09
+Generated: 2026-02-13 21:13:11
 
 ## Core
 
@@ -35,11 +35,6 @@ Generated: 2026-02-13 15:20:09
 ### Assets/Scripts/Data/Buildings
 - BuildItemDefinition.cs
 - BuildTimeSettings.cs
-- ToolItem.cs
-
-### Assets/Data/DatabaseScripts
-- BuildCatalog.cs
-- FoodResourceDatabase.cs
 
 ### Assets/Scripts/Data/Combat
 - SkirmishConfig.cs
@@ -55,15 +50,11 @@ Generated: 2026-02-13 15:20:09
 - CivilianJobRegistry.cs
 - CivilianJobType.cs
 - CivilianRole.cs
-- CivilianToolRegistry.cs
 - CombatStance.cs
 - SkillType.cs
 - UnitProductionDefinition.cs
 
 ## Documents
-
-### Assets/Scripts/Documents
-- CombatSystem.cs
 
 ## Managers
 

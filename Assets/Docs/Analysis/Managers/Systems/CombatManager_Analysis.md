@@ -1,5 +1,5 @@
 # Analysis — CombatManager.cs
-Generated: 2026-02-07 20:58:14
+Generated: 2026-02-13 21:13:13
 
 ## Namespace
 
@@ -14,7 +14,7 @@ Generated: 2026-02-07 20:58:14
 - None
 
 ## Methods
-- None
+- ConfigureCombatant
 
 ## Properties
 - None
@@ -23,13 +23,15 @@ Generated: 2026-02-07 20:58:14
 - None
 
 ## Fields
-- None
+- defaultProjectilePrefab
+- Instance
 
 ## Serialized Fields
 - None
 
 ## Attributes
-- None
+- Header
+- Tooltip
 
 ## Dependencies
 
@@ -37,11 +39,17 @@ Generated: 2026-02-07 20:58:14
 - UnityEngine
 
 ### Type References
+- CombatManager
+- float
+- int
+- LayerMask
+- Projectile
 - using
+- var
 - void
 
 ### GetComponent<T>()
-- None
+- WeaponComponent
 
 ### RequireComponent
 - None
@@ -50,5 +58,6 @@ Generated: 2026-02-07 20:58:14
 - None
 
 ### Attribute Types
-- None
+- Header
+- Tooltip
 

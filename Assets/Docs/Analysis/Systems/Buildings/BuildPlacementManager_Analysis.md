@@ -1,5 +1,5 @@
 # Analysis — BuildPlacementManager.cs
-Generated: 2026-02-07 20:58:14
+Generated: 2026-02-13 21:13:13
 
 ## Namespace
 
@@ -30,6 +30,8 @@ Generated: 2026-02-07 20:58:14
 ## Fields
 - constructionSitePrefab
 - Instance
+- placementQuarterTurns
+- previewItem
 - previewMaterial
 - previewObj
 - selectedItem
@@ -40,22 +42,25 @@ Generated: 2026-02-07 20:58:14
 ## Attributes
 - BuildPlacementManager
 - Header
+- i
 - Range
 - Tooltip
 
 ## Dependencies
 
 ### Using Namespaces
+- System.Collections.Generic
 - UnityEngine
 
 ### Type References
 - BASED
 - bool
-- Building
+- BuildGridManager
+- BuildGridOccupant
+- BuildingFootprint
 - BuildItemDefinition
 - BuildItemInstance
 - BuildPlacementManager
-- Civilian
 - Color
 - else
 - exists
@@ -63,6 +68,8 @@ Generated: 2026-02-07 20:58:14
 - GameObject
 - implement
 - Instant
+- int
+- List<BuildGridCell>
 - Material
 - new
 - placement
@@ -70,35 +77,30 @@ Generated: 2026-02-07 20:58:14
 - return
 - SPACE
 - spend
-- TeamVisual
-- Unit
 - using
 - var
+- Vector2Int
 - Vector3
 - void
 - when
 
 ### GetComponent<T>()
 - BuildCellReservation
-- Building
+- BuildGridOccupant
 - BuildItemInstance
-- Civilian
 - ConstructionSite
-- ResourceDropoff
-- ResourceStorageContainer
-- ResourceStorageProvider
 - TeamVisual
-- Unit
 
 ### RequireComponent
 - None
 
 ### Event Subscriptions
-- None
+- pos
 
 ### Attribute Types
 - BuildPlacementManager
 - Header
+- i
 - Range
 - Tooltip
 

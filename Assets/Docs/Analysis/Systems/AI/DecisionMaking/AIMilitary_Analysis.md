@@ -1,5 +1,5 @@
 # Analysis — AIMilitary.cs
-Generated: 2026-02-07 20:58:14
+Generated: 2026-02-13 21:13:13
 
 ## Namespace
 
@@ -31,6 +31,7 @@ Generated: 2026-02-07 20:58:14
 - None
 
 ## Attributes
+- AIMilitary
 - Header
 
 ## Dependencies
@@ -41,16 +42,15 @@ Generated: 2026-02-07 20:58:14
 ### Type References
 - AIPersonality
 - Attackable
-- bias
 - float
-- implement
 - int
 - return
 - using
+- var
 - void
 
 ### GetComponent<T>()
-- None
+- Unit
 
 ### RequireComponent
 - None
@@ -59,5 +59,6 @@ Generated: 2026-02-07 20:58:14
 - None
 
 ### Attribute Types
+- AIMilitary
 - Header
 

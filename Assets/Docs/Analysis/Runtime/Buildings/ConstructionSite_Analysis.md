@@ -1,5 +1,5 @@
 # Analysis — ConstructionSite.cs
-Generated: 2026-02-07 20:58:14
+Generated: 2026-02-13 21:13:13
 
 ## Namespace
 
@@ -54,18 +54,19 @@ Generated: 2026-02-07 20:58:14
 - and
 - bool
 - BuildGridCell
-- Building
+- BuildGridOccupant
 - BuildItemDefinition
 - BuildItemInstance
 - call
 - Calls
-- Civilian
+- else
 - float
 - GameObject
 - in
 - include
 - int
 - int>
+- List<BuildGridCell>
 - only
 - or
 - Passive
@@ -76,22 +77,13 @@ Generated: 2026-02-07 20:58:14
 - site
 - split
 - string
-- TeamVisual
-- Unit
 - using
-- var
 - Vector3
 - void
 
 ### GetComponent<T>()
-- Building
+- BuildGridOccupant
 - BuildItemInstance
-- Civilian
-- ResourceDropoff
-- ResourceStorageContainer
-- ResourceStorageProvider
-- TeamVisual
-- Unit
 
 ### RequireComponent
 - None

@@ -1,5 +1,5 @@
 # Analysis — BuildGridManager.cs
-Generated: 2026-02-07 20:58:14
+Generated: 2026-02-13 21:13:13
 
 ## Namespace
 
@@ -15,7 +15,15 @@ Generated: 2026-02-07 20:58:14
 
 ## Methods
 - BuildAllGrids
+- Equals
+- GetFootprintCells
 - OnCellClicked
+- OnCellHovered
+- OnCellHoverExit
+- RefreshHoveredPreview
+- RefreshPlayerGridVisibility
+- TryGetCell
+- TryGetCenteredFootprintCells
 
 ## Properties
 - None
@@ -26,8 +34,11 @@ Generated: 2026-02-07 20:58:14
 ## Fields
 - buildMenuUI
 - cellMaterial
+- coord
+- hoveredCell
 - selectedCell
 - selectedMaterial
+- teamID
 
 ## Serialized Fields
 - None
@@ -45,8 +56,11 @@ Generated: 2026-02-07 20:58:14
 - UnityEngine
 
 ### Type References
+- <
+- >
 - bool
 - BuildGridCell
+- BuildGridCell>
 - Building
 - BuildMenuUI
 - cells
@@ -57,13 +71,16 @@ Generated: 2026-02-07 20:58:14
 - IEnumerator
 - int
 - KeyCode
+- List<BuildGridCell>
 - List<GameObject>
 - Material
 - new
+- public
 - Renderer
 - return
 - using
 - var
+- Vector2Int
 - Vector3
 - void
 
@@ -77,7 +94,7 @@ Generated: 2026-02-07 20:58:14
 - None
 
 ### Event Subscriptions
-- None
+- centerAccumulator
 
 ### Attribute Types
 - BuildGridManager

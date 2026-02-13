@@ -1,15 +1,15 @@
 # Analysis — Unit.cs
-Generated: 2026-02-07 20:58:14
+Generated: 2026-02-13 21:13:13
 
 ## Namespace
 
 
 ## Classes
-- for
 - Unit
 
 ## Base Classes
 - IAttackable
+- ICommandable
 - IHasHealth
 - MonoBehaviour
 
@@ -17,7 +17,9 @@ Generated: 2026-02-07 20:58:14
 - None
 
 ## Methods
+- IssueMove
 - MoveTo
+- SetTeamID
 - TakeDamage
 
 ## Properties
@@ -27,7 +29,6 @@ Generated: 2026-02-07 20:58:14
 - None
 
 ## Fields
-- agent
 - teamID
 
 ## Serialized Fields
@@ -50,10 +51,12 @@ Generated: 2026-02-07 20:58:14
 - NavMeshAgent
 - Transform
 - using
+- var
 - void
 
 ### GetComponent<T>()
 - NavMeshAgent
+- UnitCombatController
 
 ### RequireComponent
 - None

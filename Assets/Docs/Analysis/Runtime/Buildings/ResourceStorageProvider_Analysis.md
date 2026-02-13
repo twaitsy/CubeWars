@@ -1,5 +1,5 @@
 # Analysis — ResourceStorageProvider.cs
-Generated: 2026-02-07 20:58:14
+Generated: 2026-02-13 21:13:13
 
 ## Namespace
 
@@ -15,6 +15,7 @@ Generated: 2026-02-07 20:58:14
 
 ## Methods
 - RefreshRegistration
+- SetTeamID
 
 ## Properties
 - None
@@ -24,8 +25,11 @@ Generated: 2026-02-07 20:58:14
 
 ## Fields
 - capacities
+- grantedStartingResources
+- localStorage
 - registered
 - started
+- startingResources
 - teamID
 
 ## Serialized Fields
@@ -34,6 +38,7 @@ Generated: 2026-02-07 20:58:14
 ## Attributes
 - Header
 - i
+- Tooltip
 
 ## Dependencies
 
@@ -41,16 +46,15 @@ Generated: 2026-02-07 20:58:14
 - UnityEngine
 
 ### Type References
-- and
 - before
 - bool
-- implement
 - int
+- ResourceStorageContainer
 - using
 - void
 
 ### GetComponent<T>()
-- None
+- ResourceStorageContainer
 
 ### RequireComponent
 - None
@@ -61,4 +65,5 @@ Generated: 2026-02-07 20:58:14
 ### Attribute Types
 - Header
 - i
+- Tooltip
 

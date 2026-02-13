@@ -1,5 +1,5 @@
 # Cube Wars Script Index — Core
-Generated: 2026-02-13 15:20:09
+Generated: 2026-02-13 21:13:11
 
 ## Assets/Scripts/Core/Events
 - EventManager.cs

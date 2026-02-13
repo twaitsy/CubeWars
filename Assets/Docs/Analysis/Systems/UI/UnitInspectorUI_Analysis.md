@@ -1,5 +1,5 @@
 # Analysis — UnitInspectorUI.cs
-Generated: 2026-02-07 20:58:14
+Generated: 2026-02-13 21:13:13
 
 ## Namespace
 
@@ -30,42 +30,74 @@ Generated: 2026-02-07 20:58:14
 
 ## Attributes
 - Header
+- i
+- idx
+- newIndex
 
 ## Dependencies
 
 ### Using Namespaces
+- System
+- System.Collections.Generic
+- System.Linq
 - UnityEngine
 
 ### Type References
+- <
+- >
 - bool
-- call
-- dependent
+- BUILDINGS
+- CIVILIAN
+- else
 - float
 - GameObject
+- InspectorTab
 - int
+- List<InspectorTab>
 - new
 - Rect
+- return
+- SITE
+- stats
 - string
+- type
+- UNIT
 - using
 - var
 - void
+- wrong
 
 ### GetComponent<T>()
 - Barracks
+- Building
+- BuildingInteractionSettings
 - Civilian
 - ConstructionSite
+- CraftingBuilding
+- DefenseTurret
+- Farm
+- Headquarters
+- House
 - IHasHealth
+- ResourceNode
 - ResourceStorageContainer
 - Turret
 - Unit
 - UnitCombatController
+- VehicleFactory
+- WeaponsFactory
 
 ### RequireComponent
 - None
 
 ### Event Subscriptions
-- None
+- i
+- totalCapacity
+- totalStored
 
 ### Attribute Types
 - Header
+- i
+- idx
+- newIndex
 

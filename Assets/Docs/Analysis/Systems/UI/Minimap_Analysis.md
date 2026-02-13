@@ -1,5 +1,5 @@
 # Analysis — Minimap.cs
-Generated: 2026-02-07 20:58:14
+Generated: 2026-02-13 21:13:13
 
 ## Namespace
 
@@ -38,8 +38,11 @@ Generated: 2026-02-07 20:58:14
 - UnityEngine
 
 ### Type References
+- bool
+- button
 - Camera
 - Color
+- Color>
 - else
 - float
 - new
@@ -57,7 +60,8 @@ Generated: 2026-02-07 20:58:14
 - None
 
 ### Event Subscriptions
-- None
+- rx
+- ry
 
 ### Attribute Types
 - Header

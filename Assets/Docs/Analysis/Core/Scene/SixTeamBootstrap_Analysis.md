@@ -1,5 +1,5 @@
 # Analysis — SixTeamBootstrap.cs
-Generated: 2026-02-07 20:58:14
+Generated: 2026-02-13 21:13:13
 
 ## Namespace
 
@@ -31,7 +31,6 @@ Generated: 2026-02-07 20:58:14
 
 ## Attributes
 - Header
-- i
 
 ## Dependencies
 
@@ -40,26 +39,18 @@ Generated: 2026-02-07 20:58:14
 
 ### Type References
 - <
-- AND
-- as
 - Civilian
 - float
 - GameObject
 - int
 - new
 - Quaternion
-- ResourceStorageContainer
-- Team
-- TeamVisual
 - using
-- var
 - Vector3
 - void
 
 ### GetComponent<T>()
-- Building
 - Civilian
-- TeamVisual
 
 ### RequireComponent
 - None
@@ -69,5 +60,4 @@ Generated: 2026-02-07 20:58:14
 
 ### Attribute Types
 - Header
-- i
 

@@ -1,5 +1,5 @@
 # Analysis — ResourceStorageContainer.cs
-Generated: 2026-02-07 20:58:14
+Generated: 2026-02-13 21:13:13
 
 ## Namespace
 
@@ -15,10 +15,15 @@ Generated: 2026-02-07 20:58:14
 
 ## Methods
 - AddCapacity
+- CanReceive
+- CanSupply
 - Deposit
 - GetCapacity
+- GetFlowSetting
 - GetFree
 - GetStored
+- SetStoredForRuntime
+- SetTeamID
 - Withdraw
 
 ## Properties
@@ -28,13 +33,18 @@ Generated: 2026-02-07 20:58:14
 - None
 
 ## Fields
+- flowMode
 - teamID
+- type
 
 ## Serialized Fields
 - None
 
 ## Attributes
+- Header
+- i
 - t
+- Tooltip
 - type
 
 ## Dependencies
@@ -44,10 +54,14 @@ Generated: 2026-02-07 20:58:14
 - UnityEngine
 
 ### Type References
+- bool
 - call
 - in
 - int
 - int>
+- List<ResourceFlowEntry>
+- ResourceFlowMode
+- ResourceType
 - return
 - using
 - void
@@ -62,6 +76,9 @@ Generated: 2026-02-07 20:58:14
 - None
 
 ### Attribute Types
+- Header
+- i
 - t
+- Tooltip
 - type
 

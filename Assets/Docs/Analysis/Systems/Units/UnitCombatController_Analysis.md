@@ -1,5 +1,5 @@
 # Analysis — UnitCombatController.cs
-Generated: 2026-02-07 20:58:14
+Generated: 2026-02-13 21:13:13
 
 ## Namespace
 
@@ -14,11 +14,15 @@ Generated: 2026-02-07 20:58:14
 - None
 
 ## Methods
+- CancelCurrentEngagement
 - ClearManualTarget
 - GetTargetStatus
+- IssueAttackMoveOrder
+- IssueMoveOrder
 - SetManualTarget
 - SetStance
 - ToggleAttackCivilians
+- ToggleRangeGizmos
 
 ## Properties
 - None
@@ -27,9 +31,7 @@ Generated: 2026-02-07 20:58:14
 - None
 
 ## Fields
-- attackableLayers
 - currentTarget
-- hasManualTarget
 - teamID
 - weapon
 
@@ -38,41 +40,44 @@ Generated: 2026-02-07 20:58:14
 
 ## Attributes
 - Header
+- Min
 
 ## Dependencies
 
 ### Using Namespaces
 - UnityEngine
+- UnityEngine.AI
 
 ### Type References
+- >
 - Attackable
+- BehaviorState
 - bool
-- Calls
 - CombatStance
-- disable
 - float
 - int
-- keep
 - LayerMask
+- NavMeshAgent
+- new
 - return
 - string
-- Target
 - using
 - var
 - Vector3
-- via
 - void
 - WeaponComponent
 
 ### GetComponent<T>()
+- NavMeshAgent
 - WeaponComponent
 
 ### RequireComponent
 - None
 
 ### Event Subscriptions
-- None
+- score
 
 ### Attribute Types
 - Header
+- Min
 

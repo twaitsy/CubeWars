@@ -1,11 +1,12 @@
 # Analysis — MainMenuUI.cs
-Generated: 2026-02-07 20:58:14
+Generated: 2026-02-13 21:13:13
 
 ## Namespace
 
 
 ## Classes
 - MainMenuUI
+- TeamSetupEntry
 
 ## Base Classes
 - MonoBehaviour
@@ -14,12 +15,7 @@ Generated: 2026-02-07 20:58:14
 - None
 
 ## Methods
-- DrawCredits
-- DrawLoadMenu
-- DrawMainMenu
-- InitStyles
-- SetVisible
-- ToggleVisible
+- None
 
 ## Properties
 - None
@@ -28,38 +24,47 @@ Generated: 2026-02-07 20:58:14
 - None
 
 ## Fields
-- boxStyle
-- buttonStyle
-- labelStyle
+- aiDifficulty
+- color
 - loadableScenes
+- teamID
 
 ## Serialized Fields
-- None
+- teams
 
 ## Attributes
 - Header
+- i
+- j
+- Serializable
+- SerializeField
 - TextArea
 
 ## Dependencies
 
 ### Using Namespaces
 - System
+- System.Collections.Generic
 - UnityEngine
 - UnityEngine.SceneManagement
 
 ### Type References
 - >
-- 2019
 - bool
+- Color
+- DiplomacyStance
 - float
 - GUIStyle
 - int
 - KeyCode
+- List<TeamSetupEntry>
+- MenuScreen
 - new
-- Panel
 - Rect
 - string
 - using
+- var
+- Vector2
 - void
 
 ### GetComponent<T>()
@@ -69,9 +74,14 @@ Generated: 2026-02-07 20:58:14
 - None
 
 ### Event Subscriptions
+- sy
 - y
 
 ### Attribute Types
 - Header
+- i
+- j
+- Serializable
+- SerializeField
 - TextArea
 

@@ -1,5 +1,5 @@
 # Analysis — TaskBoardUI.cs
-Generated: 2026-02-07 20:58:14
+Generated: 2026-02-13 21:13:13
 
 ## Namespace
 
@@ -32,6 +32,7 @@ Generated: 2026-02-07 20:58:14
 - Header
 - i
 - Reserved
+- role
 
 ## Dependencies
 
@@ -43,16 +44,16 @@ Generated: 2026-02-07 20:58:14
 ### Type References
 - bool
 - float
-- in
+- GameManager
 - int
 - int>
 - KeyCode
+- List<string>
 - new
 - Panel
 - Rect
+- return
 - string
-- TASK
-- TeamStorageManager
 - using
 - var
 - void
@@ -71,4 +72,5 @@ Generated: 2026-02-07 20:58:14
 - Header
 - i
 - Reserved
+- role
 

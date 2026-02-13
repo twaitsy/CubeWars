@@ -1,5 +1,5 @@
 # Analysis — ParentRenamer.cs
-Generated: 2026-02-07 20:58:14
+Generated: 2026-02-13 21:13:13
 
 ## Namespace
 
@@ -14,7 +14,7 @@ Generated: 2026-02-07 20:58:14
 - None
 
 ## Methods
-- RenameParent
+- None
 
 ## Properties
 - None
@@ -29,8 +29,7 @@ Generated: 2026-02-07 20:58:14
 - None
 
 ## Attributes
-- firstNameIndex
-- lastNameIndex
+- None
 
 ## Dependencies
 
@@ -38,11 +37,6 @@ Generated: 2026-02-07 20:58:14
 - UnityEngine
 
 ### Type References
-- before
-- int
-- random
-- scripts
-- string
 - Transform
 - using
 - void
@@ -57,6 +51,5 @@ Generated: 2026-02-07 20:58:14
 - None
 
 ### Attribute Types
-- firstNameIndex
-- lastNameIndex
+- None
 

@@ -1,5 +1,5 @@
 # Analysis — UnitManager.cs
-Generated: 2026-02-07 20:58:14
+Generated: 2026-02-13 21:13:13
 
 ## Namespace
 
@@ -14,7 +14,11 @@ Generated: 2026-02-07 20:58:14
 - None
 
 ## Methods
-- None
+- GetFormationOffset
+- GetUnits
+- RefreshRegistry
+- Register
+- Unregister
 
 ## Properties
 - None
@@ -23,21 +27,30 @@ Generated: 2026-02-07 20:58:14
 - None
 
 ## Fields
-- None
+- Instance
 
 ## Serialized Fields
 - None
 
 ## Attributes
-- None
+- Header
+- Min
 
 ## Dependencies
 
 ### Using Namespaces
+- System.Collections.Generic
 - UnityEngine
 
 ### Type References
+- >
+- float
+- int
+- IReadOnlyList<Unit>
+- List<Unit>
+- UnitManager
 - using
+- Vector3
 - void
 
 ### GetComponent<T>()
@@ -50,5 +63,6 @@ Generated: 2026-02-07 20:58:14
 - None
 
 ### Attribute Types
-- None
+- Header
+- Min
 

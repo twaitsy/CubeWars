@@ -1,5 +1,5 @@
 # Analysis — WeaponComponent.cs
-Generated: 2026-02-07 20:58:14
+Generated: 2026-02-13 21:13:13
 
 ## Namespace
 
@@ -11,10 +11,11 @@ Generated: 2026-02-07 20:58:14
 - MonoBehaviour
 
 ## Interfaces
-- for
+- None
 
 ## Methods
 - FireAtTarget
+- SpawnFallbackProjectile
 
 ## Properties
 - None
@@ -33,6 +34,7 @@ Generated: 2026-02-07 20:58:14
 
 ## Attributes
 - Header
+- WeaponComponent
 
 ## Dependencies
 
@@ -41,14 +43,15 @@ Generated: 2026-02-07 20:58:14
 
 ### Type References
 - bool
-- Calls
 - float
 - GameObject
+- in
+- new
 - Projectile
 - Transform
 - using
+- var
 - void
-- weapon
 
 ### GetComponent<T>()
 - None
@@ -61,4 +64,5 @@ Generated: 2026-02-07 20:58:14
 
 ### Attribute Types
 - Header
+- WeaponComponent
 

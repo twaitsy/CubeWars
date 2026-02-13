@@ -1,5 +1,5 @@
 # Analysis — DiplomacyManager.cs
-Generated: 2026-02-07 20:58:14
+Generated: 2026-02-13 21:13:13
 
 ## Namespace
 
@@ -16,14 +16,17 @@ Generated: 2026-02-07 20:58:14
 ## Methods
 - AreAtWar
 - DeclareWar
+- DeclareWarForAllKnownTeams
 - Ensure
+- GetKnownTeams
 - MakePeace
+- SetWarState
 
 ## Properties
 - None
 
 ## Events
-- exists
+- None
 
 ## Fields
 - Instance
@@ -34,7 +37,12 @@ Generated: 2026-02-07 20:58:14
 ## Attributes
 - a
 - b
+- DiplomacyManager
+- Header
+- i
+- j
 - team
+- Tooltip
 
 ## Dependencies
 
@@ -43,22 +51,16 @@ Generated: 2026-02-07 20:58:14
 - UnityEngine
 
 ### Type References
-- AI
-- all
 - bool
-- Calls
 - DiplomacyManager
-- Diplomatic
+- else
 - HashSet<int>>
-- Load
+- int
+- List<int>
 - return
-- symmetric
-- team
-- UI
-- Uses
 - using
+- var
 - void
-- way
 
 ### GetComponent<T>()
 - None
@@ -72,5 +74,10 @@ Generated: 2026-02-07 20:58:14
 ### Attribute Types
 - a
 - b
+- DiplomacyManager
+- Header
+- i
+- j
 - team
+- Tooltip
 

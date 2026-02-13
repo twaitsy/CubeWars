@@ -1,5 +1,5 @@
 # Analysis — UnitCommandController.cs
-Generated: 2026-02-07 20:58:14
+Generated: 2026-02-13 21:13:13
 
 ## Namespace
 
@@ -27,46 +27,33 @@ Generated: 2026-02-07 20:58:14
 - None
 
 ## Fields
-- agent
-- defendAnchor
-- followTarget
-- hasDefendAnchor
+- unit
 
 ## Serialized Fields
 - None
 
 ## Attributes
-- Header
-- RequireComponent
+- UnitCommandController
 
 ## Dependencies
 
 ### Using Namespaces
 - UnityEngine
-- UnityEngine.AI
 
 ### Type References
-- bool
-- CombatStance
-- else
-- external
-- float
-- NavMeshAgent
-- Transform
+- Unit
 - using
-- Vector3
 - void
 
 ### GetComponent<T>()
-- NavMeshAgent
+- Unit
 
 ### RequireComponent
-- NavMeshAgent
+- None
 
 ### Event Subscriptions
 - None
 
 ### Attribute Types
-- Header
-- RequireComponent
+- UnitCommandController
 

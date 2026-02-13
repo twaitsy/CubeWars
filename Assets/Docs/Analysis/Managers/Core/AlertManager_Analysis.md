@@ -1,5 +1,5 @@
 # Analysis — AlertManager.cs
-Generated: 2026-02-07 20:58:14
+Generated: 2026-02-13 21:13:13
 
 ## Namespace
 
@@ -15,6 +15,7 @@ Generated: 2026-02-07 20:58:14
 - None
 
 ## Methods
+- GetRecent
 - Push
 
 ## Properties
@@ -33,6 +34,7 @@ Generated: 2026-02-07 20:58:14
 
 ## Attributes
 - i
+- Min
 
 ## Dependencies
 
@@ -45,6 +47,7 @@ Generated: 2026-02-07 20:58:14
 - float
 - int
 - List<Alert>
+- List<string>
 - new
 - string
 - using
@@ -62,4 +65,5 @@ Generated: 2026-02-07 20:58:14
 
 ### Attribute Types
 - i
+- Min
 

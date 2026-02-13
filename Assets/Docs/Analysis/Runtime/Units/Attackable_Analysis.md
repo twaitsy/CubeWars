@@ -1,5 +1,5 @@
 # Analysis — Attackable.cs
-Generated: 2026-02-07 20:58:14
+Generated: 2026-02-13 21:13:13
 
 ## Namespace
 
@@ -8,12 +8,12 @@ Generated: 2026-02-07 20:58:14
 - Attackable
 
 ## Base Classes
+- IAttackable
 - IHasHealth
 - MonoBehaviour
 
 ## Interfaces
-- for
-- public
+- None
 
 ## Methods
 - Repair
@@ -23,9 +23,10 @@ Generated: 2026-02-07 20:58:14
 - None
 
 ## Events
-- death
+- None
 
 ## Fields
+- flashRenderer
 - isBuilding
 - isCivilian
 - teamID
@@ -45,20 +46,25 @@ Generated: 2026-02-07 20:58:14
 - <
 - >
 - bool
-- buildings
-- Call
-- Calls
-- ensure
+- Civilian
+- Color
+- else
 - float
+- IAttackable
+- IHasHealth
 - int
-- replace
-- system
+- MaterialPropertyBlock
+- new
+- Renderer
+- Transform
 - using
+- var
 - void
-- wrap
 
 ### GetComponent<T>()
 - Building
+- Civilian
+- Unit
 
 ### RequireComponent
 - None

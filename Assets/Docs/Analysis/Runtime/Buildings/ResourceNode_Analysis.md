@@ -1,5 +1,5 @@
 # Analysis — ResourceNode.cs
-Generated: 2026-02-07 20:58:14
+Generated: 2026-02-13 21:13:13
 
 ## Namespace
 
@@ -16,6 +16,8 @@ Generated: 2026-02-07 20:58:14
 ## Methods
 - Harvest
 - IsClaimedByOther
+- ReleaseGatherSlot
+- TryReserveGatherSlot
 
 ## Properties
 - None
@@ -30,20 +32,27 @@ Generated: 2026-02-07 20:58:14
 - None
 
 ## Attributes
+- FormerlySerializedAs
+- Header
 - HideInInspector
+- Min
+- Tooltip
 
 ## Dependencies
 
 ### Using Namespaces
 - UnityEngine
+- UnityEngine.Serialization
 
 ### Type References
 - >
 - bool
+- HashSet<int>
 - int
 - ResourceType
 - return
 - using
+- void
 
 ### GetComponent<T>()
 - None
@@ -55,5 +64,9 @@ Generated: 2026-02-07 20:58:14
 - None
 
 ### Attribute Types
+- FormerlySerializedAs
+- Header
 - HideInInspector
+- Min
+- Tooltip
 

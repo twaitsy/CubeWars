@@ -1,5 +1,5 @@
 # Analysis — TeamStorageManager.cs
-Generated: 2026-02-07 20:58:14
+Generated: 2026-02-13 21:13:13
 
 ## Namespace
 
@@ -18,6 +18,7 @@ Generated: 2026-02-07 20:58:14
 - CanAffordAvailable
 - ConsumeReserved
 - Deposit
+- FindNearestStorageCached
 - FindNearestStorageWithFree
 - FindNearestStorageWithStored
 - GetAvailable
@@ -30,6 +31,7 @@ Generated: 2026-02-07 20:58:14
 - GetTotalFreeInBuildings
 - GetTotalStored
 - GetTotalStoredInBuildings
+- HasAnyPhysicalStorage
 - Register
 - ReleaseReservation
 - RemoveCapacity
@@ -44,14 +46,22 @@ Generated: 2026-02-07 20:58:14
 - None
 
 ## Fields
+- cellX
+- cellZ
 - Instance
+- requiresFree
+- resourceType
+- teamID
 
 ## Serialized Fields
 - None
 
 ## Attributes
 - 0
+- Header
 - i
+- key
+- Min
 - siteKey
 - t
 - team
@@ -73,7 +83,10 @@ Generated: 2026-02-07 20:58:14
 - List<ResourceStorageContainer>>
 - ResourceStorageContainer
 - ResourceStorageContainer>
+- ResourceType
 - return
+- StorageCacheKey
+- Team
 - TeamStorageManager
 - update
 - using
@@ -93,7 +106,10 @@ Generated: 2026-02-07 20:58:14
 
 ### Attribute Types
 - 0
+- Header
 - i
+- key
+- Min
 - siteKey
 - t
 - team

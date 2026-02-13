@@ -1,11 +1,13 @@
 # Analysis — TeamBootstrap.cs
-Generated: 2026-02-07 20:58:14
+Generated: 2026-02-13 21:13:13
 
 ## Namespace
 
 
 ## Classes
-- Building
+- StartingBuildingSpawn
+- StartingCivilianGroup
+- StartingUnitGroup
 - TeamBootstrap
 
 ## Base Classes
@@ -15,9 +17,16 @@ Generated: 2026-02-07 20:58:14
 - None
 
 ## Methods
+- AnyCellOccupied
+- GetSpawnPosition
 - SetupAI
+- SetupCivilians
 - SetupHQ
-- SetupWorkers
+- SetupStartingBuildings
+- SetupStartingBuildingsAfterGridReady
+- SetupStartingUnits
+- SpawnCivilian
+- SpawnUnit
 
 ## Properties
 - None
@@ -26,50 +35,84 @@ Generated: 2026-02-07 20:58:14
 - None
 
 ## Fields
+- gridCoord
 - hqPrefab
+- prefab
+- quarterTurns
+- startingUnitPrefab
 - workerPrefab
+- yOffset
 
 ## Serialized Fields
 - None
 
 ## Attributes
+- g
 - Header
+- i
+- Min
+- Range
+- TeamBootstrap
 - Tooltip
 
 ## Dependencies
 
 ### Using Namespaces
+- System.Collections
+- System.Collections.Generic
 - UnityEngine
 
 ### Type References
 - <
-- Building
-- correct
-- exists
-- extend
+- bool
+- BuildCellReservation
+- BuildGridManager
+- BuildGridOccupant
+- BuildingFootprint
+- Civilian
+- CivilianJobType
+- CivilianRole
+- delayed
+- else
+- float
 - GameObject
-- in
+- Grid
+- IEnumerator
 - int
+- List<StartingBuildingSpawn>
+- List<StartingCivilianGroup>
+- List<StartingUnitGroup>
 - new
-- team
+- quarter
+- Quaternion
+- return
+- StartingBuildingSpawn
+- StartingCivilianGroup
+- StartingUnitGroup
 - Transform
-- Unit
 - using
+- Vector2Int
 - Vector3
 - void
+- yield
 
 ### GetComponent<T>()
-- Building
+- BuildCellReservation
+- BuildGridOccupant
 - T
-- Unit
 
 ### RequireComponent
 - None
 
 ### Event Subscriptions
-- None
+- pos
 
 ### Attribute Types
+- g
 - Header
+- i
+- Min
+- Range
+- TeamBootstrap
 - Tooltip
 
