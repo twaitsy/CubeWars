@@ -97,7 +97,7 @@ If it is defensive:
 - Add Turret and/or DefenseTurret
 - Add UnitCombatController if required by your combat flow
 
-Build catalog linkage:
+Build catalog linkage (catalog asset now stored under Assets/Data/Databases):
 - Create/assign a BuildItemDefinition asset
   - prefab
   - costs[]
@@ -105,6 +105,7 @@ Build catalog linkage:
   - yOffset/placementOffset
   - category/aiPriority
 - Add definition to BuildCatalog so it appears in BuildMenuUI.
+- Keep BuildCatalog.asset in Assets/Data/Databases/BuildCatalog.asset.
 
 -----------------------------------------------------------------
 4) Construction Site Prefab
@@ -309,7 +310,7 @@ Main menu expansion:
 Civilian prefab additions (new survival system):
 - Food tuning: hungerRatePerSecond, maxHunger, seekFoodThreshold01, foodToEatPerMeal, eatDurationSeconds, starvationDamagePerSecond
 - Sleep tuning: tirednessRatePerSecond, maxTiredness, seekSleepThreshold01, sleepDurationSeconds, exhaustionDamagePerSecond
-- Optional: assign a FoodResourceDatabase to drive food ranking/quality.
+- Optional: assign a FoodResourceDatabase (script moved to Assets/Data/DatabaseScripts) to drive food ranking/quality.
 
 House building setup:
 - Add House component (inherits Building)

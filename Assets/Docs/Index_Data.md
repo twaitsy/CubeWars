@@ -8,17 +8,18 @@ Generated: 2026-02-13 15:20:09
 - TeamInventory.cs
 
 ## Assets/Scripts/Data/Buildings
-- BuildCatalog.cs
 - BuildItemDefinition.cs
 - BuildTimeSettings.cs
-- ProductionRecipe.cs
 - ToolItem.cs
+
+## Assets/Data/DatabaseScripts
+- BuildCatalog.cs
+- FoodResourceDatabase.cs
 
 ## Assets/Scripts/Data/Combat
 - SkirmishConfig.cs
 
 ## Assets/Scripts/Data/Resources
-- FoodResourceDatabase.cs
 - ResourceCapacityEntry.cs
 - ResourceCost.cs
 - ResourceType.cs

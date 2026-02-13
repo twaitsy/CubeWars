@@ -354,7 +354,7 @@ amount, attach, bucket, component, Consider, counts, crafting, delete, DEPENDENC
 **Used By:** CraftingSystem, Dependencies, Team, WeaponsFactory
 
 
-## Assets/Scripts/Data/Buildings/BuildCatalog.cs
+## Assets/Data/DatabaseScripts/BuildCatalog.cs
 **Script:** BuildCatalog
 **System Classification:** Buildings
 **Base Class:** ScriptableObject

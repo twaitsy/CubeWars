@@ -67,7 +67,7 @@ Create or update a BuildItemDefinition asset:
 - `yOffset` / `placementOffset`
 - category/priority values as needed
 
-Then add this definition to `BuildCatalog` so it appears in BuildMenuUI.
+Then add this definition to `BuildCatalog` so it appears in BuildMenuUI (asset location: `Assets/Data/Databases/BuildCatalog.asset`).
 
 ------------------------------------------------------------
 5) Scene setup requirements
