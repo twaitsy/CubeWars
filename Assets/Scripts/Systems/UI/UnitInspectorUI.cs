@@ -82,7 +82,7 @@ public class UnitInspectorUI : MonoBehaviour
             GUILayout.Label($"Target: {civ.CurrentTargetName}");
             GUILayout.Label($"Hunger: {civ.CurrentHunger:0.0}/{civ.maxHunger:0.0}");
             GUILayout.Label($"Tiredness: {civ.CurrentTiredness:0.0}/{civ.maxTiredness:0.0}");
-            GUILayout.Label($"House: {(civ.AssignedHouse != null ? SanitizeName(civ.AssignedHouse.name) : "None")}");
+            GUILayout.Label($"House: {(civ.AssignedHouse != null ? SanitizeName(civ.AssignedHouse.name) : "Homeless")}");
         }
         else if (selected.TryGetComponent<Unit>(out _))
         {
@@ -95,6 +95,28 @@ public class UnitInspectorUI : MonoBehaviour
             if (GUILayout.Button("Demolish Building"))
                 building.Demolish();
             GUI.enabled = true;
+        }
+        else if (selected.TryGetComponent<Barracks>(out var barracks))
+        {
+            GUILayout.Label("Type: Barracks");
+            if (GUILayout.Button("Demolish Building"))
+            {
+                if (barracks.TryGetComponent<Building>(out var barracksBuilding))
+                    barracksBuilding.Demolish();
+                else
+                    Destroy(barracks.gameObject);
+            }
+        }
+        else if (selected.TryGetComponent<Turret>(out var turret))
+        {
+            GUILayout.Label("Type: Turret");
+            if (GUILayout.Button("Demolish Building"))
+            {
+                if (turret.TryGetComponent<Building>(out var turretBuilding))
+                    turretBuilding.Demolish();
+                else
+                    Destroy(turret.gameObject);
+            }
         }
         else if (selected.TryGetComponent<ResourceNode>(out var node))
         {
@@ -248,27 +270,60 @@ public class UnitInspectorUI : MonoBehaviour
         if (selected.TryGetComponent<Civilian>(out var civ))
             GUILayout.Label($"Carrying: {civ.CarriedType} {civ.CarriedAmount}/{civ.carryCapacity}");
 
-        if (!TryGetSelectedComponent(out ResourceStorageContainer storage))
-        {
-            GUILayout.Label("No local storage component.");
-            return;
-        }
-
+        bool hasStorage = TryGetSelectedComponent(out ResourceStorageContainer storage);
         bool any = false;
-        foreach (ResourceType t in Enum.GetValues(typeof(ResourceType)))
+
+        if (hasStorage)
         {
-            int cap = storage.GetCapacity(t);
-            int stored = storage.GetStored(t);
-            var flow = storage.GetFlowSetting(t);
+            foreach (ResourceType t in Enum.GetValues(typeof(ResourceType)))
+            {
+                int cap = storage.GetCapacity(t);
+                int stored = storage.GetStored(t);
+                var flow = storage.GetFlowSetting(t);
 
-            if (cap <= 0 && stored <= 0 && flow == ResourceStorageContainer.ResourceFlowMode.ReceiveAndSupply)
-                continue;
+                if (cap <= 0 && stored <= 0 && flow == ResourceStorageContainer.ResourceFlowMode.ReceiveAndSupply)
+                    continue;
 
-            any = true;
-            GUILayout.Label($"{t} Storage — {stored}/{cap} | Flow: {flow}");
+                any = true;
+                GUILayout.Label($"{t} Storage — {stored}/{cap} | Flow: {flow}");
+            }
         }
 
-        if (!any)
+        if (TryGetSelectedComponent(out CraftingBuilding crafting))
+        {
+            GUILayout.Space(6f);
+            GUILayout.Label("Crafting Buffers", GUI.skin.box);
+
+            if (crafting.recipe == null)
+            {
+                GUILayout.Label("No recipe configured.");
+            }
+            else
+            {
+                var inputBuffer = crafting.InputBuffer;
+                var outputQueue = crafting.OutputQueue;
+
+                GUILayout.Label("Inputs");
+                for (int i = 0; i < crafting.recipe.inputs.Length; i++)
+                {
+                    var entry = crafting.recipe.inputs[i];
+                    int amount = inputBuffer != null && inputBuffer.ContainsKey(entry.resourceType) ? inputBuffer[entry.resourceType] : 0;
+                    GUILayout.Label($"- {entry.resourceType}: {amount}/{crafting.maxInputCapacityPerResource}");
+                }
+
+                GUILayout.Label("Outputs");
+                for (int i = 0; i < crafting.recipe.outputs.Length; i++)
+                {
+                    var entry = crafting.recipe.outputs[i];
+                    int amount = outputQueue != null && outputQueue.ContainsKey(entry.resourceType) ? outputQueue[entry.resourceType] : 0;
+                    GUILayout.Label($"- {entry.resourceType}: {amount}/{crafting.maxOutputCapacityPerResource}");
+                }
+            }
+        }
+
+        if (!hasStorage && !selected.TryGetComponent<CraftingBuilding>(out _))
+            GUILayout.Label("No local storage component.");
+        else if (!any && !selected.TryGetComponent<CraftingBuilding>(out _))
             GUILayout.Label("Local storage: none configured.");
     }
 

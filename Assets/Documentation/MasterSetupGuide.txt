@@ -392,3 +392,18 @@ Prefab setup reminder:
   - Assigned crafters/non-haulers should stand near workPoints to enable production and should not run logistics loops.
   - Input resources should only be delivered into crafting building input buffers.
   - Output resources should only be taken away from crafting building output queues.
+
+
+-----------------------------------------------------------------
+Latest Updates (Hauling, Housing, UI, Bootstrap)
+-----------------------------------------------------------------
+- Crafting hauling now requests full missing input volume from storage (bounded by civilian carry capacity), instead of capping each pickup request to building input-capacity-per-resource.
+- Civilians now auto-attempt house assignment from a shared runtime house registry and retain a personal assigned house when available.
+- Inactive (Idle-role) civilians return to their assigned house when idle.
+- House instances now receive randomized names on spawn for easier identification in inspector/debugging.
+- Crafting workers standing at a work point are now protected from need-driven task interruption while a craft cycle is actively in progress.
+- UnitInspectorUI Storage tab now displays crafting input-buffer and output-queue amounts for CraftingBuilding selections.
+- UnitInspectorUI now labels civilians without homes as "Homeless".
+- UnitInspectorUI Overview now exposes a demolish button for Barracks and Turret selections even when they are not inheriting Building directly.
+- Added WorldProgressBar script as a visual twin of WorldHealthBar for future construction/upgrade progress display binding.
+- TeamBootstrap HQ spawn logic now snaps HQ world X/Z to BuildGridManager cell size so startup HQ placement aligns with the building grid.

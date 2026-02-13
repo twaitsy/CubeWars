@@ -3,6 +3,20 @@ using UnityEngine;
 
 public class House : Building
 {
+    static readonly List<House> allHouses = new List<House>();
+
+    static readonly string[] houseNamePrefixes =
+    {
+        "Amber", "Oak", "Stone", "River", "Iron", "Silver", "Golden", "Cedar", "Dawn", "Moon"
+    };
+
+    static readonly string[] houseNameSuffixes =
+    {
+        "Haven", "Cottage", "Manor", "Lodge", "Homestead", "Hall", "Retreat", "Dwelling", "Nest", "House"
+    };
+
+    static int nextHouseSerial = 1;
+
     [Header("House Stats")]
     public int prestige = 5;
     public int comfort = 10;
@@ -13,6 +27,64 @@ public class House : Building
     List<Civilian> civilians = new List<Civilian>();
 
     public IReadOnlyList<Civilian> Civilians => civilians;
+    public static IReadOnlyList<House> AllHouses => allHouses;
+
+    void OnEnable()
+    {
+        if (!allHouses.Contains(this))
+            allHouses.Add(this);
+
+        EnsureRandomizedName();
+    }
+
+    void OnDisable()
+    {
+        allHouses.Remove(this);
+    }
+
+    void EnsureRandomizedName()
+    {
+        string cleanName = SanitizeName(name);
+        if (!string.IsNullOrWhiteSpace(cleanName) && cleanName != "House")
+            return;
+
+        int prefixIndex = Random.Range(0, houseNamePrefixes.Length);
+        int suffixIndex = Random.Range(0, houseNameSuffixes.Length);
+        name = $"{houseNamePrefixes[prefixIndex]} {houseNameSuffixes[suffixIndex]} #{nextHouseSerial++:000}";
+    }
+
+    static string SanitizeName(string raw)
+    {
+        if (string.IsNullOrEmpty(raw))
+            return string.Empty;
+
+        return raw.Replace("(Clone)", string.Empty).Trim();
+    }
+
+    public static House FindAvailableForTeam(int teamID, Civilian civilian, Vector3 fromPosition)
+    {
+        House best = null;
+        float bestDistance = float.MaxValue;
+
+        for (int i = 0; i < allHouses.Count; i++)
+        {
+            House house = allHouses[i];
+            if (house == null || !house.IsAlive || house.teamID != teamID)
+                continue;
+
+            if (!house.CanAcceptResident(civilian))
+                continue;
+
+            float distance = (house.transform.position - fromPosition).sqrMagnitude;
+            if (distance < bestDistance)
+            {
+                bestDistance = distance;
+                best = house;
+            }
+        }
+
+        return best;
+    }
 
     public bool CanAcceptResident(Civilian civilian)
     {
