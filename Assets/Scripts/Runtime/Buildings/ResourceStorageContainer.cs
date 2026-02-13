@@ -177,6 +177,12 @@ public class ResourceStorageContainer : MonoBehaviour
         return taken;
     }
 
+
+    public void SetStoredForRuntime(ResourceType type, int amount)
+    {
+        stored[type] = Mathf.Clamp(amount, 0, capacity[type]);
+    }
+
     public void AddCapacity(ResourceType type, int amount)
     {
         capacity[type] += amount;

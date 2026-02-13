@@ -134,3 +134,12 @@ Behavioral expectations to verify in scenes
 - Idle civilians should show an assigned house in inspector when capacity exists; otherwise inspector should display "Homeless".
 - Barracks and Turret should expose a demolish action from UnitInspectorUI Overview.
 - TeamBootstrap-spawned HQ positions should align to BuildGridManager cell coordinates.
+
+Latest required script links (Unified civilian jobs/tools update)
+- CivilianJobRegistry (maps unified CivilianJobType into runtime work domains + legacy role compatibility)
+- CivilianToolRegistry (defines job-specific and universal tools/bonuses)
+
+Scene setup checks
+- Ensure a TeamInventory exists in-scene for civilians to claim crafted tools.
+- Ensure house prefabs that should store food include one ResourceStorageContainer (it will run as ReceiveOnly for hauler flow).
+- Keep at least one non-house storage with Supply enabled for food so civilians can still retrieve food logistics when house stock is empty.

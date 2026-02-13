@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent))]
@@ -7,11 +8,10 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     [Header("Team")]
     public int teamID;
 
-    [Header("Role")]
+    [Header("Job (Unified Registry)")]
+    public CivilianJobType jobType = CivilianJobType.Gatherer;
+    [Tooltip("Legacy mirror of jobType for older systems/UI.")]
     public CivilianRole role = CivilianRole.Gatherer;
-
-    [Header("Job Specialization")]
-    public CivilianJobType jobType = CivilianJobType.Generalist;
 
     public CivilianJobType JobType => jobType;
 
@@ -164,6 +164,11 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     private House targetHouse;
     private House assignedHouse;
 
+    private readonly HashSet<CivilianToolType> equippedTools = new HashSet<CivilianToolType>();
+    private float toolPickupTimer;
+    private float idleWanderTimer;
+    private Vector3 idleWanderTarget;
+
     void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -197,7 +202,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         currentHealth = maxHealth;
         currentHunger = 0f;
         currentTiredness = 0f;
-        SetRole(role);
+        SetJobType(jobType);
 
         started = true;
         RegisterWithJobManager();
@@ -294,7 +299,9 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             return;
 
         currentHunger = Mathf.Clamp(currentHunger + hungerRatePerSecond * Time.deltaTime, 0f, maxHunger);
-        currentTiredness = Mathf.Clamp(currentTiredness + tirednessRatePerSecond * Time.deltaTime, 0f, maxTiredness);
+        currentTiredness = Mathf.Clamp(currentTiredness + GetTirednessRate() * Time.deltaTime, 0f, maxTiredness);
+
+        TickToolPickup();
 
         if (currentHunger >= maxHunger)
             TakeDamage(starvationDamagePerSecond * Time.deltaTime);
@@ -353,27 +360,19 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
     State ResolveRoleFallbackState()
     {
-        switch (role)
+        switch (CivilianJobRegistry.GetProfile(jobType).domain)
         {
-            case CivilianRole.Gatherer: return State.SearchingNode;
-            case CivilianRole.Builder: return State.SearchingBuildSite;
-            case CivilianRole.Hauler: return State.SearchingSupplySite;
-            case CivilianRole.Crafter:
-            case CivilianRole.Farmer:
-            case CivilianRole.Technician:
-            case CivilianRole.Scientist:
-            case CivilianRole.Engineer:
-            case CivilianRole.Blacksmith:
-            case CivilianRole.Carpenter:
-            case CivilianRole.Cook:
-                return State.FetchingCraftInput;
+            case CivilianWorkDomain.Gathering: return State.SearchingNode;
+            case CivilianWorkDomain.Building: return State.SearchingBuildSite;
+            case CivilianWorkDomain.Hauling: return State.SearchingSupplySite;
+            case CivilianWorkDomain.Crafting: return State.FetchingCraftInput;
             default: return State.Idle;
         }
     }
 
     void TickIdle()
     {
-        if (role != CivilianRole.Idle)
+        if (jobType != CivilianJobType.Idle)
             return;
 
         TryAssignHouseIfNeeded();
@@ -381,7 +380,15 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         if (assignedHouse == null)
             return;
 
-        MoveTo(assignedHouse.transform.position, assignedHouse.transform, BuildingStopDistanceType.House);
+        idleWanderTimer -= Time.deltaTime;
+        if (idleWanderTimer <= 0f || (idleWanderTarget - transform.position).sqrMagnitude < 1f)
+        {
+            idleWanderTimer = Random.Range(2f, 5f);
+            Vector2 jitter = Random.insideUnitCircle * 3f;
+            idleWanderTarget = assignedHouse.transform.position + new Vector3(jitter.x, 0f, jitter.y);
+        }
+
+        MoveTo(idleWanderTarget, assignedHouse.transform, BuildingStopDistanceType.House);
     }
 
     void TickSeekFoodStorage()
@@ -474,6 +481,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
         needActionTimer += Time.deltaTime;
         currentTiredness = Mathf.Max(0f, currentTiredness - (maxTiredness / Mathf.Max(0.1f, sleepDurationSeconds)) * Time.deltaTime);
+        ConsumeHouseFoodWhileResting();
 
         if (needActionTimer < sleepDurationSeconds)
             return;
@@ -500,6 +508,9 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             foreach (ResourceType type in System.Enum.GetValues(typeof(ResourceType)))
             {
                 if (!FoodResourceDatabase.IsFood(foodDatabase, type))
+                    continue;
+
+                if (!storage.CanSupply(type))
                     continue;
 
                 int stored = storage.GetStored(type);
@@ -548,13 +559,13 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
     public void SetRole(CivilianRole newRole)
     {
-        role = newRole;
+        SetJobType(CivilianJobRegistry.ToJobType(newRole));
+    }
 
-        if (newRole == CivilianRole.Blacksmith) jobType = CivilianJobType.Blacksmith;
-        else if (newRole == CivilianRole.Carpenter) jobType = CivilianJobType.Carpenter;
-        else if (newRole == CivilianRole.Farmer) jobType = CivilianJobType.Farmer;
-        else if (newRole == CivilianRole.Cook) jobType = CivilianJobType.Cook;
-        else if (newRole == CivilianRole.Engineer) jobType = CivilianJobType.Engineer;
+    public void SetJobType(CivilianJobType newJobType)
+    {
+        jobType = newJobType;
+        role = CivilianJobRegistry.GetProfile(jobType).legacyRole;
 
         SetTargetNode(null);
         targetSite = null;
@@ -567,7 +578,6 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
         if (carriedAmount > 0)
         {
-            // keep carried as-is, we'll deposit next tick
             state = State.GoingToDepositStorage;
             return;
         }
@@ -575,10 +585,6 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         state = ResolveRoleFallbackState();
     }
 
-    /// <summary>
-    /// Explicit job assignment from AI/job system.
-    /// Forces this civilian into gatherer behaviour on a specific node.
-    /// </summary>
     public void AssignGatherJob(ResourceNode node)
     {
         HasJob = node != null;
@@ -783,14 +789,14 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             // fallback: dump into TeamResources primary storage
             TeamResources.Instance?.Deposit(teamID, carriedType, carriedAmount);
             carriedAmount = 0;
-            state = (role == CivilianRole.Gatherer) ? State.SearchingNode : State.SearchingBuildSite;
+            state = (jobType == CivilianJobType.Gatherer) ? State.SearchingNode : State.SearchingBuildSite;
             return;
         }
 
         if (targetStorage == null || targetStorage.teamID != teamID || targetStorage.GetFree(carriedType) <= 0)
             targetStorage = TeamStorageManager.Instance.FindNearestStorageWithFree(teamID, carriedType, transform.position);
 
-        if (role == CivilianRole.Gatherer && carriedAmount > 0)
+        if (jobType == CivilianJobType.Gatherer && carriedAmount > 0)
         {
             CraftingBuilding inputBuilding = CraftingJobManager.Instance?.FindNearestBuildingNeedingInput(teamID, carriedType, transform.position);
             if (inputBuilding != null)
@@ -815,7 +821,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             {
                 TeamResources.Instance?.Deposit(teamID, carriedType, carriedAmount);
                 carriedAmount = 0;
-                state = (role == CivilianRole.Gatherer) ? State.SearchingNode : State.SearchingBuildSite;
+                state = (jobType == CivilianJobType.Gatherer) ? State.SearchingNode : State.SearchingBuildSite;
             }
             return;
         }
@@ -830,7 +836,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     {
         if (targetStorage == null || carriedAmount <= 0)
         {
-            state = (role == CivilianRole.Gatherer) ? State.SearchingNode : State.SearchingBuildSite;
+            state = (jobType == CivilianJobType.Gatherer) ? State.SearchingNode : State.SearchingBuildSite;
             return;
         }
 
@@ -845,7 +851,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         }
 
         targetStorage = null;
-        state = (role == CivilianRole.Gatherer) ? State.SearchingNode : State.SearchingBuildSite;
+        state = (jobType == CivilianJobType.Gatherer) ? State.SearchingNode : State.SearchingBuildSite;
     }
 
     // ---------- Builder ----------
@@ -914,7 +920,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
     void TickSearchSupplySite()
     {
-        if (role == CivilianRole.Hauler && TryHandleCraftingHaulerPriority())
+        if (jobType == CivilianJobType.Hauler && TryHandleCraftingHaulerPriority())
             return;
 
         if (carriedAmount > 0 && targetSite != null)
@@ -933,7 +939,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         if (targetSite == null) return;
         if (targetSite.IsComplete || targetSite.MaterialsComplete)
         {
-            state = (role == CivilianRole.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite;
+            state = (jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite;
             return;
         }
 
@@ -941,7 +947,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         {
             targetSite = null;
             CurrentDeliverySite = null;
-            state = (role == CivilianRole.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite;
+            state = (jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite;
             return;
         }
 
@@ -1007,7 +1013,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     {
         if (TeamStorageManager.Instance == null || targetSite == null)
         {
-            state = (role == CivilianRole.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite;
+            state = (jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite;
             return;
         }
 
@@ -1015,7 +1021,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         int reservedForSite = TeamStorageManager.Instance.GetReservedForSite(targetSite.SiteKey, carriedType);
         if (reservedForSite <= 0)
         {
-            state = (role == CivilianRole.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite;
+            state = (jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite;
             return;
         }
 
@@ -1035,7 +1041,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     {
         if (TeamStorageManager.Instance == null || targetStorage == null || targetSite == null)
         {
-            state = (role == CivilianRole.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite;
+            state = (jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite;
             return;
         }
 
@@ -1048,7 +1054,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         if (want <= 0)
         {
             targetStorage = null;
-            state = (role == CivilianRole.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite;
+            state = (jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite;
             return;
         }
 
@@ -1056,7 +1062,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         if (took <= 0)
         {
             targetStorage = null;
-            state = (role == CivilianRole.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite;
+            state = (jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite;
             return;
         }
 
@@ -1086,7 +1092,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     {
         if (targetSite == null || carriedAmount <= 0)
         {
-            state = (role == CivilianRole.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite;
+            state = (jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite;
             return;
         }
 
@@ -1100,7 +1106,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             return;
         }
 
-        state = (role == CivilianRole.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite;
+        state = (jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite;
     }
 
     // ---------- Helpers ----------
@@ -1109,7 +1115,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     {
         return targetCraftingBuilding != null
             && targetCraftingBuilding.requireHaulerLogistics
-            && role == CivilianRole.Hauler;
+            && jobType == CivilianJobType.Hauler;
     }
 
     float ResolveStopDistance(Transform destination, BuildingStopDistanceType stopType)
@@ -1142,29 +1148,33 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
     int GetCarryCapacity()
     {
-        if (carryCapacity > 0)
-            return carryCapacity;
+        int value = carryCapacity > 0 ? carryCapacity : 0;
+        if (value > 0)
+            return Mathf.RoundToInt(value * (HasTool(CivilianToolType.Backpack) && jobType == CivilianJobType.Hauler ? 1.5f : 1f));
 
         CharacterStats stats = GetComponent<CharacterStats>();
-        if (stats != null && stats.CarryCapacity > 0) return stats.CarryCapacity;
+        if (stats != null && stats.CarryCapacity > 0) return Mathf.RoundToInt(stats.CarryCapacity * (HasTool(CivilianToolType.Backpack) && jobType == CivilianJobType.Hauler ? 1.5f : 1f));
         return 1;
     }
 
     int GetHarvestPerTick()
     {
-        if (harvestPerTick > 0)
-            return harvestPerTick;
+        int value = harvestPerTick > 0 ? harvestPerTick : 0;
+        if (value > 0)
+            return Mathf.RoundToInt(value * (HasTool(CivilianToolType.Pickaxe) && jobType == CivilianJobType.Gatherer ? 1.5f : 1f));
 
         CharacterStats stats = GetComponent<CharacterStats>();
-        if (stats != null && stats.HarvestPerTick > 0) return stats.HarvestPerTick;
+        if (stats != null && stats.HarvestPerTick > 0) return Mathf.RoundToInt(stats.HarvestPerTick * (HasTool(CivilianToolType.Pickaxe) && jobType == CivilianJobType.Gatherer ? 1.5f : 1f));
         return 1;
     }
 
     float GetBuildMultiplier()
     {
         CharacterStats stats = GetComponent<CharacterStats>();
-        if (stats != null) return stats.BuildWorkMultiplier;
-        return 1f;
+        float baseValue = stats != null ? stats.BuildWorkMultiplier : 1f;
+        if (HasTool(CivilianToolType.Trowel) && jobType == CivilianJobType.Builder)
+            baseValue *= 1.5f;
+        return baseValue;
     }
 
     ResourceNode FindClosestResourceNode()
@@ -1288,29 +1298,21 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     }
 
 
-    public void SetJobType(CivilianJobType newJobType)
-    {
-        jobType = newJobType;
-    }
-
     public bool CanTakeCraftingAssignment(CivilianJobType requiredType)
     {
         if (targetCraftingBuilding != null && !manualCraftingAssignment)
             return false;
 
-        return requiredType == CivilianJobType.Generalist || jobType == requiredType;
+        return requiredType == CivilianJobType.Generalist || jobType == requiredType || CivilianJobRegistry.GetProfile(jobType).supportsCraftingAssignment;
     }
 
     public void AssignCraftingBuilding(CraftingBuilding building, bool manual = false)
     {
+        if (jobType == CivilianJobType.Idle || jobType == CivilianJobType.Gatherer || jobType == CivilianJobType.Builder)
+            SetJobType(CivilianJobType.Crafter);
+
         targetCraftingBuilding = building;
         manualCraftingAssignment = manual;
-
-        // Keep haulers in the Hauler role so requireHaulerLogistics buildings
-        // can continue to route them through fetch/deliver logistics states.
-        if (role == CivilianRole.Idle || role == CivilianRole.Gatherer || role == CivilianRole.Builder)
-            role = CivilianRole.Crafter;
-
         state = State.FetchingCraftInput;
     }
 
@@ -1332,7 +1334,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             return;
         }
 
-        if (targetCraftingBuilding.requireHaulerLogistics && role != CivilianRole.Hauler)
+        if (targetCraftingBuilding.requireHaulerLogistics && jobType != CivilianJobType.Hauler)
         {
             state = State.GoingToWorkPoint;
             return;
@@ -1404,7 +1406,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             return;
         }
 
-        if (role == CivilianRole.Crafter)
+        if (jobType == CivilianJobType.Crafter)
             state = State.GoingToWorkPoint;
         else
             state = ResolveRoleFallbackState();
@@ -1463,7 +1465,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             return;
         }
 
-        if (targetCraftingBuilding.requireHaulerLogistics && role != CivilianRole.Hauler)
+        if (targetCraftingBuilding.requireHaulerLogistics && jobType != CivilianJobType.Hauler)
         {
             state = State.GoingToWorkPoint;
             return;
@@ -1537,17 +1539,20 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
     float GetMovementSpeedMultiplier()
     {
+        float multiplier = 1f + (GetHouseSpeedBonusMultiplier() - 1f);
+        multiplier *= GetToolMoveSpeedMultiplier();
+
         if (!useRoadBonus)
-            return 1f;
+            return multiplier;
 
         Vector3 probe = transform.position + Vector3.up * 0.2f;
         if (Physics.Raycast(probe, Vector3.down, out RaycastHit hit, 2f))
         {
             if (hit.collider != null && hit.collider.CompareTag("Road"))
-                return Mathf.Max(1f, roadSpeedMultiplier);
+                return multiplier * Mathf.Max(1f, roadSpeedMultiplier);
         }
 
-        return 1f;
+        return multiplier;
     }
 
     string BuildTaskLabel()
@@ -1568,6 +1573,90 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         }
     }
 
+
+    float GetHouseSpeedBonusMultiplier()
+    {
+        if (assignedHouse == null)
+            return 1f;
+
+        return 1f + Mathf.Max(0, assignedHouse.prestige) * 0.1f;
+    }
+
+    float GetTirednessRate()
+    {
+        float reduction = assignedHouse != null ? Mathf.Max(0, assignedHouse.comfort) * 0.1f : 0f;
+        return tirednessRatePerSecond * Mathf.Max(0.1f, 1f - reduction);
+    }
+
+    void TickToolPickup()
+    {
+        toolPickupTimer += Time.deltaTime;
+        if (toolPickupTimer < 1f)
+            return;
+
+        toolPickupTimer = 0f;
+
+        if (TeamInventory.Instance == null)
+            return;
+
+        var tools = CivilianToolRegistry.AllTools;
+        for (int i = 0; i < tools.Count; i++)
+        {
+            var profile = tools[i];
+            if (!CivilianToolRegistry.MatchesJob(profile, jobType) || equippedTools.Contains(profile.toolType))
+                continue;
+
+            ToolItem item = FindToolItemAsset(profile.toolType.ToString());
+            if (item == null)
+                continue;
+
+            if (TeamInventory.Instance.RemoveTool(teamID, item, 1))
+                equippedTools.Add(profile.toolType);
+        }
+    }
+
+    ToolItem FindToolItemAsset(string nameHint)
+    {
+        ToolItem[] items = Resources.LoadAll<ToolItem>("Tool Catalog");
+        for (int i = 0; i < items.Length; i++)
+        {
+            ToolItem item = items[i];
+            if (item == null) continue;
+            if (item.name == nameHint || item.displayName == nameHint)
+                return item;
+        }
+
+        return null;
+    }
+
+    float GetToolMoveSpeedMultiplier() => HasTool(CivilianToolType.RunningShoes) ? 1.5f : 1f;
+
+    bool HasTool(CivilianToolType toolType) => equippedTools.Contains(toolType);
+
+    void ConsumeHouseFoodWhileResting()
+    {
+        if (assignedHouse == null || !NeedsFood())
+            return;
+
+        foreach (ResourceType type in System.Enum.GetValues(typeof(ResourceType)))
+        {
+            if (!FoodResourceDatabase.IsFood(foodDatabase, type))
+                continue;
+
+            if (!assignedHouse.TryConsumeFood(type, foodToEatPerMeal, out int consumed) || consumed <= 0)
+                continue;
+
+            float restore = FoodResourceDatabase.GetHungerRestore(foodDatabase, type) * consumed;
+            currentHunger = Mathf.Max(0f, currentHunger - restore);
+            if (!NeedsFood())
+                return;
+        }
+    }
+
+    public float GetCraftingSpeedMultiplierFromTools()
+    {
+        return HasTool(CivilianToolType.Spanner) && jobType == CivilianJobType.Engineer ? 1.5f : 1f;
+    }
     public void TakeDamage(float damage)
     {
         if (!IsAlive) return;

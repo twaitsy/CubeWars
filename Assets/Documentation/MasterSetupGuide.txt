@@ -407,3 +407,35 @@ Latest Updates (Hauling, Housing, UI, Bootstrap)
 - UnitInspectorUI Overview now exposes a demolish button for Barracks and Turret selections even when they are not inheriting Building directly.
 - Added WorldProgressBar script as a visual twin of WorldHealthBar for future construction/upgrade progress display binding.
 - TeamBootstrap HQ spawn logic now snaps HQ world X/Z to BuildGridManager cell size so startup HQ placement aligns with the building grid.
+
+-----------------------------------------------------------------
+14) Unified civilian jobs + job tools + housing modifiers (new)
+-----------------------------------------------------------------
+Civilian job model now uses a unified `CivilianJobType` registry:
+- Includes former role-only types and former specialization-only types in one enum.
+- `CivilianRole` is now treated as a legacy mirror for older systems/UI.
+- Runtime mapping is handled by `CivilianJobRegistry`.
+
+House behavior updates:
+- Houses automatically force their attached `ResourceStorageContainer` flow settings to `ReceiveOnly` for all resources.
+- Idle civilians with job `Idle` remain close to their assigned house and perform short random wander movement near it.
+- While sleeping/resting, residents attempt to consume food from their own house storage first.
+- House stat modifiers now apply to residents:
+  - Prestige: +10% movement speed per level.
+  - Comfort: -10% tiredness gain per level.
+
+Tool registry updates:
+- New unified tool registry: `CivilianToolRegistry`.
+- Civilians auto-pick one copy of each eligible tool from team tool storage (`TeamInventory`) and can hold multiple unique tools.
+- Tool eligibility:
+  - Job-specific tools only for matching job.
+  - Universal tools for all civilians.
+- Current tool set and bonuses:
+  - Pickaxe (Gatherer): +50% gathering speed.
+  - Backpack (Hauler): +50% carry capacity.
+  - Spanner (Engineer): +50% crafting speed contribution.
+  - Trowel (Builder): +50% build speed.
+  - RunningShoes (All civilians): +50% movement speed.
+
+Crafting speed integration:
+- `CraftingBuilding` now reads worker tool multipliers and applies them to craft duration.

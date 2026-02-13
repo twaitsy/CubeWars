@@ -170,9 +170,28 @@ public class CraftingBuilding : Building
     {
         float speed = Mathf.Max(0.1f, craftingSpeedModifier);
         speed *= Mathf.Max(0.1f, GetUpgradeCraftingSpeedMultiplier());
+        speed *= Mathf.Max(0.1f, GetWorkerToolSpeedMultiplier());
         return Mathf.Max(0.05f, recipe.craftTimeSeconds / speed);
     }
 
+
+    float GetWorkerToolSpeedMultiplier()
+    {
+        float total = 0f;
+        int count = 0;
+
+        for (int i = 0; i < assignedWorkers.Count; i++)
+        {
+            Civilian worker = assignedWorkers[i];
+            if (worker == null)
+                continue;
+
+            total += Mathf.Max(0.1f, worker.GetCraftingSpeedMultiplierFromTools());
+            count++;
+        }
+
+        return count > 0 ? total / count : 1f;
+    }
     int GetEffectiveInputRequirement(RecipeResourceAmount entry)
     {
         float upgradeMult = Mathf.Max(0.1f, GetUpgradeInputEfficiencyMultiplier());
@@ -420,7 +439,7 @@ public class CraftingBuilding : Building
     }
 
     // ---------------------------------------------------------
-    // UPDATED METHOD — OPTION A: Haulers fill to full capacity
+    // UPDATED METHOD Â— OPTION A: Haulers fill to full capacity
     // ---------------------------------------------------------
     public bool TryGetInputRequest(
         Vector3 workerPosition,
