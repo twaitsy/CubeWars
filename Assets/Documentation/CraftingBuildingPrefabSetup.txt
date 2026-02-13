@@ -130,3 +130,9 @@ Runtime inspector visibility:
 Latest notes
 - Crafting input request generation now asks for full missing amount per resource (haulers still limited by their own carry capacity at withdrawal).
 - UnitInspectorUI Storage tab now shows per-recipe input-buffer and output-queue totals when selecting crafting buildings.
+
+
+Latest recipe-output restriction
+- Assign `resourcesDatabase` on CraftingBuilding.
+- Only recipe outputs categorized as `Refined` are produced/queued/picked up.
+- Non-Refined recipe outputs are ignored at runtime with a warning.

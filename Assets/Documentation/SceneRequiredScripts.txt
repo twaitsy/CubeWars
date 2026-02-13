@@ -160,3 +160,10 @@ Detailed build-menu database format support (new)
 - Ensure `BuildingsDatabase` is assigned (directly on BuildMenuUI, via GameDatabase.buildings, or at `Assets/Data/Databases/BuildingsDatabase.asset`).
 - For detailed catalog usage, populate `BuildingsDatabase.buildings` entries with at minimum: `displayName`/`id`, `prefab`, `category` or `subCategory`, and optional `constructionCost`.
 - `ResourceDefinition.id`/`displayName` values in `constructionCost` should map to existing `ResourceType` names (e.g., Wood, Gold, IronOre, Silicon, Lithium) for affordability checks.
+
+
+Resource database wiring requirements (latest)
+- Assign `ResourcesDatabase` on ResourceSpawner to enforce Raw-only node spawn configs.
+- Assign `ResourcesDatabase` on CraftingBuilding to enforce Refined-only recipe outputs.
+- Assign `ResourcesDatabase` on Civilian prefab(s) so edible resources are detected by Food category.
+- FoodResourceDatabase is no longer required for civilian hunger behavior when using the new category-based flow.
