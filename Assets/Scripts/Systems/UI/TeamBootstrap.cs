@@ -175,7 +175,7 @@ public class TeamBootstrap : MonoBehaviour
         {
             for (int i = 0; i < startingWorkers; i++)
             {
-                SpawnCivilian(team, hq, workerPrefab, startingWorkerRole, CivilianJobType.Generalist, spawnIndex);
+                SpawnCivilian(team, hq, workerPrefab, startingWorkerRole, CivilianJobRegistry.ToJobType(startingWorkerRole), spawnIndex);
                 spawnIndex++;
             }
         }
@@ -193,7 +193,7 @@ public class TeamBootstrap : MonoBehaviour
         if (civ != null)
         {
             civ.SetRole(role);
-            civ.SetJobType(jobType);
+            civ.SetJobType(jobType == CivilianJobType.Generalist ? CivilianJobRegistry.ToJobType(role) : jobType);
         }
     }
 

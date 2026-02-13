@@ -35,3 +35,11 @@ Latest notes
 - Houses now self-register in a global runtime list used for resident allocation.
 - New houses are given randomized names (prefix/suffix + serial) at runtime for easier inspector identification.
 - Civilians are allocated to available same-team houses using the runtime house register before sleep/idle movement logic.
+
+Unified jobs/tools + housing interactions (latest)
+- House storage is now receive-only for hauling flow (drop-off destination).
+- House residents can still consume food directly from their own house storage while resting.
+- Idle civilians (JobType=Idle) remain near their assigned house and periodically wander in a short radius.
+- House stat buffs on residents:
+  - Prestige: +10% movement speed per level.
+  - Comfort: -10% tiredness accumulation rate per level.

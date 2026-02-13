@@ -35,6 +35,7 @@ public class House : Building
             allHouses.Add(this);
 
         EnsureRandomizedName();
+        ConfigureHouseStorageReceiveOnly();
     }
 
     void OnDisable()
@@ -42,6 +43,48 @@ public class House : Building
         allHouses.Remove(this);
     }
 
+
+    void ConfigureHouseStorageReceiveOnly()
+    {
+        ResourceStorageContainer[] storages = GetComponentsInChildren<ResourceStorageContainer>(true);
+        for (int i = 0; i < storages.Length; i++)
+        {
+            var storage = storages[i];
+            if (storage == null)
+                continue;
+
+            storage.teamID = teamID;
+
+            for (int e = 0; e < storage.resourceFlow.Count; e++)
+            {
+                var entry = storage.resourceFlow[e];
+                entry.flowMode = ResourceStorageContainer.ResourceFlowMode.ReceiveOnly;
+                storage.resourceFlow[e] = entry;
+            }
+        }
+    }
+
+    ResourceStorageContainer GetHouseStorage()
+    {
+        return GetComponentInChildren<ResourceStorageContainer>();
+    }
+
+    public bool TryConsumeFood(ResourceType type, int amount, out int consumed)
+    {
+        consumed = 0;
+        var storage = GetHouseStorage();
+        if (storage == null || amount <= 0)
+            return false;
+
+        int available = storage.GetStored(type);
+        if (available <= 0)
+            return false;
+
+        // House storage is receive-only for logistics; residents can still consume from it directly.
+        consumed = Mathf.Min(amount, available);
+        storage.SetStoredForRuntime(type, available - consumed);
+        return consumed > 0;
+    }
     void EnsureRandomizedName()
     {
         string cleanName = SanitizeName(name);

@@ -47,3 +47,8 @@ Inspector Visibility
   - Current tiredness / max tiredness
   - Assigned house
   - Needs rates and food-per-meal values in Stats tab
+
+Latest behavior updates
+- Sleep/rest now also attempts to reduce hunger using food from the civilian's assigned house storage.
+- House comfort modifies tiredness accumulation continuously while the civilian is assigned to that house.
+- Food search excludes storages that are not allowed to supply resources via flow mode.
