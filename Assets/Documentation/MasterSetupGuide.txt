@@ -106,6 +106,8 @@ Build catalog linkage (catalog asset now stored under Assets/Data/Databases):
   - category/aiPriority
 - Add definition to BuildingsDatabase so it appears in BuildMenuUI.
 - Keep BuildingsDatabase.asset in Assets/Data/Databases/BuildingsDatabase.asset.
+- BuildMenuUI auto-resolves this database in the following order: explicit inspector reference, GameDatabase.buildings, then editor fallback path Assets/Data/Databases/BuildingsDatabase.asset.
+- Resources/BuildItems discovery remains a fallback only when no BuildingsDatabase source is available.
 
 -----------------------------------------------------------------
 4) Construction Site Prefab
