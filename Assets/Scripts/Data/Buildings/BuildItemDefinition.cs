@@ -21,7 +21,7 @@
 //      * Stores BuildItemDefinition assets.
 // - AIBuilder / TeamAIBuild / AIRebuildManager:
 //      * Uses category + aiPriority to decide what to build.
-// - ResourceCost / ResourceType:
+// - ResourceCost / ResourceDefinition:
 //      * Defines the cost of constructing this building.
 //
 // NOTES FOR FUTURE MAINTENANCE:

@@ -4,7 +4,7 @@ using UnityEngine.Serialization;
 public class ResourceNode : MonoBehaviour
 {
     bool isDestroyed;
-    public ResourceType type;
+    public ResourceDefinition resource;
     [FormerlySerializedAs("amount")]
     public int remaining = 500;
 

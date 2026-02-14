@@ -516,7 +516,7 @@ public class BuildMenuUI : MonoBehaviour
         for (int i = 0; i < costs.Length; i++)
         {
             if (i > 0) costSb.Append(", ");
-            costSb.Append(costs[i].type);
+            costSb.Append(costs[i].resource);
             costSb.Append(" ");
             costSb.Append(costs[i].amount);
         }
@@ -641,44 +641,27 @@ public class BuildMenuUI : MonoBehaviour
             if (amount == null || amount.resource == null || amount.amount <= 0)
                 continue;
 
-            if (!TryMapResourceType(amount.resource, out ResourceType type))
+            if (!TryMapResourceDefinition(amount.resource, out ResourceDefinition type))
                 continue;
 
-            converted.Add(new ResourceCost { type = type, amount = amount.amount });
+            converted.Add(new ResourceCost { resource = type, amount = amount.amount });
         }
 
         return converted.ToArray();
     }
 
-    bool TryMapResourceType(ResourceDefinition resource, out ResourceType mapped)
+    bool TryMapResourceDefinition(ResourceDefinition resource, out ResourceDefinition mapped)
     {
-        mapped = ResourceType.Wood;
-        if (resource == null)
-            return false;
-
-        string id = NormalizeResourceToken(resource.id);
-        string displayName = NormalizeResourceToken(resource.displayName);
-
-        if (TryParseResourceToken(id, out mapped) || TryParseResourceToken(displayName, out mapped))
-            return true;
-
-        return false;
+        mapped = resource;
+        return mapped != null;
     }
 
-    bool TryParseResourceToken(string token, out ResourceType parsed)
+    bool TryParseResourceToken(string token, out ResourceDefinition parsed)
     {
-        parsed = ResourceType.Wood;
-        if (string.IsNullOrEmpty(token))
+        parsed = null;
+        if (string.IsNullOrEmpty(token) || resourcesDatabase == null)
             return false;
-
-        switch (token)
-        {
-            case "iron":
-                token = "ironore";
-                break;
-        }
-
-        return Enum.TryParse(token, true, out parsed);
+        return resourcesDatabase.TryGetById(token, out parsed);
     }
 
     string NormalizeResourceToken(string raw)
@@ -689,7 +672,7 @@ public class BuildMenuUI : MonoBehaviour
         return raw.Replace("_", string.Empty).Replace("-", string.Empty).Replace(" ", string.Empty).Trim();
     }
 
-    AIBuildingPriority MapAIPriority(BuildingCategory category)
+AIBuildingPriority MapAIPriority(BuildingCategory category)
     {
         switch (category)
         {

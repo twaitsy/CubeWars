@@ -61,13 +61,13 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     public ConstructionSite CurrentDeliverySite { get; set; }
 
     // Expose carried for UI
-    public ResourceType CarriedType => carriedType;
+    public ResourceDefinition CarriedType => carriedResource;
     public int CarriedAmount => carriedAmount;
 
     private float currentHealth;
     private NavMeshAgent agent;
 
-    private ResourceType carriedType;
+    private ResourceDefinition carriedResource;
     private int carriedAmount;
 
     // Legacy/compat fields (kept for external references)
@@ -162,7 +162,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     private float needActionTimer;
     private bool hasStoredRoleState;
     private ResourceStorageContainer targetFoodStorage;
-    private ResourceType targetFoodType;
+    private ResourceDefinition targetFoodResource;
     private FoodDefinition targetFoodDefinition;
     private int pendingFoodAmount;
     private float currentEatDurationSeconds;
@@ -412,9 +412,9 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         if (TeamStorageManager.Instance == null)
             return;
 
-        if (targetFoodStorage == null || targetFoodStorage.teamID != teamID || targetFoodStorage.GetStored(targetFoodType) <= 0)
+        if (targetFoodStorage == null || targetFoodStorage.teamID != teamID || targetFoodStorage.GetStored(targetFoodResource) <= 0)
         {
-            if (!TryFindBestFoodStorage(out targetFoodStorage, out targetFoodType, out targetFoodDefinition))
+            if (!TryFindBestFoodStorage(out targetFoodStorage, out targetFoodResource, out targetFoodDefinition))
                 return;
         }
 
@@ -423,7 +423,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             return;
 
         pendingFoodAmount = Mathf.Max(1, foodToEatPerMeal);
-        int eatenUnits = targetFoodStorage.Withdraw(targetFoodType, pendingFoodAmount);
+        int eatenUnits = targetFoodStorage.Withdraw(targetFoodResource, pendingFoodAmount);
         if (eatenUnits <= 0)
         {
             targetFoodStorage = null;
@@ -447,16 +447,16 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
         foreach (FoodDefinition food in EnumerateConfiguredFoods())
         {
-            if (!TryMapFoodToResourceType(food, out ResourceType type))
+            if (!TryGetFoodResource(food, out ResourceDefinition type))
                 continue;
 
             if (!assignedHouse.TryConsumeFood(type, Mathf.Max(1, foodToEatPerMeal), out int consumed) || consumed <= 0)
                 continue;
 
-            targetFoodType = type;
+            targetFoodResource = type;
             targetFoodDefinition = food;
             pendingFoodAmount = consumed;
-            currentEatDurationSeconds = Mathf.Max(0.1f, food.eatTimeSeconds);
+            currentEatDurationSeconds = Mathf.Max(0.1f, food.eatTime);
             needActionTimer = 0f;
             state = State.Eating;
             targetFoodStorage = null;
@@ -541,10 +541,10 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         ResumeAfterNeed();
     }
 
-    bool TryFindBestFoodStorage(out ResourceStorageContainer bestStorage, out ResourceType bestType, out FoodDefinition bestFood)
+    bool TryFindBestFoodStorage(out ResourceStorageContainer bestStorage, out ResourceDefinition bestType, out FoodDefinition bestFood)
     {
         bestStorage = null;
-        bestType = ResourceType.Food;
+        bestType = null;
         bestFood = null;
 
         ResourceStorageContainer[] storages = FindObjectsOfType<ResourceStorageContainer>();
@@ -558,7 +558,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
             foreach (FoodDefinition food in EnumerateConfiguredFoods())
             {
-                if (!TryMapFoodToResourceType(food, out ResourceType type))
+                if (!TryGetFoodResource(food, out ResourceDefinition type))
                     continue;
 
                 if (!storage.CanSupply(type))
@@ -617,16 +617,10 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         }
     }
 
-    bool TryMapFoodToResourceType(FoodDefinition food, out ResourceType type)
+    bool TryGetFoodResource(FoodDefinition food, out ResourceDefinition type)
     {
-        type = ResourceType.Food;
-        if (food == null || food.resource == null)
-            return false;
-
-        if (System.Enum.TryParse(food.resource.id, true, out type))
-            return true;
-
-        return System.Enum.TryParse(food.resource.displayName.Replace(" ", string.Empty), true, out type);
+        type = food != null ? food.resource : null;
+        return type != null;
     }
 
     House FindClosestAvailableHouse()
@@ -838,8 +832,8 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         if (gatherTimer < gatherTickSeconds) return;
         gatherTimer = 0f;
 
-        if (carriedAmount == 0) carriedType = targetNode.type;
-        if (carriedType != targetNode.type)
+        if (carriedAmount == 0) carriedResource = targetNode.resource;
+        if (carriedResource != targetNode.resource)
         {
             state = State.GoingToDepositStorage;
             return;
@@ -855,8 +849,8 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         // Must have physical storage free to avoid “phantom resources”
         if (TeamStorageManager.Instance != null)
         {
-            var s = TeamStorageManager.Instance.FindNearestStorageWithFree(teamID, carriedType, transform.position);
-            if (s == null || s.GetFree(carriedType) <= 0)
+            var s = TeamStorageManager.Instance.FindNearestStorageWithFree(teamID, carriedResource, transform.position);
+            if (s == null || s.GetFree(carriedResource) <= 0)
             {
                 state = State.GoingToDepositStorage;
                 return;
@@ -882,18 +876,18 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         if (TeamStorageManager.Instance == null)
         {
             // fallback: dump into TeamResources primary storage
-            TeamResources.Instance?.Deposit(teamID, carriedType, carriedAmount);
+            TeamResources.Instance?.Deposit(teamID, carriedResource, carriedAmount);
             carriedAmount = 0;
             state = (jobType == CivilianJobType.Gatherer) ? State.SearchingNode : State.SearchingBuildSite;
             return;
         }
 
-        if (targetStorage == null || targetStorage.teamID != teamID || targetStorage.GetFree(carriedType) <= 0)
-            targetStorage = TeamStorageManager.Instance.FindNearestStorageWithFree(teamID, carriedType, transform.position);
+        if (targetStorage == null || targetStorage.teamID != teamID || targetStorage.GetFree(carriedResource) <= 0)
+            targetStorage = TeamStorageManager.Instance.FindNearestStorageWithFree(teamID, carriedResource, transform.position);
 
         if (jobType == CivilianJobType.Gatherer && carriedAmount > 0)
         {
-            CraftingBuilding inputBuilding = CraftingJobManager.Instance?.FindNearestBuildingNeedingInput(teamID, carriedType, transform.position);
+            CraftingBuilding inputBuilding = CraftingJobManager.Instance?.FindNearestBuildingNeedingInput(teamID, carriedResource, transform.position);
             if (inputBuilding != null)
             {
                 float craftingDistance = (inputBuilding.transform.position - transform.position).sqrMagnitude;
@@ -914,7 +908,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         {
             if (!TeamStorageManager.Instance.HasAnyPhysicalStorage(teamID))
             {
-                TeamResources.Instance?.Deposit(teamID, carriedType, carriedAmount);
+                TeamResources.Instance?.Deposit(teamID, carriedResource, carriedAmount);
                 carriedAmount = 0;
                 state = (jobType == CivilianJobType.Gatherer) ? State.SearchingNode : State.SearchingBuildSite;
             }
@@ -935,7 +929,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             return;
         }
 
-        int accepted = targetStorage.Deposit(carriedType, carriedAmount);
+        int accepted = targetStorage.Deposit(carriedResource, carriedAmount);
         carriedAmount -= accepted;
 
         if (carriedAmount > 0)
@@ -1038,7 +1032,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             return;
         }
 
-        if (!TryChooseNeededResource(targetSite, out carriedType))
+        if (!TryChooseNeededResource(targetSite, out carriedResource))
         {
             targetSite = null;
             CurrentDeliverySite = null;
@@ -1056,7 +1050,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         {
             if (carriedAmount > 0)
             {
-                if (targetCraftingBuilding.NeedsInput(carriedType))
+                if (targetCraftingBuilding.NeedsInput(carriedResource))
                     state = State.DeliveringCraftInput;
                 else
                     state = State.DeliveringCraftOutput;
@@ -1081,7 +1075,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
         if (carriedAmount > 0)
         {
-            var inputBuilding = CraftingJobManager.Instance?.FindNearestBuildingNeedingInput(teamID, carriedType, transform.position);
+            var inputBuilding = CraftingJobManager.Instance?.FindNearestBuildingNeedingInput(teamID, carriedResource, transform.position);
             if (inputBuilding != null)
             {
                 targetCraftingBuilding = inputBuilding;
@@ -1113,7 +1107,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         }
 
         // Only pick up up to what is reserved for this site
-        int reservedForSite = TeamStorageManager.Instance.GetReservedForSite(targetSite.SiteKey, carriedType);
+        int reservedForSite = TeamStorageManager.Instance.GetReservedForSite(targetSite.SiteKey, carriedResource);
         if (reservedForSite <= 0)
         {
             state = (jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite;
@@ -1121,7 +1115,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         }
 
         if (targetStorage == null)
-            targetStorage = TeamStorageManager.Instance.FindNearestStorageWithStored(teamID, carriedType, transform.position);
+            targetStorage = TeamStorageManager.Instance.FindNearestStorageWithStored(teamID, carriedResource, transform.position);
 
         if (targetStorage == null)
             return;
@@ -1140,8 +1134,8 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             return;
         }
 
-        int missing = targetSite.GetMissing(carriedType);
-        int reservedForSite = TeamStorageManager.Instance.GetReservedForSite(targetSite.SiteKey, carriedType);
+        int missing = targetSite.GetMissing(carriedResource);
+        int reservedForSite = TeamStorageManager.Instance.GetReservedForSite(targetSite.SiteKey, carriedResource);
 
         int want = Mathf.Min(GetCarryCapacity(), missing);
         want = Mathf.Min(want, reservedForSite);
@@ -1153,7 +1147,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             return;
         }
 
-        int took = targetStorage.Withdraw(carriedType, want);
+        int took = targetStorage.Withdraw(carriedResource, want);
         if (took <= 0)
         {
             targetStorage = null;
@@ -1162,7 +1156,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         }
 
         // Reduce reservation as soon as the resources are physically removed from storage
-        TeamStorageManager.Instance.ConsumeReserved(teamID, targetSite.SiteKey, carriedType, took);
+        TeamStorageManager.Instance.ConsumeReserved(teamID, targetSite.SiteKey, carriedResource, took);
 
         carriedAmount = took;
 
@@ -1191,7 +1185,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             return;
         }
 
-        int accepted = targetSite.ReceiveDelivery(carriedType, carriedAmount);
+        int accepted = targetSite.ReceiveDelivery(carriedResource, carriedAmount);
         carriedAmount -= accepted;
 
         if (carriedAmount > 0)
@@ -1284,7 +1278,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             if (n == null || n.amount <= 0) continue;
             if (!n.TryReserveGatherSlot(this)) continue;
 
-            if (TeamStorageManager.Instance != null && TeamStorageManager.Instance.GetTotalFreeInBuildings(teamID, n.type) <= 0)
+            if (TeamStorageManager.Instance != null && TeamStorageManager.Instance.GetTotalFreeInBuildings(teamID, n.resource) <= 0)
             {
                 n.ReleaseGatherSlot(this);
                 continue;
@@ -1365,7 +1359,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         return best;
     }
 
-    bool TryChooseNeededResource(ConstructionSite site, out ResourceType neededType)
+    bool TryChooseNeededResource(ConstructionSite site, out ResourceDefinition neededType)
     {
         neededType = default;
         if (site == null) return false;
@@ -1374,15 +1368,15 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         if (costs == null || costs.Length == 0) return false;
 
         int bestMissing = 0;
-        ResourceType bestType = costs[0].type;
+        ResourceDefinition bestType = costs[0].resource;
 
         for (int i = 0; i < costs.Length; i++)
         {
-            int missing = site.GetMissing(costs[i].type);
+            int missing = site.GetMissing(costs[i].resource);
             if (missing > bestMissing)
             {
                 bestMissing = missing;
-                bestType = costs[i].type;
+                bestType = costs[i].resource;
             }
         }
 
@@ -1437,24 +1431,24 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
         if (carriedAmount > 0)
         {
-            state = targetCraftingBuilding.NeedsInput(carriedType)
+            state = targetCraftingBuilding.NeedsInput(carriedResource)
                 ? State.DeliveringCraftInput
                 : State.GoingToDepositStorage;
             return;
         }
 
-        if (targetCraftingBuilding.TryGetInputRequest(transform.position, out carriedType, out int amount, out targetStorage))
+        if (targetCraftingBuilding.TryGetInputRequest(transform.position, out carriedResource, out int amount, out targetStorage))
         {
             if (targetStorage == null)
             {
-                ProductionNotificationManager.Instance?.NotifyIfReady($"missing-storage-{targetCraftingBuilding.GetInstanceID()}", $"{targetCraftingBuilding.name}: no storage with {carriedType} found.");
+                ProductionNotificationManager.Instance?.NotifyIfReady($"missing-storage-{targetCraftingBuilding.GetInstanceID()}", $"{targetCraftingBuilding.name}: no storage with {carriedResource} found.");
                 return;
             }
 
             MoveTo(targetStorage.transform.position, targetStorage.transform, BuildingStopDistanceType.Storage);
             if (Arrived())
             {
-                int took = targetStorage.Withdraw(carriedType, Mathf.Min(amount, GetCarryCapacity()));
+                int took = targetStorage.Withdraw(carriedResource, Mathf.Min(amount, GetCarryCapacity()));
                 carriedAmount = took;
                 state = took > 0 ? State.DeliveringCraftInput : State.FetchingCraftInput;
             }
@@ -1486,7 +1480,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             return;
         }
 
-        targetCraftingBuilding.TryDeliverInput(carriedType, carriedAmount, out int accepted);
+        targetCraftingBuilding.TryDeliverInput(carriedResource, carriedAmount, out int accepted);
         carriedAmount -= accepted;
 
         if (carriedAmount > 0)
@@ -1588,13 +1582,13 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
         if (carriedAmount > 0)
         {
-            state = targetCraftingBuilding.NeedsInput(carriedType)
+            state = targetCraftingBuilding.NeedsInput(carriedResource)
                 ? State.DeliveringCraftInput
                 : State.DeliveringCraftOutput;
             return;
         }
 
-        if (!targetCraftingBuilding.TryGetOutputRequest(transform.position, out carriedType, out int amount, out targetStorage))
+        if (!targetCraftingBuilding.TryGetOutputRequest(transform.position, out carriedResource, out int amount, out targetStorage))
         {
             state = State.FetchingCraftInput;
             return;
@@ -1604,7 +1598,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         MoveTo(slot, targetCraftingBuilding != null ? targetCraftingBuilding.transform : null, BuildingStopDistanceType.CraftOutput);
         if (!Arrived()) return;
 
-        carriedAmount = targetCraftingBuilding.CollectOutput(carriedType, Mathf.Min(amount, GetCarryCapacity()));
+        carriedAmount = targetCraftingBuilding.CollectOutput(carriedResource, Mathf.Min(amount, GetCarryCapacity()));
         state = carriedAmount > 0 ? State.DeliveringCraftOutput : State.FetchingCraftInput;
     }
 
@@ -1616,29 +1610,29 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             return;
         }
 
-        if (targetCraftingBuilding != null && targetCraftingBuilding.NeedsInput(carriedType))
+        if (targetCraftingBuilding != null && targetCraftingBuilding.NeedsInput(carriedResource))
         {
             state = State.DeliveringCraftInput;
             return;
         }
 
-        if (targetStorage == null || targetStorage.teamID != teamID || targetStorage.GetFree(carriedType) <= 0)
-            targetStorage = TeamStorageManager.Instance?.FindNearestStorageCached(teamID, carriedType, transform.position, true);
+        if (targetStorage == null || targetStorage.teamID != teamID || targetStorage.GetFree(carriedResource) <= 0)
+            targetStorage = TeamStorageManager.Instance?.FindNearestStorageCached(teamID, carriedResource, transform.position, true);
 
         if (targetStorage == null)
         {
-            ProductionNotificationManager.Instance?.NotifyIfReady($"full-output-{teamID}-{carriedType}", $"No free storage for {carriedType}. Production stalled.");
+            ProductionNotificationManager.Instance?.NotifyIfReady($"full-output-{teamID}-{carriedResource}", $"No free storage for {carriedResource}. Production stalled.");
             return;
         }
 
         MoveTo(targetStorage.transform.position, targetStorage.transform, BuildingStopDistanceType.Storage);
         if (!Arrived()) return;
 
-        int accepted = targetStorage.Deposit(carriedType, carriedAmount);
+        int accepted = targetStorage.Deposit(carriedResource, carriedAmount);
         carriedAmount -= accepted;
 
         if (carriedAmount > 0)
-            ProductionNotificationManager.Instance?.NotifyIfReady($"full-output-{targetStorage.GetInstanceID()}-{carriedType}", $"Storage full for {carriedType}. Output queue blocked.");
+            ProductionNotificationManager.Instance?.NotifyIfReady($"full-output-{targetStorage.GetInstanceID()}-{carriedResource}", $"Storage full for {carriedResource}. Output queue blocked.");
 
         if (carriedAmount > 0)
             state = State.DeliveringCraftOutput;
@@ -1749,7 +1743,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
         foreach (FoodDefinition food in EnumerateConfiguredFoods())
         {
-            if (!TryMapFoodToResourceType(food, out ResourceType type))
+            if (!TryGetFoodResource(food, out ResourceDefinition type))
                 continue;
 
             if (!assignedHouse.TryConsumeFood(type, foodToEatPerMeal, out int consumed) || consumed <= 0)

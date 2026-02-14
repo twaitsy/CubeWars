@@ -78,7 +78,7 @@ public class ConstructionSite : MonoBehaviour
     bool completed;
 
     // delivered[type] = amount delivered to this site
-    Dictionary<ResourceType, int> delivered = new Dictionary<ResourceType, int>();
+    Dictionary<ResourceDefinition, int> delivered = new Dictionary<ResourceDefinition, int>();
 
     void Awake()
     {
@@ -87,7 +87,7 @@ public class ConstructionSite : MonoBehaviour
         if (costs != null)
         {
             foreach (var c in costs)
-                delivered[c.type] = 0;
+                delivered[c.resource] = 0;
         }
     }
 
@@ -120,7 +120,7 @@ public class ConstructionSite : MonoBehaviour
 
         foreach (var c in costs)
         {
-            if (!delivered.TryGetValue(c.type, out int have) || have < c.amount)
+            if (!delivered.TryGetValue(c.resource, out int have) || have < c.amount)
                 return false;
         }
         return true;
@@ -150,7 +150,7 @@ public class ConstructionSite : MonoBehaviour
         if (costs != null)
         {
             foreach (var c in costs)
-                delivered[c.type] = 0;
+                delivered[c.resource] = 0;
         }
 
         // Reserve resources
@@ -183,14 +183,14 @@ public class ConstructionSite : MonoBehaviour
 
     // ---------------- RESOURCE DELIVERY ----------------
 
-    public int GetMissing(ResourceType type)
+    public int GetMissing(ResourceDefinition type)
     {
         if (costs == null) return 0;
 
         int required = 0;
         for (int i = 0; i < costs.Length; i++)
         {
-            if (costs[i].type == type)
+            if (costs[i].resource == type)
             {
                 required = costs[i].amount;
                 break;
@@ -201,7 +201,7 @@ public class ConstructionSite : MonoBehaviour
         return Mathf.Max(0, required - have);
     }
 
-    public int ReceiveDelivery(ResourceType type, int amount)
+    public int ReceiveDelivery(ResourceDefinition type, int amount)
     {
         if (amount <= 0) return 0;
 
@@ -219,7 +219,7 @@ public class ConstructionSite : MonoBehaviour
 
     public ResourceCost[] GetRequiredCosts() => costs;
 
-    public int GetDeliveredAmount(ResourceType type) =>
+    public int GetDeliveredAmount(ResourceDefinition type) =>
         delivered.TryGetValue(type, out int v) ? v : 0;
 
     // ---------------- COMPLETE ----------------

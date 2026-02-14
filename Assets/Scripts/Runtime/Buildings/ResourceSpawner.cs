@@ -8,7 +8,7 @@ public class ResourceSpawner : MonoBehaviour
     [Serializable]
     public class ResourceSpawnConfig
     {
-        public ResourceType type;
+        public ResourceDefinition type;
         public GameObject prefab;
         [Min(0)] public int count = 10;
 
@@ -70,9 +70,9 @@ public class ResourceSpawner : MonoBehaviour
         foreach (var cfg in configs)
         {
             if (cfg == null || cfg.count <= 0 || cfg.prefab == null) continue;
-            if (!IsRawResource(cfg.type))
+            if (!IsRawResource(cfg.resource))
             {
-                Debug.LogWarning($"[ResourceSpawner] Skipping {cfg.type}: only Raw resources are allowed for spawning.");
+                Debug.LogWarning($"[ResourceSpawner] Skipping {cfg.resource}: only Raw resources are allowed for spawning.");
                 continue;
             }
 
@@ -92,7 +92,7 @@ public class ResourceSpawner : MonoBehaviour
             Destroy(transform.GetChild(i).gameObject);
     }
 
-    bool IsRawResource(ResourceType type)
+    bool IsRawResource(ResourceDefinition type)
     {
         if (resourcesDatabase == null)
             return true;
@@ -127,7 +127,7 @@ public class ResourceSpawner : MonoBehaviour
             }
 
             // Assign type and random amount
-            node.type = cfg.type;
+            node.resource = cfg.resource;
 
             // FIX: ResourceNode.amount is read-only → assign to remaining
             node.remaining = UnityEngine.Random.Range(cfg.amountRange.x, cfg.amountRange.y + 1);

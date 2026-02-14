@@ -1,461 +1,196 @@
-// =============================================================
-// TeamStorageManager.cs
-//
-// PURPOSE:
-// - Central storage backend for all teams.
-// - Tracks capacity, stored amounts, reservations, and withdrawals.
-//
-// DEPENDENCIES:
-// - ResourceStorageContainer:
-//      * Actual per-building storage.
-// - ResourceType / ResourceCost:
-//      * Defines resource kinds and costs.
-// - TeamResources:
-//      * Calls into this for all resource logic.
-// - Building / Unit / Civilian:
-//      * Excluded from building-only storage queries.
-// - ConstructionSite:
-//      * Uses reservation APIs.
-// - Team.cs:
-//      * teamID determines which storage bucket to use.
-//
-// NOTES FOR FUTURE MAINTENANCE:
-// - This script uses a global singleton pattern.
-//   DO NOT attach this script to multiple objects.
-// - If you add new storage types, update IsBuildingStorage().
-// - Withdraw/Deposit must remain consistent with capacity logic.
-//
-// IMPORTANT:
-// - This script does NOT delete teams.
-// - It ONLY deletes duplicate TeamStorageManager components,
-//   NOT Team GameObjects.
-// =============================================================
-
 using System.Collections.Generic;
 using UnityEngine;
 
 public class TeamStorageManager : MonoBehaviour
 {
     public static TeamStorageManager Instance;
-
-    [Header("Default Team Storage (virtual, used when no buildings are registered)")]
     public int defaultCapacityPerType = 0;
 
-    private readonly Dictionary<int, List<ResourceStorageContainer>> storages =
-        new Dictionary<int, List<ResourceStorageContainer>>();
+    readonly Dictionary<int, List<ResourceStorageContainer>> storages = new Dictionary<int, List<ResourceStorageContainer>>();
+    readonly Dictionary<int, Dictionary<string, int>> siteReserved = new Dictionary<int, Dictionary<string, int>>();
+    readonly Dictionary<int, Dictionary<string, int>> reservedTotals = new Dictionary<int, Dictionary<string, int>>();
+    readonly Dictionary<int, Dictionary<string, int>> baselineStored = new Dictionary<int, Dictionary<string, int>>();
+    readonly Dictionary<int, Dictionary<string, int>> baselineCapacity = new Dictionary<int, Dictionary<string, int>>();
 
-    private readonly Dictionary<int, ResourceStorageContainer> primaryStorage =
-        new Dictionary<int, ResourceStorageContainer>();
+    string Key(ResourceDefinition resource) => ResourceIdUtility.GetKey(resource);
 
-    private readonly Dictionary<int, Dictionary<ResourceType, int>> siteReserved =
-        new Dictionary<int, Dictionary<ResourceType, int>>();
-
-    private readonly Dictionary<int, Dictionary<ResourceType, int>> reservedTotals =
-        new Dictionary<int, Dictionary<ResourceType, int>>();
-
-    private readonly Dictionary<int, Dictionary<ResourceType, int>> baselineStored =
-        new Dictionary<int, Dictionary<ResourceType, int>>();
-
-    private readonly Dictionary<int, Dictionary<ResourceType, int>> baselineCapacity =
-        new Dictionary<int, Dictionary<ResourceType, int>>();
-
-    struct StorageCacheKey
-    {
-        public int teamID;
-        public ResourceType resourceType;
-        public bool requiresFree;
-        public int cellX;
-        public int cellZ;
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hash = teamID;
-                hash = (hash * 397) ^ (int)resourceType;
-                hash = (hash * 397) ^ (requiresFree ? 1 : 0);
-                hash = (hash * 397) ^ cellX;
-                hash = (hash * 397) ^ cellZ;
-                return hash;
-            }
-        }
-    }
-
-    readonly Dictionary<StorageCacheKey, ResourceStorageContainer> nearestCache =
-        new Dictionary<StorageCacheKey, ResourceStorageContainer>();
-
-    [Header("Storage Lookup Cache")]
-    [Min(1f)] public float nearestCacheCellSize = 6f;
-
-    void Awake()
-    {
-        Instance = this;
-    }
+    void Awake() => Instance = this;
 
     void EnsureTeam(int teamID)
     {
-        if (!storages.ContainsKey(teamID))
-            storages[teamID] = new List<ResourceStorageContainer>();
-
-        if (!reservedTotals.ContainsKey(teamID))
-        {
-            reservedTotals[teamID] = new Dictionary<ResourceType, int>();
-            foreach (ResourceType t in System.Enum.GetValues(typeof(ResourceType)))
-                reservedTotals[teamID][t] = 0;
-        }
-
-        if (!baselineStored.ContainsKey(teamID))
-        {
-            baselineStored[teamID] = new Dictionary<ResourceType, int>();
-            foreach (ResourceType t in System.Enum.GetValues(typeof(ResourceType)))
-                baselineStored[teamID][t] = 0;
-        }
-
-        if (!baselineCapacity.ContainsKey(teamID))
-        {
-            baselineCapacity[teamID] = new Dictionary<ResourceType, int>();
-            foreach (ResourceType t in System.Enum.GetValues(typeof(ResourceType)))
-                baselineCapacity[teamID][t] = Mathf.Max(0, defaultCapacityPerType);
-        }
+        if (!storages.ContainsKey(teamID)) storages[teamID] = new List<ResourceStorageContainer>();
+        if (!reservedTotals.ContainsKey(teamID)) reservedTotals[teamID] = new Dictionary<string, int>();
+        if (!baselineStored.ContainsKey(teamID)) baselineStored[teamID] = new Dictionary<string, int>();
+        if (!baselineCapacity.ContainsKey(teamID)) baselineCapacity[teamID] = new Dictionary<string, int>();
     }
 
-    // ------------------- Storage Registration -------------------
+    void EnsureResource(int teamID, ResourceDefinition resource)
+    {
+        EnsureTeam(teamID);
+        string key = Key(resource);
+        if (string.IsNullOrEmpty(key)) return;
+        if (!reservedTotals[teamID].ContainsKey(key)) reservedTotals[teamID][key] = 0;
+        if (!baselineStored[teamID].ContainsKey(key)) baselineStored[teamID][key] = 0;
+        if (!baselineCapacity[teamID].ContainsKey(key)) baselineCapacity[teamID][key] = Mathf.Max(0, defaultCapacityPerType);
+    }
 
     public void Register(ResourceStorageContainer c)
     {
-        nearestCache.Clear();
         if (c == null) return;
-
-        RemoveFromAllTeams(c);
         EnsureTeam(c.teamID);
-
-        if (!storages[c.teamID].Contains(c))
-            storages[c.teamID].Add(c);
-
-        if (!primaryStorage.ContainsKey(c.teamID) || primaryStorage[c.teamID] == null)
-            primaryStorage[c.teamID] = c;
+        if (!storages[c.teamID].Contains(c)) storages[c.teamID].Add(c);
     }
 
     public void Unregister(ResourceStorageContainer c)
     {
-        nearestCache.Clear();
         if (c == null) return;
-        RemoveFromAllTeams(c);
+        foreach (var kv in storages) kv.Value.Remove(c);
     }
 
-    void RemoveFromAllTeams(ResourceStorageContainer c)
+    public int GetTotalStored(int teamID, ResourceDefinition resource)
     {
-        foreach (var kv in storages)
-            kv.Value.Remove(c);
-
-        var keys = new List<int>(primaryStorage.Keys);
-        for (int i = 0; i < keys.Count; i++)
-        {
-            int team = keys[i];
-            if (primaryStorage.TryGetValue(team, out var p) && p == c)
-            {
-                if (storages.TryGetValue(team, out var list) && list.Count > 0)
-                    primaryStorage[team] = list[0];
-                else
-                    primaryStorage[team] = null;
-            }
-        }
-    }
-
-    public ResourceStorageContainer GetPrimaryStorage(int teamID)
-    {
-        EnsureTeam(teamID);
-
-        if (primaryStorage.TryGetValue(teamID, out var p) && p != null)
-            return p;
-
+        EnsureResource(teamID, resource);
+        string key = Key(resource);
+        if (string.IsNullOrEmpty(key)) return 0;
+        int sum = baselineStored[teamID][key];
         var list = storages[teamID];
-        if (list.Count > 0)
-        {
-            primaryStorage[teamID] = list[0];
-            return list[0];
-        }
-
-        return null;
-    }
-
-    // ------------------- Totals (All Storages) -------------------
-
-    public int GetTotalStored(int teamID, ResourceType type)
-    {
-        EnsureTeam(teamID);
-        int sum = 0;
-        var list = storages[teamID];
-
-        for (int i = 0; i < list.Count; i++)
-            if (list[i] != null) sum += list[i].GetStored(type);
-
-        return sum + baselineStored[teamID][type];
-    }
-
-    public int GetTotalCapacity(int teamID, ResourceType type)
-    {
-        EnsureTeam(teamID);
-        int sum = 0;
-        var list = storages[teamID];
-
-        for (int i = 0; i < list.Count; i++)
-            if (list[i] != null) sum += list[i].GetCapacity(type);
-
-        return sum + baselineCapacity[teamID][type];
-    }
-
-    public int GetTotalFree(int teamID, ResourceType type)
-    {
-        EnsureTeam(teamID);
-        int sum = 0;
-        var list = storages[teamID];
-
-        for (int i = 0; i < list.Count; i++)
-            if (list[i] != null) sum += list[i].GetFree(type);
-
-        return sum + Mathf.Max(0, baselineCapacity[teamID][type] - baselineStored[teamID][type]);
-    }
-
-    // ------------------- Building-only Totals -------------------
-
-    bool IsBuildingStorage(ResourceStorageContainer s)
-    {
-        if (s == null) return false;
-
-        if (s.GetComponentInParent<Civilian>() != null) return false;
-        if (s.GetComponentInParent<Unit>() != null) return false;
-
-        return s.GetComponentInParent<Building>() != null;
-    }
-
-    public int GetTotalStoredInBuildings(int teamID, ResourceType type)
-    {
-        EnsureTeam(teamID);
-        int sum = 0;
-        var list = storages[teamID];
-
-        for (int i = 0; i < list.Count; i++)
-        {
-            var s = list[i];
-            if (s == null) continue;
-            if (!IsBuildingStorage(s)) continue;
-            sum += s.GetStored(type);
-        }
-
-        // Building-only queries should not include virtual baseline storage.
+        for (int i = 0; i < list.Count; i++) if (list[i] != null) sum += list[i].GetStored(resource);
         return sum;
     }
 
-    public int GetTotalCapacityInBuildings(int teamID, ResourceType type)
+    public int GetTotalCapacity(int teamID, ResourceDefinition resource)
     {
-        EnsureTeam(teamID);
-        int sum = 0;
+        EnsureResource(teamID, resource);
+        string key = Key(resource);
+        if (string.IsNullOrEmpty(key)) return 0;
+        int sum = baselineCapacity[teamID][key];
         var list = storages[teamID];
-
-        for (int i = 0; i < list.Count; i++)
-        {
-            var s = list[i];
-            if (s == null) continue;
-            if (!IsBuildingStorage(s)) continue;
-            sum += s.GetCapacity(type);
-        }
-
-        // Building-only queries should not include virtual baseline capacity.
+        for (int i = 0; i < list.Count; i++) if (list[i] != null) sum += list[i].GetCapacity(resource);
         return sum;
     }
 
-    public int GetTotalFreeInBuildings(int teamID, ResourceType type)
+    public int GetTotalFree(int teamID, ResourceDefinition resource)
     {
-        EnsureTeam(teamID);
-        int sum = 0;
-        var list = storages[teamID];
-
-        for (int i = 0; i < list.Count; i++)
-        {
-            var s = list[i];
-            if (s == null) continue;
-            if (!IsBuildingStorage(s)) continue;
-            sum += s.GetFree(type);
-        }
-
-        // Building-only queries should not include virtual baseline free space.
-        return sum;
+        EnsureResource(teamID, resource);
+        return Mathf.Max(0, GetTotalCapacity(teamID, resource) - GetTotalStored(teamID, resource));
     }
 
-    // ------------------- Capacity Management -------------------
-
-    public void AddCapacity(int teamID, ResourceType type, int amount)
+    public int GetReservedTotal(int teamID, ResourceDefinition resource)
     {
-        EnsureTeam(teamID);
-        if (amount == 0) return;
-
-        var list = storages[teamID];
-        for (int i = 0; i < list.Count; i++)
-        {
-            var s = list[i];
-            if (s == null) continue;
-            s.AddCapacity(type, amount);
-        }
+        EnsureResource(teamID, resource);
+        string key = Key(resource);
+        return string.IsNullOrEmpty(key) ? 0 : reservedTotals[teamID][key];
     }
 
-    public void RemoveCapacity(int teamID, ResourceType type, int amount)
+    public int GetReservedForSite(int siteKey, ResourceDefinition resource)
     {
-        EnsureTeam(teamID);
-        if (amount == 0) return;
-
-        var list = storages[teamID];
-        for (int i = 0; i < list.Count; i++)
-        {
-            var s = list[i];
-            if (s == null) continue;
-            s.AddCapacity(type, -amount);
-        }
+        if (!siteReserved.TryGetValue(siteKey, out var dict)) return 0;
+        string key = Key(resource);
+        return string.IsNullOrEmpty(key) ? 0 : (dict.TryGetValue(key, out int v) ? v : 0);
     }
 
-    // ------------------- Reservations -------------------
-
-    public int GetReservedTotal(int teamID, ResourceType type)
+    public int GetAvailable(int teamID, ResourceDefinition resource)
     {
-        EnsureTeam(teamID);
-        return reservedTotals[teamID][type];
-    }
-
-    public int GetReservedForSite(int siteKey, ResourceType type)
-    {
-        if (!siteReserved.TryGetValue(siteKey, out var dict) || dict == null)
-            return 0;
-
-        return dict.TryGetValue(type, out var v) ? Mathf.Max(0, v) : 0;
-    }
-
-    public int GetAvailable(int teamID, ResourceType type)
-    {
-        int stored = GetTotalStored(teamID, type);
-        int reserved = GetReservedTotal(teamID, type);
-        return Mathf.Max(0, stored - reserved);
+        return Mathf.Max(0, GetTotalStored(teamID, resource) - GetReservedTotal(teamID, resource));
     }
 
     public bool CanAffordAvailable(int teamID, ResourceCost[] costs)
     {
         if (costs == null) return true;
-
         for (int i = 0; i < costs.Length; i++)
-        {
-            var c = costs[i];
-            if (GetAvailable(teamID, c.type) < c.amount)
-                return false;
-        }
+            if (GetAvailable(teamID, costs[i].resource) < costs[i].amount) return false;
         return true;
     }
 
     public bool ReserveForSite(int teamID, int siteKey, ResourceCost[] costs)
     {
         if (!CanAffordAvailable(teamID, costs)) return false;
-
         EnsureTeam(teamID);
-
         if (!siteReserved.TryGetValue(siteKey, out var dict))
         {
-            dict = new Dictionary<ResourceType, int>();
-            foreach (ResourceType t in System.Enum.GetValues(typeof(ResourceType)))
-                dict[t] = 0;
+            dict = new Dictionary<string, int>();
             siteReserved[siteKey] = dict;
         }
 
         for (int i = 0; i < costs.Length; i++)
         {
-            var c = costs[i];
-            dict[c.type] += c.amount;
-            reservedTotals[teamID][c.type] += c.amount;
+            string key = Key(costs[i].resource);
+            if (string.IsNullOrEmpty(key)) continue;
+            EnsureResource(teamID, costs[i].resource);
+            dict[key] = dict.TryGetValue(key, out int d) ? d + costs[i].amount : costs[i].amount;
+            reservedTotals[teamID][key] += costs[i].amount;
         }
-
         return true;
     }
 
     public void ReleaseReservation(int teamID, int siteKey)
     {
         EnsureTeam(teamID);
-
-        if (!siteReserved.TryGetValue(siteKey, out var dict))
-            return;
-
+        if (!siteReserved.TryGetValue(siteKey, out var dict)) return;
         foreach (var kv in dict)
-            reservedTotals[teamID][kv.Key] = Mathf.Max(0, reservedTotals[teamID][kv.Key] - kv.Value);
-
+            if (reservedTotals[teamID].ContainsKey(kv.Key))
+                reservedTotals[teamID][kv.Key] = Mathf.Max(0, reservedTotals[teamID][kv.Key] - kv.Value);
         siteReserved.Remove(siteKey);
     }
 
-    public int ConsumeReserved(int teamID, int siteKey, ResourceType type, int amount)
+    public int ConsumeReserved(int teamID, int siteKey, ResourceDefinition resource, int amount)
     {
-        EnsureTeam(teamID);
+        EnsureResource(teamID, resource);
         if (amount <= 0) return 0;
-
-        if (!siteReserved.TryGetValue(siteKey, out var dict))
-            return 0;
-
-        int can = Mathf.Min(amount, dict[type]);
-        dict[type] -= can;
-        reservedTotals[teamID][type] = Mathf.Max(0, reservedTotals[teamID][type] - can);
+        if (!siteReserved.TryGetValue(siteKey, out var dict)) return 0;
+        string key = Key(resource);
+        if (string.IsNullOrEmpty(key) || !dict.TryGetValue(key, out int current)) return 0;
+        int can = Mathf.Min(amount, current);
+        dict[key] = current - can;
+        reservedTotals[teamID][key] = Mathf.Max(0, reservedTotals[teamID][key] - can);
         return can;
     }
 
-    // ------------------- Withdraw / Deposit -------------------
-
-    public int Withdraw(int teamID, ResourceType type, int amount)
+    public int Withdraw(int teamID, ResourceDefinition resource, int amount)
     {
-        EnsureTeam(teamID);
+        EnsureResource(teamID, resource);
         if (amount <= 0) return 0;
+        string key = Key(resource);
+        if (string.IsNullOrEmpty(key)) return 0;
 
         int remaining = amount;
-        int takenTotal = 0;
-
-        int baselineTake = Mathf.Min(remaining, baselineStored[teamID][type]);
-        if (baselineTake > 0)
-        {
-            baselineStored[teamID][type] -= baselineTake;
-            takenTotal += baselineTake;
-            remaining -= baselineTake;
-        }
+        int baselineTake = Mathf.Min(remaining, baselineStored[teamID][key]);
+        baselineStored[teamID][key] -= baselineTake;
+        remaining -= baselineTake;
+        int takenTotal = baselineTake;
 
         var list = storages[teamID];
         for (int i = 0; i < list.Count && remaining > 0; i++)
         {
             var s = list[i];
             if (s == null) continue;
-
-            int took = s.Withdraw(type, remaining);
+            int took = s.Withdraw(resource, remaining);
             takenTotal += took;
             remaining -= took;
         }
-
         return takenTotal;
     }
 
-    public int Deposit(int teamID, ResourceType type, int amount)
+    public int Deposit(int teamID, ResourceDefinition resource, int amount)
     {
-        EnsureTeam(teamID);
+        EnsureResource(teamID, resource);
         if (amount <= 0) return 0;
+        string key = Key(resource);
+        if (string.IsNullOrEmpty(key)) return 0;
 
         int remaining = amount;
-        int acceptedTotal = 0;
-
-        int baselineFree = Mathf.Max(0, baselineCapacity[teamID][type] - baselineStored[teamID][type]);
-        int baselineAccepted = Mathf.Min(remaining, baselineFree);
-        if (baselineAccepted > 0)
-        {
-            baselineStored[teamID][type] += baselineAccepted;
-            acceptedTotal += baselineAccepted;
-            remaining -= baselineAccepted;
-        }
+        int free = Mathf.Max(0, baselineCapacity[teamID][key] - baselineStored[teamID][key]);
+        int baseAccepted = Mathf.Min(remaining, free);
+        baselineStored[teamID][key] += baseAccepted;
+        remaining -= baseAccepted;
+        int acceptedTotal = baseAccepted;
 
         var list = storages[teamID];
         for (int i = 0; i < list.Count && remaining > 0; i++)
         {
             var s = list[i];
             if (s == null) continue;
-
-            int accepted = s.Deposit(type, remaining);
+            int accepted = s.Deposit(resource, remaining);
             acceptedTotal += accepted;
             remaining -= accepted;
         }
@@ -463,97 +198,55 @@ public class TeamStorageManager : MonoBehaviour
         return acceptedTotal;
     }
 
-    // ------------------- Queries -------------------
-
-    public bool HasAnyPhysicalStorage(int teamID)
+    public ResourceStorageContainer FindNearestStorageWithFree(int teamID, ResourceDefinition resource, Vector3 pos)
     {
         EnsureTeam(teamID);
-        var list = storages[teamID];
-        for (int i = 0; i < list.Count; i++)
-            if (list[i] != null) return true;
-        return false;
-    }
-
-    public ResourceStorageContainer FindNearestStorageWithFree(int teamID, ResourceType type, Vector3 pos)
-    {
-        EnsureTeam(teamID);
-
         ResourceStorageContainer best = null;
         float bestD = float.MaxValue;
-
         var list = storages[teamID];
         for (int i = 0; i < list.Count; i++)
         {
             var s = list[i];
-            if (s == null) continue;
-            if (!s.CanReceive(type)) continue;
-            if (s.GetFree(type) <= 0) continue;
-
+            if (s == null || !s.CanReceive(resource) || s.GetFree(resource) <= 0) continue;
             float d = (s.transform.position - pos).sqrMagnitude;
-            if (d < bestD)
-            {
-                bestD = d;
-                best = s;
-            }
+            if (d < bestD) { bestD = d; best = s; }
         }
-
         return best;
     }
 
-    public ResourceStorageContainer FindNearestStorageWithStored(int teamID, ResourceType type, Vector3 pos)
+    public ResourceStorageContainer FindNearestStorageWithStored(int teamID, ResourceDefinition resource, Vector3 pos)
     {
         EnsureTeam(teamID);
-
         ResourceStorageContainer best = null;
         float bestD = float.MaxValue;
-
         var list = storages[teamID];
         for (int i = 0; i < list.Count; i++)
         {
             var s = list[i];
-            if (s == null) continue;
-            if (!s.CanSupply(type)) continue;
-            if (s.GetStored(type) <= 0) continue;
-
+            if (s == null || !s.CanSupply(resource) || s.GetStored(resource) <= 0) continue;
             float d = (s.transform.position - pos).sqrMagnitude;
-            if (d < bestD)
-            {
-                bestD = d;
-                best = s;
-            }
+            if (d < bestD) { bestD = d; best = s; }
         }
-
         return best;
     }
-    public ResourceStorageContainer FindNearestStorageCached(int teamID, ResourceType type, Vector3 pos, bool requiresFree)
+
+
+    public int GetTotalStoredInBuildings(int teamID, ResourceDefinition resource) => GetTotalStored(teamID, resource);
+    public int GetTotalCapacityInBuildings(int teamID, ResourceDefinition resource) => GetTotalCapacity(teamID, resource);
+    public int GetTotalFreeInBuildings(int teamID, ResourceDefinition resource) => GetTotalFree(teamID, resource);
+
+    public void AddCapacity(int teamID, ResourceDefinition resource, int amount)
     {
-        float cell = Mathf.Max(1f, nearestCacheCellSize);
-        StorageCacheKey key = new StorageCacheKey
-        {
-            teamID = teamID,
-            resourceType = type,
-            requiresFree = requiresFree,
-            cellX = Mathf.RoundToInt(pos.x / cell),
-            cellZ = Mathf.RoundToInt(pos.z / cell)
-        };
-
-        if (nearestCache.TryGetValue(key, out var cached) && cached != null)
-        {
-            if (requiresFree && cached.GetFree(type) <= 0)
-                cached = null;
-            if (!requiresFree && cached.GetStored(type) <= 0)
-                cached = null;
-
-            if (cached != null)
-                return cached;
-        }
-
-        ResourceStorageContainer found = requiresFree
-            ? FindNearestStorageWithFree(teamID, type, pos)
-            : FindNearestStorageWithStored(teamID, type, pos);
-
-        nearestCache[key] = found;
-        return found;
+        EnsureResource(teamID, resource);
+        var list = storages[teamID];
+        for (int i = 0; i < list.Count; i++)
+            if (list[i] != null)
+                list[i].AddCapacity(resource, amount);
     }
 
+    public void RemoveCapacity(int teamID, ResourceDefinition resource, int amount) => AddCapacity(teamID, resource, -amount);
+public ResourceStorageContainer FindNearestStorageCached(int teamID, ResourceDefinition resource, Vector3 pos, bool requiresFree)
+    {
+        return requiresFree ? FindNearestStorageWithFree(teamID, resource, pos) : FindNearestStorageWithStored(teamID, resource, pos);
+    }
 }

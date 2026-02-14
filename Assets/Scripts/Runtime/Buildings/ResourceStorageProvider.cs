@@ -54,7 +54,7 @@ public class ResourceStorageProvider : MonoBehaviour
             {
                 int cap = Mathf.Max(0, capacities[i].capacity);
                 if (cap > 0)
-                    localStorage.AddCapacity(capacities[i].type, cap);
+                    localStorage.AddCapacity(capacities[i].resource, cap);
             }
         }
 
@@ -65,7 +65,7 @@ public class ResourceStorageProvider : MonoBehaviour
                 int amount = Mathf.Max(0, startingResources[i].amount);
                 if (amount <= 0) continue;
 
-                TeamResources.Instance.Deposit(teamID, startingResources[i].type, amount);
+                TeamResources.Instance.Deposit(teamID, startingResources[i].resource, amount);
             }
 
             grantedStartingResources = true;
@@ -85,7 +85,7 @@ public class ResourceStorageProvider : MonoBehaviour
             {
                 int cap = Mathf.Max(0, capacities[i].capacity);
                 if (cap > 0)
-                    localStorage.AddCapacity(capacities[i].type, -cap);
+                    localStorage.AddCapacity(capacities[i].resource, -cap);
             }
         }
 

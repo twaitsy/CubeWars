@@ -24,13 +24,7 @@ public class Minimap : MonoBehaviour
     Camera mainCam;
 
     // Resource type → color
-    Dictionary<ResourceType, Color> resourceColors = new Dictionary<ResourceType, Color>()
-    {
-        { ResourceType.Gold, Color.yellow },
-        { ResourceType.IronOre, Color.blue },
-        { ResourceType.Stone, new Color(0.5f, 0.5f, 0.5f) },
-        { ResourceType.Wood, new Color(0.4f, 0.2f, 0.1f) }
-    };
+    Dictionary<string, Color> resourceColors = new Dictionary<string, Color>();
 
     void Awake()
     {
@@ -78,7 +72,7 @@ public class Minimap : MonoBehaviour
 
             else if (e is ResourceNode rn)
             {
-                if (resourceColors.TryGetValue(rn.type, out var rc))
+                if (resourceColors.TryGetValue(ResourceIdUtility.GetKey(rn.resource), out var rc))
                     c = rc;
                 else
                     c = Color.magenta; // fallback for undefined types
@@ -125,7 +119,7 @@ public class Minimap : MonoBehaviour
 
     void HandleClick(Rect r)
     {
-        if (!Event.current.isMouse || Event.current.type != EventType.MouseDown)
+        if (!Event.current.isMouse || Event.current.resource != EventType.MouseDown)
             return;
 
         if (!r.Contains(Event.current.mousePosition))
