@@ -45,7 +45,7 @@ MonoBehaviour:
         baseValue: 6578
       amount: 1
     buildTime: 0
-    maxHealth: 0
+    maxHealth: 500
     upkeepCost:
     - resource:
         id: wood
@@ -65,7 +65,7 @@ MonoBehaviour:
       amount: 0
     upkeepInterval: 0
     maxResidents: 10
-    comfortLevel: 0
+    comfortLevel: 1
     isProducer: 0
     recipes: []
     workerSlots: 0
@@ -128,14 +128,30 @@ MonoBehaviour:
     comfortLevel: 3
     isProducer: 1
     recipes:
-    - recipeName: 
-      inputs: []
-      outputs: []
-      craftTimeSeconds: 0
-      batchSize: 0
-      requiredJobType: 0
-      outputEfficiencyMultiplier: 0
-      inputEfficiencyMultiplier: 0
+    - recipeName: Crack
+      inputs:
+      - resource:
+          id: boogasuga
+          displayName: Cocaine
+          icon: {fileID: 0}
+          category: 1
+          weight: 5
+          baseValue: 551
+        amount: 10
+      outputs:
+      - resource:
+          id: crack
+          displayName: Crack
+          icon: {fileID: 0}
+          category: 2
+          weight: 2
+          baseValue: 16
+        amount: 10
+      craftTimeSeconds: 8
+      batchSize: 1
+      requiredJobType: 7
+      outputEfficiencyMultiplier: 1
+      inputEfficiencyMultiplier: 1
       requiresPower: 0
       requiresFuel: 0
     workerSlots: 0
@@ -143,6 +159,92 @@ MonoBehaviour:
     storageSettings:
       capacity: 0
       allowedCategories: 
+    isMilitary: 0
+    attackDamage: 0
+    attackRange: 0
+    garrisonSlots: 0
+    powerConsumption: 0
+    powerGeneration: 0
+    waterConsumption: 0
+  - id: Crafter2
+    displayName: crafter2
+    icon: {fileID: 0}
+    prefab: {fileID: 2971650436058892313, guid: db4be7d8501df9749a5d97e3ee27b5cd,
+      type: 3}
+    category: 1
+    subCategory: 
+    constructionCost:
+    - resource:
+        id: wood
+        displayName: Wood
+        icon: {fileID: 10901, guid: 0000000000000000f000000000000000, type: 0}
+        category: 0
+        weight: 99
+        baseValue: 99
+      amount: 20
+    - resource:
+        id: gold
+        displayName: Gold
+        icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+        category: 0
+        weight: 456
+        baseValue: 6578
+      amount: 20
+    buildTime: 25
+    maxHealth: 600
+    upkeepCost:
+    - resource:
+        id: wood
+        displayName: Wood
+        icon: {fileID: 10901, guid: 0000000000000000f000000000000000, type: 0}
+        category: 0
+        weight: 99
+        baseValue: 99
+      amount: 20
+    - resource:
+        id: ironore
+        displayName: Iron Ore
+        icon: {fileID: 0}
+        category: 0
+        weight: 99
+        baseValue: 99
+      amount: 20
+    upkeepInterval: 60
+    maxResidents: 0
+    comfortLevel: 3
+    isProducer: 1
+    recipes:
+    - recipeName: Crack2
+      inputs:
+      - resource:
+          id: gold
+          displayName: Gold
+          icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+          category: 0
+          weight: 456
+          baseValue: 6578
+        amount: 10
+      outputs:
+      - resource:
+          id: Pork
+          displayName: Roast Pork
+          icon: {fileID: 0}
+          category: 2
+          weight: 2
+          baseValue: 11
+        amount: 10
+      craftTimeSeconds: 8
+      batchSize: 1
+      requiredJobType: 7
+      outputEfficiencyMultiplier: 1
+      inputEfficiencyMultiplier: 1
+      requiresPower: 0
+      requiresFuel: 0
+    workerSlots: 1
+    isStorage: 0
+    storageSettings:
+      capacity: 100
+      allowedCategories: 020000000b000000
     isMilitary: 0
     attackDamage: 0
     attackRange: 0

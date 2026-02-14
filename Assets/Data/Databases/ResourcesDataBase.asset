@@ -49,3 +49,9 @@ MonoBehaviour:
     category: 2
     weight: 2
     baseValue: 16
+  - id: crack
+    displayName: Crack
+    icon: {fileID: 0}
+    category: 2
+    weight: 2
+    baseValue: 16

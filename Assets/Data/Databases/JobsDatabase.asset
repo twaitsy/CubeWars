@@ -16,4 +16,9 @@ MonoBehaviour:
   - id: jhgjgy
     displayName: yugugy
     icon: {fileID: 0}
-    requiredTools: []
+    requiredTools:
+    - id: 
+      displayName: 
+      icon: {fileID: 0}
+      durability: 0
+      efficiency: 0
