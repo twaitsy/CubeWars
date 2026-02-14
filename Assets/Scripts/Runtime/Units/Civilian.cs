@@ -5,6 +5,9 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NavMeshAgent))]
 public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 {
+    [Header("Identity")]
+    public string unitDefinitionId = "civilian";
+
     [Header("Team")]
     public int teamID;
 
@@ -205,6 +208,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
     void Start()
     {
+        ApplyDatabaseDefinition();
         currentHealth = maxHealth;
         currentHunger = 0f;
         currentTiredness = 0f;
@@ -215,6 +219,26 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         CraftingJobManager.Instance?.RegisterCivilian(this);
 
         TryAssignHouseIfNeeded();
+    }
+
+
+    private void ApplyDatabaseDefinition()
+    {
+        var loaded = GameDatabaseLoader.Loaded;
+        if (loaded == null || !loaded.TryGetUnitById(unitDefinitionId, out var def) || def == null)
+            return;
+
+        if (def.maxHealth > 0)
+            maxHealth = def.maxHealth;
+
+        if (def.moveSpeed > 0f)
+            speed = def.moveSpeed;
+
+        if (def.carryCapacity > 0)
+            carryCapacity = def.carryCapacity;
+
+        if (agent != null && speed > 0f)
+            agent.speed = speed;
     }
 
     void RegisterWithJobManager()

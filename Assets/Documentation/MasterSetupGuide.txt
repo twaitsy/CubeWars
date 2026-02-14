@@ -476,3 +476,28 @@ Latest resource database migration notes
 - All resource references should use ResourceDefinition assets (or resource IDs resolved via ResourcesDatabase).
 - Food behavior is now resolved through FoodDatabase + FoodDefinition (hungerRestore, eatTime, requiresCooking, perishable, spoilTime).
 - Civilians, storage, crafting/recipes, and UI should query FoodDatabase for edible checks and hunger restore values.
+
+[2026 Editor tools reorganization + database stat hooks]
+- Editor tools were moved under `Assets/Editor/Tools` and inspector-only custom editors under `Assets/Editor/Inspectors`.
+- Utility automation scripts were moved to `Assets/Tools/Automation/Ahk`.
+- Editor-generated outputs are now standardized under `Assets/Documentation/EditorToolsOutput` with categories:
+  - `ScriptIndex`
+  - `Analysis`
+  - `Reports`
+  - `Exports`
+- Updated Unity menu organization:
+  - `Tools/CubeWars/Documentation/*`
+  - `Tools/CubeWars/Analysis/*`
+  - `Tools/CubeWars/Validation/*`
+  - `Tools/CubeWars/Database/*`
+
+Database-driven runtime stat setup (new)
+- Add a `GameDatabaseLoader` in your scene and assign the `GameDatabase` asset.
+- Unit prefabs can now set `Unit.unitDefinitionId` to pull key stats from `UnitsDatabase` at runtime:
+  - max health
+  - move speed
+  - attack damage/range/cooldown
+  - armor
+- Civilian prefabs can set `Civilian.unitDefinitionId` (default: `civilian`) to pull max health, move speed, and carry capacity.
+- Building prefabs can set `Building.buildingDefinitionId` to pull max health from `BuildingsDatabase`.
+- `DefenseTurret` also pulls attack range/damage from building database values when available.

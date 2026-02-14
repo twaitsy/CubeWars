@@ -12,8 +12,8 @@ namespace CubeWarsTools.ScriptDocumentation
     public static class ScriptDocumentationExporter
     {
         private const string ScriptsRoot = "Assets/Scripts";
-        private const string OutputFolder = "Assets/Documentation";
-        private const string OutputFile = "Assets/Documentation/ScriptDatabase.md";
+        private static readonly string OutputFolder = EditorToolsPaths.Exports;
+        private static readonly string OutputFile = EditorToolsPaths.Exports + "/ScriptDatabase.md";
 
         private class ScriptInfo
         {
@@ -45,7 +45,7 @@ namespace CubeWarsTools.ScriptDocumentation
             public string Summary;
         }
 
-        [MenuItem("Tools/CubeWars/Generate Script Documentation")]
+        [MenuItem("Tools/CubeWars/Documentation/Export Script Database")]
         public static void Generate()
         {
             try
@@ -92,12 +92,7 @@ namespace CubeWarsTools.ScriptDocumentation
 
         private static void EnsureOutputFolder()
         {
-            if (!AssetDatabase.IsValidFolder(OutputFolder))
-            {
-                var parent = "Assets";
-                var folderName = "Documentation";
-                AssetDatabase.CreateFolder(parent, folderName);
-            }
+            EditorToolsPaths.EnsureFolder(OutputFolder);
         }
 
         private static List<ScriptInfo> LoadScripts()

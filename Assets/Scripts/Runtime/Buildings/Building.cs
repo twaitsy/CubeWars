@@ -26,6 +26,9 @@
 /// </summary>
 public abstract class Building : MonoBehaviour, ITargetable, IHasHealth, IAttackable
 {
+    [Header("Identity")]
+    public string buildingDefinitionId;
+
     [Header("Team")]
     public int teamID;
 
@@ -44,6 +47,7 @@ public abstract class Building : MonoBehaviour, ITargetable, IHasHealth, IAttack
 
     protected virtual void Start()
     {
+        ApplyDefinitionIfAvailable();
         currentHealth = maxHealth;
     }
 
@@ -64,6 +68,16 @@ public abstract class Building : MonoBehaviour, ITargetable, IHasHealth, IAttack
     {
         // Only destroys THIS building, not the team.
         Destroy(gameObject);
+    }
+
+    public virtual void ApplyDefinitionIfAvailable()
+    {
+        var loaded = GameDatabaseLoader.Loaded;
+        if (loaded == null || !loaded.TryGetBuildingById(buildingDefinitionId, out var def) || def == null)
+            return;
+
+        if (def.maxHealth > 0)
+            maxHealth = def.maxHealth;
     }
 
     public virtual void Demolish()

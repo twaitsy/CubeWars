@@ -35,7 +35,7 @@ public class DuplicateResponsibilityScannerWindow : EditorWindow
         public bool foldout = true;
     }
 
-    [MenuItem("Tools/CubeWars/Duplicate Responsibility Scanner")]
+    [MenuItem("Tools/CubeWars/Analysis/Scan Duplicate Responsibilities")]
     public static void Open()
     {
         var window = GetWindow<DuplicateResponsibilityScannerWindow>();

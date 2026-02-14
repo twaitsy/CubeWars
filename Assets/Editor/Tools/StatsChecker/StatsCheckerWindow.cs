@@ -9,7 +9,7 @@ using UnityEngine;
 
 public class StatsCheckerWindow : EditorWindow
 {
-    private const string OutputFolder = "Assets/Documentation/StatsChecker/";
+    private static readonly string OutputFolder = EditorToolsPaths.Reports + "/StatsChecker/";
     private const string IgnoredStatsFile = OutputFolder + "ignored_stats.txt";
     private const string IgnoredScriptsFile = OutputFolder + "ignored_scripts.txt";
     private const string ReportFile = OutputFolder + "StatsReport.txt";
@@ -20,7 +20,7 @@ public class StatsCheckerWindow : EditorWindow
 
     private Vector2 scroll;
 
-    [MenuItem("Tools/Stats Checker")]
+    [MenuItem("Tools/CubeWars/Validation/Stats Coverage Checker")]
     public static void Open()
     {
         StatsCheckerWindow window = GetWindow<StatsCheckerWindow>("Stats Checker");

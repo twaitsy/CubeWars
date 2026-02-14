@@ -104,7 +104,7 @@ namespace CubeWarsTools.Graph
                 string folder = Path.GetDirectoryName(relative).Replace("\\", "/");
                 string scriptName = Path.GetFileNameWithoutExtension(ScriptPath);
 
-                string analysisPath = $"Assets/Docs/Analysis/{folder}/{scriptName}_Analysis.md";
+                string analysisPath = $"{EditorToolsPaths.Analysis}/{folder}/{scriptName}_Analysis.md";
 
                 Object asset = AssetDatabase.LoadAssetAtPath<Object>(analysisPath);
                 if (asset != null)

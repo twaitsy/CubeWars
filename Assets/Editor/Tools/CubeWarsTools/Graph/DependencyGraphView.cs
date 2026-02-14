@@ -12,7 +12,7 @@ namespace CubeWarsTools.Graph
     public class DependencyGraphView : GraphView
     {
         private readonly string ScriptsRoot = "Assets/Scripts";
-        private readonly string AnalysisRoot = "Assets/Docs/Analysis";
+        private readonly string AnalysisRoot = EditorToolsPaths.Analysis;
 
         private Dictionary<string, ScriptAnalysisResult> scriptAnalysis;
         private Dictionary<string, DependencyAnalysisResult> dependencyAnalysis;

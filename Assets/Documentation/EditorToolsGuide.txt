@@ -1,0 +1,38 @@
+CubeWars Editor Tools Guide
+===========================
+
+Purpose
+- Explains where editor tools live, how they are grouped in the Unity menu, and where tool output files are written.
+
+Folder layout
+- Editor tools source: `Assets/Editor/Tools`
+- Custom inspector editors: `Assets/Editor/Inspectors`
+- Automation scripts (AHK): `Assets/Tools/Automation/Ahk`
+
+Unity menu layout
+- Documentation
+  - `Tools/CubeWars/Documentation/Generate Script Index`
+  - `Tools/CubeWars/Documentation/Generate Script Index With Analysis`
+  - `Tools/CubeWars/Documentation/Open Script Index`
+  - `Tools/CubeWars/Documentation/Export Script Database`
+- Analysis
+  - `Tools/CubeWars/Analysis/Open Script Browser`
+  - `Tools/CubeWars/Analysis/View Dependency Graph`
+  - `Tools/CubeWars/Analysis/Scan Unused Scripts`
+  - `Tools/CubeWars/Analysis/Scan Duplicate Responsibilities`
+- Validation
+  - `Tools/CubeWars/Validation/Stats Coverage Checker`
+- Database
+  - `Tools/CubeWars/Database/Open Game Database Editor`
+
+Standard output locations
+- Root: `Assets/Documentation/EditorToolsOutput`
+- Script indexes: `Assets/Documentation/EditorToolsOutput/ScriptIndex`
+- Analysis output: `Assets/Documentation/EditorToolsOutput/Analysis`
+- Validation reports: `Assets/Documentation/EditorToolsOutput/Reports`
+- Exports: `Assets/Documentation/EditorToolsOutput/Exports`
+
+Game Database Editor notes
+- The editor includes quick selectors for linked fields so references can be chosen from dropdown lists.
+- Quick selectors are available for common linked items (buildings, units, recipes, tools, prerequisites).
+- Use the quick selectors before/alongside raw detail fields when manually editing definitions.
