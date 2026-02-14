@@ -1,5 +1,5 @@
 # Cube Wars Script Index — Systems
-Generated: 2026-02-13 21:13:11
+Generated: 2026-02-14 00:24:23
 
 ## Assets/Scripts/Managers/Systems
 - AIManager.cs

@@ -1,5 +1,5 @@
 # Cube Wars Script Index
-Generated: 2026-02-13 21:13:11
+Generated: 2026-02-14 00:24:23
 
 ## Core
 
@@ -42,7 +42,6 @@ Generated: 2026-02-13 21:13:11
 ### Assets/Scripts/Data/Resources
 - ResourceCapacityEntry.cs
 - ResourceCost.cs
-- ResourceType.cs
 - TeamResources.cs
 
 ### Assets/Scripts/Data/Units

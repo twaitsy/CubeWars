@@ -1,5 +1,5 @@
 # Cube Wars Script Index — Runtime
-Generated: 2026-02-13 21:13:11
+Generated: 2026-02-14 00:24:23
 
 ## Assets/Scripts/Runtime/Buildings
 - Barracks.cs
