@@ -33,10 +33,11 @@ New Survival Needs Configuration
   - exhaustionDamagePerSecond
 
 Food Quality / Subtype Configuration
-- Assign `FoodResourceDatabase` on the prefab to define:
-  - which ResourceType values count as food
+- Assign `FoodDatabase` on the prefab to define edible resources via `ResourceDefinition` entries and per-food stats:
   - hunger restore values
-  - ranking priorities
+  - eat time values
+  - cooking requirement metadata
+  - spoilage metadata
 
 Gameplay Behavior
 - Civilians continue their assigned jobs until needs cross thresholds.

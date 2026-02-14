@@ -77,7 +77,7 @@ Prefab/component notes for updated behavior
 
 Needs/Housing additions
 - House (required for civilian sleep recovery)
-- FoodResourceDatabase asset assigned to Civilian prefab (recommended; script path: Assets/Data/DatabaseScripts/FoodResourceDatabase.cs)
+- FoodDatabase asset assigned to Civilian prefab (recommended; script path: Assets/Data/DatabaseScripts/FoodDatabase.cs)
 - Civilian prefab uses hunger/tiredness fields for runtime survival
 
 Editor productivity
@@ -166,4 +166,4 @@ Resource database wiring requirements (latest)
 - Assign `ResourcesDatabase` on ResourceSpawner to enforce Raw-only node spawn configs.
 - Assign `ResourcesDatabase` on CraftingBuilding to enforce Refined-only recipe outputs.
 - Assign `ResourcesDatabase` on Civilian prefab(s) so edible resources are detected by Food category.
-- FoodResourceDatabase is no longer required for civilian hunger behavior when using the new category-based flow.
+- FoodDatabase should be assigned for data-driven civilian hunger behavior.

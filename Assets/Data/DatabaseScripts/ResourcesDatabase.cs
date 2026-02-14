@@ -1,69 +1,25 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
-
-public enum ResourceType
-{
-    Food,
-    Gold,
-    Wood,
-    Stone,
-    IronOre,
-    Coal,
-    Copper,
-    Silicon,
-    Lithium,
-
-    IronIngot,
-    Steel,
-    Lumber,
-    Flour,
-    Bread,
-    Tools,
-    Fuel
-}
 
 [CreateAssetMenu(menuName = "CubeWars/Database/Resources")]
 public class ResourcesDatabase : ScriptableObject
 {
     public List<ResourceDefinition> resources = new List<ResourceDefinition>();
 
-    public bool TryGet(ResourceType type, out ResourceDefinition definition)
-    {
-        return TryGet(resources, type, out definition);
-    }
-
-    public bool IsCategory(ResourceType type, ResourceCategory category)
-    {
-        return IsCategory(resources, type, category);
-    }
-
-    public static bool IsCategory(ResourcesDatabase database, ResourceType type, ResourceCategory category)
-    {
-        if (database == null)
-            return false;
-
-        return IsCategory(database.resources, type, category);
-    }
-
-    static bool IsCategory(List<ResourceDefinition> defs, ResourceType type, ResourceCategory category)
-    {
-        if (!TryGet(defs, type, out ResourceDefinition definition))
-            return false;
-
-        return definition != null && definition.category == category;
-    }
-
-    static bool TryGet(List<ResourceDefinition> defs, ResourceType type, out ResourceDefinition definition)
+    public bool TryGetById(string resourceId, out ResourceDefinition definition)
     {
         definition = null;
-        if (defs == null)
+        if (resources == null)
             return false;
 
-        string target = Normalize(type.ToString());
+        string target = Normalize(resourceId);
+        if (string.IsNullOrEmpty(target))
+            return false;
 
-        for (int i = 0; i < defs.Count; i++)
+        for (int i = 0; i < resources.Count; i++)
         {
-            ResourceDefinition entry = defs[i];
+            ResourceDefinition entry = resources[i];
             if (entry == null)
                 continue;
 
@@ -76,6 +32,20 @@ public class ResourcesDatabase : ScriptableObject
 
         return false;
     }
+
+    public bool IsCategory(ResourceDefinition definition, ResourceCategory category)
+    {
+        return definition != null && definition.category == category;
+    }
+
+    public bool IsCategoryById(string resourceId, ResourceCategory category)
+    {
+        if (!TryGetById(resourceId, out ResourceDefinition definition))
+            return false;
+
+        return IsCategory(definition, category);
+    }
+
 
     static string Normalize(string value)
     {

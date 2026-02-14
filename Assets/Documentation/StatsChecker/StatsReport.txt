@@ -150,7 +150,7 @@ SkirmishConfig (SkirmishConfig.cs)
  - difficulty
  - allowAlliances
 
-FoodResourceDatabase (FoodResourceDatabase.cs)
+FoodDatabase (FoodDatabase.cs)
  - hideFlags
 
 TeamResources (TeamResources.cs)
