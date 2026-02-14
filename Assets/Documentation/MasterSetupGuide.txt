@@ -312,7 +312,7 @@ Main menu expansion:
 Civilian prefab additions (new survival system):
 - Food tuning: hungerRatePerSecond, maxHunger, seekFoodThreshold01, foodToEatPerMeal, eatDurationSeconds, starvationDamagePerSecond
 - Sleep tuning: tirednessRatePerSecond, maxTiredness, seekSleepThreshold01, sleepDurationSeconds, exhaustionDamagePerSecond
-- Optional: assign a FoodResourceDatabase (script moved to Assets/Data/DatabaseScripts) to drive food ranking/quality.
+- Assign a FoodDatabase (Assets/Data/DatabaseScripts/FoodDatabase.cs) to drive food hunger, eat time, cooking, and spoilage data.
 
 House building setup:
 - Add House component (inherits Building)
@@ -464,8 +464,8 @@ Detailed build-menu database format support (new)
 -----------------------------------------------------------------
 Latest resource database migration notes
 -----------------------------------------------------------------
-- ResourceType enum ownership moved into `Assets/Data/DatabaseScripts/ResourcesDatabase.cs`.
-- `Assets/Data/Databases/ResourceType.cs` is now a migration stub and should not be edited for gameplay logic.
-- ResourceSpawner now enforces Raw-only resource spawning when `resourcesDatabase` is assigned.
-- CraftingBuilding now enforces Refined-only outputs when `resourcesDatabase` is assigned.
-- Civilian food checks now use ResourcesDatabase category matching (Food category) instead of FoodResourceDatabase ranking tables.
+- ResourceType enum has been moved out of `ResourcesDatabase.cs` into `Assets/Data/Definitions/ResourceType.cs`.
+- `ResourcesDatabase` now supports string-id and `ResourceDefinition` category lookups (`TryGetById`, `IsCategory`, `IsCategoryById`).
+- ResourceSpawner enforces Raw-only resource spawning through ResourceDefinition category checks when `resourcesDatabase` is assigned.
+- CraftingBuilding enforces Refined-only outputs through ResourceDefinition category checks when `resourcesDatabase` is assigned.
+- Civilian food behavior now reads edible entries from `FoodDatabase` (ResourceDefinition-based), then resolves runtime storage resources from those definitions.

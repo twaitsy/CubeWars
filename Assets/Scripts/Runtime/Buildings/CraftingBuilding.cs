@@ -248,7 +248,8 @@ public class CraftingBuilding : Building
         if (resourcesDatabase == null)
             return true;
 
-        return ResourcesDatabase.IsCategory(resourcesDatabase, type, ResourceCategory.Refined);
+        return resourcesDatabase.TryGetById(type.ToString(), out ResourceDefinition definition) &&
+               resourcesDatabase.IsCategory(definition, ResourceCategory.Refined);
     }
 
     public bool NeedsInput(ResourceType type)

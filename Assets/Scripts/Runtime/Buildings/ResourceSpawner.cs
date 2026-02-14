@@ -97,7 +97,8 @@ public class ResourceSpawner : MonoBehaviour
         if (resourcesDatabase == null)
             return true;
 
-        return ResourcesDatabase.IsCategory(resourcesDatabase, type, ResourceCategory.Raw);
+        return resourcesDatabase.TryGetById(type.ToString(), out ResourceDefinition definition) &&
+               resourcesDatabase.IsCategory(definition, ResourceCategory.Raw);
     }
 
     bool TrySpawnOne(ResourceSpawnConfig cfg, out GameObject spawned)
