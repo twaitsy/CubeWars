@@ -119,7 +119,7 @@ public class Minimap : MonoBehaviour
 
     void HandleClick(Rect r)
     {
-        if (!Event.current.isMouse || Event.current.resource != EventType.MouseDown)
+        if (!Event.current.isMouse || Event.current.type != EventType.MouseDown)
             return;
 
         if (!r.Contains(Event.current.mousePosition))

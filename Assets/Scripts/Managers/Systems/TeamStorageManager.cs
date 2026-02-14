@@ -213,7 +213,11 @@ public class TeamStorageManager : MonoBehaviour
         }
         return best;
     }
-
+    public bool HasAnyStorage(int teamID)
+    {
+        EnsureTeam(teamID);
+        return storages[teamID].Count > 0;
+    }
     public ResourceStorageContainer FindNearestStorageWithStored(int teamID, ResourceDefinition resource, Vector3 pos)
     {
         EnsureTeam(teamID);

@@ -165,9 +165,9 @@ public class BuildMenuUI : MonoBehaviour
         if (buildingsDatabase != null)
             return buildingsDatabase;
 
-        if (GameDatabase.Instance != null && GameDatabase.Instance.buildings != null)
+        if (GameDatabaseLoader.Loaded != null && GameDatabaseLoader.Loaded.buildings != null)
         {
-            buildingsDatabase = GameDatabase.Instance.buildings;
+            buildingsDatabase = GameDatabaseLoader.Loaded.buildings;
             return buildingsDatabase;
         }
 
@@ -659,9 +659,11 @@ public class BuildMenuUI : MonoBehaviour
     bool TryParseResourceToken(string token, out ResourceDefinition parsed)
     {
         parsed = null;
-        if (string.IsNullOrEmpty(token) || resourcesDatabase == null)
+
+        if (string.IsNullOrEmpty(token) || ResourcesDatabase.Instance == null)
             return false;
-        return resourcesDatabase.TryGetById(token, out parsed);
+
+        return ResourcesDatabase.Instance.TryGetById(token, out parsed);
     }
 
     string NormalizeResourceToken(string raw)

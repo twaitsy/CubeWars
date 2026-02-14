@@ -5,6 +5,13 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "CubeWars/Database/Resources")]
 public class ResourcesDatabase : ScriptableObject
 {
+    public static ResourcesDatabase Instance { get; private set; }
+
+    private void OnEnable()
+    {
+        Instance = this;
+    }
+
     public List<ResourceDefinition> resources = new List<ResourceDefinition>();
 
     public bool TryGetById(string resourceId, out ResourceDefinition definition)

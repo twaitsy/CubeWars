@@ -124,10 +124,22 @@ MonoBehaviour:
   recipe:
     recipeName: Coins
     inputs:
-    - resourceType: 1
+    - resource:
+        id: wood
+        displayName: 
+        icon: {fileID: 0}
+        category: 0
+        weight: 1
+        baseValue: 1
       amount: 1
     outputs:
-    - resourceType: 0
+    - resource:
+        id: drugz
+        displayName: 
+        icon: {fileID: 0}
+        category: 0
+        weight: 1
+        baseValue: 1
       amount: 100
     craftTimeSeconds: 5
     batchSize: 5
@@ -231,37 +243,133 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   teamID: 0
   resourceFlow:
-  - type: 0
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 1
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 2
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 3
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 4
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 5
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 6
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 7
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 8
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 9
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 10
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 11
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 12
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 13
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 14
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 15
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
 --- !u!114 &-6845052091626525489
 MonoBehaviour:

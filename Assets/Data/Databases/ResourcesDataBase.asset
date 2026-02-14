@@ -10,66 +10,42 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f280e2e8d8d2d34998e11b47785a778, type: 3}
-  m_Name: ResourcesDataBase
+  m_Name: ResourcesDatabase
   m_EditorClassIdentifier: 
   resources:
-  - id: gold
-    displayName: Gold
-    icon: {fileID: 0}
-    category: 0
-    weight: 50
-    baseValue: 100
   - id: wood
     displayName: Wood
-    icon: {fileID: 0}
+    icon: {fileID: 10901, guid: 0000000000000000f000000000000000, type: 0}
     category: 0
-    weight: 20
-    baseValue: 5
-  - id: drugz
-    displayName: Drugz
-    icon: {fileID: 0}
-    category: 1
-    weight: 1
-    baseValue: 400
-  - id: cocaine
-    displayName: Cocaine
-    icon: {fileID: 0}
-    category: 1
-    weight: 1
-    baseValue: 1000
-  - id: food
-    displayName: Food
-    icon: {fileID: 0}
+    weight: 99
+    baseValue: 99
+  - id: gold
+    displayName: Gold
+    icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
     category: 0
-    weight: 0
-    baseValue: 0
+    weight: 456
+    baseValue: 6578
   - id: ironore
     displayName: Iron Ore
     icon: {fileID: 0}
     category: 0
-    weight: 0
-    baseValue: 0
-  - id: 
-    displayName: 
+    weight: 99
+    baseValue: 99
+  - id: boogasuga
+    displayName: Cocaine
     icon: {fileID: 0}
-    category: 0
-    weight: 0
-    baseValue: 0
-  - id: 
-    displayName: 
+    category: 1
+    weight: 5
+    baseValue: 551
+  - id: Pork
+    displayName: Roast Pork
     icon: {fileID: 0}
-    category: 0
-    weight: 0
-    baseValue: 0
-  - id: 
-    displayName: 
+    category: 2
+    weight: 2
+    baseValue: 11
+  - id: crack
+    displayName: Crack
     icon: {fileID: 0}
-    category: 0
-    weight: 0
-    baseValue: 0
-  - id: 
-    displayName: 
-    icon: {fileID: 0}
-    category: 0
-    weight: 0
-    baseValue: 0
+    category: 2
+    weight: 2
+    baseValue: 16

@@ -106,14 +106,27 @@ public class TaskBoardUI : MonoBehaviour
             return;
         }
 
-        int lines = 0;
-        foreach (ResourceDefinition t in Enum.GetValues(typeof(ResourceDefinition)))
-        {
-            int stored = TeamStorageManager.Instance.GetTotalStoredInBuildings(playerTeamID, t);
-            int cap = TeamStorageManager.Instance.GetTotalCapacityInBuildings(playerTeamID, t);
-            int reserved = TeamStorageManager.Instance.GetReservedTotal(playerTeamID, t);
+        // Load your database
+        var db = UnityEditor.AssetDatabase.LoadAssetAtPath<ResourcesDatabase>(
+            "Assets/Data/Databases/ResourcesDatabase.asset"
+        );
 
-            string line = $"{t}: {stored}/{cap}";
+        if (db == null || db.resources == null || db.resources.Count == 0)
+        {
+            GUI.Label(new Rect(x, y, width, row), "No resources in database.");
+            y += row;
+            return;
+        }
+
+        int lines = 0;
+
+        foreach (ResourceDefinition def in db.resources)
+        {
+            int stored = TeamStorageManager.Instance.GetTotalStoredInBuildings(playerTeamID, def);
+            int cap = TeamStorageManager.Instance.GetTotalCapacityInBuildings(playerTeamID, def);
+            int reserved = TeamStorageManager.Instance.GetReservedTotal(playerTeamID, def);
+
+            string line = $"{def.displayName}: {stored}/{cap}";
             if (reserved > 0) line += $" [{reserved}]";
             if (cap > 0 && stored >= cap) line += " FULL";
             if (cap == 0) line += " NO STORAGE";
@@ -122,12 +135,12 @@ public class TaskBoardUI : MonoBehaviour
             y += row;
 
             lines++;
-            if (lines >= maxResourceLines) break;
+            if (lines >= maxResourceLines)
+                break;
         }
 
         y += 6;
     }
-
     void DrawNotifications(float x, ref float y, float width, float row)
     {
         GUI.Label(new Rect(x, y, width, row), "Recent Notifications");

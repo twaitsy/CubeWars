@@ -388,7 +388,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   defaultCapacityPerType: 0
-  nearestCacheCellSize: 6
 --- !u!114 &53722431
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1490,7 +1489,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   teamID: 1
   playerTeamID: 0
-  catalog: {fileID: 11400000, guid: fd593b86e9a21e64cb62b09e28e7b7b3, type: 2}
+  catalog: {fileID: 0}
   buildInterval: 4
   categoryPriority:
   - Economy
@@ -2199,6 +2198,50 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bbdb443de472cb645b9748d7f4e423ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &323682757
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 323682759}
+  - component: {fileID: 323682758}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &323682758
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 323682757}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8c25d71e073e4941a6b8bd100c31849, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  database: {fileID: 11400000, guid: caed5663ed3f8944eb45c600fe78a8c3, type: 2}
+--- !u!4 &323682759
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 323682757}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 18.470516, y: -17.479368, z: -0.53175855}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 10
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &326800224
 GameObject:
   m_ObjectHideFlags: 0
@@ -4651,7 +4694,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   teamID: 4
   playerTeamID: 0
-  catalog: {fileID: 11400000, guid: fd593b86e9a21e64cb62b09e28e7b7b3, type: 2}
+  catalog: {fileID: 0}
   buildInterval: 4
   categoryPriority:
   - Economy
@@ -6195,7 +6238,13 @@ MonoBehaviour:
   maxAttemptsPerNode: 25
   resourcesDatabase: {fileID: 11400000, guid: 87f27aa07d5d1b049bfb1818298c31c9, type: 2}
   configs:
-  - type: 1
+  - type:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     prefab: {fileID: 3585627338332981593, guid: f0750f8163313374cb8f059aa909965d,
       type: 3}
     count: 20
@@ -6205,7 +6254,13 @@ MonoBehaviour:
     referenceAmount: 3000
     minHeightScale: 0
     maxHeightScale: 4
-  - type: 0
+  - type:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     prefab: {fileID: 1341854994968595624, guid: 47f185cdcbc88d5478a481fb0e8975cd,
       type: 3}
     count: 20
@@ -6215,7 +6270,13 @@ MonoBehaviour:
     referenceAmount: 3000
     minHeightScale: 0
     maxHeightScale: 4
-  - type: 4
+  - type:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     prefab: {fileID: 6089014581457673032, guid: 93e024a59bbce68439ef8a30d0c4181a,
       type: 3}
     count: 20
@@ -6225,7 +6286,13 @@ MonoBehaviour:
     referenceAmount: 3000
     minHeightScale: 0
     maxHeightScale: 4
-  - type: 2
+  - type:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     prefab: {fileID: 3543313782309362722, guid: 1594bb8b5dd3594478306da4ca521f6c,
       type: 3}
     count: 20
@@ -7154,7 +7221,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   teamID: 5
   playerTeamID: 0
-  catalog: {fileID: 11400000, guid: fd593b86e9a21e64cb62b09e28e7b7b3, type: 2}
+  catalog: {fileID: 0}
   buildInterval: 4
   categoryPriority:
   - Economy
@@ -7464,7 +7531,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   defaultCapacityPerType: 0
-  nearestCacheCellSize: 6
 --- !u!114 &1251590181
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8318,7 +8384,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   teamID: 3
   playerTeamID: 0
-  catalog: {fileID: 11400000, guid: fd593b86e9a21e64cb62b09e28e7b7b3, type: 2}
+  catalog: {fileID: 0}
   buildInterval: 4
   categoryPriority:
   - Economy
@@ -9238,7 +9304,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   teamID: 2
   playerTeamID: 0
-  catalog: {fileID: 11400000, guid: fd593b86e9a21e64cb62b09e28e7b7b3, type: 2}
+  catalog: {fileID: 0}
   buildInterval: 4
   categoryPriority:
   - Economy
@@ -9706,9 +9772,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c318d4386374e344b908586ac99d702, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 2
-  material: {fileID: 2100000, guid: ced4ef0d07f92ef41aed7878924b6728, type: 2}
-  rebuild: 0
+  resource:
+    id: 
+    displayName: 
+    icon: {fileID: 0}
+    category: 0
+    weight: 1
+    baseValue: 1
+  defaultColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!114 &1685873211
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9721,7 +9792,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63ac4561ce22b114493a05ad20c730ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 2
+  resource:
+    id: gold
+    displayName: Gold
+    icon: {fileID: 0}
+    category: 0
+    weight: 50
+    baseValue: 100
   remaining: 500
   maxGatherers: 2
   claimedByTeam: -1
@@ -10275,7 +10352,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   defaultCapacityPerType: 0
-  nearestCacheCellSize: 6
 --- !u!114 &1719273651
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11427,7 +11503,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   defaultCapacityPerType: 0
-  nearestCacheCellSize: 6
 --- !u!1 &1913938961
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8240d847afa22534e8d202c46541720b, type: 3}
+  m_Name: RecipesDatabase
+  m_EditorClassIdentifier: 
+  recipes:
+  - recipeName: Crack
+    inputs:
+    - resource:
+        id: boogasuga
+        displayName: Cocaine
+        icon: {fileID: 0}
+        category: 1
+        weight: 5
+        baseValue: 551
+      amount: 10
+    outputs:
+    - resource:
+        id: crack
+        displayName: Crack
+        icon: {fileID: 0}
+        category: 2
+        weight: 2
+        baseValue: 16
+      amount: 10
+    craftTimeSeconds: 8
+    batchSize: 1
+    requiredJobType: 7
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 0
+    requiresFuel: 0

@@ -96,10 +96,44 @@ public class CraftingBuilding : Building
 
     void InitializeResourceMaps()
     {
-        foreach (ResourceDefinition type in System.Enum.GetValues(typeof(ResourceDefinition)))
+        inputBuffer.Clear();
+        outputQueue.Clear();
+
+        var db = resourcesDatabase != null ? resourcesDatabase : ResourcesDatabase.Instance;
+
+        // 1. Add all resources from the database
+        if (db != null && db.resources != null)
         {
-            inputBuffer[type] = 0;
-            outputQueue[type] = 0;
+            foreach (var def in db.resources)
+            {
+                if (def == null) continue;
+                inputBuffer[def] = 0;
+                outputQueue[def] = 0;
+            }
+        }
+
+        // 2. Ensure all recipe resources are included
+        if (recipe != null)
+        {
+            if (recipe.inputs != null)
+            {
+                foreach (var entry in recipe.inputs)
+                {
+                    if (entry?.resource == null) continue;
+                    if (!inputBuffer.ContainsKey(entry.resource))
+                        inputBuffer[entry.resource] = 0;
+                }
+            }
+
+            if (recipe.outputs != null)
+            {
+                foreach (var entry in recipe.outputs)
+                {
+                    if (entry?.resource == null) continue;
+                    if (!outputQueue.ContainsKey(entry.resource))
+                        outputQueue[entry.resource] = 0;
+                }
+            }
         }
     }
 

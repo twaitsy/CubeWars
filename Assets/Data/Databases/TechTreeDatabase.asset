@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 076390cdef1afe8499b6bcb945b6714d, type: 3}
+  m_Name: TechTreeDatabase
+  m_EditorClassIdentifier: 
+  techNodes:
+  - id: kllkl
+    displayName: lkjkljkjkl
+    icon: {fileID: 0}
+    description: jkljkjkljklj
+    researchCost: []
+    researchTime: 0
+    prerequisites: []
+    requiredBuilding:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      prefab: {fileID: 0}
+      category: 0
+      subCategory: 
+      constructionCost: []
+      buildTime: 0
+      maxHealth: 0
+      upkeepCost: []
+      upkeepInterval: 0
+      maxResidents: 0
+      comfortLevel: 0
+      isProducer: 0
+      recipes: []
+      workerSlots: 0
+      isStorage: 0
+      storageSettings:
+        capacity: 0
+        allowedCategories: 
+      isMilitary: 0
+      attackDamage: 0
+      attackRange: 0
+      garrisonSlots: 0
+      powerConsumption: 0
+      powerGeneration: 0
+      waterConsumption: 0
+    unlockBuildings: []
+    unlockUnits: []
+    unlockRecipes: []
+    globalProductionSpeedMultiplier: 0
+    globalCombatDamageMultiplier: 0
+    workerEfficiencyMultiplier: 0

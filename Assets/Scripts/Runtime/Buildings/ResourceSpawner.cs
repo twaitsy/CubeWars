@@ -8,9 +8,14 @@ public class ResourceSpawner : MonoBehaviour
     [Serializable]
     public class ResourceSpawnConfig
     {
+        [Header("Resource Type")]
         public ResourceDefinition type;
+
+        [Header("Prefab")]
         public GameObject prefab;
-        [Min(0)] public int count = 10;
+
+        [Min(0)]
+        public int count = 10;
 
         [Header("Node Contents")]
         public Vector2Int amountRange = new Vector2Int(50, 200);
@@ -25,8 +30,7 @@ public class ResourceSpawner : MonoBehaviour
 
     // ---------------------------------------------------------
     // DEPENDENCIES:
-    // - ResourceNode: must expose `remaining` and `type`
-    // - ResourceNode.amount is read-only → must assign to `remaining`
+    // - ResourceNode: must expose `remaining` and `resource`
     // - Prefabs must contain ResourceNode
     // ---------------------------------------------------------
 
@@ -69,10 +73,12 @@ public class ResourceSpawner : MonoBehaviour
 
         foreach (var cfg in configs)
         {
-            if (cfg == null || cfg.count <= 0 || cfg.prefab == null) continue;
-            if (!IsRawResource(cfg.resource))
+            if (cfg == null || cfg.count <= 0 || cfg.prefab == null)
+                continue;
+
+            if (!IsRawResource(cfg.type))
             {
-                Debug.LogWarning($"[ResourceSpawner] Skipping {cfg.resource}: only Raw resources are allowed for spawning.");
+                Debug.LogWarning($"[ResourceSpawner] Skipping {cfg.type}: only Raw resources are allowed for spawning.");
                 continue;
             }
 
@@ -94,11 +100,10 @@ public class ResourceSpawner : MonoBehaviour
 
     bool IsRawResource(ResourceDefinition type)
     {
-        if (resourcesDatabase == null)
+        if (resourcesDatabase == null || type == null)
             return true;
 
-        return resourcesDatabase.TryGetById(type.ToString(), out ResourceDefinition definition) &&
-               resourcesDatabase.IsCategory(definition, ResourceCategory.Raw);
+        return resourcesDatabase.IsCategory(type, ResourceCategory.Raw);
     }
 
     bool TrySpawnOne(ResourceSpawnConfig cfg, out GameObject spawned)
@@ -127,9 +132,7 @@ public class ResourceSpawner : MonoBehaviour
             }
 
             // Assign type and random amount
-            node.resource = cfg.resource;
-
-            // FIX: ResourceNode.amount is read-only → assign to remaining
+            node.resource = cfg.type;
             node.remaining = UnityEngine.Random.Range(cfg.amountRange.x, cfg.amountRange.y + 1);
 
             // Optional: assign value if ResourceNode has a compatible field
@@ -159,17 +162,20 @@ public class ResourceSpawner : MonoBehaviour
     bool TrySnapToGround(ref Vector3 pos)
     {
         Vector3 origin = pos + Vector3.up * 0.1f;
+
         if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, groundRayLength + 0.1f, groundMask, QueryTriggerInteraction.Ignore))
         {
             pos.y = hit.point.y;
             return true;
         }
+
         return false;
     }
 
     void ScaleHeightByAmount(Transform t, int amount, int referenceAmount, float minScale, float maxScale)
     {
-        if (referenceAmount <= 0) referenceAmount = 1;
+        if (referenceAmount <= 0)
+            referenceAmount = 1;
 
         float k = Mathf.Clamp01(amount / (float)referenceAmount);
         float heightScale = Mathf.Lerp(minScale, maxScale, k);
@@ -184,6 +190,7 @@ public class ResourceSpawner : MonoBehaviour
     void TrySetValueOnNode(ResourceNode node, Vector2Int valueRange)
     {
         int value = UnityEngine.Random.Range(valueRange.x, valueRange.y + 1);
+
         string[] candidates = { "valuePerUnit", "value", "nodeValue" };
         Type type = node.GetType();
 

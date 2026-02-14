@@ -1,24 +1,27 @@
 ﻿using UnityEngine;
 using UnityEngine.Serialization;
+using System.Collections.Generic;
 
 public class ResourceNode : MonoBehaviour
 {
-    bool isDestroyed;
+    [Header("Resource")]
     public ResourceDefinition resource;
+
     [FormerlySerializedAs("amount")]
     public int remaining = 500;
 
     [Header("Gathering")]
-    [Tooltip("Maximum number of civilians that can gather from this node at once.")]
     [Min(1)] public int maxGatherers = 2;
 
-    [HideInInspector]
-    public int claimedByTeam = -1;
+    [HideInInspector] public int claimedByTeam = -1;
 
-    private readonly System.Collections.Generic.HashSet<int> gathererIds =
-        new System.Collections.Generic.HashSet<int>();
+    private readonly HashSet<int> gathererIds = new HashSet<int>();
+    bool isDestroyed;
 
     public bool IsDepleted => remaining <= 0;
+    public int amount => remaining;
+    public int ActiveGatherers => gathererIds.Count;
+    public bool HasAvailableGatherSlots => gathererIds.Count < Mathf.Max(1, maxGatherers);
 
     void OnEnable()
     {
@@ -39,11 +42,6 @@ public class ResourceNode : MonoBehaviour
         if (!isDestroyed && remaining <= 0)
             Deplete();
     }
-
-    // Legacy compatibility: some code uses node.amount
-    public int amount => remaining;
-    public int ActiveGatherers => gathererIds.Count;
-    public bool HasAvailableGatherSlots => gathererIds.Count < Mathf.Max(1, maxGatherers);
 
     public bool IsClaimedByOther(int teamID)
     {
@@ -74,12 +72,10 @@ public class ResourceNode : MonoBehaviour
         gathererIds.Remove(civilian.GetInstanceID());
     }
 
-    /// <summary>
-    /// Harvests up to 'amount' from this node. Returns how much was actually taken.
-    /// </summary>
     public int Harvest(int amount)
     {
         if (amount <= 0 || IsDepleted) return 0;
+
         int taken = Mathf.Min(remaining, amount);
         remaining -= taken;
 

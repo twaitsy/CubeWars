@@ -431,7 +431,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         }
 
         pendingFoodAmount = eatenUnits;
-        currentEatDurationSeconds = targetFoodDefinition != null ? Mathf.Max(0.1f, targetFoodDefinition.eatTimeSeconds) : eatDurationSeconds;
+        currentEatDurationSeconds = targetFoodDefinition != null ? Mathf.Max(0.1f, targetFoodDefinition.eatTime) : eatDurationSeconds;
         needActionTimer = 0f;
         state = State.Eating;
     }
@@ -612,7 +612,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             {
                 resource = resource,
                 hungerRestore = 1,
-                eatTimeSeconds = eatDurationSeconds
+                eatTime = eatDurationSeconds
             };
         }
     }
@@ -906,7 +906,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
         if (targetStorage == null)
         {
-            if (!TeamStorageManager.Instance.HasAnyPhysicalStorage(teamID))
+            if (!TeamStorageManager.Instance.HasAnyStorage(teamID))
             {
                 TeamResources.Instance?.Deposit(teamID, carriedResource, carriedAmount);
                 carriedAmount = 0;

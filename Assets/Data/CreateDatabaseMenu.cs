@@ -24,7 +24,19 @@ public static class CreateDatabaseMenu
     [MenuItem("CubeWars/Create/Resources Database")]
     public static void CreateResources()
     {
-        CreateAsset<ResourcesDatabase>("BuildingsDatabase.asset");
+        CreateAsset<ResourcesDatabase>("ResourcesDatabase.asset");
+    }
+
+    [MenuItem("CubeWars/Create/Units Database")]
+    public static void CreateUnits()
+    {
+        CreateAsset<UnitsDatabase>("UnitsDatabase.asset");
+    }
+
+    [MenuItem("CubeWars/Create/Tech Tree Database")]
+    public static void CreateTechTree()
+    {
+        CreateAsset<TechTreeDatabase>("TechTreeDatabase.asset");
     }
 
     private static void CreateAsset<T>(string name) where T : ScriptableObject

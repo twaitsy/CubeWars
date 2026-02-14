@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13f44e75c72d9fa488486770f9e431b2, type: 3}
+  m_Name: GameDatabase
+  m_EditorClassIdentifier: 
+  jobs: {fileID: 11400000, guid: 2b93a04bedaacbb4fa54bb52f0fc1b78, type: 2}
+  tools: {fileID: 11400000, guid: ac810c9b1ff4633439de0f864046ae40, type: 2}
+  buildings: {fileID: 11400000, guid: fd593b86e9a21e64cb62b09e28e7b7b3, type: 2}
+  resources: {fileID: 11400000, guid: 87f27aa07d5d1b049bfb1818298c31c9, type: 2}
+  units: {fileID: 11400000, guid: 821aa5c2840ba804f8bba9c7fa86d120, type: 2}
+  recipes: {fileID: 11400000, guid: 19de313b04ced9c4e916cac991f52a39, type: 2}
+  foods: {fileID: 11400000, guid: c7e14d390ed4edf45b16b190c79256ae, type: 2}
+  techTree: {fileID: 11400000, guid: 11e85b04d57372640b6bc46ab8e2aeaa, type: 2}

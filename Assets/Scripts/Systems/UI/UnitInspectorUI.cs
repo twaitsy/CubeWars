@@ -59,39 +59,17 @@ public class UnitInspectorUI : MonoBehaviour
         GUILayout.BeginVertical(GUI.skin.box);
         switch (currentTab)
         {
-            case InspectorTab.Info:
-                DrawInfo();
-                break;
-            case InspectorTab.Attributes:
-                DrawAttributes();
-                break;
-            case InspectorTab.Needs:
-                DrawNeeds();
-                break;
-            case InspectorTab.RolesSkills:
-                DrawSkillsAndTools();
-                break;
-            case InspectorTab.Inventory:
-                DrawInventory();
-                break;
-            case InspectorTab.BuildingStats:
-                DrawBuildingStatsForSelected();
-                break;
-            case InspectorTab.Storage:
-                DrawStorage();
-                break;
-            case InspectorTab.Production:
-                DrawProductionForCrafting();
-                break;
-            case InspectorTab.TrainingQueue:
-                DrawTrainingQueue();
-                break;
-            case InspectorTab.CombatSettings:
-                DrawCombat();
-                break;
-            case InspectorTab.ConstructionStatus:
-                DrawConstructionStatus();
-                break;
+            case InspectorTab.Info: DrawInfo(); break;
+            case InspectorTab.Attributes: DrawAttributes(); break;
+            case InspectorTab.Needs: DrawNeeds(); break;
+            case InspectorTab.RolesSkills: DrawSkillsAndTools(); break;
+            case InspectorTab.Inventory: DrawInventory(); break;
+            case InspectorTab.BuildingStats: DrawBuildingStatsForSelected(); break;
+            case InspectorTab.Storage: DrawStorage(); break;
+            case InspectorTab.Production: DrawProductionForCrafting(); break;
+            case InspectorTab.TrainingQueue: DrawTrainingQueue(); break;
+            case InspectorTab.CombatSettings: DrawCombat(); break;
+            case InspectorTab.ConstructionStatus: DrawConstructionStatus(); break;
         }
         GUILayout.EndVertical();
 
@@ -101,7 +79,67 @@ public class UnitInspectorUI : MonoBehaviour
     // -----------------------
     // Tab configuration
     // -----------------------
+    void DrawSkillsAndTools()
+    {
+        if (!selected.TryGetComponent<Civilian>(out var civ))
+        {
+            GUILayout.Label("No roles or skills for this selection.");
+            return;
+        }
 
+        GUILayout.Label("Assignment", GUI.skin.box);
+        GUILayout.Label(ResolveAssignment(civ));
+
+        GUILayout.Label("Role", GUI.skin.box);
+        DrawRoleButtons(civ);
+
+        GUILayout.Label("Job Specialization", GUI.skin.box);
+        DrawJobTypeButtons(civ);
+    }
+    void DrawButtonGrid<T>(
+    T[] values,
+    int columns,
+    Action<T> onSelect,
+    Func<T, string> label)
+    {
+        for (int i = 0; i < values.Length; i += columns)
+        {
+            GUILayout.BeginHorizontal();
+            for (int col = 0; col < columns; col++)
+            {
+                int idx = i + col;
+                if (idx >= values.Length)
+                {
+                    GUILayout.FlexibleSpace();
+                    continue;
+                }
+
+                if (GUILayout.Button(label(values[idx])))
+                    onSelect(values[idx]);
+            }
+            GUILayout.EndHorizontal();
+        }
+    }
+    void DrawJobTypeButtons(Civilian civ)
+    {
+        var jobs = (CivilianJobType[])Enum.GetValues(typeof(CivilianJobType));
+        DrawButtonGrid(
+            jobs,
+            3,
+            job => civ.SetJobType(job),
+            job => job.ToString()
+        );
+    }
+    void DrawRoleButtons(Civilian civ)
+    {
+        var roles = (CivilianRole[])Enum.GetValues(typeof(CivilianRole));
+        DrawButtonGrid(
+            roles,
+            3,
+            role => civ.SetRole(role),
+            role => role.ToString()
+        );
+    }
     void RebuildTabs()
     {
         activeTabs.Clear();
@@ -109,10 +147,8 @@ public class UnitInspectorUI : MonoBehaviour
         if (selected == null)
             return;
 
-        // Always have Info
         activeTabs.Add(InspectorTab.Info);
 
-        // CIVILIAN
         if (selected.TryGetComponent<Civilian>(out var civ))
         {
             activeTabs.Add(InspectorTab.Attributes);
@@ -122,7 +158,6 @@ public class UnitInspectorUI : MonoBehaviour
             return;
         }
 
-        // COMBAT UNIT
         if (selected.TryGetComponent<UnitCombatController>(out _))
         {
             activeTabs.Add(InspectorTab.Attributes);
@@ -130,14 +165,12 @@ public class UnitInspectorUI : MonoBehaviour
             return;
         }
 
-        // NON-COMBAT UNIT
         if (selected.TryGetComponent<Unit>(out _))
         {
             activeTabs.Add(InspectorTab.Attributes);
             return;
         }
 
-        // BUILDINGS
         if (selected.TryGetComponent<Building>(out var building))
         {
             activeTabs.Add(InspectorTab.BuildingStats);
@@ -154,14 +187,11 @@ public class UnitInspectorUI : MonoBehaviour
             return;
         }
 
-        // CONSTRUCTION SITE
         if (selected.TryGetComponent<ConstructionSite>(out _))
         {
             activeTabs.Add(InspectorTab.ConstructionStatus);
             return;
         }
-
-        // RESOURCE NODE → Info only
     }
 
     string GetTabLabel(InspectorTab tab)
@@ -186,20 +216,13 @@ public class UnitInspectorUI : MonoBehaviour
     void DrawTabs()
     {
         if (activeTabs.Count == 0)
-        {
-            // Fallback: rebuild if something went wrong
             RebuildTabs();
-        }
 
-        string[] labels = activeTabs
-            .Select(t => GetTabLabel(t))
-            .ToArray();
-
+        string[] labels = activeTabs.Select(t => GetTabLabel(t)).ToArray();
         int currentIndex = activeTabs.IndexOf(currentTab);
         if (currentIndex < 0) currentIndex = 0;
 
         int newIndex = GUILayout.Toolbar(currentIndex, labels);
-
         if (newIndex != currentIndex && newIndex >= 0 && newIndex < activeTabs.Count)
             currentTab = activeTabs[newIndex];
     }
@@ -220,16 +243,8 @@ public class UnitInspectorUI : MonoBehaviour
     // Tab content routing
     // -----------------------
 
-    void DrawInfo()
-    {
-        DrawOverview();
-    }
-
-    void DrawAttributes()
-    {
-        // Reuse existing stats logic; it already branches by type
-        DrawStats();
-    }
+    void DrawInfo() => DrawOverview();
+    void DrawAttributes() => DrawStats();
 
     void DrawNeeds()
     {
@@ -247,45 +262,38 @@ public class UnitInspectorUI : MonoBehaviour
 
     void DrawInventory()
     {
-        bool any = false;
-
         if (selected.TryGetComponent<Civilian>(out var civ))
         {
             GUILayout.Label("Inventory", GUI.skin.box);
             GUILayout.Label($"Carrying: {civ.CarriedType} {civ.CarriedAmount}/{civ.carryCapacity}");
-            any = true;
         }
-
-        if (!any)
+        else
+        {
             GUILayout.Label("No inventory for this selection.");
+        }
     }
 
     void DrawBuildingStatsForSelected()
     {
         if (TryGetSelectedComponent(out Building building))
-        {
             DrawBuildingStats(building);
-        }
         else
-        {
             GUILayout.Label("No building stats for this selection.");
-        }
     }
 
     void DrawProductionForCrafting()
     {
-        if (TryGetSelectedComponent(out CraftingBuilding crafting))
-        {
-            string recipeName = crafting.recipe != null ? crafting.recipe.recipeName : "None";
-            GUILayout.Label($"Recipe: {recipeName}");
-            GUILayout.Label($"State: {crafting.State}");
-            GUILayout.Label($"Missing Inputs: {crafting.GetMissingInputSummary()}");
-            GUILayout.Label($"Progress: {crafting.CraftProgress01:P0}");
-        }
-        else
+        if (!TryGetSelectedComponent(out CraftingBuilding crafting))
         {
             GUILayout.Label("No production for this selection.");
+            return;
         }
+
+        string recipeName = crafting.recipe != null ? crafting.recipe.recipeName : "None";
+        GUILayout.Label($"Recipe: {recipeName}");
+        GUILayout.Label($"State: {crafting.State}");
+        GUILayout.Label($"Missing Inputs: {crafting.GetMissingInputSummary()}");
+        GUILayout.Label($"Progress: {crafting.CraftProgress01:P0}");
     }
 
     void DrawTrainingQueue()
@@ -334,7 +342,7 @@ public class UnitInspectorUI : MonoBehaviour
     }
 
     // -----------------------
-    // Original content methods
+    // Overview & Stats
     // -----------------------
 
     void DrawOverview()
@@ -365,28 +373,6 @@ public class UnitInspectorUI : MonoBehaviour
                 building.Demolish();
             GUI.enabled = true;
         }
-        else if (selected.TryGetComponent<Barracks>(out var barracks))
-        {
-            GUILayout.Label("Type: Barracks");
-            if (GUILayout.Button("Demolish Building"))
-            {
-                if (barracks.TryGetComponent<Building>(out var barracksBuilding))
-                    barracksBuilding.Demolish();
-                else
-                    Destroy(barracks.gameObject);
-            }
-        }
-        else if (selected.TryGetComponent<Turret>(out var turret))
-        {
-            GUILayout.Label("Type: Turret");
-            if (GUILayout.Button("Demolish Building"))
-            {
-                if (turret.TryGetComponent<Building>(out var turretBuilding))
-                    turretBuilding.Demolish();
-                else
-                    Destroy(turret.gameObject);
-            }
-        }
         else if (selected.TryGetComponent<ResourceNode>(out var node))
         {
             GUILayout.Label($"Resource Node: {node.resource}");
@@ -407,8 +393,8 @@ public class UnitInspectorUI : MonoBehaviour
             GUILayout.Label($"Tiredness Rate/s: {civ.tirednessRatePerSecond:0.00}");
         }
 
-        if (selected.TryGetComponent<Building>(out var anyBuilding))
-            DrawBuildingStats(anyBuilding);
+        if (selected.TryGetComponent<Building>(out var building))
+            DrawBuildingStats(building);
 
         if (selected.TryGetComponent<House>(out var house))
         {
@@ -416,11 +402,10 @@ public class UnitInspectorUI : MonoBehaviour
             GUILayout.Label($"Comfort: {house.comfort}");
             GUILayout.Label($"Storage: {house.storage}");
             GUILayout.Label($"Inhabitants: {house.Civilians.Count}/{house.maxInhabitants}");
-            for (int i = 0; i < house.Civilians.Count; i++)
+            foreach (var resident in house.Civilians)
             {
-                var resident = house.Civilians[i];
-                if (resident == null) continue;
-                GUILayout.Label($"- {SanitizeName(resident.name)}");
+                if (resident != null)
+                    GUILayout.Label($"- {SanitizeName(resident.name)}");
             }
         }
 
@@ -470,28 +455,23 @@ public class UnitInspectorUI : MonoBehaviour
             GUILayout.Label($"Targets Civilians: {(turret.canTargetCivilians ? "Yes" : "No")}");
         }
 
-        if (building.TryGetComponent<VehicleFactory>(out var vf))
+        if (building.TryGetComponent<ResourceStorageContainer>(out var storage))
         {
-            GUILayout.Label($"Vehicle Build Time: {vf.buildSeconds:0.00}s");
-            GUILayout.Label($"Vehicle Prefab: {(vf.vehiclePrefab != null ? vf.vehiclePrefab.name : "None")}");
-        }
+            int totalStored = 0;
+            int totalCapacity = 0;
 
-        if (building.TryGetComponent<WeaponsFactory>(out var wf))
-        {
-            GUILayout.Label($"Craft Time: {wf.craftSeconds:0.00}s");
-            GUILayout.Label($"Weapon Tool: {(wf.weaponTool != null ? wf.weaponTool.name : "None")}");
-        }
+            var db = ResourcesDatabase.Instance;
+            if (db != null && db.resources != null)
+            {
+                foreach (var t in db.resources)
+                {
+                    if (t == null) continue;
+                    totalStored += storage.GetStored(t);
+                    totalCapacity += storage.GetCapacity(t);
+                }
+            }
 
-        if (building.TryGetComponent<Barracks>(out var barracks))
-        {
-            GUILayout.Label($"Queue Size: {barracks.QueueCount}");
-            GUILayout.Label($"Build Progress: {barracks.CurrentProgress:P0}");
-            GUILayout.Label($"Current Build Time: {barracks.CurrentBuildTime:0.00}s");
-        }
-
-        if (building.TryGetComponent<BuildingInteractionSettings>(out var interaction))
-        {
-            GUILayout.Label($"Stop Distances: D {interaction.defaultStopDistance:0.00} | H {interaction.houseStopDistance:0.00} | S {interaction.storageStopDistance:0.00}");
+            GUILayout.Label($"Storage Total: {totalStored}/{totalCapacity}");
         }
 
         if (building.TryGetComponent<CraftingBuilding>(out var crafting))
@@ -501,37 +481,11 @@ public class UnitInspectorUI : MonoBehaviour
             GUILayout.Label($"Hauler Logistics: {(crafting.requireHaulerLogistics ? "Required" : "Worker-handled")}");
             GUILayout.Label($"Input Buffer: {crafting.GetMissingInputSummary()}");
         }
-
-        if (building.TryGetComponent<ResourceStorageContainer>(out var storage))
-        {
-            int totalStored = 0;
-            int totalCapacity = 0;
-            foreach (ResourceDefinition t in Enum.GetValues(typeof(ResourceDefinition)))
-            {
-                totalStored += storage.GetStored(t);
-                totalCapacity += storage.GetCapacity(t);
-            }
-            GUILayout.Label($"Storage Total: {totalStored}/{totalCapacity}");
-        }
     }
 
-    void DrawSkillsAndTools()
-    {
-        if (!selected.TryGetComponent<Civilian>(out var civ))
-        {
-            GUILayout.Label("No roles or skills for this selection.");
-            return;
-        }
-
-        GUILayout.Label("Assignment", GUI.skin.box);
-        GUILayout.Label(ResolveAssignment(civ));
-
-        GUILayout.Label("Role", GUI.skin.box);
-        DrawRoleButtons(civ);
-
-        GUILayout.Label("Job Specialization", GUI.skin.box);
-        DrawJobTypeButtons(civ);
-    }
+    // -----------------------
+    // Storage (fixed)
+    // -----------------------
 
     void DrawStorage()
     {
@@ -541,10 +495,14 @@ public class UnitInspectorUI : MonoBehaviour
         bool hasStorage = TryGetSelectedComponent(out ResourceStorageContainer storage);
         bool any = false;
 
-        if (hasStorage)
+        var db = ResourcesDatabase.Instance;
+
+        if (hasStorage && db != null && db.resources != null)
         {
-            foreach (ResourceDefinition t in Enum.GetValues(typeof(ResourceDefinition)))
+            foreach (var t in db.resources)
             {
+                if (t == null) continue;
+
                 int cap = storage.GetCapacity(t);
                 int stored = storage.GetStored(t);
                 var flow = storage.GetFlowSetting(t);
@@ -553,7 +511,7 @@ public class UnitInspectorUI : MonoBehaviour
                     continue;
 
                 any = true;
-                GUILayout.Label($"{t} Storage — {stored}/{cap} | Flow: {flow}");
+                GUILayout.Label($"{t.displayName} — {stored}/{cap} | Flow: {flow}");
             }
         }
 
@@ -568,23 +526,18 @@ public class UnitInspectorUI : MonoBehaviour
             }
             else
             {
-                var inputBuffer = crafting.InputBuffer;
-                var outputQueue = crafting.OutputQueue;
-
                 GUILayout.Label("Inputs");
-                for (int i = 0; i < crafting.recipe.inputs.Length; i++)
+                foreach (var entry in crafting.recipe.inputs)
                 {
-                    var entry = crafting.recipe.inputs[i];
-                    int amount = inputBuffer != null && inputBuffer.ContainsKey(entry.resource) ? inputBuffer[entry.resource] : 0;
-                    GUILayout.Label($"- {entry.resource}: {amount}/{crafting.maxInputCapacityPerResource}");
+                    int amount = crafting.InputBuffer.TryGetValue(entry.resource, out int v) ? v : 0;
+                    GUILayout.Label($"- {entry.resource.displayName}: {amount}/{crafting.maxInputCapacityPerResource}");
                 }
 
                 GUILayout.Label("Outputs");
-                for (int i = 0; i < crafting.recipe.outputs.Length; i++)
+                foreach (var entry in crafting.recipe.outputs)
                 {
-                    var entry = crafting.recipe.outputs[i];
-                    int amount = outputQueue != null && outputQueue.ContainsKey(entry.resource) ? outputQueue[entry.resource] : 0;
-                    GUILayout.Label($"- {entry.resource}: {amount}/{crafting.maxOutputCapacityPerResource}");
+                    int amount = crafting.OutputQueue.TryGetValue(entry.resource, out int v) ? v : 0;
+                    GUILayout.Label($"- {entry.resource.displayName}: {amount}/{crafting.maxOutputCapacityPerResource}");
                 }
             }
         }
@@ -595,30 +548,9 @@ public class UnitInspectorUI : MonoBehaviour
             GUILayout.Label("Local storage: none configured.");
     }
 
-    void DrawProduction()
-    {
-        if (selected.TryGetComponent<Barracks>(out var barracks))
-        {
-            foreach (var def in barracks.producibleUnits)
-            {
-                if (def == null) continue;
-                bool canAfford = barracks.CanQueue(def);
-                GUI.enabled = canAfford;
-                if (GUILayout.Button("Train " + def.unitName)) barracks.QueueUnit(def);
-                GUI.enabled = true;
-            }
-            if (GUILayout.Button("Cancel Last")) barracks.CancelLast();
-        }
-
-        if (TryGetSelectedComponent(out CraftingBuilding crafting))
-        {
-            string recipeName = crafting.recipe != null ? crafting.recipe.recipeName : "None";
-            GUILayout.Label($"Recipe: {recipeName}");
-            GUILayout.Label($"State: {crafting.State}");
-            GUILayout.Label($"Missing Inputs: {crafting.GetMissingInputSummary()}");
-            GUILayout.Label($"Progress: {crafting.CraftProgress01:P0}");
-        }
-    }
+    // -----------------------
+    // Combat
+    // -----------------------
 
     void DrawCombat()
     {
@@ -650,33 +582,6 @@ public class UnitInspectorUI : MonoBehaviour
             return civ.JobType.ToString();
 
         return civ.role.ToString();
-    }
-
-    void DrawRoleButtons(Civilian civ)
-    {
-        var roles = (CivilianRole[])Enum.GetValues(typeof(CivilianRole));
-        DrawButtonGrid(roles, 3, role => civ.SetRole(role), role => role.ToString());
-    }
-
-    void DrawJobTypeButtons(Civilian civ)
-    {
-        var jobs = (CivilianJobType[])Enum.GetValues(typeof(CivilianJobType));
-        DrawButtonGrid(jobs, 3, job => civ.SetJobType(job), job => job.ToString());
-    }
-
-    void DrawButtonGrid<T>(T[] values, int columns, Action<T> onSelect, Func<T, string> label)
-    {
-        for (int i = 0; i < values.Length; i += columns)
-        {
-            GUILayout.BeginHorizontal();
-            for (int col = 0; col < columns; col++)
-            {
-                int idx = i + col;
-                if (idx >= values.Length) { GUILayout.FlexibleSpace(); continue; }
-                if (GUILayout.Button(label(values[idx]))) onSelect(values[idx]);
-            }
-            GUILayout.EndHorizontal();
-        }
     }
 
     static string SanitizeName(string raw)
