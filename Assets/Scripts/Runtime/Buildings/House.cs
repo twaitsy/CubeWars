@@ -69,7 +69,7 @@ public class House : Building
         return GetComponentInChildren<ResourceStorageContainer>();
     }
 
-    public bool TryConsumeFood(ResourceType type, int amount, out int consumed)
+    public bool TryConsumeFood(ResourceDefinition type, int amount, out int consumed)
     {
         consumed = 0;
         var storage = GetHouseStorage();

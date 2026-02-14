@@ -1,37 +1,3 @@
-﻿// =============================================================
-// ResourceStorageContainer.cs
-//
-// PURPOSE:
-// - Represents a single storage container for a building or unit.
-// - Tracks stored amounts and capacity for each ResourceType.
-// - Registers itself with TeamStorageManager for global queries.
-//
-// DEPENDENCIES:
-// - ResourceType:
-//      * Enum defining all resource categories.
-// - TeamStorageManager:
-//      * Registers/unregisters this container.
-//      * Aggregates totals, capacity, reservations, and withdrawals.
-// - Building / Unit / Civilian:
-//      * teamID determines which storage bucket this belongs to.
-// - ConstructionSite:
-//      * May use this container for temporary storage during building.
-//
-// NOTES FOR FUTURE MAINTENANCE:
-// - This script NEVER deletes teams or GameObjects.
-// - This script NEVER enforces singleton behavior.
-// - This script NEVER modifies teamID automatically.
-// - Capacity and stored values are per-container, not global.
-// - If you add new ResourceTypes, they will auto-initialize in Awake().
-// - If you add building upgrades, call AddCapacity() accordingly.
-//
-// ARCHITECTURE:
-// - Attached to buildings that provide storage.
-// - Registered with TeamStorageManager on enable.
-// - Unregistered on disable.
-// - Safe to have multiple containers per team.
-// =============================================================
-
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -48,86 +14,50 @@ public class ResourceStorageContainer : MonoBehaviour
     [System.Serializable]
     public struct ResourceFlowEntry
     {
-        public ResourceType type;
-
-        [Tooltip("Disabled = no hauling, ReceiveOnly = drop-off only, SupplyOnly = pickup only, ReceiveAndSupply = both pickup and drop-off.")]
+        public ResourceDefinition resource;
         public ResourceFlowMode flowMode;
     }
 
     public int teamID;
-
-    [Header("Per-Resource Hauler Permissions")]
-    [Tooltip("Controls whether haulers can deposit to and/or withdraw from this storage for each resource type.")]
     public List<ResourceFlowEntry> resourceFlow = new List<ResourceFlowEntry>();
 
-    Dictionary<ResourceType, int> stored = new Dictionary<ResourceType, int>();
-    Dictionary<ResourceType, int> capacity = new Dictionary<ResourceType, int>();
+    readonly Dictionary<string, int> stored = new Dictionary<string, int>();
+    readonly Dictionary<string, int> capacity = new Dictionary<string, int>();
 
-    void Awake()
-    {
-        EnsureFlowEntries();
+    string Key(ResourceDefinition resource) => ResourceIdUtility.GetKey(resource);
 
-        foreach (ResourceType t in System.Enum.GetValues(typeof(ResourceType)))
-        {
-            stored[t] = 0;
-            capacity[t] = 0;
-        }
-    }
-
-    void OnValidate()
-    {
-        EnsureFlowEntries();
-    }
-
-    void EnsureFlowEntries()
-    {
-        if (resourceFlow == null)
-            resourceFlow = new List<ResourceFlowEntry>();
-
-        foreach (ResourceType t in System.Enum.GetValues(typeof(ResourceType)))
-        {
-            bool exists = false;
-            for (int i = 0; i < resourceFlow.Count; i++)
-            {
-                if (resourceFlow[i].type != t) continue;
-                exists = true;
-                break;
-            }
-
-            if (exists) continue;
-            resourceFlow.Add(new ResourceFlowEntry
-            {
-                type = t,
-                flowMode = ResourceFlowMode.ReceiveAndSupply
-            });
-        }
-    }
-
-    ResourceFlowMode GetFlowMode(ResourceType type)
+    ResourceFlowMode GetFlowMode(ResourceDefinition resource)
     {
         for (int i = 0; i < resourceFlow.Count; i++)
         {
-            if (resourceFlow[i].type == type)
+            if (ResourceIdUtility.GetKey(resourceFlow[i].resource) == Key(resource))
                 return resourceFlow[i].flowMode;
         }
 
         return ResourceFlowMode.ReceiveAndSupply;
     }
 
-    public ResourceFlowMode GetFlowSetting(ResourceType type)
+    void EnsureResource(ResourceDefinition resource)
     {
-        return GetFlowMode(type);
+        string key = Key(resource);
+        if (string.IsNullOrEmpty(key))
+            return;
+
+        if (!stored.ContainsKey(key)) stored[key] = 0;
+        if (!capacity.ContainsKey(key)) capacity[key] = 0;
     }
 
-    public bool CanReceive(ResourceType type)
+    public ResourceFlowMode GetFlowSetting(ResourceDefinition resource) => GetFlowMode(resource);
+
+    public bool CanReceive(ResourceDefinition resource)
     {
-        ResourceFlowMode mode = GetFlowMode(type);
+        ResourceFlowMode mode = GetFlowMode(resource);
         return mode == ResourceFlowMode.ReceiveOnly || mode == ResourceFlowMode.ReceiveAndSupply;
     }
 
-    public bool CanSupply(ResourceType type)
+    public bool CanSupply(ResourceDefinition resource)
     {
-        ResourceFlowMode mode = GetFlowMode(type);
+        ResourceFlowMode mode = GetFlowMode(resource);
         return mode == ResourceFlowMode.SupplyOnly || mode == ResourceFlowMode.ReceiveAndSupply;
     }
 
@@ -143,60 +73,73 @@ public class ResourceStorageContainer : MonoBehaviour
             TeamStorageManager.Instance.Unregister(this);
     }
 
-    public int GetStored(ResourceType type)
+    public int GetStored(ResourceDefinition resource)
     {
-        return stored[type];
+        EnsureResource(resource);
+        string key = Key(resource);
+        return string.IsNullOrEmpty(key) ? 0 : stored[key];
     }
 
-    public int GetCapacity(ResourceType type)
+    public int GetCapacity(ResourceDefinition resource)
     {
-        return capacity[type];
+        EnsureResource(resource);
+        string key = Key(resource);
+        return string.IsNullOrEmpty(key) ? 0 : capacity[key];
     }
 
-    public int GetFree(ResourceType type)
+    public int GetFree(ResourceDefinition resource)
     {
-        return Mathf.Max(0, capacity[type] - stored[type]);
+        EnsureResource(resource);
+        string key = Key(resource);
+        return string.IsNullOrEmpty(key) ? 0 : Mathf.Max(0, capacity[key] - stored[key]);
     }
 
-    public int Deposit(ResourceType type, int amount)
+    public int Deposit(ResourceDefinition resource, int amount)
     {
-        if (!CanReceive(type)) return 0;
+        if (!CanReceive(resource)) return 0;
+        EnsureResource(resource);
+        string key = Key(resource);
+        if (string.IsNullOrEmpty(key)) return 0;
 
-        int free = GetFree(type);
-        int accepted = Mathf.Min(free, amount);
-        stored[type] += accepted;
+        int accepted = Mathf.Min(GetFree(resource), amount);
+        stored[key] += accepted;
         return accepted;
     }
 
-    public int Withdraw(ResourceType type, int amount)
+    public int Withdraw(ResourceDefinition resource, int amount)
     {
-        if (!CanSupply(type)) return 0;
+        if (!CanSupply(resource)) return 0;
+        EnsureResource(resource);
+        string key = Key(resource);
+        if (string.IsNullOrEmpty(key)) return 0;
 
-        int taken = Mathf.Min(stored[type], amount);
-        stored[type] -= taken;
+        int taken = Mathf.Min(stored[key], amount);
+        stored[key] -= taken;
         return taken;
     }
 
-
-    public void SetStoredForRuntime(ResourceType type, int amount)
+    public void SetStoredForRuntime(ResourceDefinition resource, int amount)
     {
-        stored[type] = Mathf.Clamp(amount, 0, capacity[type]);
+        EnsureResource(resource);
+        string key = Key(resource);
+        if (string.IsNullOrEmpty(key)) return;
+        stored[key] = Mathf.Clamp(amount, 0, capacity[key]);
     }
 
-    public void AddCapacity(ResourceType type, int amount)
+    public void AddCapacity(ResourceDefinition resource, int amount)
     {
-        capacity[type] += amount;
+        EnsureResource(resource);
+        string key = Key(resource);
+        if (string.IsNullOrEmpty(key)) return;
+        capacity[key] += amount;
     }
 
     public void SetTeamID(int newTeamID)
     {
         if (teamID == newTeamID) return;
-
         if (TeamStorageManager.Instance != null)
             TeamStorageManager.Instance.Unregister(this);
-
         teamID = newTeamID;
-
         if (isActiveAndEnabled && TeamStorageManager.Instance != null)
             TeamStorageManager.Instance.Register(this);
     }

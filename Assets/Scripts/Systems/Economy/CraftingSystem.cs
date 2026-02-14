@@ -30,7 +30,7 @@ public class CraftingSystem : MonoBehaviour
                 int need = item.craftCost[i].amount * amount;
 
                 // NEW: use TeamStorageManager for stored resources
-                int stored = TeamStorageManager.Instance.GetTotalStored(teamID, item.craftCost[i].type);
+                int stored = TeamStorageManager.Instance.GetTotalStored(teamID, item.craftCost[i].resource);
                 if (stored < need)
                     return false;
             }
@@ -39,7 +39,7 @@ public class CraftingSystem : MonoBehaviour
             for (int i = 0; i < item.craftCost.Length; i++)
             {
                 int need = item.craftCost[i].amount * amount;
-                TeamResources.Instance.SpendResource(teamID, item.craftCost[i].type, need);
+                TeamResources.Instance.SpendResource(teamID, item.craftCost[i].resource, need);
             }
         }
 

@@ -4318,3 +4318,9 @@ TeamColorUtils
 **Used By:** Dependencies, Minimap
 
 
+
+
+## Data-driven Resource Migration Note
+- ResourceType enum references are deprecated and removed from runtime resource logic.
+- Runtime systems now pass ResourceDefinition references and/or normalized resource IDs.
+- Food lookup is provided by FoodDatabase entries mapped by ResourceDefinition.

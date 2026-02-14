@@ -1,23 +1,5 @@
 ﻿using UnityEngine;
 
-/// <summary>
-/// Global resource façade for Cube Wars.
-///
-/// DEPENDENCIES:
-/// - TeamStorageManager:
-///     Actual storage implementation.
-/// - ResourceType / ResourceCost:
-///     Defines resource kinds and costs.
-///
-/// RESPONSIBILITIES:
-/// - Provide a stable API for resource queries
-/// - Forward calls to TeamStorageManager
-///
-/// IMPORTANT:
-/// - Singleton pattern:
-///     Only ONE TeamResources should exist.
-/// - Does NOT delete teams.
-/// </summary>
 public class TeamResources : MonoBehaviour
 {
     public static TeamResources Instance;
@@ -32,10 +14,10 @@ public class TeamResources : MonoBehaviour
         Instance = this;
     }
 
-    public int GetAvailable(int teamID, ResourceType type)
+    public int GetAvailable(int teamID, ResourceDefinition resource)
     {
         if (TeamStorageManager.Instance == null) return 0;
-        return TeamStorageManager.Instance.GetAvailable(teamID, type);
+        return TeamStorageManager.Instance.GetAvailable(teamID, resource);
     }
 
     public bool CanAfford(int teamID, ResourceCost[] costs)
@@ -53,12 +35,12 @@ public class TeamResources : MonoBehaviour
             return false;
 
         foreach (var c in costs)
-            SpendResource(teamID, c.type, c.amount);
+            SpendResource(teamID, c.resource, c.amount);
 
         return true;
     }
 
-    public bool SpendResource(int teamID, ResourceType type, int amount)
+    public bool SpendResource(int teamID, ResourceDefinition resource, int amount)
     {
         if (RTSGameSettings.IsCheatActive(c => c.infiniteResources))
             return true;
@@ -66,27 +48,27 @@ public class TeamResources : MonoBehaviour
         if (TeamStorageManager.Instance == null) return false;
         if (amount <= 0) return true;
 
-        int taken = TeamStorageManager.Instance.Withdraw(teamID, type, amount);
+        int taken = TeamStorageManager.Instance.Withdraw(teamID, resource, amount);
         return taken == amount;
     }
 
-    public int Deposit(int teamID, ResourceType type, int amount)
+    public int Deposit(int teamID, ResourceDefinition resource, int amount)
     {
         if (TeamStorageManager.Instance == null) return 0;
         if (amount <= 0) return 0;
 
-        return TeamStorageManager.Instance.Deposit(teamID, type, amount);
+        return TeamStorageManager.Instance.Deposit(teamID, resource, amount);
     }
 
-    public int GetFreeCapacity(int teamID, ResourceType type)
+    public int GetFreeCapacity(int teamID, ResourceDefinition resource)
     {
         if (TeamStorageManager.Instance == null) return 0;
-        return TeamStorageManager.Instance.GetTotalFree(teamID, type);
+        return TeamStorageManager.Instance.GetTotalFree(teamID, resource);
     }
 
-    public int GetResource(int teamID, ResourceType type)
+    public int GetResource(int teamID, ResourceDefinition resource)
     {
         if (TeamStorageManager.Instance == null) return 0;
-        return TeamStorageManager.Instance.GetTotalStored(teamID, type);
+        return TeamStorageManager.Instance.GetTotalStored(teamID, resource);
     }
 }

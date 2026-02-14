@@ -6,7 +6,7 @@ public class ResourceDropoff : MonoBehaviour
     public int teamID;
 
     [Header("If empty, accepts ANY resource.")]
-    public ResourceType[] acceptsOnly;
+    public ResourceDefinition[] acceptsOnly;
 
     private static readonly List<ResourceDropoff> all = new List<ResourceDropoff>();
 
@@ -25,7 +25,7 @@ public class ResourceDropoff : MonoBehaviour
         teamID = newTeamID;
     }
 
-    public bool CanAccept(ResourceType t)
+    public bool CanAccept(ResourceDefinition t)
     {
         if (acceptsOnly == null || acceptsOnly.Length == 0) return true;
         for (int i = 0; i < acceptsOnly.Length; i++)
@@ -33,14 +33,14 @@ public class ResourceDropoff : MonoBehaviour
         return false;
     }
 
-    public int Deposit(ResourceType type, int amount)
+    public int Deposit(ResourceDefinition type, int amount)
     {
         if (!CanAccept(type)) return 0;
         if (TeamResources.Instance == null) return 0;
         return TeamResources.Instance.Deposit(teamID, type, amount);
     }
 
-    public static ResourceDropoff FindNearest(int teamID, ResourceType type, Vector3 from)
+    public static ResourceDropoff FindNearest(int teamID, ResourceDefinition type, Vector3 from)
     {
         ResourceDropoff best = null;
         float bestD = float.MaxValue;

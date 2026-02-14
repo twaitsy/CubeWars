@@ -107,7 +107,7 @@ public class TaskBoardUI : MonoBehaviour
         }
 
         int lines = 0;
-        foreach (ResourceType t in Enum.GetValues(typeof(ResourceType)))
+        foreach (ResourceDefinition t in Enum.GetValues(typeof(ResourceDefinition)))
         {
             int stored = TeamStorageManager.Instance.GetTotalStoredInBuildings(playerTeamID, t);
             int cap = TeamStorageManager.Instance.GetTotalCapacityInBuildings(playerTeamID, t);

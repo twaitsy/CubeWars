@@ -329,7 +329,7 @@ public class UnitInspectorUI : MonoBehaviour
         if (costs != null)
         {
             foreach (var c in costs)
-                GUILayout.Label($"{c.type}: {site.GetDeliveredAmount(c.type)}/{c.amount}");
+                GUILayout.Label($"{c.resource}: {site.GetDeliveredAmount(c.resource)}/{c.amount}");
         }
     }
 
@@ -389,7 +389,7 @@ public class UnitInspectorUI : MonoBehaviour
         }
         else if (selected.TryGetComponent<ResourceNode>(out var node))
         {
-            GUILayout.Label($"Resource Node: {node.type}");
+            GUILayout.Label($"Resource Node: {node.resource}");
             GUILayout.Label($"Remaining: {node.remaining}");
         }
     }
@@ -438,7 +438,7 @@ public class UnitInspectorUI : MonoBehaviour
             if (costs != null)
             {
                 foreach (var c in costs)
-                    GUILayout.Label($"{c.type}: {site.GetDeliveredAmount(c.type)}/{c.amount}");
+                    GUILayout.Label($"{c.resource}: {site.GetDeliveredAmount(c.resource)}/{c.amount}");
             }
         }
     }
@@ -506,7 +506,7 @@ public class UnitInspectorUI : MonoBehaviour
         {
             int totalStored = 0;
             int totalCapacity = 0;
-            foreach (ResourceType t in Enum.GetValues(typeof(ResourceType)))
+            foreach (ResourceDefinition t in Enum.GetValues(typeof(ResourceDefinition)))
             {
                 totalStored += storage.GetStored(t);
                 totalCapacity += storage.GetCapacity(t);
@@ -543,7 +543,7 @@ public class UnitInspectorUI : MonoBehaviour
 
         if (hasStorage)
         {
-            foreach (ResourceType t in Enum.GetValues(typeof(ResourceType)))
+            foreach (ResourceDefinition t in Enum.GetValues(typeof(ResourceDefinition)))
             {
                 int cap = storage.GetCapacity(t);
                 int stored = storage.GetStored(t);
@@ -575,16 +575,16 @@ public class UnitInspectorUI : MonoBehaviour
                 for (int i = 0; i < crafting.recipe.inputs.Length; i++)
                 {
                     var entry = crafting.recipe.inputs[i];
-                    int amount = inputBuffer != null && inputBuffer.ContainsKey(entry.resourceType) ? inputBuffer[entry.resourceType] : 0;
-                    GUILayout.Label($"- {entry.resourceType}: {amount}/{crafting.maxInputCapacityPerResource}");
+                    int amount = inputBuffer != null && inputBuffer.ContainsKey(entry.resource) ? inputBuffer[entry.resource] : 0;
+                    GUILayout.Label($"- {entry.resource}: {amount}/{crafting.maxInputCapacityPerResource}");
                 }
 
                 GUILayout.Label("Outputs");
                 for (int i = 0; i < crafting.recipe.outputs.Length; i++)
                 {
                     var entry = crafting.recipe.outputs[i];
-                    int amount = outputQueue != null && outputQueue.ContainsKey(entry.resourceType) ? outputQueue[entry.resourceType] : 0;
-                    GUILayout.Label($"- {entry.resourceType}: {amount}/{crafting.maxOutputCapacityPerResource}");
+                    int amount = outputQueue != null && outputQueue.ContainsKey(entry.resource) ? outputQueue[entry.resource] : 0;
+                    GUILayout.Label($"- {entry.resource}: {amount}/{crafting.maxOutputCapacityPerResource}");
                 }
             }
         }

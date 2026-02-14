@@ -469,3 +469,10 @@ Latest resource database migration notes
 - ResourceSpawner enforces Raw-only resource spawning through ResourceDefinition category checks when `resourcesDatabase` is assigned.
 - CraftingBuilding enforces Refined-only outputs through ResourceDefinition category checks when `resourcesDatabase` is assigned.
 - Civilian food behavior now reads edible entries from `FoodDatabase` (ResourceDefinition-based), then resolves runtime storage resources from those definitions.
+
+
+[2026 Data-driven resources migration]
+- ResourceType enum has been removed from runtime data flow.
+- All resource references should use ResourceDefinition assets (or resource IDs resolved via ResourcesDatabase).
+- Food behavior is now resolved through FoodDatabase + FoodDefinition (hungerRestore, eatTime, requiresCooking, perishable, spoilTime).
+- Civilians, storage, crafting/recipes, and UI should query FoodDatabase for edible checks and hunger restore values.

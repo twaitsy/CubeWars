@@ -167,3 +167,10 @@ Resource database wiring requirements (latest)
 - Assign `ResourcesDatabase` on CraftingBuilding to enforce Refined-only recipe outputs.
 - Assign `ResourcesDatabase` on Civilian prefab(s) so edible resources are detected by Food category.
 - FoodDatabase should be assigned for data-driven civilian hunger behavior.
+
+
+[2026 Data-driven resources migration]
+- ResourceType enum has been removed from runtime data flow.
+- All resource references should use ResourceDefinition assets (or resource IDs resolved via ResourcesDatabase).
+- Food behavior is now resolved through FoodDatabase + FoodDefinition (hungerRestore, eatTime, requiresCooking, perishable, spoilTime).
+- Civilians, storage, crafting/recipes, and UI should query FoodDatabase for edible checks and hunger restore values.

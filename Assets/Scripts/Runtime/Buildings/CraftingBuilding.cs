@@ -55,12 +55,12 @@ public class CraftingBuilding : Building
 
     public ProductionState State => state;
     public float CraftProgress01 => craftDuration <= 0f ? 0f : Mathf.Clamp01(craftTimer / craftDuration);
-    public IReadOnlyDictionary<ResourceType, int> InputBuffer => inputBuffer;
-    public IReadOnlyDictionary<ResourceType, int> OutputQueue => outputQueue;
+    public IReadOnlyDictionary<ResourceDefinition, int> InputBuffer => inputBuffer;
+    public IReadOnlyDictionary<ResourceDefinition, int> OutputQueue => outputQueue;
     public IReadOnlyList<Civilian> AssignedWorkers => assignedWorkers;
 
-    readonly Dictionary<ResourceType, int> inputBuffer = new Dictionary<ResourceType, int>();
-    readonly Dictionary<ResourceType, int> outputQueue = new Dictionary<ResourceType, int>();
+    readonly Dictionary<ResourceDefinition, int> inputBuffer = new Dictionary<ResourceDefinition, int>();
+    readonly Dictionary<ResourceDefinition, int> outputQueue = new Dictionary<ResourceDefinition, int>();
     readonly Dictionary<Civilian, int> occupiedWorkpoints = new Dictionary<Civilian, int>();
     readonly Dictionary<Civilian, float> inactiveAssignedWorkerTimers = new Dictionary<Civilian, float>();
     readonly List<Civilian> assignedWorkers = new List<Civilian>();
@@ -96,7 +96,7 @@ public class CraftingBuilding : Building
 
     void InitializeResourceMaps()
     {
-        foreach (ResourceType type in System.Enum.GetValues(typeof(ResourceType)))
+        foreach (ResourceDefinition type in System.Enum.GetValues(typeof(ResourceDefinition)))
         {
             inputBuffer[type] = 0;
             outputQueue[type] = 0;
@@ -243,7 +243,7 @@ public class CraftingBuilding : Building
         return Mathf.Max(1, Mathf.RoundToInt(entry.amount * recipe.batchSize * combined));
     }
 
-    bool IsAllowedOutputType(ResourceType type)
+    bool IsAllowedOutputType(ResourceDefinition type)
     {
         if (resourcesDatabase == null)
             return true;
@@ -252,14 +252,14 @@ public class CraftingBuilding : Building
                resourcesDatabase.IsCategory(definition, ResourceCategory.Refined);
     }
 
-    public bool NeedsInput(ResourceType type)
+    public bool NeedsInput(ResourceDefinition type)
     {
         if (recipe?.inputs == null) return false;
 
         for (int i = 0; i < recipe.inputs.Length; i++)
         {
             var entry = recipe.inputs[i];
-            if (entry.resourceType != type) continue;
+            if (entry.resource != type) continue;
 
             int needed = GetEffectiveInputRequirement(entry);
             return inputBuffer[type] < needed;
@@ -277,7 +277,7 @@ public class CraftingBuilding : Building
         {
             var entry = recipe.inputs[i];
             int needed = GetEffectiveInputRequirement(entry);
-            if (inputBuffer[entry.resourceType] < needed)
+            if (inputBuffer[entry.resource] < needed)
                 return true;
         }
 
@@ -292,8 +292,8 @@ public class CraftingBuilding : Building
         for (int i = 0; i < recipe.outputs.Length; i++)
         {
             var entry = recipe.outputs[i];
-            if (!IsAllowedOutputType(entry.resourceType)) continue;
-            if (outputQueue[entry.resourceType] > 0)
+            if (!IsAllowedOutputType(entry.resource)) continue;
+            if (outputQueue[entry.resource] > 0)
                 return true;
         }
 
@@ -309,7 +309,7 @@ public class CraftingBuilding : Building
         {
             var entry = recipe.inputs[i];
             int need = GetEffectiveInputRequirement(entry);
-            if (inputBuffer[entry.resourceType] < need)
+            if (inputBuffer[entry.resource] < need)
                 return false;
         }
 
@@ -323,8 +323,8 @@ public class CraftingBuilding : Building
         for (int i = 0; i < recipe.outputs.Length; i++)
         {
             var entry = recipe.outputs[i];
-            if (!IsAllowedOutputType(entry.resourceType)) continue;
-            if (outputQueue[entry.resourceType] >= maxOutputCapacityPerResource)
+            if (!IsAllowedOutputType(entry.resource)) continue;
+            if (outputQueue[entry.resource] >= maxOutputCapacityPerResource)
                 return true;
         }
 
@@ -400,7 +400,7 @@ public class CraftingBuilding : Building
         {
             var entry = recipe.inputs[i];
             int need = GetEffectiveInputRequirement(entry);
-            inputBuffer[entry.resourceType] = Mathf.Max(0, inputBuffer[entry.resourceType] - need);
+            inputBuffer[entry.resource] = Mathf.Max(0, inputBuffer[entry.resource] - need);
         }
     }
 
@@ -411,14 +411,14 @@ public class CraftingBuilding : Building
         for (int i = 0; i < recipe.outputs.Length; i++)
         {
             var entry = recipe.outputs[i];
-            if (!IsAllowedOutputType(entry.resourceType))
+            if (!IsAllowedOutputType(entry.resource))
             {
-                Debug.LogWarning($"[{nameof(CraftingBuilding)}] Ignoring output {entry.resourceType} on {name}: only Refined resources are allowed.");
+                Debug.LogWarning($"[{nameof(CraftingBuilding)}] Ignoring output {entry.resource} on {name}: only Refined resources are allowed.");
                 continue;
             }
 
             int produce = GetEffectiveOutputAmount(entry);
-            outputQueue[entry.resourceType] = Mathf.Min(maxOutputCapacityPerResource, outputQueue[entry.resourceType] + produce);
+            outputQueue[entry.resource] = Mathf.Min(maxOutputCapacityPerResource, outputQueue[entry.resource] + produce);
         }
     }
 
@@ -486,7 +486,7 @@ public class CraftingBuilding : Building
         occupiedWorkpoints.Remove(civilian);
     }
 
-    public bool TryDeliverInput(ResourceType type, int amount, out int accepted)
+    public bool TryDeliverInput(ResourceDefinition type, int amount, out int accepted)
     {
         accepted = 0;
         if (amount <= 0) return false;
@@ -499,7 +499,7 @@ public class CraftingBuilding : Building
         return true;
     }
 
-    public int CollectOutput(ResourceType type, int amount)
+    public int CollectOutput(ResourceDefinition type, int amount)
     {
         if (amount <= 0) return 0;
         int taken = Mathf.Min(amount, outputQueue[type]);
@@ -512,7 +512,7 @@ public class CraftingBuilding : Building
     // ---------------------------------------------------------
     public bool TryGetInputRequest(
         Vector3 workerPosition,
-        out ResourceType neededType,
+        out ResourceDefinition neededType,
         out int amount,
         out ResourceStorageContainer nearestStorage)
     {
@@ -526,7 +526,7 @@ public class CraftingBuilding : Building
         for (int i = 0; i < recipe.inputs.Length; i++)
         {
             var entry = recipe.inputs[i];
-            var type = entry.resourceType;
+            var type = entry.resource;
 
             // NEW BEHAVIOR:
             // Request enough to fill the entire input buffer.
@@ -553,7 +553,7 @@ public class CraftingBuilding : Building
         return false;
     }
 
-    public bool TryGetOutputRequest(Vector3 workerPosition, out ResourceType outputType, out int amount, out ResourceStorageContainer nearestStorage)
+    public bool TryGetOutputRequest(Vector3 workerPosition, out ResourceDefinition outputType, out int amount, out ResourceStorageContainer nearestStorage)
     {
         outputType = default;
         amount = 0;
@@ -565,15 +565,15 @@ public class CraftingBuilding : Building
         for (int i = 0; i < recipe.outputs.Length; i++)
         {
             var entry = recipe.outputs[i];
-            if (!IsAllowedOutputType(entry.resourceType)) continue;
+            if (!IsAllowedOutputType(entry.resource)) continue;
 
-            int available = outputQueue[entry.resourceType];
+            int available = outputQueue[entry.resource];
             if (available <= 0) continue;
 
-            var storage = FindNearestExternalStorageWithFree(entry.resourceType);
+            var storage = FindNearestExternalStorageWithFree(entry.resource);
             if (storage == null) continue;
 
-            outputType = entry.resourceType;
+            outputType = entry.resource;
             amount = available;
             nearestStorage = storage;
             return true;
@@ -582,7 +582,7 @@ public class CraftingBuilding : Building
         return false;
     }
 
-    ResourceStorageContainer FindNearestExternalStorageWithFree(ResourceType type)
+    ResourceStorageContainer FindNearestExternalStorageWithFree(ResourceDefinition type)
     {
         var storages = FindObjectsOfType<ResourceStorageContainer>();
         var localStorages = GetComponentsInChildren<ResourceStorageContainer>(true);
@@ -699,9 +699,9 @@ public class CraftingBuilding : Building
         {
             var entry = recipe.inputs[i];
             int needed = GetEffectiveInputRequirement(entry);
-            int missing = Mathf.Max(0, needed - inputBuffer[entry.resourceType]);
+            int missing = Mathf.Max(0, needed - inputBuffer[entry.resource]);
             if (missing > 0)
-                parts.Add($"{entry.resourceType}:{missing}");
+                parts.Add($"{entry.resource}:{missing}");
         }
 
         if (parts.Count == 0) return "None";

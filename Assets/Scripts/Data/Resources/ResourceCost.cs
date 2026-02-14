@@ -4,6 +4,6 @@ using UnityEngine;
 [Serializable]
 public struct ResourceCost
 {
-    public ResourceType type;
+    public ResourceDefinition resource;
     public int amount;
 }

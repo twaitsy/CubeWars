@@ -64,7 +64,7 @@ public class CraftingJobManager : MonoBehaviour
         return true;
     }
 
-    public CraftingBuilding FindNearestBuildingNeedingInput(int teamID, ResourceType type, Vector3 position)
+    public CraftingBuilding FindNearestBuildingNeedingInput(int teamID, ResourceDefinition type, Vector3 position)
     {
         CraftingBuilding best = null;
         float bestDistance = float.MaxValue;

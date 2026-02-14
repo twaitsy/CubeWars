@@ -10,37 +10,28 @@ public class FoodDatabase : ScriptableObject
     public bool TryGet(ResourceDefinition resource, out FoodDefinition definition)
     {
         definition = null;
-        if (resource == null || foods == null)
-            return false;
-
-        for (int i = 0; i < foods.Count; i++)
-        {
-            FoodDefinition candidate = foods[i];
-            if (candidate == null || candidate.resource == null)
-                continue;
-
-            if (ReferenceEquals(candidate.resource, resource) || string.Equals(candidate.resource.id, resource.id, StringComparison.OrdinalIgnoreCase))
-            {
-                definition = candidate;
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public IEnumerable<FoodDefinition> EnumerateFoods()
-    {
-        if (foods == null)
-            yield break;
-
+        string key = ResourceIdUtility.GetKey(resource);
+        if (string.IsNullOrEmpty(key) || foods == null) return false;
         for (int i = 0; i < foods.Count; i++)
         {
             FoodDefinition entry = foods[i];
-            if (entry == null || entry.resource == null)
-                continue;
-
-            yield return entry;
+            if (entry == null || entry.resource == null) continue;
+            if (string.Equals(ResourceIdUtility.GetKey(entry.resource), key, StringComparison.OrdinalIgnoreCase))
+            {
+                definition = entry;
+                return true;
+            }
         }
+        return false;
+    }
+
+    public bool IsEdible(ResourceDefinition resource) => TryGet(resource, out _);
+
+    public IEnumerable<FoodDefinition> EnumerateFoods()
+    {
+        if (foods == null) yield break;
+        for (int i = 0; i < foods.Count; i++)
+            if (foods[i] != null && foods[i].resource != null)
+                yield return foods[i];
     }
 }

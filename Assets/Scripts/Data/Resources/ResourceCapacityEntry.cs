@@ -4,6 +4,6 @@ using UnityEngine;
 [Serializable]
 public struct ResourceCapacityEntry
 {
-    public ResourceType type;
+    public ResourceDefinition resource;
     public int capacity;
 }

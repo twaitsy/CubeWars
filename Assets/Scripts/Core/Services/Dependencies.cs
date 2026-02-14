@@ -77,7 +77,7 @@ public class dependencies : MonoBehaviour
     ResourceSpawner.cs — Spawns resource nodes (Buildings)
     ResourceStorageContainer.cs — Per-building storage (Buildings)
     ResourceStorageProvider.cs — Provides storage to workers (Buildings)
-    ResourceType.cs — Enum of resource types (Core)
+    ResourceDefinition.cs — Enum of resource types (Core)
     ResourceVisualBuilder.cs — Builds resource visuals (Buildings)
     RTSCamera.cs — RTS camera controller (Core)
     SaveLoadManager.cs — Save/load system (Core)
@@ -212,7 +212,7 @@ public class dependencies : MonoBehaviour
     GameBootstrap.cs
     GameManager.cs
     ParentRenamer.cs
-    ResourceType.cs
+    ResourceDefinition.cs
     RTSCamera.cs
     SaveLoadManager.cs
     SciFiMapBootstrap.cs
