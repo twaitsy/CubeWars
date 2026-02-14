@@ -6,10 +6,10 @@ namespace CubeWarsTools.Core
 {
     public static class ScriptIndexOpener
     {
-        private static readonly string MarkdownPath = "Assets/Docs/ScriptIndex.md";
-        private static readonly string TextPath = "Assets/Docs/ScriptIndex.txt";
+        private static readonly string MarkdownPath = EditorToolsPaths.ScriptIndex + "/ScriptIndex.md";
+        private static readonly string TextPath = EditorToolsPaths.ScriptIndex + "/ScriptIndex.txt";
 
-        [MenuItem("Tools/CubeWars/Open Script Index")]
+        [MenuItem("Tools/CubeWars/Documentation/Open Script Index")]
         public static void OpenScriptIndex()
         {
             // Prefer Markdown
@@ -26,7 +26,7 @@ namespace CubeWarsTools.Core
                 return;
             }
 
-            Debug.LogWarning("No Script Index found. Generate it first via Tools → CubeWars → Generate Script Index.");
+            Debug.LogWarning("No Script Index found. Generate it first via Tools → CubeWars → Documentation → Generate Script Index.");
         }
 
         private static void OpenFile(string path)

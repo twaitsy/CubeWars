@@ -17,7 +17,7 @@ namespace CubeWarsTools.Core
     {
         private static readonly string ScriptsRoot = "Assets/Scripts";
 
-        [MenuItem("Tools/CubeWars/Generate Script Index (with analysis)")]
+        [MenuItem("Tools/CubeWars/Documentation/Generate Script Index With Analysis")]
         public static void GenerateWithAnalysis()
         {
             Debug.Log("Cube Wars: Starting full index + analysis generation...");

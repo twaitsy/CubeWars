@@ -9,7 +9,7 @@ namespace CubeWarsTools.Core
     public static class ScriptIndexGenerator
     {
         private static readonly string ScriptsRoot = "Assets/Scripts";
-        private static readonly string DocsRoot = "Assets/Docs";
+        private static readonly string DocsRoot = EditorToolsPaths.ScriptIndex;
 
         private static readonly string[] SystemGroups = new[]
         {
@@ -23,7 +23,7 @@ namespace CubeWarsTools.Core
             "UI"
         };
 
-        [MenuItem("Tools/CubeWars/Generate Script Index")]
+        [MenuItem("Tools/CubeWars/Documentation/Generate Script Index")]
         public static void Generate()
         {
             EnsureDocsFolder();
@@ -126,10 +126,7 @@ namespace CubeWarsTools.Core
 
         private static void EnsureDocsFolder()
         {
-            if (!AssetDatabase.IsValidFolder(DocsRoot))
-            {
-                AssetDatabase.CreateFolder("Assets", "Docs");
-            }
+            EditorToolsPaths.EnsureFolder(DocsRoot);
         }
     }
 }

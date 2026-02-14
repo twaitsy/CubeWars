@@ -21,7 +21,7 @@ namespace CubeWarsTools.Browser
         private Dictionary<string, ScriptAnalysisResult> scriptAnalysis;
         private Dictionary<string, DependencyAnalysisResult> dependencyAnalysis;
 
-        [MenuItem("Tools/CubeWars/Script Browser")]
+        [MenuItem("Tools/CubeWars/Analysis/Open Script Browser")]
         public static void Open()
         {
             var window = GetWindow<ScriptBrowserWindow>("Script Browser");

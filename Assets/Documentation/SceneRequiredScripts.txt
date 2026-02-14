@@ -174,3 +174,20 @@ Resource database wiring requirements (latest)
 - All resource references should use ResourceDefinition assets (or resource IDs resolved via ResourcesDatabase).
 - Food behavior is now resolved through FoodDatabase + FoodDefinition (hungerRestore, eatTime, requiresCooking, perishable, spoilTime).
 - Civilians, storage, crafting/recipes, and UI should query FoodDatabase for edible checks and hunger restore values.
+
+[2026 Editor and database updates]
+Editor menu/tooling categories
+- Tools/CubeWars/Documentation (index + docs exporters)
+- Tools/CubeWars/Analysis (dependency/script scans)
+- Tools/CubeWars/Validation (stats coverage checks)
+- Tools/CubeWars/Database (Game Database editor)
+
+Database linkage requirements (scene + prefabs)
+- Scene must include `GameDatabaseLoader` with a valid `GameDatabase` asset.
+- Unit prefabs should set `Unit.unitDefinitionId` to match a `UnitsDatabase` entry.
+- Civilian prefabs should set `Civilian.unitDefinitionId` (recommended: `civilian`).
+- Building prefabs should set `Building.buildingDefinitionId` to match `BuildingsDatabase` entries.
+- DefenseTurret prefabs should rely on `Building.buildingDefinitionId` to receive attack range/damage from the database when available.
+
+Editor output path standard
+- Generated editor outputs should be stored under: `Assets/Documentation/EditorToolsOutput`.

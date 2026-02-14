@@ -44,6 +44,10 @@ public class UnitCombatController : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         if (weapon == null)
             weapon = GetComponent<WeaponComponent>();
+
+        var unit = GetComponent<Unit>();
+        if (unit != null)
+            ApplyUnitStats(unit);
     }
 
     void Update()
@@ -256,6 +260,24 @@ public class UnitCombatController : MonoBehaviour
         hasManualTarget = false;
         currentTarget = null;
         attackMoveActive = false;
+    }
+
+    public void ApplyUnitStats(Unit unit)
+    {
+        if (unit == null)
+            return;
+
+        teamID = unit.teamID;
+        fallbackRange = unit.attackRange;
+        fallbackDamage = unit.damage;
+        fallbackCooldown = Mathf.Max(0.05f, unit.attackCooldown);
+
+        if (weapon != null)
+        {
+            weapon.range = unit.attackRange;
+            weapon.damage = unit.damage;
+            weapon.fireCooldown = Mathf.Max(0.05f, unit.attackCooldown);
+        }
     }
 
     public void ToggleRangeGizmos() => showRangeGizmos = !showRangeGizmos;

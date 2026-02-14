@@ -7,7 +7,7 @@ namespace CubeWarsTools.Graph
     {
         private DependencyGraphView graphView;
 
-        [MenuItem("Tools/CubeWars/Dependency Graph")]
+        [MenuItem("Tools/CubeWars/Analysis/View Dependency Graph")]
         public static void Open()
         {
             var window = GetWindow<DependencyGraphWindow>();

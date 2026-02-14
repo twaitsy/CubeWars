@@ -17,7 +17,7 @@ namespace CubeWarsTools.Browser
     public static class ScriptBrowserData
     {
         private static readonly string ScriptsRoot = "Assets/Scripts";
-        private static readonly string AnalysisRoot = "Assets/Docs/Analysis";
+        private static readonly string AnalysisRoot = EditorToolsPaths.Analysis;
 
         /// <summary>
         /// Loads all folder/script mappings and analysis data.

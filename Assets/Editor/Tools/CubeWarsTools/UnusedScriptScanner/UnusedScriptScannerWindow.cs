@@ -30,7 +30,7 @@ public class UnusedScriptScannerWindow : EditorWindow
         public string reason;
     }
 
-    [MenuItem("Tools/CubeWars/Unused Script Scanner")]
+    [MenuItem("Tools/CubeWars/Analysis/Scan Unused Scripts")]
     public static void Open()
     {
         var window = GetWindow<UnusedScriptScannerWindow>();

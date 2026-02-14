@@ -31,7 +31,7 @@ public class GameDatabaseEditorWindow : EditorWindow
     private BuildingCategory? buildingFilter = null;
     private ResourceCategory? resourceFilter = null;
 
-    [MenuItem("CubeWars/Database Editor")]
+    [MenuItem("Tools/CubeWars/Database/Open Game Database Editor")]
     public static void Open()
     {
         GetWindow<GameDatabaseEditorWindow>("Game Database");
@@ -444,6 +444,7 @@ public class GameDatabaseEditorWindow : EditorWindow
         SerializedProperty element = list.GetArrayElementAtIndex(selectedIndex);
 
         GUILayout.Label("Details", EditorStyles.boldLabel);
+        DrawReferenceSelectors();
 
         EditorGUI.indentLevel = 0;
 
@@ -462,6 +463,145 @@ public class GameDatabaseEditorWindow : EditorWindow
         so.ApplyModifiedProperties();
 
         EditorGUILayout.EndScrollView();
+    }
+
+
+    private void DrawReferenceSelectors()
+    {
+        if (db == null)
+            return;
+
+        switch (currentTab)
+        {
+            case Tab.Units:
+                DrawUnitReferenceSelectors();
+                break;
+            case Tab.Buildings:
+                DrawBuildingReferenceSelectors();
+                break;
+            case Tab.Tech:
+                DrawTechReferenceSelectors();
+                break;
+            case Tab.Jobs:
+                DrawJobReferenceSelectors();
+                break;
+        }
+    }
+
+    private void DrawUnitReferenceSelectors()
+    {
+        if (db.units == null || db.units.units == null || selectedIndex < 0 || selectedIndex >= db.units.units.Count)
+            return;
+
+        var unit = db.units.units[selectedIndex];
+        if (unit == null) return;
+
+        EditorGUILayout.Space(6);
+        EditorGUILayout.LabelField("Quick Selectors", EditorStyles.boldLabel);
+
+        unit.trainedAt = DrawPopup("Trained At", unit.trainedAt, db.buildings != null ? db.buildings.buildings : null, x => x != null ? x.displayName : "(None)");
+        unit.upgradeTo = DrawPopup("Upgrade To", unit.upgradeTo, db.units.units, x => x != null ? x.displayName : "(None)");
+        DrawToolArraySelector(unit);
+
+        EditorUtility.SetDirty(db.units);
+    }
+
+    private void DrawToolArraySelector(UnitDefinition unit)
+    {
+        if (db.tools == null || db.tools.tools == null)
+            return;
+
+        int length = Mathf.Max(0, EditorGUILayout.IntField("Starting Tools Count", unit.startingTools != null ? unit.startingTools.Length : 0));
+        if (unit.startingTools == null || unit.startingTools.Length != length)
+            Array.Resize(ref unit.startingTools, length);
+
+        for (int i = 0; i < length; i++)
+            unit.startingTools[i] = DrawPopup($"Starting Tool {i + 1}", unit.startingTools[i], db.tools.tools, x => x != null ? x.displayName : "(None)");
+    }
+
+    private void DrawBuildingReferenceSelectors()
+    {
+        if (db.buildings == null || db.buildings.buildings == null || selectedIndex < 0 || selectedIndex >= db.buildings.buildings.Count)
+            return;
+
+        var building = db.buildings.buildings[selectedIndex];
+        if (building == null) return;
+
+        EditorGUILayout.Space(6);
+        EditorGUILayout.LabelField("Quick Selectors", EditorStyles.boldLabel);
+        building.upgradeTo = DrawPopup("Upgrade To", building.upgradeTo, db.buildings.buildings, x => x != null ? x.displayName : "(None)");
+
+        EditorUtility.SetDirty(db.buildings);
+    }
+
+    private void DrawTechReferenceSelectors()
+    {
+        if (db.techTree == null || db.techTree.techNodes == null || selectedIndex < 0 || selectedIndex >= db.techTree.techNodes.Count)
+            return;
+
+        var tech = db.techTree.techNodes[selectedIndex];
+        if (tech == null) return;
+
+        EditorGUILayout.Space(6);
+        EditorGUILayout.LabelField("Quick Selectors", EditorStyles.boldLabel);
+        tech.requiredBuilding = DrawPopup("Required Building", tech.requiredBuilding, db.buildings != null ? db.buildings.buildings : null, x => x != null ? x.displayName : "(None)");
+
+        DrawListSelector("Prerequisites", tech.prerequisites, db.techTree.techNodes, x => x != null ? x.displayName : "(None)");
+        DrawListSelector("Unlock Buildings", tech.unlockBuildings, db.buildings != null ? db.buildings.buildings : null, x => x != null ? x.displayName : "(None)");
+        DrawListSelector("Unlock Units", tech.unlockUnits, db.units != null ? db.units.units : null, x => x != null ? x.displayName : "(None)");
+        DrawListSelector("Unlock Recipes", tech.unlockRecipes, db.recipes != null ? db.recipes.recipes : null, x => x != null ? x.recipeName : "(None)");
+
+        EditorUtility.SetDirty(db.techTree);
+    }
+
+    private void DrawJobReferenceSelectors()
+    {
+        if (db.jobs == null || db.jobs.jobs == null || selectedIndex < 0 || selectedIndex >= db.jobs.jobs.Count)
+            return;
+
+        var job = db.jobs.jobs[selectedIndex];
+        if (job == null || db.tools == null || db.tools.tools == null) return;
+
+        EditorGUILayout.Space(6);
+        EditorGUILayout.LabelField("Quick Selectors", EditorStyles.boldLabel);
+        int length = Mathf.Max(0, EditorGUILayout.IntField("Required Tools Count", job.requiredTools != null ? job.requiredTools.Length : 0));
+        if (job.requiredTools == null || job.requiredTools.Length != length)
+            Array.Resize(ref job.requiredTools, length);
+
+        for (int i = 0; i < length; i++)
+            job.requiredTools[i] = DrawPopup($"Required Tool {i + 1}", job.requiredTools[i], db.tools.tools, x => x != null ? x.displayName : "(None)");
+
+        EditorUtility.SetDirty(db.jobs);
+    }
+
+    private void DrawListSelector<T>(string label, List<T> list, List<T> source, Func<T, string> getName) where T : class
+    {
+        if (list == null || source == null)
+            return;
+
+        int length = Mathf.Max(0, EditorGUILayout.IntField(label + " Count", list.Count));
+        while (list.Count < length) list.Add(null);
+        while (list.Count > length) list.RemoveAt(list.Count - 1);
+
+        for (int i = 0; i < list.Count; i++)
+            list[i] = DrawPopup($"{label} {i + 1}", list[i], source, getName);
+    }
+
+    private T DrawPopup<T>(string label, T current, List<T> source, Func<T, string> getName) where T : class
+    {
+        if (source == null)
+        {
+            EditorGUILayout.LabelField(label, "(No source list)");
+            return current;
+        }
+
+        var options = new List<T> { null };
+        options.AddRange(source.Where(x => x != null));
+
+        int currentIndex = Mathf.Max(0, options.IndexOf(current));
+        string[] names = options.Select(x => x == null ? "(None)" : getName(x)).ToArray();
+        int newIndex = EditorGUILayout.Popup(label, currentIndex, names);
+        return options[Mathf.Clamp(newIndex, 0, options.Count - 1)];
     }
 
     private SerializedProperty GetActiveList(SerializedObject so)

@@ -10,7 +10,7 @@ namespace CubeWarsTools.Analysis
 {
     /// <summary>
     /// Writes analysis results to disk.
-    /// Mirrors the folder structure of Assets/Scripts under Assets/Docs/Analysis.
+    /// Mirrors the folder structure of Assets/Scripts under the editor analysis output folder.
     /// Generates:
     /// - Per-script analysis markdown files
     /// - A master analysis index
@@ -18,7 +18,7 @@ namespace CubeWarsTools.Analysis
     public static class AnalysisOutput
     {
         private static readonly string ScriptsRoot = "Assets/Scripts";
-        private static readonly string AnalysisRoot = "Assets/Docs/Analysis";
+        private static readonly string AnalysisRoot = EditorToolsPaths.Analysis;
 
         /// <summary>
         /// Writes all analysis results to disk.
@@ -183,11 +183,7 @@ namespace CubeWarsTools.Analysis
 
         private static void EnsureRootFolder()
         {
-            if (!AssetDatabase.IsValidFolder("Assets/Docs"))
-                AssetDatabase.CreateFolder("Assets", "Docs");
-
-            if (!AssetDatabase.IsValidFolder(AnalysisRoot))
-                AssetDatabase.CreateFolder("Assets/Docs", "Analysis");
+            EditorToolsPaths.EnsureFolder(AnalysisRoot);
         }
     }
 }
