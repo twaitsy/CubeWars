@@ -252,3 +252,89 @@ MonoBehaviour:
     powerConsumption: 0
     powerGeneration: 0
     waterConsumption: 0
+  - id: hq
+    displayName: H.Q
+    icon: {fileID: 0}
+    prefab: {fileID: 2609521548526753214, guid: ac24891f5744bdd4987e9779f1fb68e1,
+      type: 3}
+    category: 10
+    subCategory: 
+    constructionCost:
+    - resource:
+        id: wood
+        displayName: Wood
+        icon: {fileID: 10901, guid: 0000000000000000f000000000000000, type: 0}
+        category: 0
+        weight: 99
+        baseValue: 99
+      amount: 20
+    - resource:
+        id: gold
+        displayName: Gold
+        icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+        category: 0
+        weight: 456
+        baseValue: 6578
+      amount: 20
+    buildTime: 25
+    maxHealth: 600
+    upkeepCost:
+    - resource:
+        id: wood
+        displayName: Wood
+        icon: {fileID: 10901, guid: 0000000000000000f000000000000000, type: 0}
+        category: 0
+        weight: 99
+        baseValue: 99
+      amount: 20
+    - resource:
+        id: ironore
+        displayName: Iron Ore
+        icon: {fileID: 0}
+        category: 0
+        weight: 99
+        baseValue: 99
+      amount: 20
+    upkeepInterval: 60
+    maxResidents: 0
+    comfortLevel: 0
+    isProducer: 0
+    recipes:
+    - recipeName: Crack2
+      inputs:
+      - resource:
+          id: gold
+          displayName: Gold
+          icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+          category: 0
+          weight: 456
+          baseValue: 6578
+        amount: 10
+      outputs:
+      - resource:
+          id: Pork
+          displayName: Roast Pork
+          icon: {fileID: 0}
+          category: 2
+          weight: 2
+          baseValue: 11
+        amount: 10
+      craftTimeSeconds: 8
+      batchSize: 1
+      requiredJobType: 7
+      outputEfficiencyMultiplier: 1
+      inputEfficiencyMultiplier: 1
+      requiresPower: 0
+      requiresFuel: 0
+    workerSlots: 1
+    isStorage: 1
+    storageSettings:
+      capacity: 1000
+      allowedCategories: 00000000
+    isMilitary: 1
+    attackDamage: 0
+    attackRange: 0
+    garrisonSlots: 0
+    powerConsumption: 0
+    powerGeneration: 0
+    waterConsumption: 0
