@@ -18,6 +18,8 @@ public class SceneRequiredScripts : MonoBehaviour
         typeof(BuildGridManager),
         typeof(ResourceRegistry),
         typeof(JobManager),
+        typeof(WorkerTaskDispatcher),
+        typeof(WorkerTaskGenerationSystem),
         typeof(CraftingJobManager),
         typeof(ProductionNotificationManager),
         typeof(ProjectilePool),

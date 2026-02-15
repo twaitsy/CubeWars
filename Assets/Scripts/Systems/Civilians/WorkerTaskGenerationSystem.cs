@@ -29,7 +29,13 @@ public class WorkerTaskGenerationSystem : MonoBehaviour
             if (node == null || node.amount <= 0)
                 continue;
 
-            WorkerTaskDispatcher.Instance.QueueTask(WorkerTaskRequest.Gather(-1, node));
+            int maxSlots = Mathf.Max(1, node.maxGatherers);
+            int openSlots = Mathf.Max(0, maxSlots - node.ActiveGatherers);
+            int queuedSlots = WorkerTaskDispatcher.Instance.GetQueuedGatherTaskCount(node);
+            int tasksToQueue = Mathf.Max(0, openSlots - queuedSlots);
+
+            for (int slot = 0; slot < tasksToQueue; slot++)
+                WorkerTaskDispatcher.Instance.QueueTask(WorkerTaskRequest.Gather(-1, node));
         }
     }
 
