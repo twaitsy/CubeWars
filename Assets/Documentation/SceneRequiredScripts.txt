@@ -216,3 +216,14 @@ Maintenance note (2026-02 civilian logistics)
   - Hauler -> SearchingSupplySite
 - Verify gatherable nodes are GameObjects with ResourceNode + valid ResourceDefinition assigned.
 - Keep HQ storage wiring intact (ResourceStorageContainer + ResourceStorageProvider) so TeamStorageManager queries still support gatherer, hauler, and builder pickup/delivery flows.
+
+[2026 Capability-profile jobs + unified task dispatcher]
+Required in gameplay scenes:
+- WorkerTaskDispatcher
+- WorkerTaskGenerationSystem
+
+Updated expectations:
+- Civilian prefabs should assign `jobDefinition` capability profile assets from `Assets/Data/Definitions/Jobs`.
+- Dispatcher assigns only workers whose job profile exposes matching capabilities (Gather/Haul/Build/Craft).
+- Crafting manual assignment now routes through WorkerTaskDispatcher task assignment instead of direct per-system hardcoding.
+- Job/task-related enums are now stored in `Assets/Data/Enums`.

@@ -523,3 +523,12 @@ Maintenance note (2026-02 civilian logistics)
   - Hauler -> SearchingSupplySite
 - Gatherers now only target valid ResourceNode instances that still have resources and a configured ResourceDefinition.
 - HQ prefab/resource storage setup remains required: keep ResourceStorageContainer + ResourceStorageProvider on HQ so spawned teams have physical capacity for gatherer/hauler/builder logistics.
+
+[2026 Capability-profile jobs + unified task dispatcher]
+- Add `WorkerTaskDispatcher` to the scene bootstrap (`_Systems`) to centralize worker-task assignment by capability.
+- Add `WorkerTaskGenerationSystem` to the scene bootstrap to scan world conditions and emit gather/haul/build/craft task packets.
+- Keep `JobManager` for civilian registration/UI role counts, but use dispatcher-driven assignment for crafting/manual assignment paths.
+- Configure civilian `jobDefinition` ScriptableObject references (Assets/Data/Definitions/Jobs/*) so capability checks are fully data-driven.
+- `JobDefinition` is now a ScriptableObject capability profile (`id`, `displayName`, `defaultJobType`, `legacyRole`, `capabilities`, `allowedTools`).
+- Jobs database should reference job profile assets instead of inline hard-coded job entries.
+- Job/task enums are now collocated under `Assets/Data/Enums` for data discoverability (`CivilianJobType`, `CivilianRole`, `WorkerCapability`, `WorkerTaskType`).
