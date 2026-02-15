@@ -798,7 +798,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
     void TickGoNode()
     {
-        if (targetNode == null || targetNode.amount <= 0)
+        if (targetNode == null || targetNode.IsDepleted || targetNode.resource == null)
         {
             if (forcedNode == targetNode)
                 forcedNode = null;
@@ -833,7 +833,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
     void TickGather()
     {
-        if (targetNode == null || targetNode.amount <= 0)
+        if (targetNode == null || targetNode.IsDepleted || targetNode.resource == null)
         {
             if (forcedNode == targetNode)
                 forcedNode = null;
@@ -893,7 +893,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     {
         if (carriedAmount <= 0)
         {
-            state = State.SearchingNode;
+            state = GetPostDepositWorkState();
             return;
         }
 
@@ -902,7 +902,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             // fallback: dump into TeamResources primary storage
             TeamResources.Instance?.Deposit(teamID, carriedResource, carriedAmount);
             carriedAmount = 0;
-            state = (jobType == CivilianJobType.Gatherer) ? State.SearchingNode : State.SearchingBuildSite;
+            state = GetPostDepositWorkState();
             return;
         }
 
@@ -934,7 +934,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             {
                 TeamResources.Instance?.Deposit(teamID, carriedResource, carriedAmount);
                 carriedAmount = 0;
-                state = (jobType == CivilianJobType.Gatherer) ? State.SearchingNode : State.SearchingBuildSite;
+                state = GetPostDepositWorkState();
             }
             return;
         }
@@ -949,7 +949,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     {
         if (targetStorage == null || carriedAmount <= 0)
         {
-            state = (jobType == CivilianJobType.Gatherer) ? State.SearchingNode : State.SearchingBuildSite;
+            state = GetPostDepositWorkState();
             return;
         }
 
@@ -964,7 +964,21 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         }
 
         targetStorage = null;
-        state = (jobType == CivilianJobType.Gatherer) ? State.SearchingNode : State.SearchingBuildSite;
+        state = GetPostDepositWorkState();
+    }
+
+    State GetPostDepositWorkState()
+    {
+        if (jobType == CivilianJobType.Gatherer)
+            return State.SearchingNode;
+
+        if (jobType == CivilianJobType.Builder)
+            return State.SearchingBuildSite;
+
+        if (jobType == CivilianJobType.Hauler)
+            return State.SearchingSupplySite;
+
+        return ResolveRoleFallbackState();
     }
 
     // ---------- Builder ----------
@@ -1299,7 +1313,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         for (int i = 0; i < nodes.Length; i++)
         {
             var n = nodes[i];
-            if (n == null || n.amount <= 0) continue;
+            if (n == null || n.IsDepleted || n.resource == null) continue;
             if (!n.TryReserveGatherSlot(this)) continue;
 
             if (TeamStorageManager.Instance != null && TeamStorageManager.Instance.GetTotalFreeInBuildings(teamID, n.resource) <= 0)

@@ -207,3 +207,12 @@ Tool bonus runtime wiring checks (2026-02)
 - No new required scene script components were added.
 - Existing job/task systems that compute work speed should call `BonusCalculator.GetFinalMultiplier(job, tool, resource)` with the active job resource to apply `ToolDefinition.baseEfficiency` and matching `BonusDefinition` entries.
 - `ToolsDatabase` and `ResourcesDatabase` IDs should remain authoritative; Resource-targeted bonuses rely on matching resource IDs from shallow-copied `BonusDefinition.resource` data.
+
+Maintenance note (2026-02 civilian logistics)
+- No new required scene scripts were added.
+- Verify Civilian job loops can return to the proper state after deposit:
+  - Gatherer -> SearchingNode
+  - Builder -> SearchingBuildSite
+  - Hauler -> SearchingSupplySite
+- Verify gatherable nodes are GameObjects with ResourceNode + valid ResourceDefinition assigned.
+- Keep HQ storage wiring intact (ResourceStorageContainer + ResourceStorageProvider) so TeamStorageManager queries still support gatherer, hauler, and builder pickup/delivery flows.

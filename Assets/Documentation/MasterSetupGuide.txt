@@ -515,3 +515,11 @@ Database-driven runtime stat setup (new)
 - `BonusCalculator.GetFinalMultiplier(job, tool, resource)` now handles null-safe defaults (`job.baseSkill` and `tool.baseEfficiency` fallback to 1.0) and applies all matching tool bonuses against the job resource/category.
 - This enables data-driven tool behavior for both physical and knowledge tools (e.g., `Thinking Cap`) using the same `BonusDefinition` model.
 - Keep authoring tool/resource/category entries through databases (`ToolsDatabase`, `ResourcesDatabase`) to preserve consistent IDs for runtime matching.
+
+Maintenance note (2026-02 civilian logistics)
+- Civilian deposit state routing now returns to the correct work loop by job type after dropoff:
+  - Gatherer -> SearchingNode
+  - Builder -> SearchingBuildSite
+  - Hauler -> SearchingSupplySite
+- Gatherers now only target valid ResourceNode instances that still have resources and a configured ResourceDefinition.
+- HQ prefab/resource storage setup remains required: keep ResourceStorageContainer + ResourceStorageProvider on HQ so spawned teams have physical capacity for gatherer/hauler/builder logistics.
