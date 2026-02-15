@@ -17,7 +17,7 @@ public class TechNodeDefinition
     public float researchTime = 10f;
 
     // Requirements
-    public List<TechNodeDefinition> prerequisites = new List<TechNodeDefinition>();
+    public List<string> prerequisiteIds = new List<string>();
     public BuildingDefinition requiredBuilding;
 
     // Unlocks
