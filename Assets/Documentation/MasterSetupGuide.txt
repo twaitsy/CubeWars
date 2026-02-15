@@ -506,3 +506,5 @@ Database-driven runtime stat setup (new)
 - Removed unsupported `#nullable` directive usage from `Assets/Editor/GameDatabaseDTO.cs` to avoid CS1024 compile errors in older Unity C# compilation paths.
 - Optimized `WinConditionManager` to run victory scans on a timer and stop processing after a winner is declared.
 - Optimized AI resource/defense scripts (`AIResourceManager`, `AIThreatDetector`) by caching component references and using squared-distance checks to reduce per-tick overhead.
+
+- Database editor split update: each database now has its own menu entry under Tools/CubeWars/Database (Buildings, Foods, Jobs, Recipes, Resources, Tools, Units) instead of a single tabbed Game Database editor window.
