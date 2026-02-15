@@ -509,3 +509,9 @@ Database-driven runtime stat setup (new)
 
 - Database editor split update: each database now has its own menu entry under Tools/CubeWars/Database (Buildings, Foods, Jobs, Recipes, Resources, Tools, Units) instead of a single tabbed Game Database editor window.
 - Editor script layout: each database window now lives in its own script file under `Assets/Data/DatabaseEditors` (`BuildingsDatabaseEditorWindow.cs`, `FoodsDatabaseEditorWindow.cs`, `JobsDatabaseEditorWindow.cs`, `RecipesDatabaseEditorWindow.cs`, `ResourcesDatabaseEditorWindow.cs`, `ToolsDatabaseEditorWindow.cs`, `UnitsDatabaseEditorWindow.cs`), with shared logic kept in `GameDatabaseEditorWindow.cs`.
+
+[2026-02 Tool bonus system scaling update]
+- `BonusDefinition` now supports safe runtime matching through `Matches(ResourceDefinition target)` so Resource-targeted bonuses correctly match by shallow-copied resource ID (instead of requiring object-reference equality).
+- `BonusCalculator.GetFinalMultiplier(job, tool, resource)` now handles null-safe defaults (`job.baseSkill` and `tool.baseEfficiency` fallback to 1.0) and applies all matching tool bonuses against the job resource/category.
+- This enables data-driven tool behavior for both physical and knowledge tools (e.g., `Thinking Cap`) using the same `BonusDefinition` model.
+- Keep authoring tool/resource/category entries through databases (`ToolsDatabase`, `ResourcesDatabase`) to preserve consistent IDs for runtime matching.

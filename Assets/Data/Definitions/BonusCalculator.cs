@@ -5,22 +5,20 @@
         ToolDefinition tool,
         ResourceDefinition resource)
     {
-        float result = job.baseSkill * tool.baseEfficiency;
+        float baseSkill = job != null ? job.baseSkill : 1f;
+        float toolEfficiency = tool != null ? tool.baseEfficiency : 1f;
+        float result = baseSkill * toolEfficiency;
+
+        if (tool == null || tool.bonuses == null || tool.bonuses.Count == 0 || resource == null)
+            return result;
 
         foreach (var bonus in tool.bonuses)
         {
-            switch (bonus.targetType)
-            {
-                case BonusTargetType.Resource:
-                    if (bonus.resource == resource)
-                        result *= bonus.multiplier;
-                    break;
+            if (bonus == null)
+                continue;
 
-                case BonusTargetType.Category:
-                    if (bonus.category == resource.category)
-                        result *= bonus.multiplier;
-                    break;
-            }
+            if (bonus.Matches(resource))
+                result *= bonus.multiplier;
         }
 
         return result;
