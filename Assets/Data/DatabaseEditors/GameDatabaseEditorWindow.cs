@@ -4,32 +4,33 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public class GameDatabaseEditorWindow : EditorWindow
+public enum DatabaseTab
+{
+    Buildings,
+    Foods,
+    Jobs,
+    Recipes,
+    Resources,
+    Tools,
+    Units
+}
+
+public abstract class GameDatabaseEditorWindowBase : EditorWindow
 {
     private GameDatabase db;
-    private enum Tab
-    {
-        Buildings,
-        Foods,
-        Jobs,
-        Recipes,
-        Resources,
-        Tools,
-        Units
-    }
-    private Tab currentTab;
     private string search;
     private Vector2 listScroll;
     private Vector2 detailScroll;
     private int selectedIndex = -1;
     private const float RowHeight = 22f;
-    private BuildingCategory? buildingFilter = null;
-    private ResourceCategory? resourceFilter = null;
+    private BuildingCategory? buildingFilter;
+    private ResourceCategory? resourceFilter;
 
-    [MenuItem("Tools/CubeWars/Database/Open Game Database Editor")]
-    public static void Open()
+    protected abstract DatabaseTab TargetTab { get; }
+
+    protected static void OpenWindow<TWindow>(string title) where TWindow : EditorWindow
     {
-        GetWindow<GameDatabaseEditorWindow>("Game Database");
+        GetWindow<TWindow>(title);
     }
 
     private void OnEnable()
@@ -40,7 +41,9 @@ public class GameDatabaseEditorWindow : EditorWindow
     private GameDatabase FindDatabase()
     {
         string[] guids = AssetDatabase.FindAssets("t:GameDatabase");
-        if (guids.Length == 0) return null;
+        if (guids.Length == 0)
+            return null;
+
         return AssetDatabase.LoadAssetAtPath<GameDatabase>(AssetDatabase.GUIDToAssetPath(guids[0]));
     }
 
@@ -49,20 +52,25 @@ public class GameDatabaseEditorWindow : EditorWindow
         if (db == null)
         {
             EditorGUILayout.HelpBox("GameDatabase not found.", MessageType.Error);
-            if (GUILayout.Button("Retry")) db = FindDatabase();
+            if (GUILayout.Button("Retry"))
+                db = FindDatabase();
             return;
         }
+
         DrawToolbar();
-        DrawTabs();
         DrawSubTabs();
+
         GUILayout.BeginHorizontal();
         float leftWidth = Mathf.Max(260, position.width * 0.35f);
+
         GUILayout.BeginVertical(GUILayout.Width(leftWidth));
         DrawList();
         GUILayout.EndVertical();
+
         GUILayout.BeginVertical(GUILayout.ExpandWidth(true));
         DrawDetails();
         GUILayout.EndVertical();
+
         GUILayout.EndHorizontal();
     }
 
@@ -72,39 +80,25 @@ public class GameDatabaseEditorWindow : EditorWindow
         search = GUILayout.TextField(search, GUI.skin.FindStyle("ToolbarSeachTextField"));
         if (GUILayout.Button("✕", EditorStyles.toolbarButton, GUILayout.Width(22)))
             search = "";
+
         GUILayout.FlexibleSpace();
+
         if (GUILayout.Button("Scan IDs", EditorStyles.toolbarButton))
             ScanDuplicateIds();
         if (GUILayout.Button("Auto-Fix", EditorStyles.toolbarButton))
             AutoFixIds();
-        GUILayout.EndHorizontal();
-    }
 
-    private void DrawTabs()
-    {
-        string[] labels =
-        {
-            "Buildings","Foods","Jobs","Recipes",
-            "Resources","Tools","Units"
-        };
-        Tab newTab = (Tab)GUILayout.Toolbar((int)currentTab, labels);
-        if (newTab != currentTab)
-        {
-            currentTab = newTab;
-            selectedIndex = -1;
-            listScroll = Vector2.zero;
-            detailScroll = Vector2.zero;
-        }
+        GUILayout.EndHorizontal();
     }
 
     private void DrawSubTabs()
     {
-        switch (currentTab)
+        switch (TargetTab)
         {
-            case Tab.Buildings:
+            case DatabaseTab.Buildings:
                 DrawEnumToolbar(ref buildingFilter, typeof(BuildingCategory), "Building Category");
                 break;
-            case Tab.Resources:
+            case DatabaseTab.Resources:
                 DrawEnumToolbar(ref resourceFilter, typeof(ResourceCategory), "Resource Category");
                 break;
         }
@@ -119,6 +113,7 @@ public class GameDatabaseEditorWindow : EditorWindow
             string currentName = filter.Value.ToString();
             currentIndex = Array.IndexOf(names, currentName);
         }
+
         GUILayout.BeginHorizontal(EditorStyles.toolbar);
         GUILayout.Label(label + ":", GUILayout.Width(120));
         int newIndex = GUILayout.Toolbar(currentIndex, names, EditorStyles.toolbarButton);
@@ -128,11 +123,13 @@ public class GameDatabaseEditorWindow : EditorWindow
                 filter = (T)Enum.Parse(enumType, names[newIndex]);
             else
                 filter = null;
+
             selectedIndex = -1;
             listScroll = Vector2.zero;
             detailScroll = Vector2.zero;
             Repaint();
         }
+
         if (GUILayout.Button("Clear", EditorStyles.toolbarButton, GUILayout.Width(60)))
         {
             filter = null;
@@ -144,22 +141,11 @@ public class GameDatabaseEditorWindow : EditorWindow
         GUILayout.EndHorizontal();
     }
 
-    void DrawList()
+    private void DrawList()
     {
-        // ADD NEW BUTTON at the top of the left panel
         if (GUILayout.Button("Add New", GUILayout.Height(25)))
         {
-            UnityEngine.Object targetDB = null;
-            switch (currentTab)
-            {
-                case Tab.Buildings: targetDB = db.buildings; break;
-                case Tab.Foods: targetDB = db.foods; break;
-                case Tab.Jobs: targetDB = db.jobs; break;
-                case Tab.Recipes: targetDB = db.recipes; break;
-                case Tab.Resources: targetDB = db.resources; break;
-                case Tab.Tools: targetDB = db.tools; break;
-                case Tab.Units: targetDB = db.units; break;
-            }
+            UnityEngine.Object targetDB = GetTargetDatabaseAsset();
             if (targetDB != null)
             {
                 SerializedObject so = new SerializedObject(targetDB);
@@ -174,49 +160,70 @@ public class GameDatabaseEditorWindow : EditorWindow
                 }
             }
         }
-        // Now draw the scrollable list
+
         listScroll = EditorGUILayout.BeginScrollView(listScroll);
-        switch (currentTab)
+        switch (TargetTab)
         {
-            case Tab.Buildings:
+            case DatabaseTab.Buildings:
                 DrawVirtualized(db.buildings != null ? db.buildings.buildings : null, DrawBuildingButton);
                 break;
-            case Tab.Foods:
+            case DatabaseTab.Foods:
                 DrawVirtualized(db.foods != null ? db.foods.foods : null, DrawFoodButton);
                 break;
-            case Tab.Jobs:
+            case DatabaseTab.Jobs:
                 DrawVirtualized(db.jobs != null ? db.jobs.jobs : null, DrawJobButton);
                 break;
-            case Tab.Recipes:
+            case DatabaseTab.Recipes:
                 DrawVirtualized(db.recipes != null ? db.recipes.recipes : null, DrawRecipeButton);
                 break;
-            case Tab.Resources:
+            case DatabaseTab.Resources:
                 DrawVirtualized(db.resources != null ? db.resources.resources : null, DrawResourceButton);
                 break;
-            case Tab.Tools:
+            case DatabaseTab.Tools:
                 DrawVirtualized(db.tools != null ? db.tools.tools : null, DrawToolButton);
                 break;
-            case Tab.Units:
+            case DatabaseTab.Units:
                 DrawVirtualized(db.units != null ? db.units.units : null, DrawUnitButton);
                 break;
         }
+
         EditorGUILayout.EndScrollView();
+    }
+
+    private UnityEngine.Object GetTargetDatabaseAsset()
+    {
+        switch (TargetTab)
+        {
+            case DatabaseTab.Buildings: return db.buildings;
+            case DatabaseTab.Foods: return db.foods;
+            case DatabaseTab.Jobs: return db.jobs;
+            case DatabaseTab.Recipes: return db.recipes;
+            case DatabaseTab.Resources: return db.resources;
+            case DatabaseTab.Tools: return db.tools;
+            case DatabaseTab.Units: return db.units;
+            default: return null;
+        }
     }
 
     private void DrawVirtualized<T>(List<T> list, Action<T, int> drawButton)
     {
-        if (list == null) return;
-        var filtered = list
-            .Select((item, index) => new { item, index })
+        if (list == null)
+            return;
+
+        List<(T item, int index)> filtered = list
+            .Select((item, index) => (item, index))
             .Where(x => MatchesFilters(x.item))
             .OrderBy(x => GetDisplayName(x.item))
             .ToList();
+
         int visible = Mathf.CeilToInt(position.height / RowHeight);
         int start = Mathf.Max(0, Mathf.FloorToInt(listScroll.y / RowHeight));
         int end = Mathf.Min(start + visible + 1, filtered.Count);
+
         GUILayout.Space(start * RowHeight);
         for (int i = start; i < end; i++)
             drawButton(filtered[i].item, filtered[i].index);
+
         GUILayout.Space((filtered.Count - end) * RowHeight);
     }
 
@@ -236,13 +243,16 @@ public class GameDatabaseEditorWindow : EditorWindow
     private void DrawButton(string label, bool error, int index)
     {
         Color prev = GUI.color;
-        if (error) GUI.color = Color.red;
+        if (error)
+            GUI.color = Color.red;
+
         if (GUILayout.Button(label, GUILayout.Height(RowHeight)))
         {
             selectedIndex = index;
             GUI.FocusControl(null);
             Repaint();
         }
+
         GUI.color = prev;
     }
 
@@ -250,8 +260,7 @@ public class GameDatabaseEditorWindow : EditorWindow
     {
         if (b == null) return;
         bool error = string.IsNullOrEmpty(b.id) || b.prefab == null;
-        string label = string.Format("{0} [{1}]", b.displayName, b.id);
-        DrawButton(label, error, i);
+        DrawButton($"{b.displayName} [{b.id}]", error, i);
     }
 
     private void DrawFoodButton(FoodDefinition f, int i)
@@ -260,70 +269,55 @@ public class GameDatabaseEditorWindow : EditorWindow
         string name = f.resource != null ? f.resource.displayName : "(None)";
         string id = f.resource != null ? f.resource.id : "";
         bool error = f.resource == null;
-        string label = string.Format("{0} [{1}]", name, id);
-        DrawButton(label, error, i);
+        DrawButton($"{name} [{id}]", error, i);
     }
 
     private void DrawJobButton(JobDefinition j, int i)
     {
         if (j == null) return;
         bool error = string.IsNullOrEmpty(j.id);
-        string label = string.Format("{0} [{1}]", j.displayName, j.id);
-        DrawButton(label, error, i);
+        DrawButton($"{j.displayName} [{j.id}]", error, i);
     }
 
     private void DrawRecipeButton(ProductionRecipeDefinition r, int i)
     {
         if (r == null) return;
-        string label = r.recipeName;
-        DrawButton(label, false, i);
+        DrawButton(r.recipeName, false, i);
     }
 
     private void DrawResourceButton(ResourceDefinition r, int i)
     {
         if (r == null) return;
         bool error = string.IsNullOrEmpty(r.id);
-        string label = string.Format("{0} — {1}", r.displayName, r.category);
-        DrawButton(label, error, i);
+        DrawButton($"{r.displayName} — {r.category}", error, i);
     }
 
     private void DrawToolButton(ToolDefinition t, int i)
     {
         if (t == null) return;
         bool error = string.IsNullOrEmpty(t.id);
-        string label = string.Format("{0} [{1}]", t.displayName, t.id);
-        DrawButton(label, error, i);
+        DrawButton($"{t.displayName} [{t.id}]", error, i);
     }
 
     private void DrawUnitButton(UnitDefinition u, int i)
     {
         if (u == null) return;
         bool error = string.IsNullOrEmpty(u.id) || u.prefab == null;
-        string label = string.Format("{0} [{1}]", u.displayName, u.id);
-        DrawButton(label, error, i);
+        DrawButton($"{u.displayName} [{u.id}]", error, i);
     }
 
-    void DrawDetails()
+    private void DrawDetails()
     {
         detailScroll = EditorGUILayout.BeginScrollView(detailScroll);
-        // Determine which database asset we are editing
-        UnityEngine.Object targetDB = null;
-        switch (currentTab)
-        {
-            case Tab.Buildings: targetDB = db.buildings; break;
-            case Tab.Foods: targetDB = db.foods; break;
-            case Tab.Jobs: targetDB = db.jobs; break;
-            case Tab.Recipes: targetDB = db.recipes; break;
-            case Tab.Resources: targetDB = db.resources; break;
-            case Tab.Tools: targetDB = db.tools; break;
-            case Tab.Units: targetDB = db.units; break;
-        }
+
+        UnityEngine.Object targetDB = GetTargetDatabaseAsset();
         if (targetDB == null)
         {
             GUILayout.Label("Database asset missing.", EditorStyles.boldLabel);
             EditorGUILayout.EndScrollView();
             return;
         }
+
         SerializedObject so = new SerializedObject(targetDB);
         SerializedProperty list = GetActiveList(so);
         if (list == null)
@@ -332,7 +326,7 @@ public class GameDatabaseEditorWindow : EditorWindow
             EditorGUILayout.EndScrollView();
             return;
         }
-        // BUTTON BAR
+
         GUILayout.BeginHorizontal();
         if (GUILayout.Button("Add New", GUILayout.Height(22)))
         {
@@ -344,6 +338,7 @@ public class GameDatabaseEditorWindow : EditorWindow
             EditorGUILayout.EndScrollView();
             return;
         }
+
         GUI.enabled = selectedIndex >= 0 && selectedIndex < list.arraySize;
         if (GUILayout.Button("Duplicate", GUILayout.Height(22)))
         {
@@ -355,6 +350,7 @@ public class GameDatabaseEditorWindow : EditorWindow
             EditorGUILayout.EndScrollView();
             return;
         }
+
         if (GUILayout.Button("Delete", GUILayout.Height(22)))
         {
             list.DeleteArrayElementAtIndex(selectedIndex);
@@ -367,20 +363,20 @@ public class GameDatabaseEditorWindow : EditorWindow
         }
         GUI.enabled = true;
         GUILayout.EndHorizontal();
+
         GUILayout.Space(10);
-        // If nothing selected yet
+
         if (selectedIndex < 0 || selectedIndex >= list.arraySize)
         {
             GUILayout.Label("Select an item from the list.", EditorStyles.centeredGreyMiniLabel);
             EditorGUILayout.EndScrollView();
             return;
         }
-        // ⭐ Draw the selected element WITHOUT foldout
+
         SerializedProperty element = list.GetArrayElementAtIndex(selectedIndex);
         GUILayout.Label("Details", EditorStyles.boldLabel);
         DrawReferenceSelectors();
-        EditorGUI.indentLevel = 0;
-        // ⭐ MANUAL CHILD PROPERTY ITERATION (no foldout ever)
+
         SerializedProperty iterator = element.Copy();
         SerializedProperty end = iterator.GetEndProperty();
         bool enterChildren = true;
@@ -389,6 +385,7 @@ public class GameDatabaseEditorWindow : EditorWindow
             EditorGUILayout.PropertyField(iterator, true);
             enterChildren = false;
         }
+
         so.ApplyModifiedProperties();
         EditorGUILayout.EndScrollView();
     }
@@ -397,15 +394,16 @@ public class GameDatabaseEditorWindow : EditorWindow
     {
         if (db == null)
             return;
-        switch (currentTab)
+
+        switch (TargetTab)
         {
-            case Tab.Units:
+            case DatabaseTab.Units:
                 DrawUnitReferenceSelectors();
                 break;
-            case Tab.Buildings:
+            case DatabaseTab.Buildings:
                 DrawBuildingReferenceSelectors();
                 break;
-            case Tab.Jobs:
+            case DatabaseTab.Jobs:
                 DrawJobReferenceSelectors();
                 break;
         }
@@ -415,8 +413,11 @@ public class GameDatabaseEditorWindow : EditorWindow
     {
         if (db.units == null || db.units.units == null || selectedIndex < 0 || selectedIndex >= db.units.units.Count)
             return;
-        var unit = db.units.units[selectedIndex];
-        if (unit == null) return;
+
+        UnitDefinition unit = db.units.units[selectedIndex];
+        if (unit == null)
+            return;
+
         EditorGUILayout.Space(6);
         EditorGUILayout.LabelField("Quick Selectors", EditorStyles.boldLabel);
         unit.trainedAt = DrawPopup("Trained At", unit.trainedAt, db.buildings != null ? db.buildings.buildings : null, x => x != null ? x.displayName : "(None)");
@@ -429,9 +430,11 @@ public class GameDatabaseEditorWindow : EditorWindow
     {
         if (db.tools == null || db.tools.tools == null)
             return;
+
         int length = Mathf.Max(0, EditorGUILayout.IntField("Starting Tools Count", unit.startingTools != null ? unit.startingTools.Length : 0));
         if (unit.startingTools == null || unit.startingTools.Length != length)
             Array.Resize(ref unit.startingTools, length);
+
         for (int i = 0; i < length; i++)
             unit.startingTools[i] = DrawPopup($"Starting Tool {i + 1}", unit.startingTools[i], db.tools.tools, x => x != null ? x.displayName : "(None)");
     }
@@ -440,8 +443,11 @@ public class GameDatabaseEditorWindow : EditorWindow
     {
         if (db.buildings == null || db.buildings.buildings == null || selectedIndex < 0 || selectedIndex >= db.buildings.buildings.Count)
             return;
-        var building = db.buildings.buildings[selectedIndex];
-        if (building == null) return;
+
+        BuildingDefinition building = db.buildings.buildings[selectedIndex];
+        if (building == null)
+            return;
+
         EditorGUILayout.Space(6);
         EditorGUILayout.LabelField("Quick Selectors", EditorStyles.boldLabel);
         building.upgradeTo = DrawPopup("Upgrade To", building.upgradeTo, db.buildings.buildings, x => x != null ? x.displayName : "(None)");
@@ -452,15 +458,20 @@ public class GameDatabaseEditorWindow : EditorWindow
     {
         if (db.jobs == null || db.jobs.jobs == null || selectedIndex < 0 || selectedIndex >= db.jobs.jobs.Count)
             return;
-        var job = db.jobs.jobs[selectedIndex];
-        if (job == null || db.tools == null || db.tools.tools == null) return;
+
+        JobDefinition job = db.jobs.jobs[selectedIndex];
+        if (job == null || db.tools == null || db.tools.tools == null)
+            return;
+
         EditorGUILayout.Space(6);
         EditorGUILayout.LabelField("Quick Selectors", EditorStyles.boldLabel);
         int length = Mathf.Max(0, EditorGUILayout.IntField("Required Tools Count", job.requiredTools != null ? job.requiredTools.Length : 0));
         if (job.requiredTools == null || job.requiredTools.Length != length)
             Array.Resize(ref job.requiredTools, length);
+
         for (int i = 0; i < length; i++)
             job.requiredTools[i] = DrawPopup($"Required Tool {i + 1}", job.requiredTools[i], db.tools.tools, x => x != null ? x.displayName : "(None)");
+
         EditorUtility.SetDirty(db.jobs);
     }
 
@@ -471,7 +482,8 @@ public class GameDatabaseEditorWindow : EditorWindow
             EditorGUILayout.LabelField(label, "(No source list)");
             return current;
         }
-        var options = new List<T> { null };
+
+        List<T> options = new List<T> { null };
         options.AddRange(source.Where(x => x != null));
         int currentIndex = Mathf.Max(0, options.IndexOf(current));
         string[] names = options.Select(x => x == null ? "(None)" : getName(x)).ToArray();
@@ -481,41 +493,45 @@ public class GameDatabaseEditorWindow : EditorWindow
 
     private SerializedProperty GetActiveList(SerializedObject so)
     {
-        switch (currentTab)
+        switch (TargetTab)
         {
-            case Tab.Buildings: return so.FindProperty("buildings");
-            case Tab.Foods: return so.FindProperty("foods");
-            case Tab.Jobs: return so.FindProperty("jobs");
-            case Tab.Recipes: return so.FindProperty("recipes");
-            case Tab.Resources: return so.FindProperty("resources");
-            case Tab.Tools: return so.FindProperty("tools");
-            case Tab.Units: return so.FindProperty("units");
+            case DatabaseTab.Buildings: return so.FindProperty("buildings");
+            case DatabaseTab.Foods: return so.FindProperty("foods");
+            case DatabaseTab.Jobs: return so.FindProperty("jobs");
+            case DatabaseTab.Recipes: return so.FindProperty("recipes");
+            case DatabaseTab.Resources: return so.FindProperty("resources");
+            case DatabaseTab.Tools: return so.FindProperty("tools");
+            case DatabaseTab.Units: return so.FindProperty("units");
+            default: return null;
         }
-        return null;
     }
 
     private bool MatchesFilters(object obj)
     {
-        if (obj == null) return false;
+        if (obj == null)
+            return false;
+
         if (!string.IsNullOrEmpty(search))
         {
             string text = GetDisplayName(obj);
-            if (string.IsNullOrEmpty(text) ||
-                text.IndexOf(search, StringComparison.OrdinalIgnoreCase) < 0)
+            if (string.IsNullOrEmpty(text) || text.IndexOf(search, StringComparison.OrdinalIgnoreCase) < 0)
                 return false;
         }
-        if (currentTab == Tab.Resources && resourceFilter.HasValue)
+
+        if (TargetTab == DatabaseTab.Resources && resourceFilter.HasValue)
         {
-            ResourceDefinition r = obj as ResourceDefinition;
-            if (r != null && r.category != resourceFilter.Value)
+            ResourceDefinition resource = obj as ResourceDefinition;
+            if (resource != null && resource.category != resourceFilter.Value)
                 return false;
         }
-        if (currentTab == Tab.Buildings && buildingFilter.HasValue)
+
+        if (TargetTab == DatabaseTab.Buildings && buildingFilter.HasValue)
         {
-            BuildingDefinition b = obj as BuildingDefinition;
-            if (b != null && b.category != buildingFilter.Value)
+            BuildingDefinition building = obj as BuildingDefinition;
+            if (building != null && building.category != buildingFilter.Value)
                 return false;
         }
+
         return true;
     }
 
@@ -527,5 +543,82 @@ public class GameDatabaseEditorWindow : EditorWindow
     private void AutoFixIds()
     {
         EditorUtility.DisplayDialog("Auto-Fix", "Auto-fix completed.", "OK");
+    }
+}
+
+public class BuildingsDatabaseEditorWindow : GameDatabaseEditorWindowBase
+{
+    protected override DatabaseTab TargetTab => DatabaseTab.Buildings;
+
+    [MenuItem("Tools/CubeWars/Database/Buildings Editor")]
+    public static void Open()
+    {
+        OpenWindow<BuildingsDatabaseEditorWindow>("Buildings Database");
+    }
+}
+
+public class FoodsDatabaseEditorWindow : GameDatabaseEditorWindowBase
+{
+    protected override DatabaseTab TargetTab => DatabaseTab.Foods;
+
+    [MenuItem("Tools/CubeWars/Database/Foods Editor")]
+    public static void Open()
+    {
+        OpenWindow<FoodsDatabaseEditorWindow>("Foods Database");
+    }
+}
+
+public class JobsDatabaseEditorWindow : GameDatabaseEditorWindowBase
+{
+    protected override DatabaseTab TargetTab => DatabaseTab.Jobs;
+
+    [MenuItem("Tools/CubeWars/Database/Jobs Editor")]
+    public static void Open()
+    {
+        OpenWindow<JobsDatabaseEditorWindow>("Jobs Database");
+    }
+}
+
+public class RecipesDatabaseEditorWindow : GameDatabaseEditorWindowBase
+{
+    protected override DatabaseTab TargetTab => DatabaseTab.Recipes;
+
+    [MenuItem("Tools/CubeWars/Database/Recipes Editor")]
+    public static void Open()
+    {
+        OpenWindow<RecipesDatabaseEditorWindow>("Recipes Database");
+    }
+}
+
+public class ResourcesDatabaseEditorWindow : GameDatabaseEditorWindowBase
+{
+    protected override DatabaseTab TargetTab => DatabaseTab.Resources;
+
+    [MenuItem("Tools/CubeWars/Database/Resources Editor")]
+    public static void Open()
+    {
+        OpenWindow<ResourcesDatabaseEditorWindow>("Resources Database");
+    }
+}
+
+public class ToolsDatabaseEditorWindow : GameDatabaseEditorWindowBase
+{
+    protected override DatabaseTab TargetTab => DatabaseTab.Tools;
+
+    [MenuItem("Tools/CubeWars/Database/Tools Editor")]
+    public static void Open()
+    {
+        OpenWindow<ToolsDatabaseEditorWindow>("Tools Database");
+    }
+}
+
+public class UnitsDatabaseEditorWindow : GameDatabaseEditorWindowBase
+{
+    protected override DatabaseTab TargetTab => DatabaseTab.Units;
+
+    [MenuItem("Tools/CubeWars/Database/Units Editor")]
+    public static void Open()
+    {
+        OpenWindow<UnitsDatabaseEditorWindow>("Units Database");
     }
 }

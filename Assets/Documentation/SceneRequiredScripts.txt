@@ -198,3 +198,5 @@ Maintenance note (2026-02)
   - WinConditionManager (interval-based victory checks + single winner declaration)
   - AIResourceManager (cached subsystem references + squared-distance node claim checks)
   - AIThreatDetector (squared-distance threat checks + cached diplomacy lookup per scan)
+
+- No new required runtime scene scripts. Editor-only update: database editing is now split into separate per-database windows under Tools/CubeWars/Database.
