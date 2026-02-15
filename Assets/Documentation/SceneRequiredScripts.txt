@@ -200,3 +200,5 @@ Maintenance note (2026-02)
   - AIThreatDetector (squared-distance threat checks + cached diplomacy lookup per scan)
 
 - No new required runtime scene scripts. Editor-only update: database editing is now split into separate per-database windows under Tools/CubeWars/Database.
+
+- Editor script layout: each database window now lives in its own script file under `Assets/Data/DatabaseEditors` (`BuildingsDatabaseEditorWindow.cs`, `FoodsDatabaseEditorWindow.cs`, `JobsDatabaseEditorWindow.cs`, `RecipesDatabaseEditorWindow.cs`, `ResourcesDatabaseEditorWindow.cs`, `ToolsDatabaseEditorWindow.cs`, `UnitsDatabaseEditorWindow.cs`), with shared logic kept in `GameDatabaseEditorWindow.cs`.

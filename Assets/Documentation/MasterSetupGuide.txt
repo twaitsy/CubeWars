@@ -508,3 +508,4 @@ Database-driven runtime stat setup (new)
 - Optimized AI resource/defense scripts (`AIResourceManager`, `AIThreatDetector`) by caching component references and using squared-distance checks to reduce per-tick overhead.
 
 - Database editor split update: each database now has its own menu entry under Tools/CubeWars/Database (Buildings, Foods, Jobs, Recipes, Resources, Tools, Units) instead of a single tabbed Game Database editor window.
+- Editor script layout: each database window now lives in its own script file under `Assets/Data/DatabaseEditors` (`BuildingsDatabaseEditorWindow.cs`, `FoodsDatabaseEditorWindow.cs`, `JobsDatabaseEditorWindow.cs`, `RecipesDatabaseEditorWindow.cs`, `ResourcesDatabaseEditorWindow.cs`, `ToolsDatabaseEditorWindow.cs`, `UnitsDatabaseEditorWindow.cs`), with shared logic kept in `GameDatabaseEditorWindow.cs`.
