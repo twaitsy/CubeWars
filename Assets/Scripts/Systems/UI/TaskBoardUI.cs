@@ -7,7 +7,7 @@ public class TaskBoardUI : MonoBehaviour
     public int playerTeamID = 0;
 
     [Header("Toggle")]
-    public bool show = true;
+    public bool show = false;
     public KeyCode toggleKey = KeyCode.Tab;
 
     [Header("Panel Layout (Bottom Left)")]
@@ -15,6 +15,9 @@ public class TaskBoardUI : MonoBehaviour
     public int panelHeight = 620;
     public int marginLeft = 12;
     public int marginBottom = 12;
+
+    [Header("Typography")]
+    [Min(0)] public int fontSizeBoost = 1;
 
     [Header("Display")]
     public int maxResourceLines = 16;
@@ -61,6 +64,13 @@ public class TaskBoardUI : MonoBehaviour
         Rect panelRect = new Rect(left, top, width, height);
         IMGUIInputBlocker.Register(panelRect);
 
+        int prevLabelSize = GUI.skin.label.fontSize;
+        int prevBoxSize = GUI.skin.box.fontSize;
+        int prevButtonSize = GUI.skin.button.fontSize;
+        GUI.skin.label.fontSize = Mathf.Max(10, prevLabelSize + fontSizeBoost);
+        GUI.skin.box.fontSize = Mathf.Max(10, prevBoxSize + fontSizeBoost);
+        GUI.skin.button.fontSize = Mathf.Max(10, prevButtonSize + fontSizeBoost);
+
         GUI.Box(panelRect, $"TASK BOARD | Team {playerTeamID}");
 
         float x = panelRect.x + (10 * scale);
@@ -76,6 +86,10 @@ public class TaskBoardUI : MonoBehaviour
         DrawResources(x, ref y, sectionWidth, row);
         y += sectionGap;
         DrawNotifications(x, ref y, sectionWidth, row);
+
+        GUI.skin.label.fontSize = prevLabelSize;
+        GUI.skin.box.fontSize = prevBoxSize;
+        GUI.skin.button.fontSize = prevButtonSize;
     }
 
     void DrawRolesAndStateBreakdown(float x, ref float y, float width, float row)

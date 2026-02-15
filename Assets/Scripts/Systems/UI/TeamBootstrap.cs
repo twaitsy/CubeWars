@@ -77,6 +77,21 @@ public class TeamBootstrap : MonoBehaviour
     [Tooltip("Starting building prefabs to place directly on team build-grid cells.")]
     public List<StartingBuildingSpawn> startingBuildings = new List<StartingBuildingSpawn>();
 
+    [Header("Starter Housing")]
+    [Tooltip("When enabled, automatically attempts to place a few houses on each team's grid if not already listed in startingBuildings.")]
+    public bool autoAddStarterHouses = true;
+
+    [Tooltip("House prefab used for auto starter housing.")]
+    public GameObject starterHousePrefab;
+
+    [Tooltip("Grid coordinates used when auto-adding houses.")]
+    public List<Vector2Int> starterHouseGridCoords = new List<Vector2Int>
+    {
+        new Vector2Int(7, 7),
+        new Vector2Int(9, 7),
+        new Vector2Int(7, 9),
+    };
+
     [Header("Spawn Offsets")]
     [Tooltip("Offset applied when spawning HQs.")]
     public Vector3 hqSpawnOffset = Vector3.zero;
@@ -101,6 +116,8 @@ public class TeamBootstrap : MonoBehaviour
 
     private IEnumerator SetupStartingBuildingsAfterGridReady(Team[] teams)
     {
+        EnsureStarterHousesInBuildList();
+
         if (startingBuildings == null || startingBuildings.Count == 0)
             yield break;
 
@@ -119,6 +136,45 @@ public class TeamBootstrap : MonoBehaviour
             SetupStartingBuildings(team, grid);
 
         grid.RefreshPlayerGridVisibility();
+    }
+
+    void EnsureStarterHousesInBuildList()
+    {
+        if (!autoAddStarterHouses || starterHousePrefab == null || starterHouseGridCoords == null || starterHouseGridCoords.Count == 0)
+            return;
+
+        if (startingBuildings == null)
+            startingBuildings = new List<StartingBuildingSpawn>();
+
+        for (int i = 0; i < starterHouseGridCoords.Count; i++)
+        {
+            Vector2Int coord = starterHouseGridCoords[i];
+            bool alreadyListed = false;
+
+            for (int j = 0; j < startingBuildings.Count; j++)
+            {
+                StartingBuildingSpawn existing = startingBuildings[j];
+                if (existing == null)
+                    continue;
+
+                if (existing.prefab == starterHousePrefab && existing.gridCoord == coord)
+                {
+                    alreadyListed = true;
+                    break;
+                }
+            }
+
+            if (!alreadyListed)
+            {
+                startingBuildings.Add(new StartingBuildingSpawn
+                {
+                    prefab = starterHousePrefab,
+                    gridCoord = coord,
+                    quarterTurns = 0,
+                    yOffset = 0f
+                });
+            }
+        }
     }
 
     private void SetupHQ(Team team)

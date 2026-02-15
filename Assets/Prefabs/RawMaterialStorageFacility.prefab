@@ -174,7 +174,7 @@ MonoBehaviour:
   teamID: 1
   maxHealth: 800
   currentHealth: 0
-  resourcesDatabase: {fileID: 11400000, guid: 87f27aa07d5d1b049bfb1818298c31c9, type: 2}
+  resourcesDatabase: {fileID: 11400000, guid: 0f0372df3ac74a81ae6ac0f2a5ca7f02, type: 2}
   defaultCapacityPerResource: 500
   allowAllResourceCategories: 0
   allowedCategories: 00000000

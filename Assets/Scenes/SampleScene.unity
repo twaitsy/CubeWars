@@ -1070,12 +1070,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerTeamID: 0
-  show: 1
+  show: 0
   toggleKey: 9
   panelWidth: 600
   panelHeight: 600
   marginLeft: 12
   marginBottom: 12
+  fontSizeBoost: 1
   maxResourceLines: 24
   maxNotificationLines: 6
 --- !u!4 &165391440
@@ -5679,10 +5680,26 @@ MonoBehaviour:
     gridCoord: {x: 7, y: 7}
     quarterTurns: 0
     yOffset: 0
-  - prefab: {fileID: 0}
-    gridCoord: {x: 0, y: 0}
+  - prefab: {fileID: 7618349653826479655, guid: 35867c2e1c47bef49b7c5cb9dde8e85c,
+      type: 3}
+    gridCoord: {x: 9, y: 7}
     quarterTurns: 0
     yOffset: 0
+  - prefab: {fileID: 7618349653826479655, guid: 35867c2e1c47bef49b7c5cb9dde8e85c,
+      type: 3}
+    gridCoord: {x: 7, y: 9}
+    quarterTurns: 0
+    yOffset: 0
+  autoAddStarterHouses: 1
+  starterHousePrefab: {fileID: 7618349653826479655, guid: 35867c2e1c47bef49b7c5cb9dde8e85c,
+    type: 3}
+  starterHouseGridCoords:
+  - x: 7
+    y: 7
+  - x: 9
+    y: 7
+  - x: 7
+    y: 9
   hqSpawnOffset: {x: 0, y: 0, z: 0}
   unitSpawnOffset: {x: 20, y: 20, z: 20}
 --- !u!1 &762303205
@@ -10450,6 +10467,8 @@ MonoBehaviour:
   isExpanded: 0
   dotSize: 4
   rotationOffset: 270
+  show: 0
+  toggleKey: 109
   useIMGUI: 1
 --- !u!1 &1665583848
 GameObject:
@@ -13103,8 +13122,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   width: 320
-  height: 420
+  height: 588
   padding: 10
+  fontSizeBoost: 1
   show: 1
 --- !u!1 &2030613692
 GameObject:
