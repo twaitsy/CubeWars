@@ -501,3 +501,8 @@ Database-driven runtime stat setup (new)
 - Civilian prefabs can set `Civilian.unitDefinitionId` (default: `civilian`) to pull max health, move speed, and carry capacity.
 - Building prefabs can set `Building.buildingDefinitionId` to pull max health from `BuildingsDatabase`.
 - `DefenseTurret` also pulls attack range/damage from building database values when available.
+
+[2026-02 maintenance updates]
+- Removed unsupported `#nullable` directive usage from `Assets/Editor/GameDatabaseDTO.cs` to avoid CS1024 compile errors in older Unity C# compilation paths.
+- Optimized `WinConditionManager` to run victory scans on a timer and stop processing after a winner is declared.
+- Optimized AI resource/defense scripts (`AIResourceManager`, `AIThreatDetector`) by caching component references and using squared-distance checks to reduce per-tick overhead.

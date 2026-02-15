@@ -191,3 +191,10 @@ Database linkage requirements (scene + prefabs)
 
 Editor output path standard
 - Generated editor outputs should be stored under: `Assets/Documentation/EditorToolsOutput`.
+
+Maintenance note (2026-02)
+- No new required scene scripts were introduced.
+- Runtime efficiency updates were applied to existing scripts:
+  - WinConditionManager (interval-based victory checks + single winner declaration)
+  - AIResourceManager (cached subsystem references + squared-distance node claim checks)
+  - AIThreatDetector (squared-distance threat checks + cached diplomacy lookup per scan)

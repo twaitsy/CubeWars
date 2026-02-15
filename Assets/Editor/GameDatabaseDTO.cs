@@ -1,5 +1,4 @@
-﻿// GameDatabaseDTO.cs
-#nullable disable
+// GameDatabaseDTO.cs
 using System.Collections.Generic;
 
 public class GameDatabaseDTO
