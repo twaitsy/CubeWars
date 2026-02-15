@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class ResourceStorageProvider : MonoBehaviour
 {
@@ -16,13 +17,6 @@ public class ResourceStorageProvider : MonoBehaviour
     private bool registered;
     private bool grantedStartingResources;
     private ResourceStorageContainer localStorage;
-
-    // ---------------------------------------------------------
-    // DEPENDENCIES:
-    // - TeamStorageManager: ResourceStorageContainer registration feeds global queries and totals
-    // - ResourceStorageContainer: actual storage objects
-    // - Building: teamID must be set before Start()
-    // ---------------------------------------------------------
 
     void Start()
     {
@@ -48,14 +42,12 @@ public class ResourceStorageProvider : MonoBehaviour
         if (localStorage == null)
             return;
 
-        if (capacities != null)
+        Dictionary<ResourceDefinition, int> capacitiesToApply = BuildCapacityMap();
+        foreach (var pair in capacitiesToApply)
         {
-            for (int i = 0; i < capacities.Length; i++)
-            {
-                int cap = Mathf.Max(0, capacities[i].capacity);
-                if (cap > 0)
-                    localStorage.AddCapacity(capacities[i].resource, cap);
-            }
+            int cap = Mathf.Max(0, pair.Value);
+            if (cap > 0)
+                localStorage.AddCapacity(pair.Key, cap);
         }
 
         if (grantStartingResources && !grantedStartingResources && TeamResources.Instance != null && startingResources != null)
@@ -79,17 +71,84 @@ public class ResourceStorageProvider : MonoBehaviour
         ResolveLocalStorage();
         if (localStorage == null) return;
 
+        Dictionary<ResourceDefinition, int> capacitiesToApply = BuildCapacityMap();
+        foreach (var pair in capacitiesToApply)
+        {
+            int cap = Mathf.Max(0, pair.Value);
+            if (cap > 0)
+                localStorage.AddCapacity(pair.Key, -cap);
+        }
+
+        registered = false;
+    }
+
+    Dictionary<ResourceDefinition, int> BuildCapacityMap()
+    {
+        var result = new Dictionary<ResourceDefinition, int>();
+
         if (capacities != null)
         {
             for (int i = 0; i < capacities.Length; i++)
             {
-                int cap = Mathf.Max(0, capacities[i].capacity);
-                if (cap > 0)
-                    localStorage.AddCapacity(capacities[i].resource, -cap);
+                ResourceCapacityEntry entry = capacities[i];
+                if (entry == null || entry.resource == null)
+                    continue;
+
+                int cap = Mathf.Max(0, entry.capacity);
+                if (!result.ContainsKey(entry.resource))
+                    result[entry.resource] = cap;
+                else
+                    result[entry.resource] = Mathf.Max(result[entry.resource], cap);
             }
         }
 
-        registered = false;
+        BuildingDefinition def = ResolveBuildingDefinition();
+        if (def != null && def.isStorage)
+        {
+            int minCapacity = Mathf.Max(1000, def.storageSettings != null ? def.storageSettings.capacity : 0);
+            var db = ResourcesDatabase.Instance;
+            if (db != null && db.resources != null)
+            {
+                for (int i = 0; i < db.resources.Count; i++)
+                {
+                    var resource = db.resources[i];
+                    if (resource == null)
+                        continue;
+
+                    if (!result.ContainsKey(resource))
+                        result[resource] = minCapacity;
+                    else
+                        result[resource] = Mathf.Max(result[resource], minCapacity);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    BuildingDefinition ResolveBuildingDefinition()
+    {
+        var loaded = GameDatabaseLoader.Loaded;
+        if (loaded == null)
+            return null;
+
+        string id = null;
+
+        Building building = GetComponentInParent<Building>();
+        if (building != null)
+            id = building.buildingDefinitionId;
+
+        if (string.IsNullOrWhiteSpace(id))
+        {
+            BuildItemInstance item = GetComponentInParent<BuildItemInstance>();
+            if (item != null)
+                id = item.itemId;
+        }
+
+        if (string.IsNullOrWhiteSpace(id))
+            id = gameObject.name.Replace("(Clone)", string.Empty).Trim();
+
+        return loaded.TryGetBuildingById(id, out var def) ? def : null;
     }
 
     public void SetTeamID(int newTeamID)

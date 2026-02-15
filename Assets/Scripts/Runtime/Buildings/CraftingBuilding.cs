@@ -70,6 +70,20 @@ public class CraftingBuilding : Building
     float craftDuration;
     int upgradeLevel;
 
+
+    protected override void ApplyDefinition(BuildingDefinition def)
+    {
+        base.ApplyDefinition(def);
+        if (def == null)
+            return;
+
+        if (def.workerSlots > 0)
+            maxWorkers = def.workerSlots;
+
+        if (def.recipes != null && def.recipes.Count > 0)
+            recipe = def.recipes[0];
+    }
+
     protected override void Start()
     {
         base.Start();

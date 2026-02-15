@@ -29,6 +29,23 @@ public class House : Building
     public IReadOnlyList<Civilian> Civilians => civilians;
     public static IReadOnlyList<House> AllHouses => allHouses;
 
+
+    protected override void ApplyDefinition(BuildingDefinition def)
+    {
+        base.ApplyDefinition(def);
+        if (def == null)
+            return;
+
+        if (def.maxResidents > 0)
+            maxInhabitants = def.maxResidents;
+
+        if (def.comfortLevel > 0)
+            comfort = def.comfortLevel;
+
+        if (def.storageSettings != null && def.storageSettings.capacity > 0)
+            storage = Mathf.Max(storage, def.storageSettings.capacity);
+    }
+
     void OnEnable()
     {
         if (!allHouses.Contains(this))

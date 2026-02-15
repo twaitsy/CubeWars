@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 050bf97a419f5ea4285899563a5def49, type: 3}
   m_Name: BuildingsDatabase
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
   categoryOrder:
   - Economy
   - Industry
@@ -26,7 +26,7 @@ MonoBehaviour:
     prefab: {fileID: 7618349653826479655, guid: 35867c2e1c47bef49b7c5cb9dde8e85c,
       type: 3}
     category: 0
-    subCategory: 
+    subCategory:
     constructionCost:
     - resource:
         id: wood
@@ -71,8 +71,8 @@ MonoBehaviour:
     workerSlots: 0
     isStorage: 0
     storageSettings:
-      capacity: 0
-      allowedCategories: 
+      capacity: 1000
+      allowedCategories:
     isMilitary: 0
     attackDamage: 0
     attackRange: 0
@@ -86,7 +86,7 @@ MonoBehaviour:
     prefab: {fileID: 2971650436058892313, guid: db4be7d8501df9749a5d97e3ee27b5cd,
       type: 3}
     category: 1
-    subCategory: 
+    subCategory:
     constructionCost:
     - resource:
         id: wood
@@ -157,8 +157,8 @@ MonoBehaviour:
     workerSlots: 0
     isStorage: 0
     storageSettings:
-      capacity: 0
-      allowedCategories: 
+      capacity: 1000
+      allowedCategories:
     isMilitary: 0
     attackDamage: 0
     attackRange: 0
@@ -172,7 +172,7 @@ MonoBehaviour:
     prefab: {fileID: 2971650436058892313, guid: db4be7d8501df9749a5d97e3ee27b5cd,
       type: 3}
     category: 1
-    subCategory: 
+    subCategory:
     constructionCost:
     - resource:
         id: wood
@@ -243,7 +243,7 @@ MonoBehaviour:
     workerSlots: 1
     isStorage: 0
     storageSettings:
-      capacity: 100
+      capacity: 1000
       allowedCategories: 020000000b000000
     isMilitary: 0
     attackDamage: 0
@@ -258,7 +258,7 @@ MonoBehaviour:
     prefab: {fileID: 2609521548526753214, guid: ac24891f5744bdd4987e9779f1fb68e1,
       type: 3}
     category: 10
-    subCategory: 
+    subCategory:
     constructionCost:
     - resource:
         id: wood
@@ -334,6 +334,61 @@ MonoBehaviour:
     isMilitary: 1
     attackDamage: 0
     attackRange: 0
+    garrisonSlots: 0
+    powerConsumption: 0
+    powerGeneration: 0
+    waterConsumption: 0
+
+  - id: barracks
+    displayName: Barracks
+    icon: {fileID: 0}
+    prefab: {fileID: 6648784137539417351, guid: a97fe9133d0b0c54782bbca2dc49cc4c, type: 3}
+    category: 3
+    subCategory:
+    constructionCost: []
+    buildTime: 20
+    maxHealth: 700
+    upkeepCost: []
+    upkeepInterval: 0
+    maxResidents: 0
+    comfortLevel: 0
+    isProducer: 0
+    recipes: []
+    workerSlots: 0
+    isStorage: 0
+    storageSettings:
+      capacity: 1000
+      allowedCategories:
+    isMilitary: 1
+    attackDamage: 0
+    attackRange: 0
+    garrisonSlots: 0
+    powerConsumption: 0
+    powerGeneration: 0
+    waterConsumption: 0
+  - id: defense_turret
+    displayName: Defense Turret
+    icon: {fileID: 0}
+    prefab: {fileID: 6649371030592126936, guid: 4af69ddb22bcd404c952823400df9b8c, type: 3}
+    category: 3
+    subCategory:
+    constructionCost: []
+    buildTime: 18
+    maxHealth: 550
+    upkeepCost: []
+    upkeepInterval: 0
+    maxResidents: 0
+    comfortLevel: 0
+    isProducer: 0
+    recipes: []
+    workerSlots: 0
+    isStorage: 0
+    storageSettings:
+      capacity: 1000
+      allowedCategories:
+    isMilitary: 1
+    attackDamage: 14
+    attackRange: 14
     garrisonSlots: 0
     powerConsumption: 0
     powerGeneration: 0

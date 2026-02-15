@@ -1,52 +1,7 @@
-﻿// ============================================================================
-// Barracks.cs
-//
-// PURPOSE:
-// - Produces units over time using UnitProductionQueue.
-// - Acts as a factory for infantry or other unit types.
-// - Integrates with UI, AI, and resource systems.
-//
-// DEPENDENCIES:
-// - UnitProductionDefinition:
-//      * Defines unit prefab, cost, buildTime.
-// - UnitProductionQueue:
-//      * Handles timed production.
-//      * Barracks subscribes to OnUnitCompleted to spawn units.
-// - TeamResources / TeamStorageManager:
-//      * Used for CanAfford + Spend before enqueueing.
-// - Unit:
-//      * Spawned units must have teamID applied.
-// - UnitInspectorUI:
-//      * Reads:
-//          producibleUnits[]
-//          CanQueue()
-//          QueueUnit()
-//          CancelLast()
-//          CurrentBuildTime
-//          CurrentProgress
-//          QueueCount
-// - AIEconomy / AIBuilder:
-//      * Uses QueueCount, EnqueueUnit(), buildTime proxy.
-//
-// NOTES FOR FUTURE MAINTENANCE:
-// - If you add new unit types, assign them in producibleUnits.
-// - If you add tech upgrades, modify buildTime or costs before enqueueing.
-// - If you add rally points, spawn units at rally location instead of forward offset.
-// - If you add multi-queue buildings, instantiate multiple UnitProductionQueue components.
-// - Keep dependency header updated when related systems change.
-//
-// INSPECTOR REQUIREMENTS:
-// - producibleUnits: list of units this building can produce.
-// - queue: auto-added if missing.
-// ============================================================================
-
 using UnityEngine;
 
-public class Barracks : MonoBehaviour
+public class Barracks : Building
 {
-    [Header("Owner")]
-    public int teamID;
-
     [Header("Producible Units")]
     public UnitProductionDefinition[] producibleUnits;
 
@@ -61,26 +16,25 @@ public class Barracks : MonoBehaviour
         queue.OnUnitCompleted += SpawnUnit;
     }
 
+    void OnDestroy()
+    {
+        if (queue != null)
+            queue.OnUnitCompleted -= SpawnUnit;
+    }
+
     void SpawnUnit(UnitProductionDefinition def)
     {
         if (def == null || def.unitPrefab == null)
             return;
 
-        GameObject go = Instantiate(
-            def.unitPrefab,
-            transform.position + transform.forward * 2f,
-            Quaternion.identity
-        );
-
+        GameObject go = Instantiate(def.unitPrefab, transform.position + transform.forward * 2f, Quaternion.identity);
         TeamAssignmentUtility.ApplyTeamToHierarchy(go, teamID);
     }
 
-    // ---------- UI / AI API ----------
-
     public bool CanQueue(UnitProductionDefinition def)
     {
-        if (def == null) return false;
-        if (TeamResources.Instance == null) return false;
+        if (def == null || TeamResources.Instance == null)
+            return false;
 
         return TeamResources.Instance.CanAfford(teamID, def.costs);
     }
