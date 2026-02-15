@@ -355,7 +355,7 @@ public class UnitInspectorUI : MonoBehaviour
             GUILayout.Label("Type: Civilian");
             GUILayout.Label($"Assignment: {ResolveAssignment(civ)}");
             GUILayout.Label($"Task: {civ.CurrentTaskLabel}");
-            GUILayout.Label($"State: {civ.CurrentState}");
+            GUILayout.Label($"State: {civ.CurrentState} ({civ.CurrentStateDetails})");
             GUILayout.Label($"Target: {civ.CurrentTargetName}");
             GUILayout.Label($"Hunger: {civ.CurrentHunger:0.0}/{civ.maxHunger:0.0}");
             GUILayout.Label($"Tiredness: {civ.CurrentTiredness:0.0}/{civ.maxTiredness:0.0}");

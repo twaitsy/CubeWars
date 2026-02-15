@@ -11,19 +11,16 @@ public class TaskBoardUI : MonoBehaviour
     public KeyCode toggleKey = KeyCode.Tab;
 
     [Header("Panel Layout (Bottom Left)")]
-    public int panelWidth = 460;
-    public int panelHeight = 380;
+    public int panelWidth = 720;
+    public int panelHeight = 620;
     public int marginLeft = 12;
     public int marginBottom = 12;
 
     [Header("Display")]
-    public int maxResourceLines = 10;
-    public int maxNotificationLines = 6;
+    public int maxResourceLines = 16;
+    public int maxNotificationLines = 8;
 
-    void Start()
-    {
-        AutoAssignPlayerTeam();
-    }
+    void Start() => AutoAssignPlayerTeam();
 
     void AutoAssignPlayerTeam()
     {
@@ -69,29 +66,147 @@ public class TaskBoardUI : MonoBehaviour
         float x = panelRect.x + (10 * scale);
         float y = panelRect.y + (24 * scale);
         float row = 18 * scale;
+        float sectionGap = 8 * scale;
+        float sectionWidth = panelRect.width - 20 * scale;
 
-        DrawRolesAndSites(x, ref y, panelRect.width - 20 * scale, row);
-        DrawResources(x, ref y, panelRect.width - 20 * scale, row);
-        DrawNotifications(x, ref y, panelRect.width - 20 * scale, row);
+        DrawRolesAndStateBreakdown(x, ref y, sectionWidth, row);
+        y += sectionGap;
+        DrawSceneJobSummary(x, ref y, sectionWidth, row);
+        y += sectionGap;
+        DrawResources(x, ref y, sectionWidth, row);
+        y += sectionGap;
+        DrawNotifications(x, ref y, sectionWidth, row);
     }
 
-    void DrawRolesAndSites(float x, ref float y, float width, float row)
+    void DrawRolesAndStateBreakdown(float x, ref float y, float width, float row)
     {
-        if (JobManager.Instance != null)
-        {
-            Dictionary<CivilianRole, int> counts = JobManager.Instance.GetRoleCounts(playerTeamID);
-            GUI.Label(new Rect(x, y, width, row), BuildRoleSummary(counts));
-            y += row;
+        GUI.Label(new Rect(x, y, width, row), "Civilian Workforce");
+        y += row;
 
-            int sites = JobManager.Instance.GetActiveConstructionSiteCount(playerTeamID);
-            GUI.Label(new Rect(x, y, width, row), $"Construction Sites: {sites}");
-            y += row + 8;
-        }
-        else
+        Civilian[] civilians = FindObjectsOfType<Civilian>();
+        int teamTotal = 0;
+        int waitingForJob = 0;
+        int movingToTarget = 0;
+        int collectingResource = 0;
+        int producingGoods = 0;
+
+        for (int i = 0; i < civilians.Length; i++)
         {
-            GUI.Label(new Rect(x, y, width, row), BuildRoleSummary(BuildFallbackRoleCounts()));
-            y += row + 8;
+            Civilian civ = civilians[i];
+            if (civ == null || civ.teamID != playerTeamID)
+                continue;
+
+            teamTotal++;
+            string state = civ.CurrentState;
+
+            if (state == "Idle")
+                waitingForJob++;
+
+            if (state.StartsWith("GoingTo") || state.StartsWith("Seeking"))
+                movingToTarget++;
+
+            if (state == "Gathering" || state == "PickingUp" || state == "CollectingCraftOutput")
+                collectingResource++;
+
+            if (state == "CraftingAtWorkPoint")
+                producingGoods++;
         }
+
+        Dictionary<CivilianRole, int> counts = JobManager.Instance != null
+            ? JobManager.Instance.GetRoleCounts(playerTeamID)
+            : BuildFallbackRoleCounts();
+
+        GUI.Label(new Rect(x, y, width, row), BuildRoleSummary(counts));
+        y += row;
+
+        GUI.Label(new Rect(x, y, width, row), $"Active Civilians: {teamTotal} | Waiting For Job: {waitingForJob} | Moving To Target: {movingToTarget}");
+        y += row;
+        GUI.Label(new Rect(x, y, width, row), $"Collecting Resource: {collectingResource} | Producing Goods: {producingGoods}");
+        y += row;
+    }
+
+    void DrawSceneJobSummary(float x, ref float y, float width, float row)
+    {
+        GUI.Label(new Rect(x, y, width, row), "Scene Job Board");
+        y += row;
+
+        ResourceNode[] nodes = FindObjectsOfType<ResourceNode>();
+        int activeNodes = 0;
+        for (int i = 0; i < nodes.Length; i++)
+        {
+            if (nodes[i] != null && nodes[i].remaining > 0)
+                activeNodes++;
+        }
+
+        Civilian[] civilians = FindObjectsOfType<Civilian>();
+        int nodeJobsFulfilled = 0;
+        int buildersWorking = 0;
+        int haulersWorking = 0;
+
+        for (int i = 0; i < civilians.Length; i++)
+        {
+            Civilian civ = civilians[i];
+            if (civ == null || civ.teamID != playerTeamID)
+                continue;
+
+            if (civ.CurrentState == "Gathering" || civ.CurrentState == "GoingToNode")
+                nodeJobsFulfilled++;
+
+            if (civ.CurrentState == "Building" || civ.CurrentState == "GoingToBuildSite")
+                buildersWorking++;
+
+            if (civ.CurrentState == "PickingUp" || civ.CurrentState == "Delivering" || civ.CurrentState == "GoingToDeliverSite")
+                haulersWorking++;
+        }
+
+        ConstructionSite[] sites = FindObjectsOfType<ConstructionSite>();
+        int activeSites = 0;
+        int sitesAwaitingMaterials = 0;
+        int sitesUnderConstruction = 0;
+
+        for (int i = 0; i < sites.Length; i++)
+        {
+            ConstructionSite site = sites[i];
+            if (site == null || site.teamID != playerTeamID || site.IsComplete)
+                continue;
+
+            activeSites++;
+            if (site.MaterialsComplete) sitesUnderConstruction++;
+            else sitesAwaitingMaterials++;
+        }
+
+        CraftingBuilding[] craftBuildings = FindObjectsOfType<CraftingBuilding>();
+        int craftingActive = 0;
+        int craftingWaitingInputs = 0;
+        int craftingWaitingPickup = 0;
+
+        for (int i = 0; i < craftBuildings.Length; i++)
+        {
+            CraftingBuilding building = craftBuildings[i];
+            if (building == null || building.teamID != playerTeamID)
+                continue;
+
+            if (building.State == CraftingBuilding.ProductionState.InProgress)
+                craftingActive++;
+            else if (building.State == CraftingBuilding.ProductionState.WaitingForInputs)
+                craftingWaitingInputs++;
+            else if (building.State == CraftingBuilding.ProductionState.WaitingForPickup || building.State == CraftingBuilding.ProductionState.OutputReady)
+                craftingWaitingPickup++;
+        }
+
+        GUI.Label(new Rect(x, y, width, row), $"Node Jobs: {activeNodes} total | Fulfilled: {nodeJobsFulfilled}");
+        y += row;
+        GUI.Label(new Rect(x, y, width, row), $"Construction Jobs: {activeSites} total | Awaiting Materials: {sitesAwaitingMaterials} | Building: {sitesUnderConstruction}");
+        y += row;
+        GUI.Label(new Rect(x, y, width, row), $"Builders Active: {buildersWorking} | Haulers Active: {haulersWorking}");
+        y += row;
+        GUI.Label(new Rect(x, y, width, row), $"Crafting: In Progress {craftingActive} | Waiting Inputs {craftingWaitingInputs} | Waiting Pickup {craftingWaitingPickup}");
+        y += row;
+
+        int queuedTasks = WorkerTaskDispatcher.Instance != null ? WorkerTaskDispatcher.Instance.GetQueuedTaskCount(playerTeamID) : 0;
+        int registeredWorkers = WorkerTaskDispatcher.Instance != null ? WorkerTaskDispatcher.Instance.GetRegisteredWorkerCount(playerTeamID) : 0;
+        GUI.Label(new Rect(x, y, width, row), $"Dispatcher: Registered Workers {registeredWorkers} | Queued Tasks {queuedTasks}");
+        y += row;
     }
 
     void DrawResources(float x, ref float y, float width, float row)
@@ -106,10 +221,7 @@ public class TaskBoardUI : MonoBehaviour
             return;
         }
 
-        // Load your database
-        var db = UnityEditor.AssetDatabase.LoadAssetAtPath<ResourcesDatabase>(
-            "Assets/Data/Databases/ResourcesDatabase.asset"
-        );
+        ResourcesDatabase db = ResourcesDatabase.Instance;
 
         if (db == null || db.resources == null || db.resources.Count == 0)
         {
@@ -125,11 +237,12 @@ public class TaskBoardUI : MonoBehaviour
             int stored = TeamStorageManager.Instance.GetTotalStoredInBuildings(playerTeamID, def);
             int cap = TeamStorageManager.Instance.GetTotalCapacityInBuildings(playerTeamID, def);
             int reserved = TeamStorageManager.Instance.GetReservedTotal(playerTeamID, def);
+            int free = Mathf.Max(0, cap - stored);
 
-            string line = $"{def.displayName}: {stored}/{cap}";
-            if (reserved > 0) line += $" [{reserved}]";
-            if (cap > 0 && stored >= cap) line += " FULL";
-            if (cap == 0) line += " NO STORAGE";
+            string line = $"{def.displayName}: {stored}/{cap} | Free {free}";
+            if (reserved > 0) line += $" | Reserved {reserved}";
+            if (cap > 0 && stored >= cap) line += " | FULL";
+            if (cap == 0) line += " | NO STORAGE";
 
             GUI.Label(new Rect(x, y, width, row), line);
             y += row;
@@ -138,11 +251,11 @@ public class TaskBoardUI : MonoBehaviour
             if (lines >= maxResourceLines)
                 break;
         }
-
-        y += 6;
     }
+
     void DrawNotifications(float x, ref float y, float width, float row)
     {
+        y += 6;
         GUI.Label(new Rect(x, y, width, row), "Recent Notifications");
         y += row;
 
@@ -169,10 +282,10 @@ public class TaskBoardUI : MonoBehaviour
         foreach (CivilianRole role in Enum.GetValues(typeof(CivilianRole)))
             result[role] = 0;
 
-        var all = FindObjectsOfType<Civilian>();
+        Civilian[] all = FindObjectsOfType<Civilian>();
         for (int i = 0; i < all.Length; i++)
         {
-            var c = all[i];
+            Civilian c = all[i];
             if (c == null || c.teamID != playerTeamID) continue;
             if (!result.ContainsKey(c.role)) result[c.role] = 0;
             result[c.role]++;
@@ -190,6 +303,6 @@ public class TaskBoardUI : MonoBehaviour
             parts.Add($"{role} {value}");
         }
 
-        return "Civilians: " + string.Join(" | ", parts);
+        return "Roles: " + string.Join(" | ", parts);
     }
 }

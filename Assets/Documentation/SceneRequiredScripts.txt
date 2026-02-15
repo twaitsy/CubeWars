@@ -33,11 +33,10 @@ Production-chain building scripts (required if using crafting economy)
 UI/interaction scripts
 - SelectionManager
 - UnitInspectorUI
-- EconomyUI
 - BuildMenuUI
+- TaskBoardUI (if using civilian role/task management UI)
 - Minimap
 - IMGUIInputBlocker
-- TaskBoardUI (if using civilian role/task management UI)
 
 Scene camera/input scripts
 - RTSCamera
@@ -234,3 +233,6 @@ Updated expectations:
 - Existing requirement remains: scene must include GameDatabaseLoader with a valid GameDatabase asset.
 - Ensure storage buildings (especially HQ) are represented in BuildingsDatabase with storage enabled so ResourceStorageProvider can register at least 1000 capacity for all resources.
 - Ensure build/starting building prefabs used in scene setup exist in BuildingsDatabase entries (HQ, Barracks, Defense Turret, House, CraftingStation).
+
+- Headquarters starting resources are now applied when storage capacity becomes available; ensure HQ prefabs include both ResourceStorageContainer and ResourceStorageProvider.
+- TaskBoardUI now surfaces workforce state buckets (waiting/moving/collecting/producing) plus node, construction, crafting, and dispatcher queue fulfillment metrics.

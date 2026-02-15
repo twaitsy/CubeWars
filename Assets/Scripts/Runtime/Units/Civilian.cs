@@ -93,6 +93,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
     public CraftingBuilding AssignedCraftingBuilding => targetCraftingBuilding;
     public string CurrentTaskLabel => BuildTaskLabel();
+    public string CurrentStateDetails => BuildStateDetails();
     public float CraftingProgress => targetCraftingBuilding != null ? targetCraftingBuilding.CraftProgress01 : 0f;
     public bool IsAtAssignedCraftingWorkPoint => state == State.CraftingAtWorkPoint && Arrived();
 
@@ -1714,17 +1715,65 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     {
         switch (state)
         {
+            case State.Idle: return "Waiting for job";
             case State.SeekingFoodStorage: return "Seeking food";
             case State.Eating: return "Eating";
             case State.SeekingHouse: return "Seeking house";
             case State.Sleeping: return "Sleeping";
+            case State.SearchingNode: return "Searching for resource node";
+            case State.GoingToNode: return "Moving to target node";
+            case State.Gathering: return "Collecting resource";
+            case State.GoingToDepositStorage: return "Moving to storage";
+            case State.Depositing: return "Depositing carried resources";
+            case State.SearchingBuildSite: return "Searching for construction work";
+            case State.GoingToBuildSite: return "Moving to build site";
+            case State.Building: return "Building structure";
+            case State.SearchingSupplySite: return "Waiting for haul assignment";
+            case State.GoingToPickupStorage: return "Moving to pickup";
+            case State.PickingUp: return "Collecting resource from storage";
+            case State.GoingToDeliverSite: return "Moving to delivery target";
+            case State.Delivering: return "Delivering resources";
             case State.FetchingCraftInput: return "Fetching crafting inputs";
             case State.DeliveringCraftInput: return "Delivering crafting inputs";
             case State.GoingToWorkPoint: return "Moving to work point";
-            case State.CraftingAtWorkPoint: return "Operating work point";
+            case State.CraftingAtWorkPoint: return "Producing goods";
             case State.CollectingCraftOutput: return "Collecting outputs";
             case State.DeliveringCraftOutput: return "Delivering crafted goods";
             default: return state.ToString();
+        }
+    }
+
+    string BuildStateDetails()
+    {
+        string target = CurrentTargetName;
+        switch (state)
+        {
+            case State.Idle:
+                return HasJob ? "Idle between assignments" : "No assignment yet";
+            case State.SearchingNode:
+            case State.SearchingBuildSite:
+            case State.SearchingSupplySite:
+            case State.FetchingCraftInput:
+            case State.CollectingCraftOutput:
+                return "Scanning for nearest valid task";
+            case State.GoingToNode:
+            case State.GoingToDepositStorage:
+            case State.GoingToBuildSite:
+            case State.GoingToPickupStorage:
+            case State.GoingToDeliverSite:
+            case State.GoingToWorkPoint:
+                return $"Moving toward {target}";
+            case State.Gathering:
+            case State.PickingUp:
+            case State.Depositing:
+            case State.Delivering:
+            case State.DeliveringCraftInput:
+            case State.DeliveringCraftOutput:
+                return $"Interacting with {target}";
+            case State.CraftingAtWorkPoint:
+                return "Producing goods at assigned workstation";
+            default:
+                return target != "None" ? $"Target: {target}" : "No active target";
         }
     }
 
