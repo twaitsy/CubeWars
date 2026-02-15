@@ -24,6 +24,8 @@ GameObject:
   - component: {fileID: 6668936047093886960}
   - component: {fileID: -2677390483228081505}
   - component: {fileID: 4957428377965044005}
+  - component: {fileID: 3463630043324579727}
+  - component: {fileID: 5505908675279000675}
   m_Layer: 9
   m_Name: HQ
   m_TagString: Untagged
@@ -117,6 +119,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9be34ed616e783418595407b77cfad5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  buildingDefinitionId: 
   teamID: 0
   maxHealth: 3009
   currentHealth: 0
@@ -218,7 +221,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   teamID: 0
-  acceptsOnly: 000000000100000002000000030000000400000005000000
+  acceptsOnly: []
 --- !u!114 &976683268280428358
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -233,29 +236,95 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   teamID: 0
   capacities:
-  - type: 1
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     capacity: 50000
-  - type: 0
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     capacity: 50000
-  - type: 4
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     capacity: 50000
-  - type: 2
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     capacity: 50000
-  - type: 3
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     capacity: 5000
-  - type: 14
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     capacity: 5000
-  - type: 4
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     capacity: 333
   grantStartingResources: 1
   startingResources:
-  - type: 0
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     amount: 500
-  - type: 1
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     amount: 500
-  - type: 2
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     amount: 500
-  - type: 4
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     amount: 500
 --- !u!208 &-6935043793972570880
 NavMeshObstacle:
@@ -287,37 +356,133 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   teamID: 0
   resourceFlow:
-  - type: 0
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 1
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 2
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 3
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 4
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 5
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 6
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 7
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 8
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 9
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 10
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 11
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 12
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 13
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 14
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 15
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
 --- !u!114 &-2677390483228081505
 MonoBehaviour:
@@ -355,3 +520,29 @@ MonoBehaviour:
   depth: 1
   worldOffset: {x: 0, y: 1, z: 0}
   extraYRotation: 0
+--- !u!114 &3463630043324579727
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2609521548526753214}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14f1da7aff9846eaad3ce74c53a6ca09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  validateOnAwake: 1
+  includeOptionalWarnings: 1
+--- !u!114 &5505908675279000675
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2609521548526753214}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40ac1f6cf1431c149898946ed4448c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

@@ -13,8 +13,107 @@ MonoBehaviour:
   m_Name: JobsDatabase
   m_EditorClassIdentifier: 
   jobs:
-  - id: golddigger
-    displayName: Gold Digger
+  - id: gatherer
+    displayName: Gatherer
+    icon: {fileID: 0}
+    allowedTools:
+    - id: 
+      displayName: 
+      icon: {fileID: 0}
+      durability: 0
+      baseEfficiency: 0
+      bonuses: []
+    baseSkill: 1
+  - id: builder
+    displayName: Builder
+    icon: {fileID: 0}
+    allowedTools:
+    - id: 
+      displayName: 
+      icon: {fileID: 0}
+      durability: 0
+      baseEfficiency: 0
+      bonuses: []
+    baseSkill: 1
+  - id: engineer
+    displayName: Engineer
+    icon: {fileID: 0}
+    allowedTools:
+    - id: 
+      displayName: 
+      icon: {fileID: 0}
+      durability: 0
+      baseEfficiency: 0
+      bonuses: []
+    baseSkill: 1
+  - id: engineer
+    displayName: Engineer
+    icon: {fileID: 0}
+    allowedTools:
+    - id: 
+      displayName: 
+      icon: {fileID: 0}
+      durability: 0
+      baseEfficiency: 0
+      bonuses: []
+    baseSkill: 1
+  - id: engineer
+    displayName: Engineer
+    icon: {fileID: 0}
+    allowedTools:
+    - id: 
+      displayName: 
+      icon: {fileID: 0}
+      durability: 0
+      baseEfficiency: 0
+      bonuses: []
+    baseSkill: 1
+  - id: engineer
+    displayName: Engineer
+    icon: {fileID: 0}
+    allowedTools:
+    - id: 
+      displayName: 
+      icon: {fileID: 0}
+      durability: 0
+      baseEfficiency: 0
+      bonuses: []
+    baseSkill: 1
+  - id: engineer
+    displayName: Engineer
+    icon: {fileID: 0}
+    allowedTools:
+    - id: 
+      displayName: 
+      icon: {fileID: 0}
+      durability: 0
+      baseEfficiency: 0
+      bonuses: []
+    baseSkill: 1
+  - id: engineer
+    displayName: Engineer
+    icon: {fileID: 0}
+    allowedTools:
+    - id: 
+      displayName: 
+      icon: {fileID: 0}
+      durability: 0
+      baseEfficiency: 0
+      bonuses: []
+    baseSkill: 1
+  - id: engineer
+    displayName: Engineer
+    icon: {fileID: 0}
+    allowedTools:
+    - id: 
+      displayName: 
+      icon: {fileID: 0}
+      durability: 0
+      baseEfficiency: 0
+      bonuses: []
+    baseSkill: 1
+  - id: engineer
+    displayName: Engineer
     icon: {fileID: 0}
     allowedTools:
     - id: 
