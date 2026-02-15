@@ -53,6 +53,35 @@ public class WorkerTaskDispatcher : MonoBehaviour
         queuedTasks.Add(task);
     }
 
+
+    public int GetQueuedTaskCount(int teamID = -1)
+    {
+        if (teamID < 0)
+            return queuedTasks.Count;
+
+        int count = 0;
+        for (int i = 0; i < queuedTasks.Count; i++)
+            if (queuedTasks[i].teamID == teamID)
+                count++;
+
+        return count;
+    }
+
+    public int GetRegisteredWorkerCount(int teamID = -1)
+    {
+        if (teamID < 0)
+            return workers.Count;
+
+        int count = 0;
+        for (int i = 0; i < workers.Count; i++)
+        {
+            Civilian worker = workers[i];
+            if (worker != null && worker.teamID == teamID)
+                count++;
+        }
+
+        return count;
+    }
     public bool TryAssignTaskToWorker(Civilian worker, WorkerTaskRequest task)
     {
         if (worker == null || (task.teamID >= 0 && worker.teamID != task.teamID))

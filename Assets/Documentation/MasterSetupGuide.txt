@@ -41,7 +41,6 @@ Camera/input/UI scene objects:
 - IMGUIInputBlocker
 - BuildMenuUI
 - UnitInspectorUI
-- EconomyUI
 - Minimap
 - TaskBoardUI (if using role/task tracking)
 
@@ -252,7 +251,7 @@ Before pressing Play, verify:
 [ ] Crafting buildings have CraftingBuilding + ProductionRecipe + input/output/workpoint transforms configured.
 [ ] CraftingJobManager + ProductionNotificationManager exist in scene for assignment/bottleneck alerts.
 [ ] Resource nodes have ResourceNode with type/remaining/maxGatherers configured.
-[ ] UI objects exist (SelectionManager, UnitInspectorUI, BuildMenuUI, EconomyUI).
+[ ] UI objects exist (SelectionManager, UnitInspectorUI, BuildMenuUI, TaskBoardUI if used).
 
 -----------------------------------------------------------------
 10B) Crafting Logistics Consistency Notes (latest)
@@ -539,3 +538,8 @@ Maintenance note (2026-02 civilian logistics)
 - Storage-providing buildings marked as storage in BuildingsDatabase now guarantee at least 1000 capacity per resource when registering storage.
 - Building runtime scripts now resolve their building definition IDs from placed BuildItemInstance/name fallback and apply database-authored stats in code paths (health/house stats/turret stats/factory timings/crafting worker-recipe setup).
 - BuildingsDatabase catalog now includes HQ, Barracks, and Defense Turret prefab entries used by runtime build/starting-building flows.
+
+- Legacy retired economy panel references were removed; use TaskBoardUI + UnitInspectorUI for economy/debug visibility.
+
+- Headquarters now retries starting-resource deposits until team storage capacity is available at runtime; keep HQ storage provider/container wiring valid.
+- TaskBoardUI was expanded with workforce state breakdown, node/construction/crafting fulfillment stats, and dispatcher queue visibility for deeper debugging.

@@ -23,7 +23,6 @@ public class SceneRequiredScripts : MonoBehaviour
         typeof(ProjectilePool),
         typeof(SelectionManager),
         typeof(UnitInspectorUI),
-        typeof(EconomyUI),
         typeof(BuildMenuUI),
         typeof(Minimap),
         typeof(RTSCamera),
