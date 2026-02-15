@@ -9,6 +9,7 @@ Purpose
 1) Scene Bootstrap (required before gameplay)
 -----------------------------------------------------------------
 Create one bootstrap GameObject (for example: "_Systems") and attach:
+- SceneRequiredScripts (runs scene-level required-script and missing-script-component validation)
 - GameManager
 - TeamStorageManager
 - DiplomacyManager

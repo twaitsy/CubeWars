@@ -91,7 +91,7 @@ public class ResourceStorageProvider : MonoBehaviour
             for (int i = 0; i < capacities.Length; i++)
             {
                 ResourceCapacityEntry entry = capacities[i];
-                if (entry == null || entry.resource == null)
+                if (entry.resource == null)
                     continue;
 
                 int cap = Mathf.Max(0, entry.capacity);
