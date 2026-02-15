@@ -1,0 +1,29 @@
+# Cube Wars Script Index — Data
+Generated: 2026-02-15 19:53:01
+
+## Assets/Scripts/Data/AI
+- AIDifficulty.cs
+- AIPersonality.cs
+- Team.cs
+- TeamInventory.cs
+
+## Assets/Scripts/Data/Buildings
+- BuildItemDefinition.cs
+- BuildTimeSettings.cs
+
+## Assets/Scripts/Data/Combat
+- SkirmishConfig.cs
+
+## Assets/Scripts/Data/Resources
+- ResourceCapacityEntry.cs
+- ResourceCost.cs
+- ResourceIdUtility.cs
+- TeamResources.cs
+
+## Assets/Scripts/Data/Units
+- CharacterStats.cs
+- CivilianJobRegistry.cs
+- CombatStance.cs
+- SkillType.cs
+- UnitProductionDefinition.cs
+

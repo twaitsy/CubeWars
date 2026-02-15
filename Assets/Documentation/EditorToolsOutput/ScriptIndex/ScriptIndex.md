@@ -1,0 +1,208 @@
+# Cube Wars Script Index
+Generated: 2026-02-15 19:53:01
+
+## Core
+
+### Assets/Scripts/Core/Events
+- EventManager.cs
+
+### Assets/Scripts/Core/GameLoop
+- GameBootstrap.cs
+
+### Assets/Scripts/Core/Scene
+- HQSpawner.cs
+- RTSCamera.cs
+- SciFiMapBootstrap.cs
+- SixTeamBootstrap.cs
+- Spawner.cs
+
+### Assets/Scripts/Core/Services
+- Dependencies.cs
+
+### Assets/Scripts/Managers/Core
+- AlertManager.cs
+- GameManager.cs
+- SaveLoadManager.cs
+
+## Data
+
+### Assets/Scripts/Data/AI
+- AIDifficulty.cs
+- AIPersonality.cs
+- Team.cs
+- TeamInventory.cs
+
+### Assets/Scripts/Data/Buildings
+- BuildItemDefinition.cs
+- BuildTimeSettings.cs
+
+### Assets/Scripts/Data/Combat
+- SkirmishConfig.cs
+
+### Assets/Scripts/Data/Resources
+- ResourceCapacityEntry.cs
+- ResourceCost.cs
+- ResourceIdUtility.cs
+- TeamResources.cs
+
+### Assets/Scripts/Data/Units
+- CharacterStats.cs
+- CivilianJobRegistry.cs
+- CombatStance.cs
+- SkillType.cs
+- UnitProductionDefinition.cs
+
+## Documents
+
+## Managers
+
+## Runtime
+
+### Assets/Scripts/Runtime
+- SceneRequiredScripts.cs
+
+### Assets/Scripts/Runtime/Buildings
+- Barracks.cs
+- Building.cs
+- BuildingInteractionSettings.cs
+- BuildingPrefabValidator.cs
+- BuildItemInstance.cs
+- ConstructionSite.cs
+- CraftingBuilding.cs
+- DefenseTurret.cs
+- Farm.cs
+- Headquarters.cs
+- House.cs
+- ProductionStatusVisualizer.cs
+- ResourceDropoff.cs
+- ResourceNode.cs
+- ResourceSpawner.cs
+- ResourceStorageContainer.cs
+- ResourceStorageProvider.cs
+- Turret.cs
+- VehicleFactory.cs
+- WeaponsFactory.cs
+
+### Assets/Scripts/Runtime/Effects
+- AutoDestroyFX.cs
+
+### Assets/Scripts/Runtime/Projectiles
+- Projectile.cs
+- TurretProjectile.cs
+
+### Assets/Scripts/Runtime/Units
+- Attackable.cs
+- Civilian.cs
+- TeamVisual.cs
+- Unit.cs
+
+## Systems
+
+### Assets/Scripts/Managers/Systems
+- AIManager.cs
+- CombatManager.cs
+- DiplomacyManager.cs
+- TeamColorManager.cs
+- TeamStorageManager.cs
+- UnitManager.cs
+- WinConditionManager.cs
+
+### Assets/Scripts/Systems/AI/DecisionMaking
+- AIBuilder.cs
+- AIBuildingPriority.cs
+- AIEconomy.cs
+- AIMilitary.cs
+- AIPlayer.cs
+- MultiTeamAIDirector.cs
+- TeamAIBuild.cs
+
+### Assets/Scripts/Systems/AI/Jobs
+- AIRebuildManager.cs
+- AIRepairManager.cs
+- AIResourceManager.cs
+
+### Assets/Scripts/Systems/AI/Targeting
+- AIThreatDetector.cs
+
+### Assets/Scripts/Systems/Buildings
+- BuildCellReservation.cs
+- BuildGridOccupant.cs
+- BuildingFootprint.cs
+- BuildPlacementManager.cs
+
+### Assets/Scripts/Systems/Civilians
+- JobManager.cs
+- WorkerTaskDispatcher.cs
+- WorkerTaskGenerationSystem.cs
+- WorkerTaskRequest.cs
+
+### Assets/Scripts/Systems/Combat
+- IAttackable.cs
+- ICommandable.cs
+- IHasHealth.cs
+- ITargetable.cs
+- ProjectilePool.cs
+- TurretProjectilePool.cs
+- WeaponComponent.cs
+
+### Assets/Scripts/Systems/Economy
+- CraftingJobManager.cs
+- CraftingSystem.cs
+- ProductionNotificationManager.cs
+- ResourceRegistry.cs
+
+### Assets/Scripts/Systems/Grid
+- BuildGridCell.cs
+- BuildGridManager.cs
+
+### Assets/Scripts/Systems/UI
+- BuildMenuPanel.cs
+- BuildMenuUI.cs
+- ConstructionManager.cs
+- EconomyUILegacyBridge.cs
+- IMGUIInputBlocker.cs
+- InspectorPanel.cs
+- MainMenuUI.cs
+- MapVisualsBootstrap.cs
+- Minimap.cs
+- MiniMapPanel.cs
+- NeonRing.cs
+- ResourceVisualBuilder.cs
+- RTSGameSettings.cs
+- SciFiTeamStyler.cs
+- SelectionManager.cs
+- SelectionRing.cs
+- TaskBoardPanel.cs
+- TaskBoardUI.cs
+- TeamBootstrap.cs
+- UnitInspectorUI.cs
+- WorldHealthBar.cs
+- WorldProgressBar.cs
+
+### Assets/Scripts/Systems/UI/Editor
+- MainMenuUIMigrator.cs
+
+### Assets/Scripts/Systems/Units
+- CivilianSpawner.cs
+- Selectable.cs
+- UnitCombatController.cs
+- UnitCommandController.cs
+- UnitProductionQueue.cs
+
+## UI
+
+## Ungrouped
+
+## Utilities
+
+### Assets/Scripts/Utilities/Debug
+- FindTeamDuplicates.cs
+- TeamWatchdog.cs
+
+### Assets/Scripts/Utilities/Helpers
+- ParentRenamer.cs
+- SelfRenamer.cs
+- TeamAssignmentUtility.cs
+- TeamColorUtils.cs
+- UnitNamePool.cs
+
