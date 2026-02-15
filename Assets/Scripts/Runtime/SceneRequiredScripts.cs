@@ -82,7 +82,7 @@ public class SceneRequiredScripts : MonoBehaviour
 
     void ValidateWorkforceDataSetup()
     {
-        GameDatabase loaded = GameDatabaseLoader.Loaded;
+        GameDatabase loaded = GameDatabaseLoader.ResolveLoaded();
 
         // Civilians
         Civilian[] civilians = Array.FindAll(
@@ -164,7 +164,13 @@ public class SceneRequiredScripts : MonoBehaviour
         if (nodesMissingResource > 0 || nodesResourceNotInDatabase > 0)
             Debug.LogWarning($"[SceneRequiredScripts] Resource diagnostics: {nodesMissingResource} node(s) missing a resource definition, {nodesResourceNotInDatabase} node(s) reference resources not present in database.", this);
 
-        if (loaded == null || loaded.recipes == null || loaded.recipes.recipes == null || loaded.recipes.recipes.Count == 0)
+        if (loaded == null)
+        {
+            Debug.LogWarning("[SceneRequiredScripts] Recipes diagnostics: GameDatabase is not loaded. Ensure one active GameDatabaseLoader has GameDatabase assigned.", this);
+            return;
+        }
+
+        if (loaded.recipes == null || loaded.recipes.recipes == null || loaded.recipes.recipes.Count == 0)
             Debug.LogWarning("[SceneRequiredScripts] Recipes diagnostics: no RecipesDatabase entries found. Crafting station inspector recipe selection will be empty.", this);
     }
 

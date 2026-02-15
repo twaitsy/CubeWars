@@ -22,8 +22,11 @@ public class UnitInspectorUI : MonoBehaviour
 
     [Header("Layout (OnGUI)")]
     public float width = 340f;
-    public float height = 440f;
+    public float height = 616f;
     public float padding = 10f;
+
+    [Header("Typography")]
+    [Min(0)] public int fontSizeBoost = 1;
 
     private GameObject selected;
     private InspectorTab currentTab = InspectorTab.Info;
@@ -51,6 +54,16 @@ public class UnitInspectorUI : MonoBehaviour
         );
 
         IMGUIInputBlocker.Register(rect);
+
+        int prevLabelSize = GUI.skin.label.fontSize;
+        int prevBoxSize = GUI.skin.box.fontSize;
+        int prevButtonSize = GUI.skin.button.fontSize;
+        int prevToggleSize = GUI.skin.toggle.fontSize;
+        GUI.skin.label.fontSize = Mathf.Max(10, prevLabelSize + fontSizeBoost);
+        GUI.skin.box.fontSize = Mathf.Max(10, prevBoxSize + fontSizeBoost);
+        GUI.skin.button.fontSize = Mathf.Max(10, prevButtonSize + fontSizeBoost);
+        GUI.skin.toggle.fontSize = Mathf.Max(10, prevToggleSize + fontSizeBoost);
+
         GUILayout.BeginArea(rect, GUI.skin.window);
 
         DrawHeader();
@@ -74,6 +87,11 @@ public class UnitInspectorUI : MonoBehaviour
         GUILayout.EndVertical();
 
         GUILayout.EndArea();
+
+        GUI.skin.label.fontSize = prevLabelSize;
+        GUI.skin.box.fontSize = prevBoxSize;
+        GUI.skin.button.fontSize = prevButtonSize;
+        GUI.skin.toggle.fontSize = prevToggleSize;
     }
 
     // -----------------------
@@ -299,7 +317,8 @@ public class UnitInspectorUI : MonoBehaviour
 
     void DrawRecipeSelection(CraftingBuilding crafting)
     {
-        var recipesDb = GameDatabaseLoader.Loaded != null ? GameDatabaseLoader.Loaded.recipes : null;
+        GameDatabase loaded = GameDatabaseLoader.ResolveLoaded();
+        var recipesDb = loaded != null ? loaded.recipes : null;
         if (recipesDb == null || recipesDb.recipes == null || recipesDb.recipes.Count == 0)
         {
             string recipeName = crafting.recipe != null ? crafting.recipe.recipeName : "None";

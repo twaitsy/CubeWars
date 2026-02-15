@@ -583,3 +583,14 @@ Crafting inspector setup:
   - Outputs
   - Craft time / batch size
 - Ensure GameDatabase.recipes references RecipesDatabase.asset and contains valid entries.
+
+-----------------------------------------------------------------
+12) Database reliability + startup UI defaults (latest)
+-----------------------------------------------------------------
+- Keep one active GameDatabaseLoader in gameplay scenes and assign GameDatabase.asset.
+- Runtime systems now resolve the loader-backed database first to avoid early-Awake null database warnings.
+- Use Assets/Data/Databases/ResourcesDatabase.asset as the single ResourcesDatabase asset reference.
+- Task board now starts hidden and is toggled with Tab.
+- Minimap now starts hidden and is toggled with M.
+- Default gameplay speed is now 3x.
+- UnitInspectorUI panel height was increased to reduce congestion, and inspector/task board text size is slightly increased.

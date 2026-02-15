@@ -19,6 +19,8 @@ public class Minimap : MonoBehaviour
     public float rotationOffset = 90f;
     // Fixes the 90-degree mismatch between world and minimap
     
+    public bool show = false;
+    public KeyCode toggleKey = KeyCode.M;
     public bool useIMGUI = true;
 
     Camera mainCam;
@@ -31,9 +33,19 @@ public class Minimap : MonoBehaviour
         mainCam = Camera.main;
     }
 
+    void Update()
+    {
+        if (Input.GetKeyDown(toggleKey))
+        {
+            show = !show;
+            if (RTSGameSettings.Instance != null)
+                RTSGameSettings.Instance.display.showMinimap = show;
+        }
+    }
+
     void OnGUI()
     {
-        if (!useIMGUI) return;
+        if (!useIMGUI || !show) return;
 
         Rect r = isExpanded ? expandedRect : minimapRect;
 

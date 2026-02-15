@@ -42,7 +42,7 @@ public class ResourceNode : MonoBehaviour
 
         string key = ResourceIdUtility.GetKey(resource);
         bool inLoadedDatabase = false;
-        GameDatabase loaded = GameDatabaseLoader.Loaded;
+        GameDatabase loaded = GameDatabaseLoader.ResolveLoaded();
         if (loaded != null && loaded.resources != null && loaded.resources.resources != null)
         {
             for (int i = 0; i < loaded.resources.resources.Count; i++)

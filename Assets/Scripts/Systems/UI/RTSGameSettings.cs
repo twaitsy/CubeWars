@@ -8,15 +8,15 @@ public class RTSGameSettings : MonoBehaviour
     public class DisplayOptions
     {
         [Range(0.8f, 1.6f)] public float uiScale = 1f;
-        public bool showMinimap = true;
-        public bool showTaskBoard = true;
+        public bool showMinimap = false;
+        public bool showTaskBoard = false;
         public bool showInspector = true;
     }
 
     [Serializable]
     public class GameplayOptions
     {
-        [Range(0.5f, 3f)] public float gameSpeed = 1f;
+        [Range(0.5f, 3f)] public float gameSpeed = 3f;
         public bool pauseOnMenuOpen = false;
     }
 

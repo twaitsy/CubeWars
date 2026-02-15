@@ -263,3 +263,8 @@ Storage specialization additions (latest)
 Crafting inspector additions (latest)
 - UnitInspectorUI production tab now reads from RecipesDatabase and allows selecting active recipe at runtime.
 - RecipesDatabase should contain at least one recipe so inspector selection buttons are populated.
+
+Update notes (database/runtime UI pass)
+- SceneRequiredScripts now resolves GameDatabase through GameDatabaseLoader.ResolveLoaded() so validation can still find databases even if loader execution timing differs.
+- Recipes diagnostics now differentiates between "database not loaded" and "recipes list empty" to make setup issues easier to diagnose.
+- Team scenes should keep one active GameDatabaseLoader with a valid GameDatabase assigned so civilians, crafting stations, and resource validation all share the same source of truth.
