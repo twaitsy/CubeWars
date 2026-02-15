@@ -37,12 +37,10 @@ public class DefenseTurret : Building
     private MaterialPropertyBlock mpb;
     private static readonly int EmissionID = Shader.PropertyToID("_EmissionColor");
 
-    public override void ApplyDefinitionIfAvailable()
+    protected override void ApplyDefinition(BuildingDefinition def)
     {
-        base.ApplyDefinitionIfAvailable();
-
-        var loaded = GameDatabaseLoader.Loaded;
-        if (loaded == null || !loaded.TryGetBuildingById(buildingDefinitionId, out var def) || def == null)
+        base.ApplyDefinition(def);
+        if (def == null)
             return;
 
         if (def.attackRange > 0f)

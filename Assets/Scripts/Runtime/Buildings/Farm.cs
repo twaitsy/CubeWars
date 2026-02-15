@@ -12,6 +12,17 @@ public class Farm : Building
     public bool autoUpgrade = false;
     public float autoUpgradeCheckInterval = 2f;
 
+
+    protected override void ApplyDefinition(BuildingDefinition def)
+    {
+        base.ApplyDefinition(def);
+        if (def == null)
+            return;
+
+        if (def.upkeepInterval > 0f)
+            productionInterval = def.upkeepInterval;
+    }
+
     float productionTimer;
     float upgradeTimer;
 

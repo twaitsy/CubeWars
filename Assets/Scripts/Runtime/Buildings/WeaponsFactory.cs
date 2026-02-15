@@ -6,6 +6,17 @@ public class WeaponsFactory : Building
     public ToolItem weaponTool;
     public float craftSeconds = 8f;
 
+
+    protected override void ApplyDefinition(BuildingDefinition def)
+    {
+        base.ApplyDefinition(def);
+        if (def == null)
+            return;
+
+        if (def.buildTime > 0f)
+            craftSeconds = def.buildTime;
+    }
+
     private float timer;
     private bool crafting;
 

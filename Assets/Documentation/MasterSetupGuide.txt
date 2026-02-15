@@ -532,3 +532,9 @@ Maintenance note (2026-02 civilian logistics)
 - `JobDefinition` is now a ScriptableObject capability profile (`id`, `displayName`, `defaultJobType`, `legacyRole`, `capabilities`, `allowedTools`).
 - Jobs database should reference job profile assets instead of inline hard-coded job entries.
 - Job/task enums are now collocated under `Assets/Data/Enums` for data discoverability (`CivilianJobType`, `CivilianRole`, `WorkerCapability`, `WorkerTaskType`).
+
+[2026-02 civilian gathering + building database sync]
+- Civilians now depend on storage capacities that can be auto-populated from BuildingsDatabase storage definitions via ResourceStorageProvider.
+- Storage-providing buildings marked as storage in BuildingsDatabase now guarantee at least 1000 capacity per resource when registering storage.
+- Building runtime scripts now resolve their building definition IDs from placed BuildItemInstance/name fallback and apply database-authored stats in code paths (health/house stats/turret stats/factory timings/crafting worker-recipe setup).
+- BuildingsDatabase catalog now includes HQ, Barracks, and Defense Turret prefab entries used by runtime build/starting-building flows.

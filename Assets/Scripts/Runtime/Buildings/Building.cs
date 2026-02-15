@@ -72,12 +72,39 @@ public abstract class Building : MonoBehaviour, ITargetable, IHasHealth, IAttack
 
     public virtual void ApplyDefinitionIfAvailable()
     {
+        ResolveDefinitionId();
+
         var loaded = GameDatabaseLoader.Loaded;
         if (loaded == null || !loaded.TryGetBuildingById(buildingDefinitionId, out var def) || def == null)
             return;
 
+        ApplyDefinition(def);
+    }
+
+    protected virtual void ApplyDefinition(BuildingDefinition def)
+    {
+        if (def == null)
+            return;
+
         if (def.maxHealth > 0)
             maxHealth = def.maxHealth;
+    }
+
+    void ResolveDefinitionId()
+    {
+        if (!string.IsNullOrWhiteSpace(buildingDefinitionId))
+            return;
+
+        BuildItemInstance instance = GetComponent<BuildItemInstance>();
+        if (instance != null && !string.IsNullOrWhiteSpace(instance.itemId))
+        {
+            buildingDefinitionId = instance.itemId;
+            return;
+        }
+
+        string sanitizedName = name.Replace("(Clone)", string.Empty).Trim();
+        if (!string.IsNullOrWhiteSpace(sanitizedName))
+            buildingDefinitionId = sanitizedName;
     }
 
     public virtual void Demolish()
