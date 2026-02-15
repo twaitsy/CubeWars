@@ -1,9 +1,22 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class WinConditionManager : MonoBehaviour
 {
+    [SerializeField, Min(0.1f)] private float checkInterval = 1f;
+
+    private float checkTimer;
+    private bool hasDeclaredWinner;
+
     void Update()
     {
+        if (hasDeclaredWinner)
+            return;
+
+        checkTimer -= Time.unscaledDeltaTime;
+        if (checkTimer > 0f)
+            return;
+
+        checkTimer = checkInterval;
         CheckVictory();
     }
 
@@ -12,11 +25,18 @@ public class WinConditionManager : MonoBehaviour
         int aliveTeams = 0;
         int lastTeam = -1;
 
-        foreach (var hq in GameObject.FindObjectsOfType<Headquarters>())
+        var headquarters = GameObject.FindObjectsOfType<Headquarters>();
+        for (int i = 0; i < headquarters.Length; i++)
         {
-            if (!hq.IsAlive) continue;
+            var hq = headquarters[i];
+            if (!hq.IsAlive)
+                continue;
+
             aliveTeams++;
             lastTeam = hq.teamID;
+
+            if (aliveTeams > 1)
+                return;
         }
 
         if (aliveTeams <= 1)
@@ -25,6 +45,10 @@ public class WinConditionManager : MonoBehaviour
 
     void DeclareWinner(int teamID)
     {
+        if (hasDeclaredWinner)
+            return;
+
+        hasDeclaredWinner = true;
         Debug.Log($"TEAM {teamID} WINS!");
         Time.timeScale = 0f;
     }

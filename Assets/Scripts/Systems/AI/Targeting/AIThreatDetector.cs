@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class AIThreatDetector : MonoBehaviour
 {
@@ -8,14 +8,17 @@ public class AIThreatDetector : MonoBehaviour
     public Attackable DetectThreatNear(Vector3 pos)
     {
         Attackable[] all = GameObject.FindObjectsOfType<Attackable>();
+        float threatRadiusSqr = threatRadius * threatRadius;
+        DiplomacyManager diplomacy = DiplomacyManager.Instance;
 
         foreach (var a in all)
         {
             if (!a.IsAlive) continue;
             if (a.teamID == teamID) continue;
-            if (!DiplomacyManager.Instance.AreAtWar(teamID, a.teamID)) continue;
+            if (diplomacy == null || !diplomacy.AreAtWar(teamID, a.teamID)) continue;
 
-            if (Vector3.Distance(pos, a.transform.position) <= threatRadius)
+            float sqrDistance = (a.transform.position - pos).sqrMagnitude;
+            if (sqrDistance <= threatRadiusSqr)
                 return a;
         }
 
