@@ -14,12 +14,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   foods:
   - resource:
-      id: yummycrack
-      displayName: Yummy Crack
+      id: crack
+      displayName: Crack
       icon: {fileID: 0}
       category: 2
-      weight: 0
-      baseValue: 0
+      weight: 2
+      baseValue: 16
+    hungerRestore: 100
+    eatTime: 2
+    requiresCooking: 0
+    perishable: 0
+    spoilTime: 0
+  - resource:
+      id: pork
+      displayName: Roast Pork
+      icon: {fileID: 0}
+      category: 2
+      weight: 2
+      baseValue: 11
     hungerRestore: 100
     eatTime: 2
     requiresCooking: 0

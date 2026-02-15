@@ -21,6 +21,7 @@ GameObject:
   - component: {fileID: -8887945087164268857}
   - component: {fileID: 126259076976815159}
   - component: {fileID: 6294540286386591285}
+  - component: {fileID: 1295376524899511511}
   m_Layer: 13
   m_Name: Civilian
   m_TagString: Untagged
@@ -114,9 +115,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51acafff0e190ab41a08060017800522, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  unitDefinitionId: civilian
   teamID: 1
-  role: 0
+  jobDefinition: {fileID: 0}
   jobType: 0
+  role: 0
   maxHealth: 50
   speed: 2.5
   stopDistance: 3
@@ -128,6 +131,7 @@ MonoBehaviour:
   searchRetrySeconds: 2
   buildersCanHaulMaterials: 1
   retargetSeconds: 0.6
+  resourcesDatabase: {fileID: 0}
   foodDatabase: {fileID: 0}
   hungerRatePerSecond: 0.45
   maxHunger: 100
@@ -301,3 +305,17 @@ MonoBehaviour:
   smoothSpeed: 18
   glowStrength: 1.8
   billboardToCamera: 1
+--- !u!114 &1295376524899511511
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5538168870909510437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14f1da7aff9846eaad3ce74c53a6ca09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  validateOnAwake: 0
+  includeOptionalWarnings: 0

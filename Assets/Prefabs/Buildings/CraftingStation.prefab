@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: -106629887826787657}
   - component: {fileID: 1022117379780279856}
   - component: {fileID: 7390252300050527218}
+  - component: {fileID: -652211977011231118}
   m_Layer: 0
   m_Name: CraftingStation
   m_TagString: Untagged
@@ -118,31 +119,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a1d7895636f2ad4db7b00fddaabe720, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  buildingDefinitionId: 
   teamID: 0
   maxHealth: 300
   currentHealth: 0
   recipe:
-    recipeName: Coins
+    recipeName: Crackz
     inputs:
     - resource:
-        id: wood
-        displayName: 
-        icon: {fileID: 0}
+        id: gold
+        displayName: Gold
+        icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
         category: 0
-        weight: 1
-        baseValue: 1
-      amount: 1
+        weight: 456
+        baseValue: 6578
+      amount: 10
     outputs:
     - resource:
-        id: drugz
-        displayName: 
-        icon: {fileID: 0}
+        id: wood
+        displayName: Wood
+        icon: {fileID: 10901, guid: 0000000000000000f000000000000000, type: 0}
         category: 0
-        weight: 1
-        baseValue: 1
-      amount: 100
-    craftTimeSeconds: 5
-    batchSize: 5
+        weight: 99
+        baseValue: 99
+      amount: 10
+    craftTimeSeconds: 8
+    batchSize: 1
     requiredJobType: 8
     outputEfficiencyMultiplier: 1
     inputEfficiencyMultiplier: 1
@@ -433,6 +435,20 @@ MonoBehaviour:
   craftInputStopDistance: 2
   craftOutputStopDistance: 2
   craftWorkStopDistance: 2
+--- !u!114 &-652211977011231118
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2971650436058892313}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14f1da7aff9846eaad3ce74c53a6ca09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  validateOnAwake: 1
+  includeOptionalWarnings: 1
 --- !u!1 &4013298796735140841
 GameObject:
   m_ObjectHideFlags: 0

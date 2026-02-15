@@ -41,6 +41,7 @@ public class SceneRequiredScripts : MonoBehaviour
     {
         var missingRequiredTypes = new List<string>();
 
+        // Check required scene scripts
         for (int i = 0; i < RequiredSceneScripts.Length; i++)
         {
             Type requiredType = RequiredSceneScripts[i];
@@ -48,6 +49,7 @@ public class SceneRequiredScripts : MonoBehaviour
                 missingRequiredTypes.Add(requiredType.Name);
         }
 
+        // Check bootstrap requirement
         if (FindObjectOfType<TeamBootstrap>() == null &&
             FindObjectOfType<SixTeamBootstrap>() == null &&
             FindObjectOfType<HQSpawner>() == null)
@@ -55,11 +57,13 @@ public class SceneRequiredScripts : MonoBehaviour
             missingRequiredTypes.Add("TeamBootstrap OR SixTeamBootstrap OR HQSpawner");
         }
 
+        // Check for missing script components
         int missingScriptComponents = CountMissingScriptComponentsInActiveScene();
 
         if (missingRequiredTypes.Count == 0 && missingScriptComponents == 0)
         {
             Debug.Log("[SceneRequiredScripts] Validation passed: all required scene scripts are present and no missing script components were found.", this);
+            ValidateWorkforceDataSetup();
             return;
         }
 
@@ -80,8 +84,13 @@ public class SceneRequiredScripts : MonoBehaviour
     {
         GameDatabase loaded = GameDatabaseLoader.Loaded;
 
-        Civilian[] civilians = FindObjectsOfType<Civilian>(true);
+        // Civilians
+        Civilian[] civilians = Array.FindAll(
+    Resources.FindObjectsOfTypeAll<Civilian>(),
+    c => c.gameObject.scene.IsValid()
+);
         int civiliansMissingUnitDefinition = 0;
+
         for (int i = 0; i < civilians.Length; i++)
         {
             Civilian civ = civilians[i];
@@ -97,7 +106,11 @@ public class SceneRequiredScripts : MonoBehaviour
                 civiliansMissingUnitDefinition++;
         }
 
-        ResourceNode[] nodes = FindObjectsOfType<ResourceNode>(true);
+        // Resource nodes
+        ResourceNode[] nodes = Array.FindAll(
+    Resources.FindObjectsOfTypeAll<ResourceNode>(),
+    n => n.gameObject.scene.IsValid()
+);
         int nodesMissingResource = 0;
         int nodesResourceNotInDatabase = 0;
 
@@ -114,6 +127,7 @@ public class SceneRequiredScripts : MonoBehaviour
             }
 
             string resourceKey = ResourceIdUtility.GetKey(node.resource);
+
             bool inLoadedDatabase = false;
             if (loaded != null && loaded.resources != null && loaded.resources.resources != null)
             {
@@ -159,12 +173,15 @@ public class SceneRequiredScripts : MonoBehaviour
 
         int missingCount = 0;
         GameObject[] roots = scene.GetRootGameObjects();
+
         for (int i = 0; i < roots.Length; i++)
         {
             Transform[] allTransforms = roots[i].GetComponentsInChildren<Transform>(true);
+
             for (int j = 0; j < allTransforms.Length; j++)
             {
                 Component[] components = allTransforms[j].GetComponents<Component>();
+
                 for (int k = 0; k < components.Length; k++)
                 {
                     if (components[k] == null)

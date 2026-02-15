@@ -15,9 +15,8 @@ MonoBehaviour:
   id: gatherer
   displayName: Gatherer
   icon: {fileID: 0}
-  defaultJobType: Gatherer
-  legacyRole: Gatherer
+  defaultJobType: 1
+  legacyRole: 0
   baseSkill: 1
-  capabilities:
-  - Gather
+  capabilities: 00000000
   allowedTools: []

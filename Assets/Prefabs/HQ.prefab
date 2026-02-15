@@ -131,7 +131,7 @@ MonoBehaviour:
       category: 0
       weight: 99
       baseValue: 99
-    amount: 200
+    amount: 2000
   - resource:
       id: gold
       displayName: Gold
@@ -139,7 +139,7 @@ MonoBehaviour:
       category: 0
       weight: 456
       baseValue: 6578
-    amount: 200
+    amount: 2000
   - resource:
       id: ironore
       displayName: Iron Ore
@@ -147,7 +147,15 @@ MonoBehaviour:
       category: 0
       weight: 99
       baseValue: 99
-    amount: 200
+    amount: 2000
+  - resource:
+      id: pork
+      displayName: Roast Pork
+      icon: {fileID: 0}
+      category: 2
+      weight: 2
+      baseValue: 11
+    amount: 2000
 --- !u!54 &2609521548526753221
 Rigidbody:
   m_ObjectHideFlags: 0
