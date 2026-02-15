@@ -1,6 +1,7 @@
 CubeWars - Required Scene Scripts Before Gameplay
 
 Core bootstrap/system scripts (required)
+- SceneRequiredScripts (validator component that reports missing required scripts and missing script components in the active scene)
 - GameManager
 - TeamStorageManager
 - TeamResources
