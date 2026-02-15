@@ -155,7 +155,7 @@ public class TaskBoardUI : MonoBehaviour
             if (civ.CurrentState == "Building" || civ.CurrentState == "GoingToBuildSite")
                 buildersWorking++;
 
-            if (civ.CurrentState == "PickingUp" || civ.CurrentState == "Delivering" || civ.CurrentState == "GoingToDeliverSite")
+            if (IsHaulerActiveState(civ.CurrentState))
                 haulersWorking++;
         }
 
@@ -207,6 +207,20 @@ public class TaskBoardUI : MonoBehaviour
         int registeredWorkers = WorkerTaskDispatcher.Instance != null ? WorkerTaskDispatcher.Instance.GetRegisteredWorkerCount(playerTeamID) : 0;
         GUI.Label(new Rect(x, y, width, row), $"Dispatcher: Registered Workers {registeredWorkers} | Queued Tasks {queuedTasks}");
         y += row;
+    }
+
+
+    static bool IsHaulerActiveState(string state)
+    {
+        return state == "PickingUp"
+            || state == "Delivering"
+            || state == "GoingToDeliverSite"
+            || state == "SearchingSupplySite"
+            || state == "GoingToPickupStorage"
+            || state == "FetchingCraftInput"
+            || state == "DeliveringCraftInput"
+            || state == "CollectingCraftOutput"
+            || state == "DeliveringCraftOutput";
     }
 
     void DrawResources(float x, ref float y, float width, float row)

@@ -237,8 +237,17 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     private void ApplyDatabaseDefinition()
     {
         var loaded = GameDatabaseLoader.Loaded;
-        if (loaded == null || !loaded.TryGetUnitById(unitDefinitionId, out var def) || def == null)
+        if (loaded == null)
+        {
+            Debug.LogWarning($"[{nameof(Civilian)}] {name}: GameDatabaseLoader.Loaded is null; unitDefinitionId '{unitDefinitionId}' cannot be validated.", this);
             return;
+        }
+
+        if (!loaded.TryGetUnitById(unitDefinitionId, out var def) || def == null)
+        {
+            Debug.LogWarning($"[{nameof(Civilian)}] {name}: unitDefinitionId '{unitDefinitionId}' was not found in UnitsDatabase.", this);
+            return;
+        }
 
         if (def.maxHealth > 0)
             maxHealth = def.maxHealth;

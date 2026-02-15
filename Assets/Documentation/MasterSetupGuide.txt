@@ -548,3 +548,11 @@ Maintenance note (2026-02 civilian logistics)
 - WorkerTaskGenerationSystem now queues gather requests per open `ResourceNode.maxGatherers` slot instead of one gather request per node, and subtracts already queued gather requests for the same node to avoid queue flooding.
 - WorkerTaskDispatcher now exposes per-node queued gather counts and only dispatches to civilians that are currently available (`Idle` or `Searching*`) to prevent mid-task reassignment churn.
 - SceneRequiredScripts validator now explicitly requires `WorkerTaskDispatcher` and `WorkerTaskGenerationSystem` in scene bootstrap validation.
+
+Workforce troubleshooting update (latest)
+- Civilian prefab does not need its own ResourceStorageContainer/ResourceStorageProvider to gather/haul.
+- Ensure every Civilian prefab has a valid `unitDefinitionId` that exists in UnitsDatabase.
+- Ensure every ResourceNode has `resource` assigned and that ResourceDefinition exists in ResourcesDatabase.
+- Use BuildingPrefabValidator on Building/Civilian/ResourceNode prefabs to log missing components and data mismatches.
+- SceneRequiredScripts now includes workforce/resource data diagnostics for these checks at scene validation time.
+- TaskBoardUI "Haulers Active" now counts both construction hauling and crafting input/output hauling states.

@@ -245,3 +245,12 @@ Required in gameplay scenes:
 Behavior expectations:
 - Gather task generation now mirrors open gather slots on each node (`maxGatherers - ActiveGatherers`) and accounts for already queued gather tasks per node.
 - Dispatcher should only assign newly queued tasks to available civilians (Idle or Searching states) to avoid reassigning workers already traveling/working.
+
+
+Workforce/resource diagnostics (latest)
+- SceneRequiredScripts now performs extra validation for workforce setup:
+  - Warns when Civilian.unitDefinitionId is missing or not found in loaded UnitsDatabase.
+  - Warns when ResourceNode has no resource assigned.
+  - Warns when ResourceNode.resource is not present in loaded ResourcesDatabase.
+- BuildingPrefabValidator can now validate Building, Civilian, and ResourceNode prefabs from one component and reports database/configuration issues.
+- Civilian prefabs do NOT require ResourceStorageContainer/ResourceStorageProvider for normal gathering/hauling.

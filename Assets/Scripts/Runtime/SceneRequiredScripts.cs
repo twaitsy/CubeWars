@@ -72,6 +72,83 @@ public class SceneRequiredScripts : MonoBehaviour
         {
             Debug.LogError("[SceneRequiredScripts] Found " + missingScriptComponents + " missing script component(s) in the active scene hierarchy.", this);
         }
+
+        ValidateWorkforceDataSetup();
+    }
+
+    void ValidateWorkforceDataSetup()
+    {
+        GameDatabase loaded = GameDatabaseLoader.Loaded;
+
+        Civilian[] civilians = FindObjectsOfType<Civilian>(true);
+        int civiliansMissingUnitDefinition = 0;
+        for (int i = 0; i < civilians.Length; i++)
+        {
+            Civilian civ = civilians[i];
+            if (civ == null)
+                continue;
+
+            bool missing = string.IsNullOrWhiteSpace(civ.unitDefinitionId)
+                || loaded == null
+                || !loaded.TryGetUnitById(civ.unitDefinitionId, out var def)
+                || def == null;
+
+            if (missing)
+                civiliansMissingUnitDefinition++;
+        }
+
+        ResourceNode[] nodes = FindObjectsOfType<ResourceNode>(true);
+        int nodesMissingResource = 0;
+        int nodesResourceNotInDatabase = 0;
+
+        for (int i = 0; i < nodes.Length; i++)
+        {
+            ResourceNode node = nodes[i];
+            if (node == null)
+                continue;
+
+            if (node.resource == null)
+            {
+                nodesMissingResource++;
+                continue;
+            }
+
+            string resourceKey = ResourceIdUtility.GetKey(node.resource);
+            bool inLoadedDatabase = false;
+            if (loaded != null && loaded.resources != null && loaded.resources.resources != null)
+            {
+                for (int r = 0; r < loaded.resources.resources.Count; r++)
+                {
+                    if (ResourceIdUtility.GetKey(loaded.resources.resources[r]) == resourceKey)
+                    {
+                        inLoadedDatabase = true;
+                        break;
+                    }
+                }
+            }
+
+            bool inGlobalResources = false;
+            if (ResourcesDatabase.Instance != null && ResourcesDatabase.Instance.resources != null)
+            {
+                for (int r = 0; r < ResourcesDatabase.Instance.resources.Count; r++)
+                {
+                    if (ResourceIdUtility.GetKey(ResourcesDatabase.Instance.resources[r]) == resourceKey)
+                    {
+                        inGlobalResources = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!inLoadedDatabase && !inGlobalResources)
+                nodesResourceNotInDatabase++;
+        }
+
+        if (civiliansMissingUnitDefinition > 0)
+            Debug.LogWarning($"[SceneRequiredScripts] Workforce diagnostics: {civiliansMissingUnitDefinition} civilian(s) have missing/invalid unitDefinitionId database entries.", this);
+
+        if (nodesMissingResource > 0 || nodesResourceNotInDatabase > 0)
+            Debug.LogWarning($"[SceneRequiredScripts] Resource diagnostics: {nodesMissingResource} node(s) missing a resource definition, {nodesResourceNotInDatabase} node(s) reference resources not present in database.", this);
     }
 
     static int CountMissingScriptComponentsInActiveScene()
