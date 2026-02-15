@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using UnityEditor;
 using UnityEngine;
-
 [CustomPropertyDrawer(typeof(TechNodeDefinition))]
 public class TechNodeDefinitionDrawer : PropertyDrawer
 {
@@ -11,7 +10,6 @@ public class TechNodeDefinitionDrawer : PropertyDrawer
         height += GetManualFieldHeights(property);
         return height;
     }
-
     private float GetManualFieldHeights(SerializedProperty property)
     {
         float height = 0;
@@ -31,7 +29,6 @@ public class TechNodeDefinitionDrawer : PropertyDrawer
         height += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing; // workerEfficiencyMultiplier
         return height;
     }
-
     private float GetListHeight(SerializedProperty listProp)
     {
         float h = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing; // For list label
@@ -42,24 +39,21 @@ public class TechNodeDefinitionDrawer : PropertyDrawer
         }
         return h;
     }
-
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
         EditorGUI.BeginProperty(position, label, property);
-
         Rect rect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
         EditorGUI.LabelField(rect, label);
         position.y += EditorGUIUtility.singleLineHeight + 2;
-
         EditorGUI.indentLevel++;
-
+        string currentId = property.FindPropertyRelative("id").stringValue;
         DrawStringField(property.FindPropertyRelative("id"), ref position, "ID");
         DrawStringField(property.FindPropertyRelative("displayName"), ref position, "Display Name");
         DrawObjectField(property.FindPropertyRelative("icon"), ref position, "Icon");
         DrawTextAreaField(property.FindPropertyRelative("description"), ref position, "Description");
         DrawResourceAmountList(property.FindPropertyRelative("researchCost"), ref position, "Research Cost");
         DrawFloatField(property.FindPropertyRelative("researchTime"), ref position, "Research Time");
-        DrawPrerequisiteList(property.FindPropertyRelative("prerequisites"), ref position, "Prerequisites");
+        DrawPrerequisiteList(property.FindPropertyRelative("prerequisites"), ref position, "Prerequisites", currentId);
         DrawBuildingDropdown(property.FindPropertyRelative("requiredBuilding"), ref position, "Required Building");
         DrawUnlockBuildingsList(property.FindPropertyRelative("unlockBuildings"), ref position, "Unlock Buildings");
         DrawUnlockUnitsList(property.FindPropertyRelative("unlockUnits"), ref position, "Unlock Units");
@@ -67,42 +61,34 @@ public class TechNodeDefinitionDrawer : PropertyDrawer
         DrawFloatField(property.FindPropertyRelative("globalProductionSpeedMultiplier"), ref position, "Global Production Speed Multiplier");
         DrawFloatField(property.FindPropertyRelative("globalCombatDamageMultiplier"), ref position, "Global Combat Damage Multiplier");
         DrawFloatField(property.FindPropertyRelative("workerEfficiencyMultiplier"), ref position, "Worker Efficiency Multiplier");
-
         EditorGUI.indentLevel--;
-
         EditorGUI.EndProperty();
     }
-
     private void DrawStringField(SerializedProperty prop, ref Rect position, string label)
     {
         Rect rect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
         EditorGUI.PropertyField(rect, prop, new GUIContent(label));
         position.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
     }
-
     private void DrawFloatField(SerializedProperty prop, ref Rect position, string label)
     {
         DrawStringField(prop, ref position, label);
     }
-
     private void DrawObjectField(SerializedProperty prop, ref Rect position, string label)
     {
         DrawStringField(prop, ref position, label);
     }
-
     private void DrawTextAreaField(SerializedProperty prop, ref Rect position, string label)
     {
         Rect rect = new Rect(position.x, position.y, position.width, EditorGUI.GetPropertyHeight(prop, true));
         EditorGUI.PropertyField(rect, prop, new GUIContent(label));
         position.y += rect.height + EditorGUIUtility.standardVerticalSpacing;
     }
-
     private void DrawResourceAmountList(SerializedProperty listProp, ref Rect position, string label)
     {
         Rect rect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
         listProp.isExpanded = EditorGUI.Foldout(rect, listProp.isExpanded, label, true);
         position.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-
         if (listProp.isExpanded)
         {
             EditorGUI.indentLevel++;
@@ -131,7 +117,6 @@ public class TechNodeDefinitionDrawer : PropertyDrawer
             EditorGUI.indentLevel--;
         }
     }
-
     private void ShowResourcePicker(Rect activatorRect, SerializedProperty amountProp)
     {
         var db = FindGameDatabase();
@@ -155,7 +140,6 @@ public class TechNodeDefinitionDrawer : PropertyDrawer
             }
         );
     }
-
     private void CopyResourceToProperty(SerializedProperty property, ResourceDefinition source)
     {
         property.FindPropertyRelative("id").stringValue = source.id;
@@ -165,13 +149,11 @@ public class TechNodeDefinitionDrawer : PropertyDrawer
         property.FindPropertyRelative("weight").floatValue = source.weight;
         property.FindPropertyRelative("baseValue").intValue = source.baseValue;
     }
-
-    private void DrawPrerequisiteList(SerializedProperty listProp, ref Rect position, string label)
+    private void DrawPrerequisiteList(SerializedProperty listProp, ref Rect position, string label, string currentId)
     {
         Rect rect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
         listProp.isExpanded = EditorGUI.Foldout(rect, listProp.isExpanded, label, true);
         position.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-
         if (listProp.isExpanded)
         {
             EditorGUI.indentLevel++;
@@ -184,7 +166,7 @@ public class TechNodeDefinitionDrawer : PropertyDrawer
                 Rect btnRect = new Rect(elemRect.xMax + 2, position.y, 60, EditorGUIUtility.singleLineHeight);
                 if (GUI.Button(btnRect, "Select"))
                 {
-                    ShowTechPicker(btnRect, elem);
+                    ShowTechPicker(btnRect, elem, currentId);
                 }
                 position.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
             }
@@ -197,8 +179,7 @@ public class TechNodeDefinitionDrawer : PropertyDrawer
             EditorGUI.indentLevel--;
         }
     }
-
-    private void ShowTechPicker(Rect activatorRect, SerializedProperty techProp)
+    private void ShowTechPicker(Rect activatorRect, SerializedProperty techProp, string currentId)
     {
         var db = FindGameDatabase();
         if (db == null || db.techTree == null || db.techTree.techNodes == null)
@@ -206,7 +187,7 @@ public class TechNodeDefinitionDrawer : PropertyDrawer
             EditorUtility.DisplayDialog("No Tech Nodes", "TechTreeDatabase missing or empty.", "OK");
             return;
         }
-        var list = db.techTree.techNodes;
+        var list = db.techTree.techNodes.Where(n => n.id != currentId).ToList();
         SearchablePickerPopup.Show(
             activatorRect,
             list.Cast<object>().ToList(),
@@ -220,7 +201,6 @@ public class TechNodeDefinitionDrawer : PropertyDrawer
             }
         );
     }
-
     private void CopyTechToProperty(SerializedProperty property, TechNodeDefinition source)
     {
         property.FindPropertyRelative("id").stringValue = source.id;
@@ -239,7 +219,6 @@ public class TechNodeDefinitionDrawer : PropertyDrawer
         property.FindPropertyRelative("unlockRecipes").arraySize = 0;
         property.FindPropertyRelative("requiredBuilding").objectReferenceValue = null;
     }
-
     private void DrawBuildingDropdown(SerializedProperty prop, ref Rect position, string label)
     {
         Rect rect = new Rect(position.x, position.y, position.width - 110, EditorGUIUtility.singleLineHeight);
@@ -252,7 +231,6 @@ public class TechNodeDefinitionDrawer : PropertyDrawer
         }
         position.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
     }
-
     private void ShowBuildingPicker(Rect activatorRect, SerializedProperty buildingProp)
     {
         var db = FindGameDatabase();
@@ -275,7 +253,6 @@ public class TechNodeDefinitionDrawer : PropertyDrawer
             }
         );
     }
-
     private void CopyBuildingToProperty(SerializedProperty property, BuildingDefinition source)
     {
         property.FindPropertyRelative("id").stringValue = source.id;
@@ -307,13 +284,11 @@ public class TechNodeDefinitionDrawer : PropertyDrawer
         property.FindPropertyRelative("storageSettings").FindPropertyRelative("allowedCategories").arraySize = 0;
         property.FindPropertyRelative("upgradeTo").objectReferenceValue = null;
     }
-
     private void DrawUnlockBuildingsList(SerializedProperty listProp, ref Rect position, string label)
     {
         Rect rect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
         listProp.isExpanded = EditorGUI.Foldout(rect, listProp.isExpanded, label, true);
         position.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-
         if (listProp.isExpanded)
         {
             EditorGUI.indentLevel++;
@@ -339,13 +314,11 @@ public class TechNodeDefinitionDrawer : PropertyDrawer
             EditorGUI.indentLevel--;
         }
     }
-
     private void DrawUnlockUnitsList(SerializedProperty listProp, ref Rect position, string label)
     {
         Rect rect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
         listProp.isExpanded = EditorGUI.Foldout(rect, listProp.isExpanded, label, true);
         position.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-
         if (listProp.isExpanded)
         {
             EditorGUI.indentLevel++;
@@ -371,7 +344,6 @@ public class TechNodeDefinitionDrawer : PropertyDrawer
             EditorGUI.indentLevel--;
         }
     }
-
     private void ShowUnitPicker(Rect activatorRect, SerializedProperty unitProp)
     {
         var db = FindGameDatabase();
@@ -394,7 +366,6 @@ public class TechNodeDefinitionDrawer : PropertyDrawer
             }
         );
     }
-
     private void CopyUnitToProperty(SerializedProperty property, UnitDefinition source)
     {
         property.FindPropertyRelative("id").stringValue = source.id;
@@ -419,13 +390,11 @@ public class TechNodeDefinitionDrawer : PropertyDrawer
         property.FindPropertyRelative("trainedAt").objectReferenceValue = null;
         property.FindPropertyRelative("upgradeTo").objectReferenceValue = null;
     }
-
     private void DrawUnlockRecipesList(SerializedProperty listProp, ref Rect position, string label)
     {
         Rect rect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
         listProp.isExpanded = EditorGUI.Foldout(rect, listProp.isExpanded, label, true);
         position.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-
         if (listProp.isExpanded)
         {
             EditorGUI.indentLevel++;
@@ -451,7 +420,6 @@ public class TechNodeDefinitionDrawer : PropertyDrawer
             EditorGUI.indentLevel--;
         }
     }
-
     private void ShowRecipePicker(Rect activatorRect, SerializedProperty recipeProp)
     {
         var db = FindGameDatabase();
@@ -474,7 +442,6 @@ public class TechNodeDefinitionDrawer : PropertyDrawer
             }
         );
     }
-
     private void CopyRecipeToProperty(SerializedProperty property, ProductionRecipeDefinition source)
     {
         property.FindPropertyRelative("recipeName").stringValue = source.recipeName;
@@ -489,7 +456,6 @@ public class TechNodeDefinitionDrawer : PropertyDrawer
         property.FindPropertyRelative("inputs").arraySize = 0;
         property.FindPropertyRelative("outputs").arraySize = 0;
     }
-
     private GameDatabase FindGameDatabase()
     {
         string[] guids = AssetDatabase.FindAssets("t:GameDatabase");

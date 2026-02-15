@@ -9,17 +9,27 @@ using UnityEngine;
 
 public class StatsCheckerWindow : EditorWindow
 {
+    // -----------------------------
+    // Paths
+    // -----------------------------
     private static readonly string OutputFolder = EditorToolsPaths.Reports + "/StatsChecker/";
-    private const string IgnoredStatsFile = OutputFolder + "ignored_stats.txt";
-    private const string IgnoredScriptsFile = OutputFolder + "ignored_scripts.txt";
-    private const string ReportFile = OutputFolder + "StatsReport.txt";
 
+    private static readonly string IgnoredStatsFile = OutputFolder + "ignored_stats.txt";
+    private static readonly string IgnoredScriptsFile = OutputFolder + "ignored_scripts.txt";
+    private static readonly string ReportFile = OutputFolder + "StatsReport.txt";
+
+    // -----------------------------
+    // Data
+    // -----------------------------
     private Dictionary<string, List<string>> missingStats = new Dictionary<string, List<string>>();
     private HashSet<string> ignoredStats = new HashSet<string>();
     private HashSet<string> ignoredScripts = new HashSet<string>();
 
     private Vector2 scroll;
 
+    // -----------------------------
+    // Window Entry
+    // -----------------------------
     [MenuItem("Tools/CubeWars/Validation/Stats Coverage Checker")]
     public static void Open()
     {
@@ -67,6 +77,9 @@ public class StatsCheckerWindow : EditorWindow
         File.WriteAllLines(path, list.OrderBy(x => x).ToArray());
     }
 
+    // -----------------------------
+    // GUI
+    // -----------------------------
     private void OnGUI()
     {
         GUILayout.Space(10);
@@ -127,6 +140,9 @@ public class StatsCheckerWindow : EditorWindow
         }
     }
 
+    // -----------------------------
+    // Scanning Logic
+    // -----------------------------
     private void ScanProject()
     {
         missingStats.Clear();
@@ -219,7 +235,7 @@ public class StatsCheckerWindow : EditorWindow
 
         string code = File.ReadAllText(inspectorPath);
 
-        string[] methodsToParse = new string[]
+        string[] methodsToParse =
         {
             "DrawOverview",
             "DrawStats",
@@ -236,7 +252,7 @@ public class StatsCheckerWindow : EditorWindow
 
         foreach (string method in methodsToParse)
         {
-            string pattern = "void " + method + @"\\s*\\([^)]*\\)\\s*\\{([\\s\\S]*?)\\}";
+            string pattern = "void " + method + @"\s*\([^)]*\)\s*\{([\s\S]*?)\}";
             Match match = Regex.Match(code, pattern);
 
             if (!match.Success)
@@ -268,6 +284,9 @@ public class StatsCheckerWindow : EditorWindow
         return AssetDatabase.GUIDToAssetPath(guids[0]);
     }
 
+    // -----------------------------
+    // Report Export
+    // -----------------------------
     private void ExportReport()
     {
         using (StreamWriter writer = new StreamWriter(ReportFile))

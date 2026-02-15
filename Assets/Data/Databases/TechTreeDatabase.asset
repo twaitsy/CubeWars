@@ -25,7 +25,7 @@ MonoBehaviour:
       icon: {fileID: 0}
       description: 
       researchCost: []
-      researchTime: 0
+      researchTime: 10
       prerequisites: []
       requiredBuilding:
         id: 
@@ -35,10 +35,10 @@ MonoBehaviour:
         category: 0
         subCategory: 
         constructionCost: []
-        buildTime: 0
-        maxHealth: 0
+        buildTime: 5
+        maxHealth: 100
         upkeepCost: []
-        upkeepInterval: 0
+        upkeepInterval: 10
         maxResidents: 0
         comfortLevel: 0
         isProducer: 0
@@ -58,9 +58,50 @@ MonoBehaviour:
       unlockBuildings: []
       unlockUnits: []
       unlockRecipes: []
-      globalProductionSpeedMultiplier: 0
-      globalCombatDamageMultiplier: 0
-      workerEfficiencyMultiplier: 0
+      globalProductionSpeedMultiplier: 1
+      globalCombatDamageMultiplier: 1
+      workerEfficiencyMultiplier: 1
+    - id: 
+      displayName: 
+      icon: {fileID: 0}
+      description: 
+      researchCost: []
+      researchTime: 10
+      prerequisites: []
+      requiredBuilding:
+        id: 
+        displayName: 
+        icon: {fileID: 0}
+        prefab: {fileID: 0}
+        category: 0
+        subCategory: 
+        constructionCost: []
+        buildTime: 5
+        maxHealth: 100
+        upkeepCost: []
+        upkeepInterval: 10
+        maxResidents: 0
+        comfortLevel: 0
+        isProducer: 0
+        recipes: []
+        workerSlots: 0
+        isStorage: 0
+        storageSettings:
+          capacity: 0
+          allowedCategories: 
+        isMilitary: 0
+        attackDamage: 0
+        attackRange: 0
+        garrisonSlots: 0
+        powerConsumption: 0
+        powerGeneration: 0
+        waterConsumption: 0
+      unlockBuildings: []
+      unlockUnits: []
+      unlockRecipes: []
+      globalProductionSpeedMultiplier: 1
+      globalCombatDamageMultiplier: 1
+      workerEfficiencyMultiplier: 1
     requiredBuilding:
       id: 
       displayName: 
@@ -69,10 +110,10 @@ MonoBehaviour:
       category: 0
       subCategory: 
       constructionCost: []
-      buildTime: 0
-      maxHealth: 0
+      buildTime: 5
+      maxHealth: 100
       upkeepCost: []
-      upkeepInterval: 0
+      upkeepInterval: 10
       maxResidents: 0
       comfortLevel: 0
       isProducer: 0
