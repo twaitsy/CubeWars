@@ -12,6 +12,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     public int teamID;
 
     [Header("Job (Unified Registry)")]
+    public JobDefinition jobDefinition;
     public CivilianJobType jobType = CivilianJobType.Gatherer;
     [Tooltip("Legacy mirror of jobType for older systems/UI.")]
     public CivilianRole role = CivilianRole.Gatherer;
@@ -192,6 +193,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         {
             RegisterWithJobManager();
             CraftingJobManager.Instance?.RegisterCivilian(this);
+            WorkerTaskDispatcher.Instance?.RegisterWorker(this);
         }
     }
 
@@ -204,6 +206,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             UnregisterFromJobManager();
 
         CraftingJobManager.Instance?.UnregisterCivilian(this);
+        WorkerTaskDispatcher.Instance?.UnregisterWorker(this);
     }
 
     void Start()
@@ -212,11 +215,19 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         currentHealth = maxHealth;
         currentHunger = 0f;
         currentTiredness = 0f;
+
+        if (jobDefinition != null)
+        {
+            jobType = jobDefinition.defaultJobType;
+            role = jobDefinition.legacyRole;
+        }
+
         SetJobType(jobType);
 
         started = true;
         RegisterWithJobManager();
         CraftingJobManager.Instance?.RegisterCivilian(this);
+        WorkerTaskDispatcher.Instance?.RegisterWorker(this);
 
         TryAssignHouseIfNeeded();
     }
@@ -268,9 +279,11 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             UnregisterFromJobManager();
 
         CraftingJobManager.Instance?.UnregisterCivilian(this);
+        WorkerTaskDispatcher.Instance?.UnregisterWorker(this);
 
         RegisterWithJobManager();
         CraftingJobManager.Instance?.RegisterCivilian(this);
+        WorkerTaskDispatcher.Instance?.RegisterWorker(this);
     }
 
     public void SetTeamID(int newTeamID)
@@ -679,6 +692,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     {
         jobType = newJobType;
         role = CivilianJobRegistry.GetProfile(jobType).legacyRole;
+
 
         SetTargetNode(null);
         targetSite = null;
@@ -1817,4 +1831,46 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     {
         return transform;
     }
+    public bool CanPerform(WorkerCapability capability)
+    {
+        if (jobDefinition != null)
+            return jobDefinition.HasCapability(capability);
+
+        switch (capability)
+        {
+            case WorkerCapability.Gather: return jobType == CivilianJobType.Gatherer || jobType == CivilianJobType.Generalist;
+            case WorkerCapability.Build: return jobType == CivilianJobType.Builder || jobType == CivilianJobType.Generalist;
+            case WorkerCapability.Haul: return jobType == CivilianJobType.Hauler || jobType == CivilianJobType.Builder || jobType == CivilianJobType.Generalist;
+            case WorkerCapability.Craft: return jobType == CivilianJobType.Crafter || CivilianJobRegistry.GetProfile(jobType).supportsCraftingAssignment;
+            default: return false;
+        }
+    }
+
+    public bool TryAssignTask(WorkerTaskRequest task)
+    {
+        if (!CanPerform(task.requiredCapability))
+            return false;
+
+        switch (task.taskType)
+        {
+            case WorkerTaskType.Gather:
+                if (task.resourceNode == null) return false;
+                SetJobType(CivilianJobType.Gatherer);
+                AssignPreferredNode(task.resourceNode);
+                return true;
+            case WorkerTaskType.Build:
+                SetJobType(CivilianJobType.Builder);
+                return true;
+            case WorkerTaskType.Haul:
+                SetJobType(CivilianJobType.Hauler);
+                return true;
+            case WorkerTaskType.Craft:
+                if (task.craftingBuilding == null) return false;
+                AssignCraftingBuilding(task.craftingBuilding);
+                return true;
+            default:
+                return false;
+        }
+    }
+
 }

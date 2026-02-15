@@ -1,17 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
-[Serializable]
-public class JobDefinition
+[CreateAssetMenu(menuName = "CubeWars/Data/Job Definition", fileName = "JobDefinition")]
+public class JobDefinition : ScriptableObject
 {
     public string id;
     public string displayName;
     public Sprite icon;
 
-    // Tools this job is allowed to use
+    [Header("Capability Profile")]
+    public CivilianJobType defaultJobType = CivilianJobType.Generalist;
+    public CivilianRole legacyRole = CivilianRole.Gatherer;
+    public float baseSkill = 1f;
+    public List<WorkerCapability> capabilities = new List<WorkerCapability>();
     public List<ToolDefinition> allowedTools = new List<ToolDefinition>();
 
-    // Base skill for this job (gathering, building, mining, etc.)
-    public float baseSkill = 1f;
+    public bool HasCapability(WorkerCapability capability)
+    {
+        return capabilities != null && capabilities.Contains(capability);
+    }
 }

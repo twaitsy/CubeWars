@@ -24,12 +24,13 @@ public class CraftingJobManager : MonoBehaviour
 
     void Update()
     {
+        // Assignment now routes through WorkerTaskDispatcher + WorkerTaskGenerationSystem.
+        // Keep this component for compatibility queries used by worker routines.
         timer += Time.deltaTime;
         if (timer < assignmentTickSeconds)
             return;
 
         timer = 0f;
-        AutoAssignWorkers();
     }
 
     public void RegisterCivilian(Civilian civilian)
@@ -59,9 +60,8 @@ public class CraftingJobManager : MonoBehaviour
     public bool TryAssignManually(Civilian civilian, CraftingBuilding building)
     {
         if (civilian == null || building == null) return false;
-        if (!building.TryAssignWorker(civilian, true)) return false;
-        civilian.AssignCraftingBuilding(building, true);
-        return true;
+        if (WorkerTaskDispatcher.Instance == null) return false;
+        return WorkerTaskDispatcher.Instance.TryAssignTaskToWorker(civilian, WorkerTaskRequest.Craft(civilian.teamID, building));
     }
 
     public CraftingBuilding FindNearestBuildingNeedingInput(int teamID, ResourceDefinition type, Vector3 position)

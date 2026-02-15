@@ -89,10 +89,10 @@ public class JobManager : MonoBehaviour
         if (civilian == null || building == null)
             return false;
 
-        if (CraftingJobManager.Instance == null)
+        if (WorkerTaskDispatcher.Instance == null)
             return false;
 
-        return CraftingJobManager.Instance.TryAssignManually(civilian, building);
+        return WorkerTaskDispatcher.Instance.TryAssignTaskToWorker(civilian, WorkerTaskRequest.Craft(civilian.teamID, building));
     }
 
     public void SetCraftingBuildingPriority(CraftingBuilding building, int priority)
