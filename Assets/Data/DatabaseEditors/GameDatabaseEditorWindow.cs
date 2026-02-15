@@ -465,12 +465,30 @@ public abstract class GameDatabaseEditorWindowBase : EditorWindow
 
         EditorGUILayout.Space(6);
         EditorGUILayout.LabelField("Quick Selectors", EditorStyles.boldLabel);
-        int length = Mathf.Max(0, EditorGUILayout.IntField("Required Tools Count", job.requiredTools != null ? job.requiredTools.Length : 0));
-        if (job.requiredTools == null || job.requiredTools.Length != length)
-            Array.Resize(ref job.requiredTools, length);
+        int length = Mathf.Max(0, EditorGUILayout.IntField(
+            "Allowed Tools Count",
+            job.allowedTools != null ? job.allowedTools.Count : 0
+        ));
+
+        if (job.allowedTools == null)
+        {
+            job.allowedTools = new List<ToolDefinition>(length);
+        }
+
+        // If the list is too long, remove extra items
+        while (job.allowedTools.Count > length)
+        {
+            job.allowedTools.RemoveAt(job.allowedTools.Count - 1);
+        }
+
+        // If the list is too short, add null entries
+        while (job.allowedTools.Count < length)
+        {
+            job.allowedTools.Add(null);
+        }
 
         for (int i = 0; i < length; i++)
-            job.requiredTools[i] = DrawPopup($"Required Tool {i + 1}", job.requiredTools[i], db.tools.tools, x => x != null ? x.displayName : "(None)");
+            job.allowedTools[i] = DrawPopup($"Required Tool {i + 1}", job.allowedTools[i], db.tools.tools, x => x != null ? x.displayName : "(None)");
 
         EditorUtility.SetDirty(db.jobs);
     }

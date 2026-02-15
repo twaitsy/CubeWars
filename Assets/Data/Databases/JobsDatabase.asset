@@ -13,12 +13,14 @@ MonoBehaviour:
   m_Name: JobsDatabase
   m_EditorClassIdentifier: 
   jobs:
-  - id: jhgjgy
-    displayName: yugugy
+  - id: golddigger
+    displayName: Gold Digger
     icon: {fileID: 0}
-    requiredTools:
+    allowedTools:
     - id: 
       displayName: 
       icon: {fileID: 0}
       durability: 0
-      efficiency: 0
+      baseEfficiency: 0
+      bonuses: []
+    baseSkill: 1
