@@ -107,6 +107,7 @@ GameObject:
   - component: {fileID: 72929060602442571}
   - component: {fileID: 7376483751310544839}
   - component: {fileID: -6790057688027364375}
+  - component: {fileID: 6834135744317251923}
   m_Layer: 0
   m_Name: Wood
   m_TagString: Untagged
@@ -174,7 +175,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63ac4561ce22b114493a05ad20c730ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 2
+  resource:
+    id: 
+    displayName: 
+    icon: {fileID: 0}
+    category: 0
+    weight: 1
+    baseValue: 1
   remaining: 50
   maxGatherers: 2
   claimedByTeam: -1
@@ -194,6 +201,25 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 0, z: 0}
   m_TimeToStationary: 0.5
+--- !u!114 &6834135744317251923
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3543313782309362722}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d80263f4eb147628e3797654ad1dade, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultStopDistance: 1.2
+  houseStopDistance: 1
+  constructionStopDistance: 1.25
+  storageStopDistance: 1.1
+  craftInputStopDistance: 0.8
+  craftOutputStopDistance: 0.8
+  craftWorkStopDistance: 0.6
 --- !u!1 &4254771416247938270
 GameObject:
   m_ObjectHideFlags: 0

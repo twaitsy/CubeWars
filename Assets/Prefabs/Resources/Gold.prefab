@@ -107,6 +107,7 @@ GameObject:
   - component: {fileID: -5649342042414044457}
   - component: {fileID: 6085473644784457841}
   - component: {fileID: 2165386833636302172}
+  - component: {fileID: 8622507258791978949}
   m_Layer: 0
   m_Name: Gold
   m_TagString: Untagged
@@ -230,13 +231,32 @@ MonoBehaviour:
   resource:
     id: gold
     displayName: Gold
-    icon: {fileID: 0}
+    icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
     category: 0
-    weight: 50
-    baseValue: 100
+    weight: 456
+    baseValue: 6578
   remaining: 500
   maxGatherers: 2
   claimedByTeam: -1
+--- !u!114 &8622507258791978949
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3585627338332981593}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d80263f4eb147628e3797654ad1dade, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultStopDistance: 1.2
+  houseStopDistance: 1
+  constructionStopDistance: 1.25
+  storageStopDistance: 1.1
+  craftInputStopDistance: 0.8
+  craftOutputStopDistance: 0.8
+  craftWorkStopDistance: 0.6
 --- !u!1 &6622670367764404181
 GameObject:
   m_ObjectHideFlags: 0
