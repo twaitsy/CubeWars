@@ -53,6 +53,28 @@ public class WorkerTaskDispatcher : MonoBehaviour
         queuedTasks.Add(task);
     }
 
+    public int GetQueuedGatherTaskCount(ResourceNode node, int teamID = -1)
+    {
+        if (node == null)
+            return 0;
+
+        int count = 0;
+        for (int i = 0; i < queuedTasks.Count; i++)
+        {
+            WorkerTaskRequest task = queuedTasks[i];
+            if (task.taskType != WorkerTaskType.Gather)
+                continue;
+            if (task.resourceNode != node)
+                continue;
+            if (teamID >= 0 && task.teamID != teamID)
+                continue;
+
+            count++;
+        }
+
+        return count;
+    }
+
 
     public int GetQueuedTaskCount(int teamID = -1)
     {
@@ -116,6 +138,8 @@ public class WorkerTaskDispatcher : MonoBehaviour
             Civilian worker = workers[i];
             if (worker == null || (task.teamID >= 0 && worker.teamID != task.teamID))
                 continue;
+            if (!IsWorkerAvailable(worker))
+                continue;
             if (!worker.CanPerform(task.requiredCapability))
                 continue;
 
@@ -128,6 +152,12 @@ public class WorkerTaskDispatcher : MonoBehaviour
         }
 
         return best;
+    }
+
+    static bool IsWorkerAvailable(Civilian worker)
+    {
+        string state = worker.CurrentState;
+        return state == "Idle" || state.StartsWith("Searching");
     }
 
     static Vector3 ResolveTaskPosition(WorkerTaskRequest task)

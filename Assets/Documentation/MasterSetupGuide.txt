@@ -543,3 +543,8 @@ Maintenance note (2026-02 civilian logistics)
 
 - Headquarters now retries starting-resource deposits until team storage capacity is available at runtime; keep HQ storage provider/container wiring valid.
 - TaskBoardUI was expanded with workforce state breakdown, node/construction/crafting fulfillment stats, and dispatcher queue visibility for deeper debugging.
+
+[2026-02 gather task slot dispatch + worker availability]
+- WorkerTaskGenerationSystem now queues gather requests per open `ResourceNode.maxGatherers` slot instead of one gather request per node, and subtracts already queued gather requests for the same node to avoid queue flooding.
+- WorkerTaskDispatcher now exposes per-node queued gather counts and only dispatches to civilians that are currently available (`Idle` or `Searching*`) to prevent mid-task reassignment churn.
+- SceneRequiredScripts validator now explicitly requires `WorkerTaskDispatcher` and `WorkerTaskGenerationSystem` in scene bootstrap validation.

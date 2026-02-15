@@ -236,3 +236,12 @@ Updated expectations:
 
 - Headquarters starting resources are now applied when storage capacity becomes available; ensure HQ prefabs include both ResourceStorageContainer and ResourceStorageProvider.
 - TaskBoardUI now surfaces workforce state buckets (waiting/moving/collecting/producing) plus node, construction, crafting, and dispatcher queue fulfillment metrics.
+
+[2026-02 gather slot dispatch validation update]
+Required in gameplay scenes:
+- WorkerTaskDispatcher
+- WorkerTaskGenerationSystem
+
+Behavior expectations:
+- Gather task generation now mirrors open gather slots on each node (`maxGatherers - ActiveGatherers`) and accounts for already queued gather tasks per node.
+- Dispatcher should only assign newly queued tasks to available civilians (Idle or Searching states) to avoid reassigning workers already traveling/working.
