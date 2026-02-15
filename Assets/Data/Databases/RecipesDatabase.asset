@@ -13,81 +13,123 @@ MonoBehaviour:
   m_Name: RecipesDatabase
   m_EditorClassIdentifier: 
   recipes:
-  - recipeName: Crack
+  - recipeName: Saw Planks
     inputs:
-    - resource:
-        id: boogasuga
-        displayName: Cocaine
-        icon: {fileID: 0}
-        category: 1
-        weight: 5
-        baseValue: 551
-      amount: 10
-    outputs:
-    - resource:
-        id: crack
-        displayName: Crack
-        icon: {fileID: 0}
-        category: 2
-        weight: 2
-        baseValue: 16
-      amount: 10
-    craftTimeSeconds: 8
-    batchSize: 1
-    requiredJobType: 8
-    outputEfficiencyMultiplier: 1
-    inputEfficiencyMultiplier: 1
-    requiresPower: 0
-    requiresFuel: 0
-  - recipeName: Crack2
-    inputs:
-    - resource:
-        id: gold
-        displayName: Gold
-        icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
-        category: 0
-        weight: 456
-        baseValue: 6578
-      amount: 10
-    outputs:
-    - resource:
-        id: Pork
-        displayName: Roast Pork
-        icon: {fileID: 0}
-        category: 2
-        weight: 2
-        baseValue: 11
-      amount: 10
-    craftTimeSeconds: 8
-    batchSize: 1
-    requiredJobType: 8
-    outputEfficiencyMultiplier: 1
-    inputEfficiencyMultiplier: 1
-    requiresPower: 0
-    requiresFuel: 0
-  - recipeName: Crackz
-    inputs:
-    - resource:
-        id: gold
-        displayName: Gold
-        icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
-        category: 0
-        weight: 456
-        baseValue: 6578
-      amount: 10
-    outputs:
     - resource:
         id: wood
         displayName: Wood
-        icon: {fileID: 10901, guid: 0000000000000000f000000000000000, type: 0}
+        icon: {fileID: 0}
         category: 0
-        weight: 99
-        baseValue: 99
-      amount: 10
-    craftTimeSeconds: 8
+        weight: 2
+        baseValue: 2
+      amount: 4
+    outputs:
+    - resource:
+        id: planks
+        displayName: Planks
+        icon: {fileID: 0}
+        category: 1
+        weight: 2
+        baseValue: 6
+      amount: 3
+    craftTimeSeconds: 6
     batchSize: 1
-    requiredJobType: 8
+    requiredJobType: 10
     outputEfficiencyMultiplier: 1
     inputEfficiencyMultiplier: 1
     requiresPower: 0
     requiresFuel: 0
+  - recipeName: Smelt Iron Ingot
+    inputs:
+    - resource:
+        id: ironore
+        displayName: Iron Ore
+        icon: {fileID: 0}
+        category: 0
+        weight: 4
+        baseValue: 5
+      amount: 3
+    - resource:
+        id: coal
+        displayName: Coal
+        icon: {fileID: 0}
+        category: 3
+        weight: 3
+        baseValue: 4
+      amount: 1
+    outputs:
+    - resource:
+        id: iron_ingot
+        displayName: Iron Ingot
+        icon: {fileID: 0}
+        category: 1
+        weight: 3
+        baseValue: 9
+      amount: 2
+    craftTimeSeconds: 9
+    batchSize: 1
+    requiredJobType: 9
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 0
+    requiresFuel: 1
+  - recipeName: Bake Bread
+    inputs:
+    - resource:
+        id: grain
+        displayName: Grain
+        icon: {fileID: 0}
+        category: 0
+        weight: 1
+        baseValue: 3
+      amount: 3
+    outputs:
+    - resource:
+        id: bread
+        displayName: Bread
+        icon: {fileID: 0}
+        category: 2
+        weight: 1
+        baseValue: 8
+      amount: 2
+    craftTimeSeconds: 7
+    batchSize: 1
+    requiredJobType: 11
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 0
+    requiresFuel: 0
+  - recipeName: Cook Meat
+    inputs:
+    - resource:
+        id: berries
+        displayName: Berries
+        icon: {fileID: 0}
+        category: 2
+        weight: 1
+        baseValue: 3
+      amount: 2
+    - resource:
+        id: coal
+        displayName: Coal
+        icon: {fileID: 0}
+        category: 3
+        weight: 3
+        baseValue: 4
+      amount: 1
+    outputs:
+    - resource:
+        id: cooked_meat
+        displayName: Cooked Meat
+        icon: {fileID: 0}
+        category: 2
+        weight: 2
+        baseValue: 10
+      amount: 2
+    craftTimeSeconds: 8
+    batchSize: 1
+    requiredJobType: 11
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 0
+    requiresFuel: 1

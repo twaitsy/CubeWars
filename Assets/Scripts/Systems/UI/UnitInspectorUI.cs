@@ -289,11 +289,84 @@ public class UnitInspectorUI : MonoBehaviour
             return;
         }
 
-        string recipeName = crafting.recipe != null ? crafting.recipe.recipeName : "None";
-        GUILayout.Label($"Recipe: {recipeName}");
+        DrawRecipeSelection(crafting);
         GUILayout.Label($"State: {crafting.State}");
         GUILayout.Label($"Missing Inputs: {crafting.GetMissingInputSummary()}");
         GUILayout.Label($"Progress: {crafting.CraftProgress01:P0}");
+
+        DrawRecipeSummary(crafting.recipe);
+    }
+
+    void DrawRecipeSelection(CraftingBuilding crafting)
+    {
+        var recipesDb = GameDatabaseLoader.Loaded != null ? GameDatabaseLoader.Loaded.recipes : null;
+        if (recipesDb == null || recipesDb.recipes == null || recipesDb.recipes.Count == 0)
+        {
+            string recipeName = crafting.recipe != null ? crafting.recipe.recipeName : "None";
+            GUILayout.Label($"Recipe: {recipeName}");
+            return;
+        }
+
+        GUILayout.Label("Recipe", GUI.skin.box);
+
+        for (int i = 0; i < recipesDb.recipes.Count; i++)
+        {
+            ProductionRecipeDefinition option = recipesDb.recipes[i];
+            if (option == null)
+                continue;
+
+            bool isSelected = crafting.recipe == option;
+            GUI.enabled = !isSelected;
+            if (GUILayout.Button(isSelected ? $"✓ {option.recipeName}" : option.recipeName))
+                crafting.SetRecipe(option);
+            GUI.enabled = true;
+        }
+    }
+
+    void DrawRecipeSummary(ProductionRecipeDefinition recipe)
+    {
+        if (recipe == null)
+        {
+            GUILayout.Label("Recipe Details: None");
+            return;
+        }
+
+        GUILayout.Space(4f);
+        GUILayout.Label("Recipe Details", GUI.skin.box);
+        GUILayout.Label($"Name: {recipe.recipeName}");
+        GUILayout.Label($"Required Job: {recipe.requiredJobType}");
+        GUILayout.Label($"Craft Time: {recipe.craftTimeSeconds:0.##}s");
+        GUILayout.Label($"Batch Size: {recipe.batchSize}");
+
+        GUILayout.Label("Inputs");
+        if (recipe.inputs == null || recipe.inputs.Length == 0)
+        {
+            GUILayout.Label("- None");
+        }
+        else
+        {
+            for (int i = 0; i < recipe.inputs.Length; i++)
+            {
+                var input = recipe.inputs[i];
+                if (input == null || input.resource == null) continue;
+                GUILayout.Label($"- {input.resource.displayName}: {input.amount}");
+            }
+        }
+
+        GUILayout.Label("Outputs");
+        if (recipe.outputs == null || recipe.outputs.Length == 0)
+        {
+            GUILayout.Label("- None");
+        }
+        else
+        {
+            for (int i = 0; i < recipe.outputs.Length; i++)
+            {
+                var output = recipe.outputs[i];
+                if (output == null || output.resource == null) continue;
+                GUILayout.Label($"- {output.resource.displayName}: {output.amount}");
+            }
+        }
     }
 
     void DrawTrainingQueue()

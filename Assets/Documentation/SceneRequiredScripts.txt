@@ -254,3 +254,12 @@ Workforce/resource diagnostics (latest)
   - Warns when ResourceNode.resource is not present in loaded ResourcesDatabase.
 - BuildingPrefabValidator can now validate Building, Civilian, and ResourceNode prefabs from one component and reports database/configuration issues.
 - Civilian prefabs do NOT require ResourceStorageContainer/ResourceStorageProvider for normal gathering/hauling.
+
+Storage specialization additions (latest)
+- StorageFacility script (attach to StorageFacility / FoodStorageFacility / RawMaterialStorageFacility / ToolStorageFacility prefabs).
+- StorageFacility auto-populates ResourceStorageProvider capacities from ResourcesDatabase and keeps ResourceStorageContainer flow map in sync.
+- If a StorageFacility category filter is used, verify allowedCategories matches the intended ResourceCategory (Food, Raw, Tool, etc.).
+
+Crafting inspector additions (latest)
+- UnitInspectorUI production tab now reads from RecipesDatabase and allows selecting active recipe at runtime.
+- RecipesDatabase should contain at least one recipe so inspector selection buttons are populated.
