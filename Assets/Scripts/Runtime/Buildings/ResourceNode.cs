@@ -25,8 +25,51 @@ public class ResourceNode : MonoBehaviour
 
     void OnEnable()
     {
+        ValidateConfiguration();
+
         if (ResourceRegistry.Instance != null)
             ResourceRegistry.Instance.Register(this);
+    }
+
+
+    void ValidateConfiguration()
+    {
+        if (resource == null)
+        {
+            Debug.LogWarning($"[{nameof(ResourceNode)}] {name}: no ResourceDefinition assigned.", this);
+            return;
+        }
+
+        string key = ResourceIdUtility.GetKey(resource);
+        bool inLoadedDatabase = false;
+        GameDatabase loaded = GameDatabaseLoader.Loaded;
+        if (loaded != null && loaded.resources != null && loaded.resources.resources != null)
+        {
+            for (int i = 0; i < loaded.resources.resources.Count; i++)
+            {
+                if (ResourceIdUtility.GetKey(loaded.resources.resources[i]) == key)
+                {
+                    inLoadedDatabase = true;
+                    break;
+                }
+            }
+        }
+
+        bool inGlobalDatabase = false;
+        if (ResourcesDatabase.Instance != null && ResourcesDatabase.Instance.resources != null)
+        {
+            for (int i = 0; i < ResourcesDatabase.Instance.resources.Count; i++)
+            {
+                if (ResourceIdUtility.GetKey(ResourcesDatabase.Instance.resources[i]) == key)
+                {
+                    inGlobalDatabase = true;
+                    break;
+                }
+            }
+        }
+
+        if (!inLoadedDatabase && !inGlobalDatabase)
+            Debug.LogWarning($"[{nameof(ResourceNode)}] {name}: resource '{resource.id}' is not present in loaded ResourcesDatabase.", this);
     }
 
     void OnDisable()

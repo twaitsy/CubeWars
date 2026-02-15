@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2f280e2e8d8d2d34998e11b47785a778, type: 3}
   m_Name: ResourcesDatabase
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
   resources:
   - id: wood
     displayName: Wood
@@ -73,3 +73,9 @@ MonoBehaviour:
     category: 2
     weight: 2
     baseValue: 16
+  - id: lithium
+    displayName: Lithium
+    icon: {fileID: 0}
+    category: 0
+    weight: 3
+    baseValue: 24

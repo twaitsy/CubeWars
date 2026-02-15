@@ -545,7 +545,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63ac4561ce22b114493a05ad20c730ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 4
+  resource:
+    id: ironore
+    displayName: Iron Ore
+    icon: {fileID: 0}
+    category: 0
+    weight: 1
+    baseValue: 1
   remaining: 50
   maxGatherers: 2
   claimedByTeam: -1

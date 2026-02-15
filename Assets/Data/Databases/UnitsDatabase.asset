@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c1537d39c14f9ab47a9aa2ef7060e3cf, type: 3}
   m_Name: UnitsDatabase
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
   units:
   - id: 51566515
     displayName: 515
@@ -32,12 +32,12 @@ MonoBehaviour:
     trainingCost: []
     trainingTime: 0
     trainedAt:
-      id: 
-      displayName: 
+      id:
+      displayName:
       icon: {fileID: 0}
       prefab: {fileID: 0}
       category: 0
-      subCategory: 
+      subCategory:
       constructionCost: []
       buildTime: 0
       maxHealth: 0
@@ -51,7 +51,53 @@ MonoBehaviour:
       isStorage: 0
       storageSettings:
         capacity: 0
-        allowedCategories: 
+        allowedCategories:
+      isMilitary: 0
+      attackDamage: 0
+      attackRange: 0
+      garrisonSlots: 0
+      powerConsumption: 0
+      powerGeneration: 0
+      waterConsumption: 0
+    startingTools: []
+  - id: civilian
+    displayName: Civilian
+    icon: {fileID: 0}
+    prefab: {fileID: 5538168870909510437, guid: ce51064a809c1c74ea9b7d4891fb23aa, type: 3}
+    jobType: 0
+    isCombatUnit: 0
+    maxHealth: 50
+    moveSpeed: 2.5
+    attackDamage: 0
+    attackRange: 0
+    attackCooldown: 0
+    armor: 0
+    carryCapacity: 30
+    gatherSpeed: 1
+    buildSpeed: 1
+    trainingCost: []
+    trainingTime: 0
+    trainedAt:
+      id:
+      displayName:
+      icon: {fileID: 0}
+      prefab: {fileID: 0}
+      category: 0
+      subCategory:
+      constructionCost: []
+      buildTime: 0
+      maxHealth: 0
+      upkeepCost: []
+      upkeepInterval: 0
+      maxResidents: 0
+      comfortLevel: 0
+      isProducer: 0
+      recipes: []
+      workerSlots: 0
+      isStorage: 0
+      storageSettings:
+        capacity: 0
+        allowedCategories:
       isMilitary: 0
       attackDamage: 0
       attackRange: 0

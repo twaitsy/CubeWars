@@ -560,11 +560,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63ac4561ce22b114493a05ad20c730ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 8
-  amount: 5000
-  harvestPerTick: 4
-  valuePerUnit: 1
-  scaleHeightByAmount: 1
-  referenceAmount: 500
-  minHeightScale: 0.6
-  maxHeightScale: 2
+  resource:
+    id: lithium
+    displayName: Lithium
+    icon: {fileID: 0}
+    category: 0
+    weight: 1
+    baseValue: 1
+  remaining: 5000
+  maxGatherers: 2
+  claimedByTeam: -1
