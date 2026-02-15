@@ -18,7 +18,7 @@ GameObject:
   - component: {fileID: 6012261695760878197}
   - component: {fileID: 6012261695760878196}
   m_Layer: 0
-  m_Name: StorageFacility
+  m_Name: RawMaterialStorageFacility
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -170,11 +170,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c6cde0e3d1844a9a5f4bf85689b22f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  buildingDefinitionId: storagefacility
+  buildingDefinitionId: rawmaterialstoragefacility
   teamID: 1
   maxHealth: 800
   currentHealth: 0
   resourcesDatabase: {fileID: 11400000, guid: 87f27aa07d5d1b049bfb1818298c31c9, type: 2}
   defaultCapacityPerResource: 500
-  allowAllResourceCategories: 1
-  allowedCategories: 000000000100000002000000030000000400000005000000060000000700000008000000090000000a0000000b000000
+  allowAllResourceCategories: 0
+  allowedCategories: 00000000

@@ -14,26 +14,38 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   foods:
   - resource:
-      id: crack
-      displayName: Crack
+      id: berries
+      displayName: Berries
       icon: {fileID: 0}
       category: 2
-      weight: 2
-      baseValue: 16
-    hungerRestore: 100
-    eatTime: 2
+      weight: 1
+      baseValue: 3
+    hungerRestore: 18
+    eatTime: 1.2
     requiresCooking: 0
-    perishable: 0
-    spoilTime: 0
+    perishable: 1
+    spoilTime: 120
   - resource:
-      id: pork
-      displayName: Roast Pork
+      id: bread
+      displayName: Bread
+      icon: {fileID: 0}
+      category: 2
+      weight: 1
+      baseValue: 8
+    hungerRestore: 30
+    eatTime: 1.5
+    requiresCooking: 0
+    perishable: 1
+    spoilTime: 240
+  - resource:
+      id: cooked_meat
+      displayName: Cooked Meat
       icon: {fileID: 0}
       category: 2
       weight: 2
-      baseValue: 11
-    hungerRestore: 100
+      baseValue: 10
+    hungerRestore: 45
     eatTime: 2
-    requiresCooking: 0
-    perishable: 0
-    spoilTime: 0
+    requiresCooking: 1
+    perishable: 1
+    spoilTime: 180

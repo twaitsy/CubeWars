@@ -163,6 +163,9 @@ public class SceneRequiredScripts : MonoBehaviour
 
         if (nodesMissingResource > 0 || nodesResourceNotInDatabase > 0)
             Debug.LogWarning($"[SceneRequiredScripts] Resource diagnostics: {nodesMissingResource} node(s) missing a resource definition, {nodesResourceNotInDatabase} node(s) reference resources not present in database.", this);
+
+        if (loaded == null || loaded.recipes == null || loaded.recipes.recipes == null || loaded.recipes.recipes.Count == 0)
+            Debug.LogWarning("[SceneRequiredScripts] Recipes diagnostics: no RecipesDatabase entries found. Crafting station inspector recipe selection will be empty.", this);
     }
 
     static int CountMissingScriptComponentsInActiveScene()

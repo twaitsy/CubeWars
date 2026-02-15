@@ -556,3 +556,30 @@ Workforce troubleshooting update (latest)
 - Use BuildingPrefabValidator on Building/Civilian/ResourceNode prefabs to log missing components and data mismatches.
 - SceneRequiredScripts now includes workforce/resource data diagnostics for these checks at scene validation time.
 - TaskBoardUI "Haulers Active" now counts both construction hauling and crafting input/output hauling states.
+
+-----------------------------------------------------------------
+11) Storage Facility + Inspector Recipe Selection (latest)
+-----------------------------------------------------------------
+Storage facility prefab setup:
+- StorageFacility prefab should include:
+  - StorageFacility (new script)
+  - ResourceStorageProvider
+  - ResourceStorageContainer
+- StorageFacility auto-generates per-resource capacity from ResourcesDatabase and BuildingDefinition storageSettings.capacity.
+- Specialized prefabs can filter categories using StorageFacility.allowedCategories:
+  - FoodStorageFacility (Food)
+  - RawMaterialStorageFacility (Raw)
+  - ToolStorageFacility (Tool)
+
+Build menu integration:
+- Add storagefacility, foodstoragefacility, rawmaterialstoragefacility, and toolstoragefacility entries to BuildingsDatabase.
+- Set BuildingDefinition.category to Storage and subCategory to "Storage" so BuildMenuUI groups them correctly.
+
+Crafting inspector setup:
+- UnitInspectorUI Production tab now lists all RecipesDatabase entries and supports in-game recipe switching.
+- Inspector now shows recipe details:
+  - Required job type
+  - Inputs
+  - Outputs
+  - Craft time / batch size
+- Ensure GameDatabase.recipes references RecipesDatabase.asset and contains valid entries.

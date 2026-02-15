@@ -338,3 +338,175 @@ MonoBehaviour:
     powerConsumption: 0
     powerGeneration: 0
     waterConsumption: 0
+  - id: storagefacility
+    displayName: Storage Facility
+    icon: {fileID: 0}
+    prefab: {fileID: 6012261695760878189, guid: ad1b1b166fe2ea6418336adb6ca206e5, type: 3}
+    category: 2
+    subCategory: Storage
+    constructionCost:
+    - resource:
+        id: wood
+        displayName: Wood
+        icon: {fileID: 0}
+        category: 0
+        weight: 2
+        baseValue: 2
+      amount: 30
+    - resource:
+        id: stone
+        displayName: Stone
+        icon: {fileID: 0}
+        category: 0
+        weight: 3
+        baseValue: 2
+      amount: 20
+    buildTime: 18
+    maxHealth: 800
+    upkeepCost: []
+    upkeepInterval: 0
+    maxResidents: 0
+    comfortLevel: 0
+    isProducer: 0
+    recipes: []
+    workerSlots: 0
+    isStorage: 1
+    storageSettings:
+      capacity: 500
+      allowedCategories: 000000000100000002000000030000000400000005000000060000000700000008000000090000000a0000000b000000
+    isMilitary: 0
+    attackDamage: 0
+    attackRange: 0
+    garrisonSlots: 0
+    powerConsumption: 0
+    powerGeneration: 0
+    waterConsumption: 0
+  - id: foodstoragefacility
+    displayName: Food Storage
+    icon: {fileID: 0}
+    prefab: {fileID: 6012261695760878189, guid: 8f2b2e98f4ec48e4b0fcb8dcb6db6b95, type: 3}
+    category: 2
+    subCategory: Storage
+    constructionCost:
+    - resource:
+        id: wood
+        displayName: Wood
+        icon: {fileID: 0}
+        category: 0
+        weight: 2
+        baseValue: 2
+      amount: 20
+    - resource:
+        id: stone
+        displayName: Stone
+        icon: {fileID: 0}
+        category: 0
+        weight: 3
+        baseValue: 2
+      amount: 10
+    buildTime: 12
+    maxHealth: 650
+    upkeepCost: []
+    upkeepInterval: 0
+    maxResidents: 0
+    comfortLevel: 0
+    isProducer: 0
+    recipes: []
+    workerSlots: 0
+    isStorage: 1
+    storageSettings:
+      capacity: 700
+      allowedCategories: 02000000
+    isMilitary: 0
+    attackDamage: 0
+    attackRange: 0
+    garrisonSlots: 0
+    powerConsumption: 0
+    powerGeneration: 0
+    waterConsumption: 0
+  - id: rawmaterialstoragefacility
+    displayName: Raw Material Storage
+    icon: {fileID: 0}
+    prefab: {fileID: 6012261695760878189, guid: f2f6ee7f5a4e4a59ae47b5bd98892312, type: 3}
+    category: 2
+    subCategory: Storage
+    constructionCost:
+    - resource:
+        id: wood
+        displayName: Wood
+        icon: {fileID: 0}
+        category: 0
+        weight: 2
+        baseValue: 2
+      amount: 24
+    - resource:
+        id: stone
+        displayName: Stone
+        icon: {fileID: 0}
+        category: 0
+        weight: 3
+        baseValue: 2
+      amount: 18
+    buildTime: 14
+    maxHealth: 700
+    upkeepCost: []
+    upkeepInterval: 0
+    maxResidents: 0
+    comfortLevel: 0
+    isProducer: 0
+    recipes: []
+    workerSlots: 0
+    isStorage: 1
+    storageSettings:
+      capacity: 700
+      allowedCategories: 00000000
+    isMilitary: 0
+    attackDamage: 0
+    attackRange: 0
+    garrisonSlots: 0
+    powerConsumption: 0
+    powerGeneration: 0
+    waterConsumption: 0
+  - id: toolstoragefacility
+    displayName: Tool Storage
+    icon: {fileID: 0}
+    prefab: {fileID: 6012261695760878189, guid: d8af5d97c3134fd5b7b9c57b8e0280f9, type: 3}
+    category: 2
+    subCategory: Storage
+    constructionCost:
+    - resource:
+        id: wood
+        displayName: Wood
+        icon: {fileID: 0}
+        category: 0
+        weight: 2
+        baseValue: 2
+      amount: 22
+    - resource:
+        id: ironore
+        displayName: Iron Ore
+        icon: {fileID: 0}
+        category: 0
+        weight: 4
+        baseValue: 5
+      amount: 8
+    buildTime: 14
+    maxHealth: 700
+    upkeepCost: []
+    upkeepInterval: 0
+    maxResidents: 0
+    comfortLevel: 0
+    isProducer: 0
+    recipes: []
+    workerSlots: 0
+    isStorage: 1
+    storageSettings:
+      capacity: 700
+      allowedCategories: 0a000000
+    isMilitary: 0
+    attackDamage: 0
+    attackRange: 0
+    garrisonSlots: 0
+    powerConsumption: 0
+    powerGeneration: 0
+    waterConsumption: 0

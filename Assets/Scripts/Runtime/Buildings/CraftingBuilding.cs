@@ -296,8 +296,20 @@ public class CraftingBuilding : Building
         if (resourcesDatabase == null)
             return true;
 
-        return resourcesDatabase.TryGetById(type.ToString(), out ResourceDefinition definition) &&
+        return resourcesDatabase.TryGetById(ResourceIdUtility.GetKey(type), out ResourceDefinition definition) &&
                resourcesDatabase.IsCategory(definition, ResourceCategory.Refined);
+    }
+
+    public void SetRecipe(ProductionRecipeDefinition newRecipe)
+    {
+        if (recipe == newRecipe)
+            return;
+
+        recipe = newRecipe;
+        craftTimer = 0f;
+        craftDuration = 0f;
+        InitializeResourceMaps();
+        state = recipe == null ? ProductionState.Idle : ProductionState.WaitingForInputs;
     }
 
     public bool NeedsInput(ResourceDefinition type)
