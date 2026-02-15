@@ -173,12 +173,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   resource:
-    id: Pork
-    displayName: Roast Pork
+    id: berries
+    displayName: Berries
     icon: {fileID: 0}
     category: 2
-    weight: 2
-    baseValue: 11
+    weight: 1
+    baseValue: 3
   remaining: 50
   maxGatherers: 2
   claimedByTeam: -1

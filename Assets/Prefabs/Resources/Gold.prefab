@@ -231,10 +231,10 @@ MonoBehaviour:
   resource:
     id: gold
     displayName: Gold
-    icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
-    category: 0
-    weight: 456
-    baseValue: 6578
+    icon: {fileID: 0}
+    category: 8
+    weight: 1
+    baseValue: 25
   remaining: 500
   maxGatherers: 2
   claimedByTeam: -1
@@ -250,8 +250,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 14f1da7aff9846eaad3ce74c53a6ca09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  validateOnAwake: 0
-  includeOptionalWarnings: 0
+  validateOnAwake: 1
+  includeOptionalWarnings: 1
 --- !u!1 &6622670367764404181
 GameObject:
   m_ObjectHideFlags: 0

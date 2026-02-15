@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 6012261695760878188}
   - component: {fileID: 6012261695760878197}
   - component: {fileID: 6012261695760878196}
+  - component: {fileID: -6260031326210086474}
   m_Layer: 0
   m_Name: StorageFacility
   m_TagString: Untagged
@@ -174,7 +175,23 @@ MonoBehaviour:
   teamID: 1
   maxHealth: 800
   currentHealth: 0
-  resourcesDatabase: {fileID: 11400000, guid: 87f27aa07d5d1b049bfb1818298c31c9, type: 2}
+  resourcesDatabase: {fileID: 0}
   defaultCapacityPerResource: 500
   allowAllResourceCategories: 1
   allowedCategories: 000000000100000002000000030000000400000005000000060000000700000008000000090000000a0000000b000000
+--- !u!208 &-6260031326210086474
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6012261695760878189}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5

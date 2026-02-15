@@ -149,12 +149,12 @@ MonoBehaviour:
       baseValue: 99
     amount: 2000
   - resource:
-      id: pork
-      displayName: Roast Pork
+      id: berries
+      displayName: Berries
       icon: {fileID: 0}
       category: 2
-      weight: 2
-      baseValue: 11
+      weight: 1
+      baseValue: 3
     amount: 2000
 --- !u!54 &2609521548526753221
 Rigidbody:
