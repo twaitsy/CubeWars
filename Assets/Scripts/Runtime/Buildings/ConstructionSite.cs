@@ -1,59 +1,4 @@
-﻿// ============================================================================
-// ConstructionSite.cs
-//
-// PURPOSE:
-// - Represents an in-progress building.
-// - Tracks resource delivery, build progress, and completion.
-// - Spawns the final building prefab when finished.
-//
-// DEPENDENCIES:
-// - BuildItemDefinition:
-//      * Provides prefab, costs, buildTime override, category.
-// - BuildGridCell:
-//      * The grid cell this site occupies; updated on completion.
-// - BuildPlacementManager:
-//      * Calls Init() when placing a new construction site.
-// - TeamStorageManager:
-//      * ReserveForSite(teamID, SiteKey, costs)
-//      * ReleaseReservation(teamID, SiteKey)
-//      * Used for resource reservation and delivery.
-// - TeamResources (indirect via TeamStorageManager):
-//      * High-level resource façade used elsewhere.
-// - JobManager:
-//      * CountBuildersOnSite(this) for UI + AI.
-//      * Builders call AddWork() and ReceiveDelivery().
-// - ResourceStorageProvider / ResourceDropoff / ResourceStorageContainer:
-//      * Final building may include these; ApplyTeamToPlacedObject assigns teamID.
-// - Building (final prefab):
-//      * Must have teamID, IAttackable, IHasHealth, etc.
-// - BuildItemInstance:
-//      * Added to final building for identification.
-// - TeamVisual:
-//      * Applies team colors to final building.
-// - Team.cs:
-//      * teamID determines which team owns the finished building.
-//
-// NOTES FOR FUTURE MAINTENANCE:
-// - This script NEVER deletes Team objects.
-//   It only destroys the ConstructionSite GameObject on completion.
-// - If you add multi-stage construction, split Complete() into phases.
-// - If you add construction animations, trigger them in Update() or Complete().
-// - If you add worker-only construction (no passive build), remove passive progress.
-// - If you add refunds on cancel, integrate with TeamStorageManager.
-// - If you add terrain alignment, adjust placement position in Complete().
-// - If you add building upgrades, treat upgrades as new ConstructionSites.
-// - If you add save/load, persist buildProgress, delivered, and reservations.
-//
-// INSPECTOR REQUIREMENTS:
-// - baseBuildTime: fallback if BuildItemDefinition.buildTime <= 0.
-// - costs: auto-filled from BuildItemDefinition.
-// - constructionSitePrefab must contain:
-//      * ConstructionSite
-//      * BuildItemInstance (optional, added automatically)
-//      * TeamVisual (optional)
-// ============================================================================
-
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 
 public class ConstructionSite : MonoBehaviour
@@ -91,6 +36,18 @@ public class ConstructionSite : MonoBehaviour
         }
     }
 
+    void OnEnable()
+    {
+        if (ConstructionRegistry.Instance != null)
+            ConstructionRegistry.Instance.Register(this);
+    }
+
+    void OnDisable()
+    {
+        if (ConstructionRegistry.Instance != null)
+            ConstructionRegistry.Instance.Unregister(this);
+    }
+
     void Update()
     {
         if (!InitOK || completed)
@@ -105,6 +62,8 @@ public class ConstructionSite : MonoBehaviour
         float requiredTime = GetBuildTime();
         if (buildProgress >= requiredTime)
             Complete();
+        else
+            NotifyChanged();
     }
 
     float GetBuildTime()
@@ -160,11 +119,13 @@ public class ConstructionSite : MonoBehaviour
             if (!ok)
             {
                 InitOK = false;
+                NotifyChanged();
                 return;
             }
         }
 
         InitOK = true;
+        NotifyChanged();
     }
 
     // ---------------- WORK / PROGRESS ----------------
@@ -179,6 +140,8 @@ public class ConstructionSite : MonoBehaviour
         float requiredTime = GetBuildTime();
         if (buildProgress >= requiredTime)
             Complete();
+        else
+            NotifyChanged();
     }
 
     // ---------------- RESOURCE DELIVERY ----------------
@@ -214,6 +177,8 @@ public class ConstructionSite : MonoBehaviour
             delivered[type] = 0;
 
         delivered[type] += accepted;
+
+        NotifyChanged();
         return accepted;
     }
 
@@ -250,8 +215,10 @@ public class ConstructionSite : MonoBehaviour
             occ.SetOccupiedCells(occupiedCells, placed);
         }
 
-        // IMPORTANT:
-        // - This destroys ONLY the ConstructionSite, not the Team.
+        // Notify completion before destruction
+        NotifyChanged();
+
+        // This destroys ONLY the ConstructionSite, not the Team.
         Destroy(gameObject);
     }
 
@@ -276,4 +243,12 @@ public class ConstructionSite : MonoBehaviour
 
     public int AssignedBuilderCount =>
         JobManager.Instance != null ? JobManager.Instance.CountBuildersOnSite(this) : 0;
+
+    // ---------------- Registry Notification ----------------
+
+    void NotifyChanged()
+    {
+        if (ConstructionRegistry.Instance != null)
+            ConstructionRegistry.Instance.NotifySiteChanged(this);
+    }
 }

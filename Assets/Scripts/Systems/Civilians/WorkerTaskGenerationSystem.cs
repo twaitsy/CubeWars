@@ -5,86 +5,130 @@ public class WorkerTaskGenerationSystem : MonoBehaviour
     [Min(0.1f)] public float scanTickSeconds = 1f;
     float timer;
 
+    void OnEnable()
+    {
+        // --- Gathering events ---
+        ResourceRegistry.OnNodeRegistered += HandleNodeChanged;
+        ResourceRegistry.OnNodeChanged += HandleNodeChanged;
+        ResourceRegistry.OnNodeDepleted += HandleNodeChanged;
+
+        // --- Construction events ---
+        ConstructionRegistry.OnSiteRegistered += HandleSiteChanged;
+        ConstructionRegistry.OnSiteChanged += HandleSiteChanged;
+        ConstructionRegistry.OnSiteCompleted += HandleSiteChanged;
+
+        // --- Crafting events ---
+        CraftingRegistry.OnBuildingRegistered += HandleCraftingChanged;
+        CraftingRegistry.OnBuildingChanged += HandleCraftingChanged;
+        CraftingRegistry.OnBuildingCompleted += HandleCraftingChanged;
+    }
+
+    void OnDisable()
+    {
+        // --- Gathering events ---
+        ResourceRegistry.OnNodeRegistered -= HandleNodeChanged;
+        ResourceRegistry.OnNodeChanged -= HandleNodeChanged;
+        ResourceRegistry.OnNodeDepleted -= HandleNodeChanged;
+
+        // --- Construction events ---
+        ConstructionRegistry.OnSiteRegistered -= HandleSiteChanged;
+        ConstructionRegistry.OnSiteChanged -= HandleSiteChanged;
+        ConstructionRegistry.OnSiteCompleted -= HandleSiteChanged;
+
+        // --- Crafting events ---
+        CraftingRegistry.OnBuildingRegistered -= HandleCraftingChanged;
+        CraftingRegistry.OnBuildingChanged -= HandleCraftingChanged;
+        CraftingRegistry.OnBuildingCompleted -= HandleCraftingChanged;
+    }
+
     void Update()
     {
+        // Dispatcher must exist
         if (WorkerTaskDispatcher.Instance == null)
             return;
 
+        // Timer is no longer used for scanning, but keep it in case you add timed logic later
         timer += Time.deltaTime;
         if (timer < scanTickSeconds)
             return;
 
         timer = 0f;
-        ScanBuildingAndHauling();
-        ScanCrafting();
-        ScanGathering();
     }
 
-    void ScanGathering()
+    // ========================================================================
+    // EVENT-DRIVEN GATHERING
+    // ========================================================================
+
+    void HandleNodeChanged(ResourceNode node)
     {
-        ResourceNode[] nodes = FindObjectsOfType<ResourceNode>();
-        for (int i = 0; i < nodes.Length; i++)
+        if (node == null || node.Amount <= 0)
+            return;
+
+        int maxSlots = Mathf.Max(1, node.maxGatherers);
+        int openSlots = Mathf.Max(0, maxSlots - node.ActiveGatherers);
+        int queuedSlots = WorkerTaskDispatcher.Instance.GetQueuedGatherTaskCount(node);
+        int tasksToQueue = Mathf.Max(0, openSlots - queuedSlots);
+
+        for (int i = 0; i < tasksToQueue; i++)
+            WorkerTaskDispatcher.Instance.QueueTask(WorkerTaskRequest.Gather(-1, node));
+    }
+
+    // ========================================================================
+    // EVENT-DRIVEN CONSTRUCTION (BUILDING + HAULING)
+    // ========================================================================
+
+    void HandleSiteChanged(ConstructionSite site)
+    {
+        if (site == null || site.IsComplete)
+            return;
+
+        int teamID = site.teamID;
+
+        // --- BUILD TASKS ----------------------------------------------------
+        int maxBuilders = Mathf.Max(1, WorkerTaskDispatcher.Instance.GetRegisteredWorkerCount(teamID));
+        int currentBuilders = site.AssignedBuilderCount;
+        int queuedBuild = WorkerTaskDispatcher.Instance.GetQueuedBuildTaskCount(site, teamID);
+        int buildTasksToQueue = Mathf.Max(0, maxBuilders - currentBuilders - queuedBuild);
+
+        for (int i = 0; i < buildTasksToQueue; i++)
+            WorkerTaskDispatcher.Instance.QueueTask(WorkerTaskRequest.Build(teamID, site));
+
+        // --- HAUL TASKS -----------------------------------------------------
+        if (!site.MaterialsComplete)
         {
-            ResourceNode node = nodes[i];
-            if (node == null || node.amount <= 0)
-                continue;
+            int queuedHaul = WorkerTaskDispatcher.Instance.GetQueuedHaulTaskCount(site, teamID);
+            int haulTasksToQueue = Mathf.Max(0, maxBuilders - queuedHaul);
 
-            int maxSlots = Mathf.Max(1, node.maxGatherers);
-            int openSlots = Mathf.Max(0, maxSlots - node.ActiveGatherers);
-            int queuedSlots = WorkerTaskDispatcher.Instance.GetQueuedGatherTaskCount(node);
-            int tasksToQueue = Mathf.Max(0, openSlots - queuedSlots);
-
-            for (int slot = 0; slot < tasksToQueue; slot++)
-                WorkerTaskDispatcher.Instance.QueueTask(WorkerTaskRequest.Gather(-1, node));
+            for (int i = 0; i < haulTasksToQueue; i++)
+                WorkerTaskDispatcher.Instance.QueueTask(WorkerTaskRequest.Haul(teamID, site));
         }
     }
 
-    void ScanBuildingAndHauling()
+    // ========================================================================
+    // EVENT-DRIVEN CRAFTING
+    // ========================================================================
+
+    void HandleCraftingChanged(CraftingBuilding building)
     {
-        ConstructionSite[] sites = FindObjectsOfType<ConstructionSite>();
-        for (int i = 0; i < sites.Length; i++)
-        {
-            ConstructionSite site = sites[i];
-            if (site == null || site.IsComplete)
-                continue;
+        if (building == null || !building.isActiveAndEnabled)
+            return;
 
-            int maxBuilders = Mathf.Max(1, WorkerTaskDispatcher.Instance.GetRegisteredWorkerCount(site.teamID));
-            int currentBuilders = site.AssignedBuilderCount;
-            int queuedBuild = WorkerTaskDispatcher.Instance.GetQueuedBuildTaskCount(site, site.teamID);
-            int buildTasksToQueue = Mathf.Max(0, maxBuilders - currentBuilders - queuedBuild);
+        bool needsWorker =
+            building.State == CraftingBuilding.ProductionState.InputsReady ||
+            building.State == CraftingBuilding.ProductionState.InProgress;
 
-            for (int b = 0; b < buildTasksToQueue; b++)
-                WorkerTaskDispatcher.Instance.QueueTask(WorkerTaskRequest.Build(site.teamID, site));
+        // If nothing is needed, skip
+        if (!building.NeedsAnyInput() &&
+            !building.HasAnyOutputQueued() &&
+            !needsWorker)
+            return;
 
-            if (!site.MaterialsComplete)
-            {
-                int queuedHaul = WorkerTaskDispatcher.Instance.GetQueuedHaulTaskCount(site, site.teamID);
-                int haulTasksToQueue = Mathf.Max(0, maxBuilders - queuedHaul);
-                for (int h = 0; h < haulTasksToQueue; h++)
-                    WorkerTaskDispatcher.Instance.QueueTask(WorkerTaskRequest.Haul(site.teamID, site));
-            }
-        }
-    }
+        int maxWorkers = Mathf.Max(1, building.GetMaxWorkers());
+        int activeWorkers = building.AssignedWorkers.Count;
+        int queuedCraft = WorkerTaskDispatcher.Instance.GetQueuedCraftTaskCount(building, building.teamID);
+        int missingWorkers = Mathf.Max(0, maxWorkers - activeWorkers - queuedCraft);
 
-    void ScanCrafting()
-    {
-        CraftingBuilding[] buildings = FindObjectsOfType<CraftingBuilding>();
-        for (int i = 0; i < buildings.Length; i++)
-        {
-            CraftingBuilding building = buildings[i];
-            if (building == null || !building.isActiveAndEnabled)
-                continue;
-            bool needsWorker = building.State == CraftingBuilding.ProductionState.InputsReady;
-            if (!building.NeedsAnyInput() && !building.HasAnyOutputQueued() && !needsWorker)
-                continue;
-
-            int maxWorkers = Mathf.Max(1, building.GetMaxWorkers());
-            int activeWorkers = building.AssignedWorkers.Count;
-            int queuedCraft = WorkerTaskDispatcher.Instance.GetQueuedCraftTaskCount(building, building.teamID);
-            int missingWorkers = Mathf.Max(0, maxWorkers - activeWorkers - queuedCraft);
-
-            for (int w = 0; w < missingWorkers; w++)
-                WorkerTaskDispatcher.Instance.QueueTask(WorkerTaskRequest.Craft(building.teamID, building));
-        }
+        for (int w = 0; w < missingWorkers; w++)
+            WorkerTaskDispatcher.Instance.QueueTask(WorkerTaskRequest.Craft(building.teamID, building));
     }
 }

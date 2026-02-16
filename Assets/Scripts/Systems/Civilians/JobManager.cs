@@ -1,18 +1,4 @@
-﻿// =============================================================
-// JobManager.cs
-//
-// DEPENDENCIES:
-// - Civilian: registered/unregistered here, roles tracked
-// - CivilianRole: enum of roles (Gatherer, Builder, Hauler, Idle)
-// - ConstructionSite: used for CountBuildersOnSite + GetActiveConstructionSiteCount
-// - TaskBoardUI: calls GetRoleCounts() and GetActiveConstructionSiteCount()
-//
-// NOTES FOR FUTURE MAINTENANCE:
-// - If you add new roles, CivilianRole and any UI must be updated.
-// - Keep civilians list in sync with Civilian.OnEnable/OnDisable.
-// =============================================================
-
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 
 public class JobManager : MonoBehaviour
@@ -31,18 +17,30 @@ public class JobManager : MonoBehaviour
         Instance = this;
     }
 
+    // ------------------------------------------------------------------------
+    // Registration
+    // ------------------------------------------------------------------------
+
     public void RegisterCivilian(Civilian civ)
     {
-        if (civ == null) return;
+        if (civ == null)
+            return;
+
         if (!civilians.Contains(civ))
             civilians.Add(civ);
     }
 
     public void UnregisterCivilian(Civilian civ)
     {
-        if (civ == null) return;
+        if (civ == null)
+            return;
+
         civilians.Remove(civ);
     }
+
+    // ------------------------------------------------------------------------
+    // Queries
+    // ------------------------------------------------------------------------
 
     public bool IsCivilianAssigned(Civilian civ)
     {
@@ -52,13 +50,17 @@ public class JobManager : MonoBehaviour
     public int CountBuildersOnSite(ConstructionSite site)
     {
         int count = 0;
+
         for (int i = 0; i < civilians.Count; i++)
         {
             var civ = civilians[i];
-            if (civ == null) continue;
+            if (civ == null)
+                continue;
+
             if (civ.CurrentAssignedSite == site)
                 count++;
         }
+
         return count;
     }
 
@@ -72,17 +74,21 @@ public class JobManager : MonoBehaviour
         for (int i = 0; i < civilians.Count; i++)
         {
             var civ = civilians[i];
-            if (civ == null) continue;
-            if (civ.teamID != teamID) continue;
+            if (civ == null)
+                continue;
 
-            if (!result.ContainsKey(civ.role))
-                result[civ.role] = 0;
+            if (civ.teamID != teamID)
+                continue;
 
             result[civ.role]++;
         }
 
         return result;
     }
+
+    // ------------------------------------------------------------------------
+    // Crafting helpers
+    // ------------------------------------------------------------------------
 
     public bool AssignCivilianToCraftingBuilding(Civilian civilian, CraftingBuilding building, bool manual = true)
     {
@@ -92,7 +98,10 @@ public class JobManager : MonoBehaviour
         if (WorkerTaskDispatcher.Instance == null)
             return false;
 
-        return WorkerTaskDispatcher.Instance.TryAssignTaskToWorker(civilian, WorkerTaskRequest.Craft(civilian.teamID, building));
+        return WorkerTaskDispatcher.Instance.TryAssignTaskToWorker(
+            civilian,
+            WorkerTaskRequest.Craft(civilian.teamID, building)
+        );
     }
 
     public void SetCraftingBuildingPriority(CraftingBuilding building, int priority)
@@ -103,18 +112,25 @@ public class JobManager : MonoBehaviour
         building.assignmentPriority = Mathf.Clamp(priority, 0, 10);
     }
 
+    // ------------------------------------------------------------------------
+    // Construction (updated to use ConstructionRegistry)
+    // ------------------------------------------------------------------------
+
     public int GetActiveConstructionSiteCount(int teamID)
     {
         int count = 0;
-        var sites = GameObject.FindObjectsOfType<ConstructionSite>();
-        for (int i = 0; i < sites.Length; i++)
+
+        var sites = ConstructionRegistry.Instance.GetSitesForTeam(teamID);
+        for (int i = 0; i < sites.Count; i++)
         {
             var s = sites[i];
-            if (s == null) continue;
-            if (s.teamID != teamID) continue;
-            if (s.IsComplete) continue;
-            count++;
+            if (s == null)
+                continue;
+
+            if (!s.IsComplete)
+                count++;
         }
+
         return count;
     }
 }

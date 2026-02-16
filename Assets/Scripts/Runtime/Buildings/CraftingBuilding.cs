@@ -78,6 +78,28 @@ public class CraftingBuilding : Building
     int upgradeLevel;
     WorldProgressBar progressBar;
 
+    // ------------------------------------------------------------------------
+    // REGISTRY HOOKS
+    // ------------------------------------------------------------------------
+
+    void OnEnable()
+    {
+        CraftingRegistry.Instance?.Register(this);
+        CraftingJobManager.Instance?.RegisterBuilding(this);
+    }
+
+    void OnDisable()
+    {
+        CraftingRegistry.Instance?.Unregister(this);
+        CraftingJobManager.Instance?.UnregisterBuilding(this);
+    }
+
+    void NotifyChanged()
+    {
+        CraftingRegistry.Instance?.NotifyBuildingChanged(this);
+    }
+
+    // ------------------------------------------------------------------------
 
     protected override void ApplyDefinition(BuildingDefinition def)
     {
@@ -98,17 +120,7 @@ public class CraftingBuilding : Building
         InitializeResourceMaps();
         state = ProductionState.WaitingForInputs;
         EnsureProgressBar();
-        CraftingJobManager.Instance?.RegisterBuilding(this);
-    }
-
-    void OnEnable()
-    {
-        CraftingJobManager.Instance?.RegisterBuilding(this);
-    }
-
-    void OnDisable()
-    {
-        CraftingJobManager.Instance?.UnregisterBuilding(this);
+        NotifyChanged();
     }
 
     void Update()
@@ -325,7 +337,6 @@ public class CraftingBuilding : Building
         return Mathf.Max(0.05f, recipe.craftTimeSeconds / speed);
     }
 
-
     float GetWorkerToolSpeedMultiplier()
     {
         float total = 0f;
@@ -343,6 +354,7 @@ public class CraftingBuilding : Building
 
         return count > 0 ? total / count : 1f;
     }
+
     int GetEffectiveInputRequirement(RecipeResourceAmount entry)
     {
         float upgradeMult = Mathf.Max(0.1f, GetUpgradeInputEfficiencyMultiplier());
@@ -381,6 +393,7 @@ public class CraftingBuilding : Building
         craftDuration = 0f;
         InitializeResourceMaps();
         state = recipe == null ? ProductionState.Idle : ProductionState.WaitingForInputs;
+        NotifyChanged();
     }
 
     public bool NeedsInput(ResourceDefinition type)
@@ -527,6 +540,7 @@ public class CraftingBuilding : Building
         ProduceOutputs();
 
         state = HasOutputPressure() ? ProductionState.WaitingForPickup : ProductionState.OutputReady;
+        NotifyChanged();
     }
 
     void ConsumeInputs()
@@ -543,6 +557,8 @@ public class CraftingBuilding : Building
             int current = inputBuffer.TryGetValue(entry.resource, out int buffered) ? buffered : 0;
             inputBuffer[entry.resource] = Mathf.Max(0, current - need);
         }
+
+        NotifyChanged();
     }
 
     void ProduceOutputs()
@@ -565,6 +581,8 @@ public class CraftingBuilding : Building
             int current = outputQueue.TryGetValue(entry.resource, out int queued) ? queued : 0;
             outputQueue[entry.resource] = Mathf.Min(maxOutputCapacityPerResource, current + produce);
         }
+
+        NotifyChanged();
     }
 
     public bool TryAssignWorker(Civilian civilian, bool manual = false)
@@ -583,6 +601,7 @@ public class CraftingBuilding : Building
         }
 
         assignedWorkers.Add(civilian);
+        NotifyChanged();
         return true;
     }
 
@@ -592,6 +611,7 @@ public class CraftingBuilding : Building
         assignedWorkers.Remove(civilian);
         occupiedWorkpoints.Remove(civilian);
         inactiveAssignedWorkerTimers.Remove(civilian);
+        NotifyChanged();
     }
 
     public bool TryReserveWorkPoint(Civilian civilian, out Transform workPoint)
@@ -648,7 +668,8 @@ public class CraftingBuilding : Building
         accepted = Mathf.Min(amount, free);
         if (accepted <= 0) return false;
 
-        inputBuffer[type] += accepted;
+        inputBuffer[type] = current + accepted;
+        NotifyChanged();
         return true;
     }
 
@@ -658,12 +679,11 @@ public class CraftingBuilding : Building
         int available = outputQueue.TryGetValue(type, out int queued) ? queued : 0;
         int taken = Mathf.Min(amount, available);
         outputQueue[type] = available - taken;
+        if (taken > 0)
+            NotifyChanged();
         return taken;
     }
 
-    // ---------------------------------------------------------
-    // UPDATED METHOD  OPTION A: Haulers fill to full capacity
-    // ---------------------------------------------------------
     public bool TryGetInputRequest(
         Vector3 workerPosition,
         out ResourceDefinition neededType,
@@ -685,8 +705,6 @@ public class CraftingBuilding : Building
 
             var type = entry.resource;
 
-            // NEW BEHAVIOR:
-            // Request enough to fill the entire input buffer.
             int current = inputBuffer.TryGetValue(type, out int existing) ? existing : 0;
             int missing = Mathf.Max(0, maxInputCapacityPerResource - current);
 
