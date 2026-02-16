@@ -158,6 +158,7 @@ Registry hookup:
 Gathering behavior notes:
 - Civilians reserve gather slots on target nodes.
 - When a node is full, civilians pick the next closest available node.
+- Auto-assignment fallback uses the node GameObject name token against ResourcesDatabase IDs/display names when `resource` is unassigned.
 
 -----------------------------------------------------------------
 7) Storage/Economy System Wiring

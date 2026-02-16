@@ -78,8 +78,8 @@ public class ResourceNode : MonoBehaviour
 
     void TryAutoAssignResourceFromAssetName()
     {
-        string candidate = ResourceIdUtility.GetKey(name);
-        if (string.IsNullOrEmpty(candidate))
+        string candidate = name;
+        if (string.IsNullOrWhiteSpace(candidate))
             return;
 
         GameDatabase loaded = GameDatabaseLoader.ResolveLoaded();
