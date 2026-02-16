@@ -596,3 +596,41 @@ Crafting inspector setup:
 - Minimap now starts hidden and is toggled with M.
 - Default gameplay speed is now 3x.
 - UnitInspectorUI panel height was increased to reduce congestion, and inspector/task board text size is slightly increased.
+
+-----------------------------------------------------------------
+11) Database Content Baselines (RTS Economy Expansion)
+-----------------------------------------------------------------
+Current expected minimum content levels:
+- ResourcesDatabase: 50+ resources
+- JobsDatabase: 10+ job definitions
+- FoodDatabase: 20+ foods
+- RecipesDatabase: 40+ recipes
+- ToolsDatabase: 20+ tools
+
+Notes:
+- Resource ids should be normalized-friendly (snake_case recommended) so runtime systems can resolve by id/display name.
+- Recipes should include valid input/output resources; runtime now skips invalid entries safely but clean data is still recommended.
+
+-----------------------------------------------------------------
+12) TeamBootstrap Workforce + Starter Tools
+-----------------------------------------------------------------
+TeamBootstrap supports startup by explicit civilian job roster:
+- Enable `spawnOneCivilianPerJob`
+- Configure `startingJobTypes`
+- Provide `workerPrefab`
+
+Default starting roster should include one civilian for each main job:
+Gatherer, Builder, Hauler, Crafter, Farmer, Technician, Scientist, Engineer, Blacksmith, Carpenter, Cook.
+
+Starter tools:
+- Civilians now receive a starting tool profile appropriate to their job at spawn/job assignment time.
+- Keep ToolsDatabase populated with matching gameplay tools so progression/crafting can extend those defaults.
+
+-----------------------------------------------------------------
+13) ResourceNode Auto-Resolve Rule
+-----------------------------------------------------------------
+ResourceNode manual assignment is still supported and takes priority.
+If no resource is manually assigned:
+- ResourceNode attempts to auto-resolve by matching node GameObject name to a resource id/display key from loaded/global ResourcesDatabase.
+
+This allows rapid map authoring when node names follow resource ids.

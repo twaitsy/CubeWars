@@ -291,6 +291,11 @@ public class CraftingBuilding : Building
         return Mathf.Max(1, Mathf.RoundToInt(entry.amount * recipe.batchSize * combined));
     }
 
+    bool IsValidEntry(RecipeResourceAmount entry)
+    {
+        return entry != null && entry.resource != null;
+    }
+
     bool IsAllowedOutputType(ResourceDefinition type)
     {
         if (resourcesDatabase == null)
@@ -319,10 +324,10 @@ public class CraftingBuilding : Building
         for (int i = 0; i < recipe.inputs.Length; i++)
         {
             var entry = recipe.inputs[i];
-            if (entry.resource != type) continue;
+            if (!IsValidEntry(entry) || entry.resource != type) continue;
 
             int needed = GetEffectiveInputRequirement(entry);
-            return inputBuffer[type] < needed;
+            return !inputBuffer.TryGetValue(type, out int buffered) || buffered < needed;
         }
 
         return false;
@@ -336,8 +341,11 @@ public class CraftingBuilding : Building
         for (int i = 0; i < recipe.inputs.Length; i++)
         {
             var entry = recipe.inputs[i];
+            if (!IsValidEntry(entry))
+                continue;
+
             int needed = GetEffectiveInputRequirement(entry);
-            if (inputBuffer[entry.resource] < needed)
+            if (!inputBuffer.TryGetValue(entry.resource, out int buffered) || buffered < needed)
                 return true;
         }
 
@@ -352,8 +360,8 @@ public class CraftingBuilding : Building
         for (int i = 0; i < recipe.outputs.Length; i++)
         {
             var entry = recipe.outputs[i];
-            if (!IsAllowedOutputType(entry.resource)) continue;
-            if (outputQueue[entry.resource] > 0)
+            if (!IsValidEntry(entry) || !IsAllowedOutputType(entry.resource)) continue;
+            if (outputQueue.TryGetValue(entry.resource, out int queued) && queued > 0)
                 return true;
         }
 
@@ -368,8 +376,11 @@ public class CraftingBuilding : Building
         for (int i = 0; i < recipe.inputs.Length; i++)
         {
             var entry = recipe.inputs[i];
+            if (!IsValidEntry(entry))
+                continue;
+
             int need = GetEffectiveInputRequirement(entry);
-            if (inputBuffer[entry.resource] < need)
+            if (!inputBuffer.TryGetValue(entry.resource, out int buffered) || buffered < need)
                 return false;
         }
 
@@ -383,8 +394,8 @@ public class CraftingBuilding : Building
         for (int i = 0; i < recipe.outputs.Length; i++)
         {
             var entry = recipe.outputs[i];
-            if (!IsAllowedOutputType(entry.resource)) continue;
-            if (outputQueue[entry.resource] >= maxOutputCapacityPerResource)
+            if (!IsValidEntry(entry) || !IsAllowedOutputType(entry.resource)) continue;
+            if (outputQueue.TryGetValue(entry.resource, out int queued) && queued >= maxOutputCapacityPerResource)
                 return true;
         }
 
@@ -459,8 +470,12 @@ public class CraftingBuilding : Building
         for (int i = 0; i < recipe.inputs.Length; i++)
         {
             var entry = recipe.inputs[i];
+            if (!IsValidEntry(entry))
+                continue;
+
             int need = GetEffectiveInputRequirement(entry);
-            inputBuffer[entry.resource] = Mathf.Max(0, inputBuffer[entry.resource] - need);
+            int current = inputBuffer.TryGetValue(entry.resource, out int buffered) ? buffered : 0;
+            inputBuffer[entry.resource] = Mathf.Max(0, current - need);
         }
     }
 
@@ -471,6 +486,9 @@ public class CraftingBuilding : Building
         for (int i = 0; i < recipe.outputs.Length; i++)
         {
             var entry = recipe.outputs[i];
+            if (!IsValidEntry(entry))
+                continue;
+
             if (!IsAllowedOutputType(entry.resource))
             {
                 Debug.LogWarning($"[{nameof(CraftingBuilding)}] Ignoring output {entry.resource} on {name}: only Refined resources are allowed.");
@@ -478,7 +496,8 @@ public class CraftingBuilding : Building
             }
 
             int produce = GetEffectiveOutputAmount(entry);
-            outputQueue[entry.resource] = Mathf.Min(maxOutputCapacityPerResource, outputQueue[entry.resource] + produce);
+            int current = outputQueue.TryGetValue(entry.resource, out int queued) ? queued : 0;
+            outputQueue[entry.resource] = Mathf.Min(maxOutputCapacityPerResource, current + produce);
         }
     }
 
@@ -551,7 +570,8 @@ public class CraftingBuilding : Building
         accepted = 0;
         if (amount <= 0) return false;
 
-        int free = Mathf.Max(0, maxInputCapacityPerResource - inputBuffer[type]);
+        int current = inputBuffer.TryGetValue(type, out int existing) ? existing : 0;
+        int free = Mathf.Max(0, maxInputCapacityPerResource - current);
         accepted = Mathf.Min(amount, free);
         if (accepted <= 0) return false;
 
@@ -562,8 +582,9 @@ public class CraftingBuilding : Building
     public int CollectOutput(ResourceDefinition type, int amount)
     {
         if (amount <= 0) return 0;
-        int taken = Mathf.Min(amount, outputQueue[type]);
-        outputQueue[type] -= taken;
+        int available = outputQueue.TryGetValue(type, out int queued) ? queued : 0;
+        int taken = Mathf.Min(amount, available);
+        outputQueue[type] = available - taken;
         return taken;
     }
 
@@ -586,11 +607,14 @@ public class CraftingBuilding : Building
         for (int i = 0; i < recipe.inputs.Length; i++)
         {
             var entry = recipe.inputs[i];
+            if (!IsValidEntry(entry))
+                continue;
+
             var type = entry.resource;
 
             // NEW BEHAVIOR:
             // Request enough to fill the entire input buffer.
-            int current = inputBuffer[type];
+            int current = inputBuffer.TryGetValue(type, out int existing) ? existing : 0;
             int missing = Mathf.Max(0, maxInputCapacityPerResource - current);
 
             if (missing <= 0)
@@ -625,9 +649,12 @@ public class CraftingBuilding : Building
         for (int i = 0; i < recipe.outputs.Length; i++)
         {
             var entry = recipe.outputs[i];
+            if (!IsValidEntry(entry))
+                continue;
+
             if (!IsAllowedOutputType(entry.resource)) continue;
 
-            int available = outputQueue[entry.resource];
+            int available = outputQueue.TryGetValue(entry.resource, out int queued) ? queued : 0;
             if (available <= 0) continue;
 
             var storage = FindNearestExternalStorageWithFree(entry.resource);
@@ -758,8 +785,13 @@ public class CraftingBuilding : Building
         for (int i = 0; i < recipe.inputs.Length; i++)
         {
             var entry = recipe.inputs[i];
+            if (!IsValidEntry(entry))
+                continue;
+
             int needed = GetEffectiveInputRequirement(entry);
-            int missing = Mathf.Max(0, needed - inputBuffer[entry.resource]);
+
+            int current = inputBuffer.TryGetValue(entry.resource, out int buffered) ? buffered : 0;
+            int missing = Mathf.Max(0, needed - current);
             if (missing > 0)
                 parts.Add($"{entry.resource}:{missing}");
         }

@@ -42,7 +42,7 @@ MonoBehaviour:
   - recipeName: Smelt Iron Ingot
     inputs:
     - resource:
-        id: ironore
+        id: iron_ore
         displayName: Iron Ore
         icon: {fileID: 0}
         category: 0
@@ -102,12 +102,12 @@ MonoBehaviour:
   - recipeName: Cook Meat
     inputs:
     - resource:
-        id: berries
-        displayName: Berries
+        id: raw_meat
+        displayName: Raw Meat
         icon: {fileID: 0}
         category: 2
-        weight: 1
-        baseValue: 3
+        weight: 2
+        baseValue: 4
       amount: 2
     - resource:
         id: coal
@@ -127,6 +127,1280 @@ MonoBehaviour:
         baseValue: 10
       amount: 2
     craftTimeSeconds: 8
+    batchSize: 1
+    requiredJobType: 11
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 0
+    requiresFuel: 1
+  - recipeName: Smelt Copper Ingot
+    inputs:
+    - resource:
+        id: copper_ore
+        displayName: Copper Ore
+        icon: {fileID: 0}
+        category: 0
+        weight: 3
+        baseValue: 4
+      amount: 3
+    - resource:
+        id: coal
+        displayName: Coal
+        icon: {fileID: 0}
+        category: 3
+        weight: 3
+        baseValue: 4
+      amount: 1
+    outputs:
+    - resource:
+        id: copper_ingot
+        displayName: Copper Ingot
+        icon: {fileID: 0}
+        category: 1
+        weight: 3
+        baseValue: 8
+      amount: 2
+    craftTimeSeconds: 8
+    batchSize: 1
+    requiredJobType: 9
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 0
+    requiresFuel: 1
+  - recipeName: Forge Steel Ingot
+    inputs:
+    - resource:
+        id: iron_ingot
+        displayName: Iron Ingot
+        icon: {fileID: 0}
+        category: 1
+        weight: 3
+        baseValue: 9
+      amount: 2
+    - resource:
+        id: coal
+        displayName: Coal
+        icon: {fileID: 0}
+        category: 3
+        weight: 3
+        baseValue: 4
+      amount: 2
+    outputs:
+    - resource:
+        id: steel_ingot
+        displayName: Steel Ingot
+        icon: {fileID: 0}
+        category: 1
+        weight: 4
+        baseValue: 12
+      amount: 1
+    craftTimeSeconds: 11
+    batchSize: 1
+    requiredJobType: 9
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 0
+    requiresFuel: 1
+  - recipeName: Cut Stone Blocks
+    inputs:
+    - resource:
+        id: stone
+        displayName: Stone
+        icon: {fileID: 0}
+        category: 0
+        weight: 3
+        baseValue: 2
+      amount: 4
+    outputs:
+    - resource:
+        id: stone_block
+        displayName: Stone Block
+        icon: {fileID: 0}
+        category: 1
+        weight: 3
+        baseValue: 6
+      amount: 2
+    craftTimeSeconds: 6
+    batchSize: 1
+    requiredJobType: 10
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 0
+    requiresFuel: 0
+  - recipeName: Fire Bricks
+    inputs:
+    - resource:
+        id: clay
+        displayName: Clay
+        icon: {fileID: 0}
+        category: 0
+        weight: 2
+        baseValue: 2
+      amount: 4
+    - resource:
+        id: coal
+        displayName: Coal
+        icon: {fileID: 0}
+        category: 3
+        weight: 3
+        baseValue: 4
+      amount: 1
+    outputs:
+    - resource:
+        id: brick
+        displayName: Brick
+        icon: {fileID: 0}
+        category: 1
+        weight: 2
+        baseValue: 5
+      amount: 3
+    craftTimeSeconds: 8
+    batchSize: 1
+    requiredJobType: 10
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 0
+    requiresFuel: 1
+  - recipeName: Craft Nails
+    inputs:
+    - resource:
+        id: iron_ingot
+        displayName: Iron Ingot
+        icon: {fileID: 0}
+        category: 1
+        weight: 3
+        baseValue: 9
+      amount: 1
+    outputs:
+    - resource:
+        id: nails
+        displayName: Nails
+        icon: {fileID: 0}
+        category: 5
+        weight: 1
+        baseValue: 6
+      amount: 6
+    craftTimeSeconds: 5
+    batchSize: 1
+    requiredJobType: 9
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 0
+    requiresFuel: 0
+  - recipeName: Make Gears
+    inputs:
+    - resource:
+        id: iron_ingot
+        displayName: Iron Ingot
+        icon: {fileID: 0}
+        category: 1
+        weight: 3
+        baseValue: 9
+      amount: 2
+    outputs:
+    - resource:
+        id: gears
+        displayName: Gears
+        icon: {fileID: 0}
+        category: 5
+        weight: 2
+        baseValue: 10
+      amount: 2
+    craftTimeSeconds: 7
+    batchSize: 1
+    requiredJobType: 8
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 0
+    requiresFuel: 0
+  - recipeName: Draw Wire
+    inputs:
+    - resource:
+        id: copper_ingot
+        displayName: Copper Ingot
+        icon: {fileID: 0}
+        category: 1
+        weight: 3
+        baseValue: 8
+      amount: 1
+    outputs:
+    - resource:
+        id: wire
+        displayName: Wire
+        icon: {fileID: 0}
+        category: 5
+        weight: 1
+        baseValue: 7
+      amount: 4
+    craftTimeSeconds: 6
+    batchSize: 1
+    requiredJobType: 8
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 0
+    requiresFuel: 0
+  - recipeName: Assemble Machine Parts
+    inputs:
+    - resource:
+        id: gears
+        displayName: Gears
+        icon: {fileID: 0}
+        category: 5
+        weight: 2
+        baseValue: 10
+      amount: 2
+    - resource:
+        id: wire
+        displayName: Wire
+        icon: {fileID: 0}
+        category: 5
+        weight: 1
+        baseValue: 7
+      amount: 3
+    - resource:
+        id: steel_ingot
+        displayName: Steel Ingot
+        icon: {fileID: 0}
+        category: 1
+        weight: 4
+        baseValue: 12
+      amount: 1
+    outputs:
+    - resource:
+        id: machine_parts
+        displayName: Machine Parts
+        icon: {fileID: 0}
+        category: 5
+        weight: 3
+        baseValue: 13
+      amount: 1
+    craftTimeSeconds: 10
+    batchSize: 1
+    requiredJobType: 8
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 1
+    requiresFuel: 0
+  - recipeName: Refine Oil
+    inputs:
+    - resource:
+        id: oil
+        displayName: Oil
+        icon: {fileID: 0}
+        category: 3
+        weight: 2
+        baseValue: 6
+      amount: 3
+    outputs:
+    - resource:
+        id: charcoal
+        displayName: Charcoal
+        icon: {fileID: 0}
+        category: 3
+        weight: 2
+        baseValue: 5
+      amount: 2
+    craftTimeSeconds: 6
+    batchSize: 1
+    requiredJobType: 6
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 1
+    requiresFuel: 1
+  - recipeName: Blend Cement
+    inputs:
+    - resource:
+        id: sand
+        displayName: Sand
+        icon: {fileID: 0}
+        category: 0
+        weight: 2
+        baseValue: 1
+      amount: 3
+    - resource:
+        id: clay
+        displayName: Clay
+        icon: {fileID: 0}
+        category: 0
+        weight: 2
+        baseValue: 2
+      amount: 2
+    outputs:
+    - resource:
+        id: cement
+        displayName: Cement
+        icon: {fileID: 0}
+        category: 1
+        weight: 3
+        baseValue: 8
+      amount: 2
+    craftTimeSeconds: 7
+    batchSize: 1
+    requiredJobType: 8
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 0
+    requiresFuel: 0
+  - recipeName: Pour Concrete
+    inputs:
+    - resource:
+        id: cement
+        displayName: Cement
+        icon: {fileID: 0}
+        category: 1
+        weight: 3
+        baseValue: 8
+      amount: 2
+    - resource:
+        id: stone
+        displayName: Stone
+        icon: {fileID: 0}
+        category: 0
+        weight: 3
+        baseValue: 2
+      amount: 2
+    - resource:
+        id: water
+        displayName: Water
+        icon: {fileID: 0}
+        category: 11
+        weight: 1
+        baseValue: 1
+      amount: 2
+    outputs:
+    - resource:
+        id: concrete
+        displayName: Concrete
+        icon: {fileID: 0}
+        category: 1
+        weight: 4
+        baseValue: 10
+      amount: 2
+    craftTimeSeconds: 9
+    batchSize: 1
+    requiredJobType: 8
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 0
+    requiresFuel: 0
+  - recipeName: Braid Rope
+    inputs:
+    - resource:
+        id: flax
+        displayName: Flax
+        icon: {fileID: 0}
+        category: 0
+        weight: 1
+        baseValue: 3
+      amount: 3
+    outputs:
+    - resource:
+        id: rope
+        displayName: Rope
+        icon: {fileID: 0}
+        category: 1
+        weight: 1
+        baseValue: 4
+      amount: 2
+    craftTimeSeconds: 5
+    batchSize: 1
+    requiredJobType: 10
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 0
+    requiresFuel: 0
+  - recipeName: Weave Cloth
+    inputs:
+    - resource:
+        id: cotton
+        displayName: Cotton
+        icon: {fileID: 0}
+        category: 0
+        weight: 1
+        baseValue: 3
+      amount: 3
+    outputs:
+    - resource:
+        id: cloth
+        displayName: Cloth
+        icon: {fileID: 0}
+        category: 1
+        weight: 1
+        baseValue: 5
+      amount: 2
+    craftTimeSeconds: 6
+    batchSize: 1
+    requiredJobType: 10
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 0
+    requiresFuel: 0
+  - recipeName: Tan Leather
+    inputs:
+    - resource:
+        id: hide
+        displayName: Hide
+        icon: {fileID: 0}
+        category: 0
+        weight: 2
+        baseValue: 4
+      amount: 3
+    - resource:
+        id: saltpeter
+        displayName: Saltpeter
+        icon: {fileID: 0}
+        category: 0
+        weight: 1
+        baseValue: 5
+      amount: 1
+    outputs:
+    - resource:
+        id: leather
+        displayName: Leather
+        icon: {fileID: 0}
+        category: 1
+        weight: 2
+        baseValue: 6
+      amount: 2
+    craftTimeSeconds: 8
+    batchSize: 1
+    requiredJobType: 4
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 0
+    requiresFuel: 0
+  - recipeName: Make Weapon Parts
+    inputs:
+    - resource:
+        id: steel_ingot
+        displayName: Steel Ingot
+        icon: {fileID: 0}
+        category: 1
+        weight: 4
+        baseValue: 12
+      amount: 2
+    - resource:
+        id: wood
+        displayName: Wood
+        icon: {fileID: 0}
+        category: 0
+        weight: 2
+        baseValue: 2
+      amount: 2
+    outputs:
+    - resource:
+        id: weapon_parts
+        displayName: Weapon Parts
+        icon: {fileID: 0}
+        category: 6
+        weight: 2
+        baseValue: 11
+      amount: 2
+    craftTimeSeconds: 9
+    batchSize: 1
+    requiredJobType: 9
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 0
+    requiresFuel: 0
+  - recipeName: Make Armor Parts
+    inputs:
+    - resource:
+        id: steel_ingot
+        displayName: Steel Ingot
+        icon: {fileID: 0}
+        category: 1
+        weight: 4
+        baseValue: 12
+      amount: 2
+    - resource:
+        id: leather
+        displayName: Leather
+        icon: {fileID: 0}
+        category: 1
+        weight: 2
+        baseValue: 6
+      amount: 2
+    outputs:
+    - resource:
+        id: armor_parts
+        displayName: Armor Parts
+        icon: {fileID: 0}
+        category: 6
+        weight: 3
+        baseValue: 12
+      amount: 1
+    craftTimeSeconds: 9
+    batchSize: 1
+    requiredJobType: 9
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 0
+    requiresFuel: 0
+  - recipeName: Construct Siege Parts
+    inputs:
+    - resource:
+        id: planks
+        displayName: Planks
+        icon: {fileID: 0}
+        category: 1
+        weight: 2
+        baseValue: 6
+      amount: 4
+    - resource:
+        id: steel_ingot
+        displayName: Steel Ingot
+        icon: {fileID: 0}
+        category: 1
+        weight: 4
+        baseValue: 12
+      amount: 2
+    - resource:
+        id: rope
+        displayName: Rope
+        icon: {fileID: 0}
+        category: 1
+        weight: 1
+        baseValue: 4
+      amount: 2
+    outputs:
+    - resource:
+        id: siege_parts
+        displayName: Siege Parts
+        icon: {fileID: 0}
+        category: 6
+        weight: 4
+        baseValue: 14
+      amount: 1
+    craftTimeSeconds: 12
+    batchSize: 1
+    requiredJobType: 2
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 0
+    requiresFuel: 0
+  - recipeName: Mix Gunpowder
+    inputs:
+    - resource:
+        id: coal
+        displayName: Coal
+        icon: {fileID: 0}
+        category: 3
+        weight: 3
+        baseValue: 4
+      amount: 1
+    - resource:
+        id: sulfur
+        displayName: Sulfur
+        icon: {fileID: 0}
+        category: 0
+        weight: 2
+        baseValue: 5
+      amount: 2
+    - resource:
+        id: saltpeter
+        displayName: Saltpeter
+        icon: {fileID: 0}
+        category: 0
+        weight: 1
+        baseValue: 5
+      amount: 2
+    outputs:
+    - resource:
+        id: gunpowder
+        displayName: Gunpowder
+        icon: {fileID: 0}
+        category: 6
+        weight: 1
+        baseValue: 12
+      amount: 3
+    craftTimeSeconds: 7
+    batchSize: 1
+    requiredJobType: 8
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 0
+    requiresFuel: 0
+  - recipeName: Press Food Rations
+    inputs:
+    - resource:
+        id: bread
+        displayName: Bread
+        icon: {fileID: 0}
+        category: 2
+        weight: 1
+        baseValue: 8
+      amount: 2
+    - resource:
+        id: cooked_meat
+        displayName: Cooked Meat
+        icon: {fileID: 0}
+        category: 2
+        weight: 2
+        baseValue: 10
+      amount: 1
+    outputs:
+    - resource:
+        id: food_ration
+        displayName: Food Ration
+        icon: {fileID: 0}
+        category: 2
+        weight: 1
+        baseValue: 7
+      amount: 3
+    craftTimeSeconds: 6
+    batchSize: 1
+    requiredJobType: 11
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 0
+    requiresFuel: 0
+  - recipeName: Cook Stew
+    inputs:
+    - resource:
+        id: raw_meat
+        displayName: Raw Meat
+        icon: {fileID: 0}
+        category: 2
+        weight: 2
+        baseValue: 4
+      amount: 1
+    - resource:
+        id: herbs
+        displayName: Herbs
+        icon: {fileID: 0}
+        category: 2
+        weight: 1
+        baseValue: 4
+      amount: 2
+    - resource:
+        id: water
+        displayName: Water
+        icon: {fileID: 0}
+        category: 11
+        weight: 1
+        baseValue: 1
+      amount: 1
+    outputs:
+    - resource:
+        id: stew
+        displayName: Stew
+        icon: {fileID: 0}
+        category: 2
+        weight: 2
+        baseValue: 11
+      amount: 2
+    craftTimeSeconds: 8
+    batchSize: 1
+    requiredJobType: 11
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 0
+    requiresFuel: 1
+  - recipeName: Smoke Fish
+    inputs:
+    - resource:
+        id: fish
+        displayName: Fish
+        icon: {fileID: 0}
+        category: 2
+        weight: 2
+        baseValue: 5
+      amount: 2
+    - resource:
+        id: coal
+        displayName: Coal
+        icon: {fileID: 0}
+        category: 3
+        weight: 3
+        baseValue: 4
+      amount: 1
+    outputs:
+    - resource:
+        id: smoked_fish
+        displayName: Smoked Fish
+        icon: {fileID: 0}
+        category: 2
+        weight: 1
+        baseValue: 10
+      amount: 2
+    craftTimeSeconds: 7
+    batchSize: 1
+    requiredJobType: 11
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 0
+    requiresFuel: 1
+  - recipeName: Prepare Fruit Salad
+    inputs:
+    - resource:
+        id: berries
+        displayName: Berries
+        icon: {fileID: 0}
+        category: 2
+        weight: 1
+        baseValue: 3
+      amount: 3
+    - resource:
+        id: milk
+        displayName: Milk
+        icon: {fileID: 0}
+        category: 2
+        weight: 1
+        baseValue: 4
+      amount: 1
+    outputs:
+    - resource:
+        id: fruit_salad
+        displayName: Fruit Salad
+        icon: {fileID: 0}
+        category: 2
+        weight: 1
+        baseValue: 9
+      amount: 2
+    craftTimeSeconds: 5
+    batchSize: 1
+    requiredJobType: 11
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 0
+    requiresFuel: 0
+  - recipeName: Brew Wine
+    inputs:
+    - resource:
+        id: berries
+        displayName: Berries
+        icon: {fileID: 0}
+        category: 2
+        weight: 1
+        baseValue: 3
+      amount: 4
+    - resource:
+        id: water
+        displayName: Water
+        icon: {fileID: 0}
+        category: 11
+        weight: 1
+        baseValue: 1
+      amount: 1
+    outputs:
+    - resource:
+        id: wine
+        displayName: Wine
+        icon: {fileID: 0}
+        category: 4
+        weight: 1
+        baseValue: 12
+      amount: 2
+    craftTimeSeconds: 10
+    batchSize: 1
+    requiredJobType: 11
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 0
+    requiresFuel: 0
+  - recipeName: Assemble Medicinal Kit
+    inputs:
+    - resource:
+        id: herbs
+        displayName: Herbs
+        icon: {fileID: 0}
+        category: 2
+        weight: 1
+        baseValue: 4
+      amount: 3
+    - resource:
+        id: cloth
+        displayName: Cloth
+        icon: {fileID: 0}
+        category: 1
+        weight: 1
+        baseValue: 5
+      amount: 1
+    outputs:
+    - resource:
+        id: medicinal_kit
+        displayName: Medicinal Kit
+        icon: {fileID: 0}
+        category: 11
+        weight: 1
+        baseValue: 11
+      amount: 2
+    craftTimeSeconds: 7
+    batchSize: 1
+    requiredJobType: 6
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 0
+    requiresFuel: 0
+  - recipeName: Produce Fertilizer
+    inputs:
+    - resource:
+        id: raw_meat
+        displayName: Raw Meat
+        icon: {fileID: 0}
+        category: 2
+        weight: 2
+        baseValue: 4
+      amount: 1
+    - resource:
+        id: water
+        displayName: Water
+        icon: {fileID: 0}
+        category: 11
+        weight: 1
+        baseValue: 1
+      amount: 1
+    - resource:
+        id: clay
+        displayName: Clay
+        icon: {fileID: 0}
+        category: 0
+        weight: 2
+        baseValue: 2
+      amount: 1
+    outputs:
+    - resource:
+        id: fertilizer
+        displayName: Fertilizer
+        icon: {fileID: 0}
+        category: 5
+        weight: 1
+        baseValue: 6
+      amount: 2
+    craftTimeSeconds: 6
+    batchSize: 1
+    requiredJobType: 5
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 0
+    requiresFuel: 0
+  - recipeName: Synthesize Power Cell
+    inputs:
+    - resource:
+        id: copper_ingot
+        displayName: Copper Ingot
+        icon: {fileID: 0}
+        category: 1
+        weight: 3
+        baseValue: 8
+      amount: 2
+    - resource:
+        id: crystal
+        displayName: Crystal
+        icon: {fileID: 0}
+        category: 7
+        weight: 1
+        baseValue: 9
+      amount: 1
+    - resource:
+        id: oil
+        displayName: Oil
+        icon: {fileID: 0}
+        category: 3
+        weight: 2
+        baseValue: 6
+      amount: 1
+    outputs:
+    - resource:
+        id: power_cell
+        displayName: Power Cell
+        icon: {fileID: 0}
+        category: 7
+        weight: 1
+        baseValue: 18
+      amount: 1
+    craftTimeSeconds: 12
+    batchSize: 1
+    requiredJobType: 8
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 1
+    requiresFuel: 0
+  - recipeName: Assemble Circuit
+    inputs:
+    - resource:
+        id: wire
+        displayName: Wire
+        icon: {fileID: 0}
+        category: 5
+        weight: 1
+        baseValue: 7
+      amount: 4
+    - resource:
+        id: crystal
+        displayName: Crystal
+        icon: {fileID: 0}
+        category: 7
+        weight: 1
+        baseValue: 9
+      amount: 1
+    - resource:
+        id: copper_ingot
+        displayName: Copper Ingot
+        icon: {fileID: 0}
+        category: 1
+        weight: 3
+        baseValue: 8
+      amount: 1
+    outputs:
+    - resource:
+        id: circuit
+        displayName: Circuit
+        icon: {fileID: 0}
+        category: 7
+        weight: 1
+        baseValue: 15
+      amount: 2
+    craftTimeSeconds: 10
+    batchSize: 1
+    requiredJobType: 7
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 1
+    requiresFuel: 0
+  - recipeName: Compile Research Data
+    inputs:
+    - resource:
+        id: paper
+        displayName: Paper
+        icon: {fileID: 0}
+        category: 1
+        weight: 1
+        baseValue: 5
+      amount: 2
+    - resource:
+        id: circuit
+        displayName: Circuit
+        icon: {fileID: 0}
+        category: 7
+        weight: 1
+        baseValue: 15
+      amount: 1
+    outputs:
+    - resource:
+        id: research_data
+        displayName: Research Data
+        icon: {fileID: 0}
+        category: 7
+        weight: 0.5
+        baseValue: 20
+      amount: 2
+    craftTimeSeconds: 9
+    batchSize: 1
+    requiredJobType: 7
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 1
+    requiresFuel: 0
+  - recipeName: Mint Coins
+    inputs:
+    - resource:
+        id: gold
+        displayName: Gold
+        icon: {fileID: 0}
+        category: 8
+        weight: 1
+        baseValue: 15
+      amount: 1
+    outputs:
+    - resource:
+        id: coin
+        displayName: Coin
+        icon: {fileID: 0}
+        category: 8
+        weight: 0.2
+        baseValue: 10
+      amount: 5
+    craftTimeSeconds: 6
+    batchSize: 1
+    requiredJobType: 6
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 1
+    requiresFuel: 0
+  - recipeName: Smelt Gold
+    inputs:
+    - resource:
+        id: gold_ore
+        displayName: Gold Ore
+        icon: {fileID: 0}
+        category: 0
+        weight: 3
+        baseValue: 8
+      amount: 3
+    - resource:
+        id: coal
+        displayName: Coal
+        icon: {fileID: 0}
+        category: 3
+        weight: 3
+        baseValue: 4
+      amount: 1
+    outputs:
+    - resource:
+        id: gold
+        displayName: Gold
+        icon: {fileID: 0}
+        category: 8
+        weight: 1
+        baseValue: 15
+      amount: 1
+    craftTimeSeconds: 9
+    batchSize: 1
+    requiredJobType: 9
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 0
+    requiresFuel: 1
+  - recipeName: Saw Timber Beams
+    inputs:
+    - resource:
+        id: planks
+        displayName: Planks
+        icon: {fileID: 0}
+        category: 1
+        weight: 2
+        baseValue: 6
+      amount: 4
+    outputs:
+    - resource:
+        id: construction_beam
+        displayName: Construction Beam
+        icon: {fileID: 0}
+        category: 5
+        weight: 3
+        baseValue: 12
+      amount: 2
+    craftTimeSeconds: 6
+    batchSize: 1
+    requiredJobType: 10
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 0
+    requiresFuel: 0
+  - recipeName: Assemble Tool Kit
+    inputs:
+    - resource:
+        id: nails
+        displayName: Nails
+        icon: {fileID: 0}
+        category: 5
+        weight: 1
+        baseValue: 6
+      amount: 4
+    - resource:
+        id: wood
+        displayName: Wood
+        icon: {fileID: 0}
+        category: 0
+        weight: 2
+        baseValue: 2
+      amount: 2
+    - resource:
+        id: iron_ingot
+        displayName: Iron Ingot
+        icon: {fileID: 0}
+        category: 1
+        weight: 3
+        baseValue: 9
+      amount: 1
+    outputs:
+    - resource:
+        id: tool_kit
+        displayName: Tool Kit
+        icon: {fileID: 0}
+        category: 10
+        weight: 2
+        baseValue: 14
+      amount: 1
+    craftTimeSeconds: 8
+    batchSize: 1
+    requiredJobType: 4
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 0
+    requiresFuel: 0
+  - recipeName: Craft Cheese
+    inputs:
+    - resource:
+        id: milk
+        displayName: Milk
+        icon: {fileID: 0}
+        category: 2
+        weight: 1
+        baseValue: 4
+      amount: 3
+    outputs:
+    - resource:
+        id: cheese
+        displayName: Cheese
+        icon: {fileID: 0}
+        category: 2
+        weight: 1
+        baseValue: 8
+      amount: 2
+    craftTimeSeconds: 7
+    batchSize: 1
+    requiredJobType: 11
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 0
+    requiresFuel: 0
+  - recipeName: Prepare Cheese Platter
+    inputs:
+    - resource:
+        id: cheese
+        displayName: Cheese
+        icon: {fileID: 0}
+        category: 2
+        weight: 1
+        baseValue: 8
+      amount: 2
+    - resource:
+        id: herbs
+        displayName: Herbs
+        icon: {fileID: 0}
+        category: 2
+        weight: 1
+        baseValue: 4
+      amount: 1
+    outputs:
+    - resource:
+        id: cheese_platter
+        displayName: Cheese Platter
+        icon: {fileID: 0}
+        category: 2
+        weight: 1
+        baseValue: 10
+      amount: 2
+    craftTimeSeconds: 5
+    batchSize: 1
+    requiredJobType: 11
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 0
+    requiresFuel: 0
+  - recipeName: Roast Vegetables
+    inputs:
+    - resource:
+        id: grain
+        displayName: Grain
+        icon: {fileID: 0}
+        category: 0
+        weight: 1
+        baseValue: 3
+      amount: 2
+    - resource:
+        id: herbs
+        displayName: Herbs
+        icon: {fileID: 0}
+        category: 2
+        weight: 1
+        baseValue: 4
+      amount: 2
+    - resource:
+        id: coal
+        displayName: Coal
+        icon: {fileID: 0}
+        category: 3
+        weight: 3
+        baseValue: 4
+      amount: 1
+    outputs:
+    - resource:
+        id: roasted_vegetables
+        displayName: Roasted Vegetables
+        icon: {fileID: 0}
+        category: 2
+        weight: 1
+        baseValue: 8
+      amount: 2
+    craftTimeSeconds: 7
+    batchSize: 1
+    requiredJobType: 11
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 0
+    requiresFuel: 1
+  - recipeName: Cook Mushroom Soup
+    inputs:
+    - resource:
+        id: herbs
+        displayName: Herbs
+        icon: {fileID: 0}
+        category: 2
+        weight: 1
+        baseValue: 4
+      amount: 2
+    - resource:
+        id: water
+        displayName: Water
+        icon: {fileID: 0}
+        category: 11
+        weight: 1
+        baseValue: 1
+      amount: 1
+    - resource:
+        id: milk
+        displayName: Milk
+        icon: {fileID: 0}
+        category: 2
+        weight: 1
+        baseValue: 4
+      amount: 1
+    outputs:
+    - resource:
+        id: mushroom_soup
+        displayName: Mushroom Soup
+        icon: {fileID: 0}
+        category: 2
+        weight: 1
+        baseValue: 9
+      amount: 2
+    craftTimeSeconds: 8
+    batchSize: 1
+    requiredJobType: 11
+    outputEfficiencyMultiplier: 1
+    inputEfficiencyMultiplier: 1
+    requiresPower: 0
+    requiresFuel: 1
+  - recipeName: Bake Meat Pie
+    inputs:
+    - resource:
+        id: grain
+        displayName: Grain
+        icon: {fileID: 0}
+        category: 0
+        weight: 1
+        baseValue: 3
+      amount: 2
+    - resource:
+        id: raw_meat
+        displayName: Raw Meat
+        icon: {fileID: 0}
+        category: 2
+        weight: 2
+        baseValue: 4
+      amount: 2
+    - resource:
+        id: herbs
+        displayName: Herbs
+        icon: {fileID: 0}
+        category: 2
+        weight: 1
+        baseValue: 4
+      amount: 1
+    outputs:
+    - resource:
+        id: meat_pie
+        displayName: Meat Pie
+        icon: {fileID: 0}
+        category: 2
+        weight: 2
+        baseValue: 12
+      amount: 2
+    craftTimeSeconds: 9
     batchSize: 1
     requiredJobType: 11
     outputEfficiencyMultiplier: 1

@@ -54,6 +54,25 @@ public class TeamBootstrap : MonoBehaviour
     public GameObject workerPrefab;
 
     [Header("Starting Civilians")]
+    [Tooltip("When enabled, each team gets one starting civilian for each configured job type.")]
+    public bool spawnOneCivilianPerJob = true;
+
+    [Tooltip("Jobs used for one-per-job spawning when spawnOneCivilianPerJob is enabled.")]
+    public List<CivilianJobType> startingJobTypes = new List<CivilianJobType>
+    {
+        CivilianJobType.Gatherer,
+        CivilianJobType.Builder,
+        CivilianJobType.Hauler,
+        CivilianJobType.Crafter,
+        CivilianJobType.Farmer,
+        CivilianJobType.Technician,
+        CivilianJobType.Scientist,
+        CivilianJobType.Engineer,
+        CivilianJobType.Blacksmith,
+        CivilianJobType.Carpenter,
+        CivilianJobType.Cook
+    };
+
     [Tooltip("Detailed civilian setup. If empty, legacy worker fields are used.")]
     public List<StartingCivilianGroup> civilianGroups = new List<StartingCivilianGroup>();
 
@@ -212,7 +231,19 @@ public class TeamBootstrap : MonoBehaviour
         Transform hq = team.hqRoot.GetChild(0);
         int spawnIndex = 0;
 
-        if (civilianGroups != null && civilianGroups.Count > 0)
+        if (spawnOneCivilianPerJob && workerPrefab != null && startingJobTypes != null && startingJobTypes.Count > 0)
+        {
+            for (int j = 0; j < startingJobTypes.Count; j++)
+            {
+                CivilianJobType jobType = startingJobTypes[j];
+                if (jobType == CivilianJobType.Generalist || jobType == CivilianJobType.Idle)
+                    continue;
+
+                SpawnCivilian(team, hq, workerPrefab, CivilianJobRegistry.GetProfile(jobType).legacyRole, jobType, spawnIndex);
+                spawnIndex++;
+            }
+        }
+        else if (civilianGroups != null && civilianGroups.Count > 0)
         {
             for (int g = 0; g < civilianGroups.Count; g++)
             {
@@ -250,6 +281,7 @@ public class TeamBootstrap : MonoBehaviour
         {
             civ.SetRole(role);
             civ.SetJobType(jobType == CivilianJobType.Generalist ? CivilianJobRegistry.ToJobType(role) : jobType);
+            civ.GrantStartingToolForCurrentJob();
         }
     }
 

@@ -12,4 +12,412 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f280e2e8d8d2d34998e11b47785a778, type: 3}
   m_Name: ResourcesDatabase
   m_EditorClassIdentifier: 
-  resources: []
+  resources:
+    - id: wood
+      displayName: Wood
+      icon: {fileID: 0}
+      category: 0
+      weight: 2
+      baseValue: 2
+    - id: stone
+      displayName: Stone
+      icon: {fileID: 0}
+      category: 0
+      weight: 3
+      baseValue: 2
+    - id: iron_ore
+      displayName: Iron Ore
+      icon: {fileID: 0}
+      category: 0
+      weight: 4
+      baseValue: 5
+    - id: copper_ore
+      displayName: Copper Ore
+      icon: {fileID: 0}
+      category: 0
+      weight: 3
+      baseValue: 4
+    - id: gold_ore
+      displayName: Gold Ore
+      icon: {fileID: 0}
+      category: 0
+      weight: 3
+      baseValue: 8
+    - id: coal
+      displayName: Coal
+      icon: {fileID: 0}
+      category: 3
+      weight: 3
+      baseValue: 4
+    - id: oil
+      displayName: Oil
+      icon: {fileID: 0}
+      category: 3
+      weight: 2
+      baseValue: 6
+    - id: water
+      displayName: Water
+      icon: {fileID: 0}
+      category: 11
+      weight: 1
+      baseValue: 1
+    - id: sand
+      displayName: Sand
+      icon: {fileID: 0}
+      category: 0
+      weight: 2
+      baseValue: 1
+    - id: clay
+      displayName: Clay
+      icon: {fileID: 0}
+      category: 0
+      weight: 2
+      baseValue: 2
+    - id: sulfur
+      displayName: Sulfur
+      icon: {fileID: 0}
+      category: 0
+      weight: 2
+      baseValue: 5
+    - id: saltpeter
+      displayName: Saltpeter
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 5
+    - id: crystal
+      displayName: Crystal
+      icon: {fileID: 0}
+      category: 7
+      weight: 1
+      baseValue: 9
+    - id: grain
+      displayName: Grain
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 3
+    - id: berries
+      displayName: Berries
+      icon: {fileID: 0}
+      category: 2
+      weight: 1
+      baseValue: 3
+    - id: raw_meat
+      displayName: Raw Meat
+      icon: {fileID: 0}
+      category: 2
+      weight: 2
+      baseValue: 4
+    - id: fish
+      displayName: Fish
+      icon: {fileID: 0}
+      category: 2
+      weight: 2
+      baseValue: 5
+    - id: herbs
+      displayName: Herbs
+      icon: {fileID: 0}
+      category: 2
+      weight: 1
+      baseValue: 4
+    - id: milk
+      displayName: Milk
+      icon: {fileID: 0}
+      category: 2
+      weight: 1
+      baseValue: 4
+    - id: eggs
+      displayName: Eggs
+      icon: {fileID: 0}
+      category: 2
+      weight: 1
+      baseValue: 4
+    - id: cotton
+      displayName: Cotton
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 3
+    - id: wool
+      displayName: Wool
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 4
+    - id: flax
+      displayName: Flax
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 3
+    - id: leather
+      displayName: Leather
+      icon: {fileID: 0}
+      category: 1
+      weight: 2
+      baseValue: 6
+    - id: hide
+      displayName: Hide
+      icon: {fileID: 0}
+      category: 0
+      weight: 2
+      baseValue: 4
+    - id: planks
+      displayName: Planks
+      icon: {fileID: 0}
+      category: 1
+      weight: 2
+      baseValue: 6
+    - id: stone_block
+      displayName: Stone Block
+      icon: {fileID: 0}
+      category: 1
+      weight: 3
+      baseValue: 6
+    - id: brick
+      displayName: Brick
+      icon: {fileID: 0}
+      category: 1
+      weight: 2
+      baseValue: 5
+    - id: glass
+      displayName: Glass
+      icon: {fileID: 0}
+      category: 1
+      weight: 2
+      baseValue: 6
+    - id: charcoal
+      displayName: Charcoal
+      icon: {fileID: 0}
+      category: 3
+      weight: 2
+      baseValue: 5
+    - id: iron_ingot
+      displayName: Iron Ingot
+      icon: {fileID: 0}
+      category: 1
+      weight: 3
+      baseValue: 9
+    - id: copper_ingot
+      displayName: Copper Ingot
+      icon: {fileID: 0}
+      category: 1
+      weight: 3
+      baseValue: 8
+    - id: steel_ingot
+      displayName: Steel Ingot
+      icon: {fileID: 0}
+      category: 1
+      weight: 4
+      baseValue: 12
+    - id: wire
+      displayName: Wire
+      icon: {fileID: 0}
+      category: 5
+      weight: 1
+      baseValue: 7
+    - id: nails
+      displayName: Nails
+      icon: {fileID: 0}
+      category: 5
+      weight: 1
+      baseValue: 6
+    - id: gears
+      displayName: Gears
+      icon: {fileID: 0}
+      category: 5
+      weight: 2
+      baseValue: 10
+    - id: cloth
+      displayName: Cloth
+      icon: {fileID: 0}
+      category: 1
+      weight: 1
+      baseValue: 5
+    - id: rope
+      displayName: Rope
+      icon: {fileID: 0}
+      category: 1
+      weight: 1
+      baseValue: 4
+    - id: paper
+      displayName: Paper
+      icon: {fileID: 0}
+      category: 1
+      weight: 1
+      baseValue: 5
+    - id: gunpowder
+      displayName: Gunpowder
+      icon: {fileID: 0}
+      category: 6
+      weight: 1
+      baseValue: 12
+    - id: weapon_parts
+      displayName: Weapon Parts
+      icon: {fileID: 0}
+      category: 6
+      weight: 2
+      baseValue: 11
+    - id: armor_parts
+      displayName: Armor Parts
+      icon: {fileID: 0}
+      category: 6
+      weight: 3
+      baseValue: 12
+    - id: siege_parts
+      displayName: Siege Parts
+      icon: {fileID: 0}
+      category: 6
+      weight: 4
+      baseValue: 14
+    - id: machine_parts
+      displayName: Machine Parts
+      icon: {fileID: 0}
+      category: 5
+      weight: 3
+      baseValue: 13
+    - id: circuit
+      displayName: Circuit
+      icon: {fileID: 0}
+      category: 7
+      weight: 1
+      baseValue: 15
+    - id: research_data
+      displayName: Research Data
+      icon: {fileID: 0}
+      category: 7
+      weight: 0.5
+      baseValue: 20
+    - id: gold
+      displayName: Gold
+      icon: {fileID: 0}
+      category: 8
+      weight: 1
+      baseValue: 15
+    - id: coin
+      displayName: Coin
+      icon: {fileID: 0}
+      category: 8
+      weight: 0.2
+      baseValue: 10
+    - id: spices
+      displayName: Spices
+      icon: {fileID: 0}
+      category: 4
+      weight: 0.5
+      baseValue: 9
+    - id: wine
+      displayName: Wine
+      icon: {fileID: 0}
+      category: 4
+      weight: 1
+      baseValue: 12
+    - id: medicinal_kit
+      displayName: Medicinal Kit
+      icon: {fileID: 0}
+      category: 11
+      weight: 1
+      baseValue: 11
+    - id: cement
+      displayName: Cement
+      icon: {fileID: 0}
+      category: 1
+      weight: 3
+      baseValue: 8
+    - id: concrete
+      displayName: Concrete
+      icon: {fileID: 0}
+      category: 1
+      weight: 4
+      baseValue: 10
+    - id: fertilizer
+      displayName: Fertilizer
+      icon: {fileID: 0}
+      category: 5
+      weight: 1
+      baseValue: 6
+    - id: power_cell
+      displayName: Power Cell
+      icon: {fileID: 0}
+      category: 7
+      weight: 1
+      baseValue: 18
+    - id: food_ration
+      displayName: Food Ration
+      icon: {fileID: 0}
+      category: 2
+      weight: 1
+      baseValue: 7
+    - id: bread
+      displayName: Bread
+      icon: {fileID: 0}
+      category: 2
+      weight: 1
+      baseValue: 8
+    - id: cooked_meat
+      displayName: Cooked Meat
+      icon: {fileID: 0}
+      category: 2
+      weight: 2
+      baseValue: 10
+    - id: stew
+      displayName: Stew
+      icon: {fileID: 0}
+      category: 2
+      weight: 2
+      baseValue: 11
+    - id: cheese
+      displayName: Cheese
+      icon: {fileID: 0}
+      category: 2
+      weight: 1
+      baseValue: 8
+    - id: cheese_platter
+      displayName: Cheese Platter
+      icon: {fileID: 0}
+      category: 2
+      weight: 1
+      baseValue: 10
+    - id: fruit_salad
+      displayName: Fruit Salad
+      icon: {fileID: 0}
+      category: 2
+      weight: 1
+      baseValue: 9
+    - id: smoked_fish
+      displayName: Smoked Fish
+      icon: {fileID: 0}
+      category: 2
+      weight: 1
+      baseValue: 10
+    - id: roasted_vegetables
+      displayName: Roasted Vegetables
+      icon: {fileID: 0}
+      category: 2
+      weight: 1
+      baseValue: 8
+    - id: mushroom_soup
+      displayName: Mushroom Soup
+      icon: {fileID: 0}
+      category: 2
+      weight: 1
+      baseValue: 9
+    - id: meat_pie
+      displayName: Meat Pie
+      icon: {fileID: 0}
+      category: 2
+      weight: 2
+      baseValue: 12
+    - id: construction_beam
+      displayName: Construction Beam
+      icon: {fileID: 0}
+      category: 5
+      weight: 3
+      baseValue: 12
+    - id: tool_kit
+      displayName: Tool Kit
+      icon: {fileID: 0}
+      category: 10
+      weight: 2
+      baseValue: 14

@@ -49,3 +49,207 @@ MonoBehaviour:
     requiresCooking: 1
     perishable: 1
     spoilTime: 180
+  - resource:
+      id: fish
+      displayName: Fish
+      icon: {fileID: 0}
+      category: 2
+      weight: 2
+      baseValue: 5
+    hungerRestore: 28
+    eatTime: 1.6
+    requiresCooking: 0
+    perishable: 1
+    spoilTime: 160
+  - resource:
+      id: stew
+      displayName: Stew
+      icon: {fileID: 0}
+      category: 2
+      weight: 2
+      baseValue: 11
+    hungerRestore: 52
+    eatTime: 2.2
+    requiresCooking: 1
+    perishable: 1
+    spoilTime: 220
+  - resource:
+      id: cheese
+      displayName: Cheese
+      icon: {fileID: 0}
+      category: 2
+      weight: 1
+      baseValue: 8
+    hungerRestore: 26
+    eatTime: 1.2
+    requiresCooking: 0
+    perishable: 1
+    spoilTime: 260
+  - resource:
+      id: eggs
+      displayName: Eggs
+      icon: {fileID: 0}
+      category: 2
+      weight: 1
+      baseValue: 4
+    hungerRestore: 20
+    eatTime: 1.1
+    requiresCooking: 0
+    perishable: 1
+    spoilTime: 130
+  - resource:
+      id: milk
+      displayName: Milk
+      icon: {fileID: 0}
+      category: 2
+      weight: 1
+      baseValue: 4
+    hungerRestore: 16
+    eatTime: 0.9
+    requiresCooking: 0
+    perishable: 1
+    spoilTime: 100
+  - resource:
+      id: food_ration
+      displayName: Food Ration
+      icon: {fileID: 0}
+      category: 2
+      weight: 1
+      baseValue: 7
+    hungerRestore: 40
+    eatTime: 1.0
+    requiresCooking: 0
+    perishable: 0
+    spoilTime: 0
+  - resource:
+      id: raw_meat
+      displayName: Raw Meat
+      icon: {fileID: 0}
+      category: 2
+      weight: 2
+      baseValue: 4
+    hungerRestore: 10
+    eatTime: 1.3
+    requiresCooking: 1
+    perishable: 1
+    spoilTime: 90
+  - resource:
+      id: grain
+      displayName: Grain
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 3
+    hungerRestore: 8
+    eatTime: 0.8
+    requiresCooking: 1
+    perishable: 1
+    spoilTime: 150
+  - resource:
+      id: herbs
+      displayName: Herbs
+      icon: {fileID: 0}
+      category: 2
+      weight: 1
+      baseValue: 4
+    hungerRestore: 6
+    eatTime: 0.6
+    requiresCooking: 0
+    perishable: 1
+    spoilTime: 70
+  - resource:
+      id: wine
+      displayName: Wine
+      icon: {fileID: 0}
+      category: 4
+      weight: 1
+      baseValue: 12
+    hungerRestore: 12
+    eatTime: 1.0
+    requiresCooking: 0
+    perishable: 1
+    spoilTime: 200
+  - resource:
+      id: spices
+      displayName: Spices
+      icon: {fileID: 0}
+      category: 4
+      weight: 0.5
+      baseValue: 9
+    hungerRestore: 4
+    eatTime: 0.4
+    requiresCooking: 0
+    perishable: 1
+    spoilTime: 300
+  - resource:
+      id: cheese_platter
+      displayName: Cheese Platter
+      icon: {fileID: 0}
+      category: 2
+      weight: 1
+      baseValue: 10
+    hungerRestore: 34
+    eatTime: 1.7
+    requiresCooking: 1
+    perishable: 1
+    spoilTime: 180
+  - resource:
+      id: fruit_salad
+      displayName: Fruit Salad
+      icon: {fileID: 0}
+      category: 2
+      weight: 1
+      baseValue: 9
+    hungerRestore: 32
+    eatTime: 1.8
+    requiresCooking: 0
+    perishable: 1
+    spoilTime: 150
+  - resource:
+      id: smoked_fish
+      displayName: Smoked Fish
+      icon: {fileID: 0}
+      category: 2
+      weight: 1
+      baseValue: 10
+    hungerRestore: 38
+    eatTime: 1.6
+    requiresCooking: 1
+    perishable: 1
+    spoilTime: 240
+  - resource:
+      id: roasted_vegetables
+      displayName: Roasted Vegetables
+      icon: {fileID: 0}
+      category: 2
+      weight: 1
+      baseValue: 8
+    hungerRestore: 30
+    eatTime: 1.5
+    requiresCooking: 1
+    perishable: 1
+    spoilTime: 170
+  - resource:
+      id: mushroom_soup
+      displayName: Mushroom Soup
+      icon: {fileID: 0}
+      category: 2
+      weight: 1
+      baseValue: 9
+    hungerRestore: 36
+    eatTime: 1.9
+    requiresCooking: 1
+    perishable: 1
+    spoilTime: 160
+  - resource:
+      id: meat_pie
+      displayName: Meat Pie
+      icon: {fileID: 0}
+      category: 2
+      weight: 2
+      baseValue: 12
+    hungerRestore: 48
+    eatTime: 2.1
+    requiresCooking: 1
+    perishable: 1
+    spoilTime: 210

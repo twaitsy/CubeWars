@@ -269,3 +269,22 @@ Update notes (database/runtime UI pass)
 - SceneRequiredScripts now resolves GameDatabase through GameDatabaseLoader.ResolveLoaded() so validation can still find databases even if loader execution timing differs.
 - Recipes diagnostics now differentiates between "database not loaded" and "recipes list empty" to make setup issues easier to diagnose.
 - Team scenes should keep one active GameDatabaseLoader with a valid GameDatabase assigned so civilians, crafting stations, and resource validation all share the same source of truth.
+
+Database/content minimums used by current setup
+- ResourcesDatabase should contain at least 50 resource entries for common RTS gathering/crafting chains.
+- JobsDatabase should contain at least 10 civilian job definitions.
+- FoodDatabase should contain at least 20 food entries.
+- RecipesDatabase should contain at least 40 recipe entries.
+- ToolsDatabase should contain at least 20 tool entries.
+
+Team bootstrap + civilian equipment requirements
+- TeamBootstrap now supports one-civilian-per-job startup via `spawnOneCivilianPerJob` + `startingJobTypes`.
+- Default startup configuration should include Gatherer, Builder, Hauler, Crafter, Farmer, Technician, Scientist, Engineer, Blacksmith, Carpenter, Cook.
+- Spawned civilians should be initialized with a starting tool appropriate to their configured job.
+
+Resource node assignment behavior
+- ResourceNode keeps manual resource assignment in inspector.
+- If no manual resource is assigned, ResourceNode attempts auto-assignment using the node GameObject name matching a resource id/display name key.
+
+Crafting stability requirement
+- CraftingBuilding and related recipe-selection flows must tolerate incomplete/invalid recipe entries without crashing (null-safe recipe entry handling).

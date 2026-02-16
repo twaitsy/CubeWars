@@ -173,6 +173,35 @@ public class SceneRequiredScripts : MonoBehaviour
 
         if (loaded.recipes == null || loaded.recipes.recipes == null || loaded.recipes.recipes.Count == 0)
             Debug.LogWarning("[SceneRequiredScripts] Recipes diagnostics: no RecipesDatabase entries found. Crafting station inspector recipe selection will be empty.", this);
+
+        ValidateDatabaseMinimums(loaded);
+    }
+
+    void ValidateDatabaseMinimums(GameDatabase loaded)
+    {
+        if (loaded == null)
+            return;
+
+        int resourceCount = loaded.resources != null && loaded.resources.resources != null ? loaded.resources.resources.Count : 0;
+        int jobCount = loaded.jobs != null && loaded.jobs.jobs != null ? loaded.jobs.jobs.Count : 0;
+        int foodCount = loaded.foods != null && loaded.foods.foods != null ? loaded.foods.foods.Count : 0;
+        int recipeCount = loaded.recipes != null && loaded.recipes.recipes != null ? loaded.recipes.recipes.Count : 0;
+        int toolCount = loaded.tools != null && loaded.tools.tools != null ? loaded.tools.tools.Count : 0;
+
+        if (resourceCount < 50)
+            Debug.LogWarning($"[SceneRequiredScripts] Database diagnostics: resources count is {resourceCount}; expected at least 50 for RTS economy coverage.", this);
+
+        if (jobCount < 10)
+            Debug.LogWarning($"[SceneRequiredScripts] Database diagnostics: jobs count is {jobCount}; expected at least 10 civilian job definitions.", this);
+
+        if (foodCount < 20)
+            Debug.LogWarning($"[SceneRequiredScripts] Database diagnostics: foods count is {foodCount}; expected at least 20 food entries.", this);
+
+        if (recipeCount < 40)
+            Debug.LogWarning($"[SceneRequiredScripts] Database diagnostics: recipes count is {recipeCount}; expected at least 40 crafting recipes.", this);
+
+        if (toolCount < 20)
+            Debug.LogWarning($"[SceneRequiredScripts] Database diagnostics: tools count is {toolCount}; expected at least 20 tool definitions.", this);
     }
 
     static int CountMissingScriptComponentsInActiveScene()

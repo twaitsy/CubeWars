@@ -752,6 +752,8 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         jobType = newJobType;
         role = CivilianJobRegistry.GetProfile(jobType).legacyRole;
 
+        GrantStartingToolForCurrentJob();
+
 
         SetTargetNode(null);
         targetSite = null;
@@ -769,6 +771,14 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         }
 
         state = ResolveRoleFallbackState();
+    }
+
+    public void GrantStartingToolForCurrentJob()
+    {
+        if (!CivilianToolRegistry.TryGetPreferredStartingTool(jobType, out CivilianToolType toolType))
+            return;
+
+        equippedTools.Add(toolType);
     }
 
     public void AssignGatherJob(ResourceNode node)
