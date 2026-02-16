@@ -295,7 +295,7 @@ Crafting stability requirement
 
 Worker task priority + crafting role coverage (latest)
 - WorkerTaskGenerationSystem should scan Build/Haul/Craft tasks before Gather tasks.
-- Gather tasks are intentionally lowest priority and should only queue when no other worker tasks are waiting.
+- Gather tasks are generated continuously from available node gather slots, even while other task types are active.
 - Craft task assignment should respect ProductionRecipe.requiredJobType and auto-switch assigned workers into the required job type when a valid craft task is accepted.
 - Team bootstrap should provide at least ~6 crafting-capable specialists at match start to prevent early production deadlocks.
 - UnitInspectorUI Production tab should show why crafting has not started and expose recipe lists inside scroll views.
@@ -303,3 +303,10 @@ Worker task priority + crafting role coverage (latest)
 Crafting assignment registration diagnostics (latest)
 - SceneRequiredScripts now checks for crafting assignment desync where civilians are linked to a CraftingBuilding but the building has fewer registered assigned workers.
 - If warning appears, reassigning those civilians refreshes registration; runtime assignment code should call CraftingBuilding.TryAssignWorker when assigning craft tasks.
+
+
+Workforce dispatcher tuning (2026-02 automatic assignment fixes)
+- WorkerTaskGenerationSystem now continuously emits gather tasks based on ResourceNode open gather slots even when build/haul/craft queues are active.
+- Construction build/haul task generation is now demand-limited per site to avoid unbounded queue growth and job thrashing.
+- Crafting task generation is now worker-slot aware (`GetMaxWorkers` + currently assigned + queued tasks) to avoid over-assignment spam.
+- CraftingBuilding has `maxAssignedHaulers` (default 1) so each crafting building can cap how many Hauler job workers can attach.

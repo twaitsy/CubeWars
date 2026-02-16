@@ -22,13 +22,6 @@ public class WorkerTaskGenerationSystem : MonoBehaviour
 
     void ScanGathering()
     {
-        if (WorkerTaskDispatcher.Instance.GetQueuedTaskCountByType(WorkerTaskType.Build) > 0 ||
-            WorkerTaskDispatcher.Instance.GetQueuedTaskCountByType(WorkerTaskType.Haul) > 0 ||
-            WorkerTaskDispatcher.Instance.GetQueuedTaskCountByType(WorkerTaskType.Craft) > 0)
-        {
-            return;
-        }
-
         ResourceNode[] nodes = FindObjectsOfType<ResourceNode>();
         for (int i = 0; i < nodes.Length; i++)
         {
@@ -55,9 +48,21 @@ public class WorkerTaskGenerationSystem : MonoBehaviour
             if (site == null || site.IsComplete)
                 continue;
 
-            WorkerTaskDispatcher.Instance.QueueTask(WorkerTaskRequest.Build(site.teamID, site));
+            int maxBuilders = Mathf.Max(1, WorkerTaskDispatcher.Instance.GetRegisteredWorkerCount(site.teamID));
+            int currentBuilders = site.AssignedBuilderCount;
+            int queuedBuild = WorkerTaskDispatcher.Instance.GetQueuedBuildTaskCount(site, site.teamID);
+            int buildTasksToQueue = Mathf.Max(0, maxBuilders - currentBuilders - queuedBuild);
+
+            for (int b = 0; b < buildTasksToQueue; b++)
+                WorkerTaskDispatcher.Instance.QueueTask(WorkerTaskRequest.Build(site.teamID, site));
+
             if (!site.MaterialsComplete)
-                WorkerTaskDispatcher.Instance.QueueTask(WorkerTaskRequest.Haul(site.teamID, site));
+            {
+                int queuedHaul = WorkerTaskDispatcher.Instance.GetQueuedHaulTaskCount(site, site.teamID);
+                int haulTasksToQueue = Mathf.Max(0, maxBuilders - queuedHaul);
+                for (int h = 0; h < haulTasksToQueue; h++)
+                    WorkerTaskDispatcher.Instance.QueueTask(WorkerTaskRequest.Haul(site.teamID, site));
+            }
         }
     }
 
@@ -73,7 +78,13 @@ public class WorkerTaskGenerationSystem : MonoBehaviour
             if (!building.NeedsAnyInput() && !building.HasAnyOutputQueued() && !needsWorker)
                 continue;
 
-            WorkerTaskDispatcher.Instance.QueueTask(WorkerTaskRequest.Craft(building.teamID, building));
+            int maxWorkers = Mathf.Max(1, building.GetMaxWorkers());
+            int activeWorkers = building.AssignedWorkers.Count;
+            int queuedCraft = WorkerTaskDispatcher.Instance.GetQueuedCraftTaskCount(building, building.teamID);
+            int missingWorkers = Mathf.Max(0, maxWorkers - activeWorkers - queuedCraft);
+
+            for (int w = 0; w < missingWorkers; w++)
+                WorkerTaskDispatcher.Instance.QueueTask(WorkerTaskRequest.Craft(building.teamID, building));
         }
     }
 }

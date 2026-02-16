@@ -41,6 +41,7 @@ public class CraftingBuilding : Building
 
     [Header("Logistics")]
     public bool requireHaulerLogistics = true;
+    [Min(0)] public int maxAssignedHaulers = 1;
 
     [Header("Assignment")]
     [Range(0, 10)] public int assignmentPriority = 5;
@@ -574,6 +575,13 @@ public class CraftingBuilding : Building
         if (assignedWorkers.Count >= GetMaxWorkers()) return false;
         if (recipe.requiredJobType != CivilianJobType.Generalist && civilian.JobType != recipe.requiredJobType) return false;
 
+        if (requireHaulerLogistics && civilian.JobType == CivilianJobType.Hauler)
+        {
+            int maxHaulers = Mathf.Max(1, maxAssignedHaulers);
+            if (GetAssignedHaulerCount() >= maxHaulers)
+                return false;
+        }
+
         assignedWorkers.Add(civilian);
         return true;
     }
@@ -773,8 +781,9 @@ public class CraftingBuilding : Building
         return best;
     }
 
-    public bool HasAssignedHauler()
+    public int GetAssignedHaulerCount()
     {
+        int count = 0;
         for (int i = assignedWorkers.Count - 1; i >= 0; i--)
         {
             var worker = assignedWorkers[i];
@@ -784,11 +793,16 @@ public class CraftingBuilding : Building
                 continue;
             }
 
-            if (worker.role == CivilianRole.Hauler)
-                return true;
+            if (worker.JobType == CivilianJobType.Hauler)
+                count++;
         }
 
-        return false;
+        return count;
+    }
+
+    public bool HasAssignedHauler()
+    {
+        return GetAssignedHaulerCount() > 0;
     }
 
     public int GetMaxWorkers()

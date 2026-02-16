@@ -106,6 +106,72 @@ public class WorkerTaskDispatcher : MonoBehaviour
         return count;
     }
 
+    public int GetQueuedBuildTaskCount(ConstructionSite site, int teamID = -1)
+    {
+        if (site == null)
+            return 0;
+
+        int count = 0;
+        for (int i = 0; i < queuedTasks.Count; i++)
+        {
+            WorkerTaskRequest task = queuedTasks[i];
+            if (task.taskType != WorkerTaskType.Build)
+                continue;
+            if (task.constructionSite != site)
+                continue;
+            if (teamID >= 0 && task.teamID != teamID)
+                continue;
+
+            count++;
+        }
+
+        return count;
+    }
+
+    public int GetQueuedHaulTaskCount(ConstructionSite site, int teamID = -1)
+    {
+        if (site == null)
+            return 0;
+
+        int count = 0;
+        for (int i = 0; i < queuedTasks.Count; i++)
+        {
+            WorkerTaskRequest task = queuedTasks[i];
+            if (task.taskType != WorkerTaskType.Haul)
+                continue;
+            if (task.constructionSite != site)
+                continue;
+            if (teamID >= 0 && task.teamID != teamID)
+                continue;
+
+            count++;
+        }
+
+        return count;
+    }
+
+    public int GetQueuedCraftTaskCount(CraftingBuilding building, int teamID = -1)
+    {
+        if (building == null)
+            return 0;
+
+        int count = 0;
+        for (int i = 0; i < queuedTasks.Count; i++)
+        {
+            WorkerTaskRequest task = queuedTasks[i];
+            if (task.taskType != WorkerTaskType.Craft)
+                continue;
+            if (task.craftingBuilding != building)
+                continue;
+            if (teamID >= 0 && task.teamID != teamID)
+                continue;
+
+            count++;
+        }
+
+        return count;
+    }
+
     public int GetRegisteredWorkerCount(int teamID = -1)
     {
         if (teamID < 0)
