@@ -1988,17 +1988,30 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     }
     public bool CanPerform(WorkerCapability capability)
     {
-        if (jobDefinition != null)
-            return jobDefinition.HasCapability(capability);
-
+        bool canByCurrentJob;
         switch (capability)
         {
-            case WorkerCapability.Gather: return jobType == CivilianJobType.Gatherer || jobType == CivilianJobType.Generalist;
-            case WorkerCapability.Build: return jobType == CivilianJobType.Builder || jobType == CivilianJobType.Generalist;
-            case WorkerCapability.Haul: return jobType == CivilianJobType.Hauler || jobType == CivilianJobType.Builder || jobType == CivilianJobType.Generalist;
-            case WorkerCapability.Craft: return jobType == CivilianJobType.Crafter || CivilianJobRegistry.GetProfile(jobType).supportsCraftingAssignment;
-            default: return false;
+            case WorkerCapability.Gather:
+                canByCurrentJob = jobType == CivilianJobType.Gatherer || jobType == CivilianJobType.Generalist;
+                break;
+            case WorkerCapability.Build:
+                canByCurrentJob = jobType == CivilianJobType.Builder || jobType == CivilianJobType.Generalist;
+                break;
+            case WorkerCapability.Haul:
+                canByCurrentJob = jobType == CivilianJobType.Hauler || jobType == CivilianJobType.Builder || jobType == CivilianJobType.Generalist;
+                break;
+            case WorkerCapability.Craft:
+                canByCurrentJob = jobType == CivilianJobType.Crafter || CivilianJobRegistry.GetProfile(jobType).supportsCraftingAssignment;
+                break;
+            default:
+                canByCurrentJob = false;
+                break;
         }
+
+        if (canByCurrentJob)
+            return true;
+
+        return jobDefinition != null && jobDefinition.HasCapability(capability);
     }
 
     public bool TryAssignTask(WorkerTaskRequest task)
@@ -2017,7 +2030,8 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
                 SetJobType(CivilianJobType.Builder);
                 return true;
             case WorkerTaskType.Haul:
-                SetJobType(CivilianJobType.Hauler);
+                if (jobType != CivilianJobType.Builder)
+                    SetJobType(CivilianJobType.Hauler);
                 return true;
             case WorkerTaskType.Craft:
                 if (task.craftingBuilding == null) return false;

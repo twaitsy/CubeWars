@@ -177,6 +177,7 @@ public class SceneRequiredScripts : MonoBehaviour
         ValidateDatabaseMinimums(loaded);
         ValidateCraftingRoleCoverage();
         ValidateCraftingAssignmentRegistration();
+        ValidateCraftingHaulerCaps();
     }
 
     void ValidateCraftingRoleCoverage()
@@ -238,6 +239,27 @@ public class SceneRequiredScripts : MonoBehaviour
 
             if (linkedWorkers > building.AssignedWorkers.Count)
                 Debug.LogWarning($"[SceneRequiredScripts] Crafting diagnostics: '{building.name}' has {linkedWorkers} civilian link(s) but only {building.AssignedWorkers.Count} registered worker(s). Reassign affected civilians to refresh assignment registration.", building);
+        }
+    }
+
+
+    void ValidateCraftingHaulerCaps()
+    {
+        CraftingBuilding[] buildings = FindObjectsOfType<CraftingBuilding>();
+
+        for (int i = 0; i < buildings.Length; i++)
+        {
+            CraftingBuilding building = buildings[i];
+            if (building == null || !building.requireHaulerLogistics)
+                continue;
+
+            if (building.maxAssignedHaulers < 1)
+                Debug.LogWarning($"[SceneRequiredScripts] Crafting diagnostics: '{building.name}' has requireHaulerLogistics enabled but maxAssignedHaulers is less than 1. Runtime clamps this to 1.", building);
+
+            int assignedHaulers = building.GetAssignedHaulerCount();
+            int cap = Mathf.Max(1, building.maxAssignedHaulers);
+            if (assignedHaulers > cap)
+                Debug.LogWarning($"[SceneRequiredScripts] Crafting diagnostics: '{building.name}' currently has {assignedHaulers} hauler(s) assigned but cap is {cap}.", building);
         }
     }
 
