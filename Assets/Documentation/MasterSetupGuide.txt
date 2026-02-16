@@ -648,3 +648,9 @@ Latest workforce/crafting reliability updates
   - a status reason string (why production is blocked/not started),
   - scrollable recipe selector,
   - scrollable recipe detail panel.
+
+Crafting worker registration reliability (latest)
+-----------------------------------------------------------------
+- Civilians assigned through WorkerTaskDispatcher craft tasks must also register with the target CraftingBuilding worker list.
+- If a civilian leaves or switches crafting buildings, clear/reassign through Civilian assignment APIs so the building worker registry stays synchronized.
+- Symptom of desync: crafting worker appears at the work point but building status still reports 0 assigned workers and keeps queuing craft-worker tasks.

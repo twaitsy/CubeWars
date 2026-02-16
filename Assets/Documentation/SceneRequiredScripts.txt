@@ -299,3 +299,7 @@ Worker task priority + crafting role coverage (latest)
 - Craft task assignment should respect ProductionRecipe.requiredJobType and auto-switch assigned workers into the required job type when a valid craft task is accepted.
 - Team bootstrap should provide at least ~6 crafting-capable specialists at match start to prevent early production deadlocks.
 - UnitInspectorUI Production tab should show why crafting has not started and expose recipe lists inside scroll views.
+
+Crafting assignment registration diagnostics (latest)
+- SceneRequiredScripts now checks for crafting assignment desync where civilians are linked to a CraftingBuilding but the building has fewer registered assigned workers.
+- If warning appears, reassigning those civilians refreshes registration; runtime assignment code should call CraftingBuilding.TryAssignWorker when assigning craft tasks.

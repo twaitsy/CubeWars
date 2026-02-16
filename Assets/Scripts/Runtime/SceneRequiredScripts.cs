@@ -176,6 +176,7 @@ public class SceneRequiredScripts : MonoBehaviour
 
         ValidateDatabaseMinimums(loaded);
         ValidateCraftingRoleCoverage();
+        ValidateCraftingAssignmentRegistration();
     }
 
     void ValidateCraftingRoleCoverage()
@@ -209,6 +210,34 @@ public class SceneRequiredScripts : MonoBehaviour
 
             if (!hasMatch)
                 Debug.LogWarning($"[SceneRequiredScripts] Crafting diagnostics: '{building.name}' requires {required} but no same-team civilian currently has that job type.", building);
+        }
+    }
+
+    void ValidateCraftingAssignmentRegistration()
+    {
+        CraftingBuilding[] buildings = FindObjectsOfType<CraftingBuilding>();
+        Civilian[] civilians = FindObjectsOfType<Civilian>();
+
+        for (int i = 0; i < buildings.Length; i++)
+        {
+            CraftingBuilding building = buildings[i];
+            if (building == null)
+                continue;
+
+            int linkedWorkers = 0;
+
+            for (int c = 0; c < civilians.Length; c++)
+            {
+                Civilian civ = civilians[c];
+                if (civ == null || civ.teamID != building.teamID)
+                    continue;
+
+                if (civ.AssignedCraftingBuilding == building)
+                    linkedWorkers++;
+            }
+
+            if (linkedWorkers > building.AssignedWorkers.Count)
+                Debug.LogWarning($"[SceneRequiredScripts] Crafting diagnostics: '{building.name}' has {linkedWorkers} civilian link(s) but only {building.AssignedWorkers.Count} registered worker(s). Reassign affected civilians to refresh assignment registration.", building);
         }
     }
 

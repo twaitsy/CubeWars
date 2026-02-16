@@ -1541,6 +1541,18 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
     public void AssignCraftingBuilding(CraftingBuilding building, bool manual = false)
     {
+        if (targetCraftingBuilding != null && targetCraftingBuilding != building)
+            targetCraftingBuilding.RemoveWorker(this);
+
+        if (building != null && !building.TryAssignWorker(this, manual))
+        {
+            if (targetCraftingBuilding == building)
+                targetCraftingBuilding = null;
+
+            state = ResolveRoleFallbackState();
+            return;
+        }
+
         if (jobType == CivilianJobType.Idle || jobType == CivilianJobType.Gatherer || jobType == CivilianJobType.Builder)
             SetJobType(CivilianJobType.Crafter);
 
@@ -1552,7 +1564,10 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     public void ClearCraftingAssignment()
     {
         if (targetCraftingBuilding != null)
+        {
             targetCraftingBuilding.ReleaseWorkPoint(this);
+            targetCraftingBuilding.RemoveWorker(this);
+        }
 
         targetCraftingBuilding = null;
         targetWorkPoint = null;
