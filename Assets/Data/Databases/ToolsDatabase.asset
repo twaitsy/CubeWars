@@ -39,8 +39,8 @@ MonoBehaviour:
     - id: mining
       targetType: 1
       resource:
-        id:
-        displayName:
+        id: 
+        displayName: 
         icon: {fileID: 0}
         category: 0
         weight: 0
@@ -56,8 +56,8 @@ MonoBehaviour:
     - id: construction
       targetType: 1
       resource:
-        id:
-        displayName:
+        id: 
+        displayName: 
         icon: {fileID: 0}
         category: 0
         weight: 0
@@ -73,8 +73,8 @@ MonoBehaviour:
     - id: smithing
       targetType: 1
       resource:
-        id:
-        displayName:
+        id: 
+        displayName: 
         icon: {fileID: 0}
         category: 0
         weight: 0
@@ -85,16 +85,271 @@ MonoBehaviour:
     displayName: Backpack
     icon: {fileID: 0}
     durability: 50
-    baseEfficiency: 1
+    baseEfficiency: 1.0
     bonuses:
     - id: hauling
       targetType: 1
       resource:
-        id:
-        displayName:
+        id: 
+        displayName: 
         icon: {fileID: 0}
         category: 0
         weight: 0
         baseValue: 0
       category: 10
       multiplier: 1.2
+  - id: saw
+    displayName: Saw
+    icon: {fileID: 0}
+    durability: 65
+    baseEfficiency: 1.2
+    bonuses:
+    - id: carpentry
+      targetType: 1
+      resource:
+        id: planks
+        displayName: Planks
+        icon: {fileID: 0}
+        category: 1
+        weight: 2
+        baseValue: 6
+      category: 1
+      multiplier: 1.25
+  - id: shovel
+    displayName: Shovel
+    icon: {fileID: 0}
+    durability: 55
+    baseEfficiency: 1.1
+    bonuses:
+    - id: excavation
+      targetType: 0
+      resource:
+        id: clay
+        displayName: Clay
+        icon: {fileID: 0}
+        category: 0
+        weight: 2
+        baseValue: 2
+      category: 0
+      multiplier: 1.2
+  - id: hoe
+    displayName: Hoe
+    icon: {fileID: 0}
+    durability: 50
+    baseEfficiency: 1.1
+    bonuses:
+    - id: farming
+      targetType: 0
+      resource:
+        id: grain
+        displayName: Grain
+        icon: {fileID: 0}
+        category: 0
+        weight: 1
+        baseValue: 3
+      category: 0
+      multiplier: 1.2
+  - id: watering_can
+    displayName: Watering Can
+    icon: {fileID: 0}
+    durability: 40
+    baseEfficiency: 1.05
+    bonuses:
+    - id: irrigation
+      targetType: 0
+      resource:
+        id: water
+        displayName: Water
+        icon: {fileID: 0}
+        category: 11
+        weight: 1
+        baseValue: 1
+      category: 11
+      multiplier: 1.15
+  - id: fishing_rod
+    displayName: Fishing Rod
+    icon: {fileID: 0}
+    durability: 45
+    baseEfficiency: 1.1
+    bonuses:
+    - id: fishing
+      targetType: 0
+      resource:
+        id: fish
+        displayName: Fish
+        icon: {fileID: 0}
+        category: 2
+        weight: 2
+        baseValue: 5
+      category: 2
+      multiplier: 1.25
+  - id: cleaver
+    displayName: Butcher Cleaver
+    icon: {fileID: 0}
+    durability: 60
+    baseEfficiency: 1.15
+    bonuses:
+    - id: butchery
+      targetType: 0
+      resource:
+        id: raw_meat
+        displayName: Raw Meat
+        icon: {fileID: 0}
+        category: 2
+        weight: 2
+        baseValue: 4
+      category: 2
+      multiplier: 1.2
+  - id: ladle
+    displayName: Cook Ladle
+    icon: {fileID: 0}
+    durability: 50
+    baseEfficiency: 1.1
+    bonuses:
+    - id: cooking
+      targetType: 0
+      resource:
+        id: stew
+        displayName: Stew
+        icon: {fileID: 0}
+        category: 2
+        weight: 2
+        baseValue: 11
+      category: 2
+      multiplier: 1.2
+  - id: mortar_pestle
+    displayName: Mortar & Pestle
+    icon: {fileID: 0}
+    durability: 40
+    baseEfficiency: 1.08
+    bonuses:
+    - id: alchemy
+      targetType: 0
+      resource:
+        id: herbs
+        displayName: Herbs
+        icon: {fileID: 0}
+        category: 2
+        weight: 1
+        baseValue: 4
+      category: 2
+      multiplier: 1.18
+  - id: wrench
+    displayName: Wrench
+    icon: {fileID: 0}
+    durability: 75
+    baseEfficiency: 1.2
+    bonuses:
+    - id: engineering
+      targetType: 1
+      resource:
+        id: machine_parts
+        displayName: Machine Parts
+        icon: {fileID: 0}
+        category: 5
+        weight: 3
+        baseValue: 13
+      category: 5
+      multiplier: 1.25
+  - id: soldering_iron
+    displayName: Soldering Iron
+    icon: {fileID: 0}
+    durability: 70
+    baseEfficiency: 1.25
+    bonuses:
+    - id: electronics
+      targetType: 1
+      resource:
+        id: circuit
+        displayName: Circuit
+        icon: {fileID: 0}
+        category: 7
+        weight: 1
+        baseValue: 15
+      category: 7
+      multiplier: 1.3
+  - id: calipers
+    displayName: Precision Calipers
+    icon: {fileID: 0}
+    durability: 65
+    baseEfficiency: 1.18
+    bonuses:
+    - id: fabrication
+      targetType: 1
+      resource:
+        id: gears
+        displayName: Gears
+        icon: {fileID: 0}
+        category: 5
+        weight: 2
+        baseValue: 10
+      category: 5
+      multiplier: 1.22
+  - id: quill
+    displayName: Research Quill
+    icon: {fileID: 0}
+    durability: 35
+    baseEfficiency: 1.12
+    bonuses:
+    - id: research
+      targetType: 1
+      resource:
+        id: research_data
+        displayName: Research Data
+        icon: {fileID: 0}
+        category: 7
+        weight: 0.5
+        baseValue: 20
+      category: 7
+      multiplier: 1.2
+  - id: spear
+    displayName: Hunting Spear
+    icon: {fileID: 0}
+    durability: 60
+    baseEfficiency: 1.1
+    bonuses:
+    - id: hunting
+      targetType: 0
+      resource:
+        id: hide
+        displayName: Hide
+        icon: {fileID: 0}
+        category: 0
+        weight: 2
+        baseValue: 4
+      category: 0
+      multiplier: 1.2
+  - id: machete
+    displayName: Machete
+    icon: {fileID: 0}
+    durability: 55
+    baseEfficiency: 1.15
+    bonuses:
+    - id: foraging
+      targetType: 0
+      resource:
+        id: berries
+        displayName: Berries
+        icon: {fileID: 0}
+        category: 2
+        weight: 1
+        baseValue: 3
+      category: 2
+      multiplier: 1.2
+  - id: cart
+    displayName: Hand Cart
+    icon: {fileID: 0}
+    durability: 90
+    baseEfficiency: 1.05
+    bonuses:
+    - id: bulk_haul
+      targetType: 1
+      resource:
+        id: 
+        displayName: 
+        icon: {fileID: 0}
+        category: 0
+        weight: 0
+        baseValue: 0
+      category: 10
+      multiplier: 1.35

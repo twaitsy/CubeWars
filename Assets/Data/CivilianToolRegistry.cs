@@ -49,4 +49,34 @@ public static class CivilianToolRegistry
     {
         return profile.requiredJob == CivilianJobType.Generalist || profile.requiredJob == jobType;
     }
+
+    public static bool TryGetPreferredStartingTool(CivilianJobType jobType, out CivilianToolType toolType)
+    {
+        toolType = CivilianToolType.RunningShoes;
+
+        switch (jobType)
+        {
+            case CivilianJobType.Gatherer:
+            case CivilianJobType.Farmer:
+                toolType = CivilianToolType.Pickaxe;
+                return true;
+            case CivilianJobType.Builder:
+            case CivilianJobType.Carpenter:
+                toolType = CivilianToolType.Trowel;
+                return true;
+            case CivilianJobType.Hauler:
+                toolType = CivilianToolType.Backpack;
+                return true;
+            case CivilianJobType.Technician:
+            case CivilianJobType.Engineer:
+            case CivilianJobType.Scientist:
+            case CivilianJobType.Crafter:
+            case CivilianJobType.Blacksmith:
+            case CivilianJobType.Cook:
+                toolType = CivilianToolType.Spanner;
+                return true;
+            default:
+                return false;
+        }
+    }
 }

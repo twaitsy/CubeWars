@@ -13,11 +13,21 @@ MonoBehaviour:
   m_Name: JobsDatabase
   m_EditorClassIdentifier: 
   jobs:
-  - {fileID: 11400000, guid: fd5a9599b2a64b9b93aea216d5a4da6b, type: 2}
+  - {fileID: 11400000, guid: 056d18ef8cc840af8ce1987dcc8f17fe, type: 2}
+  - {fileID: 11400000, guid: 95ee392ae2904112bbe048a59936b157, type: 2}
   - {fileID: 11400000, guid: 45d0a49d9d464d97828fdd711a40597f, type: 2}
-  - {fileID: 11400000, guid: 9c846f7449194b85a287cb195e16f3a3, type: 2}
+  - {fileID: 11400000, guid: b1d469f3f71a4f7d96471b5c6e8fd4fa, type: 2}
+  - {fileID: 11400000, guid: 64a103ede7744ff7a521f270c0e2d116, type: 2}
   - {fileID: 11400000, guid: 0c65a1e1135b405c85bd13786f978c91, type: 2}
   - {fileID: 11400000, guid: b4e9d5825f5e45d8aefab1f6d20a0eb1, type: 2}
-  - {fileID: 11400000, guid: 64a103ede7744ff7a521f270c0e2d116, type: 2}
-  - {fileID: 11400000, guid: 056d18ef8cc840af8ce1987dcc8f17fe, type: 2}
-  - {fileID: 11400000, guid: b1d469f3f71a4f7d96471b5c6e8fd4fa, type: 2}
+  - {fileID: 11400000, guid: fd5a9599b2a64b9b93aea216d5a4da6b, type: 2}
+  - {fileID: 11400000, guid: 9c846f7449194b85a287cb195e16f3a3, type: 2}
+  - {fileID: 11400000, guid: 6c9d5645b28f40f78cb12a3d354c9d87, type: 2}
+  - {fileID: 11400000, guid: efbc013e329140f48665de65d2e42af4, type: 2}
+  - {fileID: 11400000, guid: d1fc03746bd84da792cb94dc81432321, type: 2}
+  - {fileID: 11400000, guid: 7f093a75130c42d79346063928d0ad65, type: 2}
+  - {fileID: 11400000, guid: 74a98e972d0a4f1db80b6da351f031c0, type: 2}
+  - {fileID: 11400000, guid: fff401316fb2430dbaaec2e789ee0432, type: 2}
+  - {fileID: 11400000, guid: ce53c0f6f7024395a51bf1131dd7817d, type: 2}
+  - {fileID: 11400000, guid: a39c5c29488a4b1aa407617a0edc799d, type: 2}
+  - {fileID: 11400000, guid: e6a6d78f41a64f2ba67bfb72c6322e1d, type: 2}

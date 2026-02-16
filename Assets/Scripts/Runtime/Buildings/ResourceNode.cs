@@ -35,6 +35,9 @@ public class ResourceNode : MonoBehaviour
     void ValidateConfiguration()
     {
         if (resource == null)
+            TryAutoAssignResourceFromAssetName();
+
+        if (resource == null)
         {
             Debug.LogWarning($"[{nameof(ResourceNode)}] {name}: no ResourceDefinition assigned.", this);
             return;
@@ -72,6 +75,23 @@ public class ResourceNode : MonoBehaviour
             Debug.LogWarning($"[{nameof(ResourceNode)}] {name}: resource '{resource.id}' is not present in loaded ResourcesDatabase.", this);
     }
 
+
+    void TryAutoAssignResourceFromAssetName()
+    {
+        string candidate = ResourceIdUtility.GetKey(name);
+        if (string.IsNullOrEmpty(candidate))
+            return;
+
+        GameDatabase loaded = GameDatabaseLoader.ResolveLoaded();
+        if (loaded != null && loaded.resources != null && loaded.resources.TryGetById(candidate, out ResourceDefinition loadedResource) && loadedResource != null)
+        {
+            resource = loadedResource;
+            return;
+        }
+
+        if (ResourcesDatabase.Instance != null && ResourcesDatabase.Instance.TryGetById(candidate, out ResourceDefinition globalResource) && globalResource != null)
+            resource = globalResource;
+    }
     void OnDisable()
     {
         if (ResourceRegistry.Instance != null)
