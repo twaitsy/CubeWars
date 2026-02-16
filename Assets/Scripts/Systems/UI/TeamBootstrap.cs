@@ -82,6 +82,21 @@ public class TeamBootstrap : MonoBehaviour
     [Tooltip("Legacy fallback role assigned to spawned workers when civilianGroups is empty.")]
     public CivilianRole startingWorkerRole = CivilianRole.Gatherer;
 
+    [Header("Starter Specialists")]
+    [Tooltip("Spawn extra specialist workers for crafting chains.")]
+    public bool spawnStarterSpecialists = true;
+
+    [Tooltip("Specialist jobs spawned when spawnStarterSpecialists is enabled.")]
+    public List<CivilianJobType> starterSpecialistJobs = new List<CivilianJobType>
+    {
+        CivilianJobType.Carpenter,
+        CivilianJobType.Blacksmith,
+        CivilianJobType.Cook,
+        CivilianJobType.Farmer,
+        CivilianJobType.Engineer,
+        CivilianJobType.Crafter
+    };
+
     [Header("Starting Combat Units")]
     [Tooltip("Detailed starting combat unit setup. If empty, legacy unit fields are used.")]
     public List<StartingUnitGroup> startingUnitGroups = new List<StartingUnitGroup>();
@@ -154,6 +169,7 @@ public class TeamBootstrap : MonoBehaviour
         foreach (var team in teams)
             SetupStartingBuildings(team, grid);
 
+        AssignStarterCrafterRecipes(teams);
         grid.RefreshPlayerGridVisibility();
     }
 
@@ -192,6 +208,38 @@ public class TeamBootstrap : MonoBehaviour
                     quarterTurns = 0,
                     yOffset = 0f
                 });
+            }
+        }
+    }
+
+    void AssignStarterCrafterRecipes(Team[] teams)
+    {
+        GameDatabase loaded = GameDatabaseLoader.ResolveLoaded();
+        if (loaded == null || loaded.recipes == null || loaded.recipes.recipes == null || loaded.recipes.recipes.Count == 0)
+            return;
+
+        for (int t = 0; t < teams.Length; t++)
+        {
+            Team team = teams[t];
+            if (team == null)
+                continue;
+
+            CraftingBuilding[] buildings = FindObjectsOfType<CraftingBuilding>();
+            int assigned = 0;
+            for (int i = 0; i < buildings.Length; i++)
+            {
+                CraftingBuilding building = buildings[i];
+                if (building == null || building.teamID != team.teamID)
+                    continue;
+
+                ProductionRecipeDefinition recipe = loaded.recipes.recipes[assigned % loaded.recipes.recipes.Count];
+                if (recipe == null)
+                    continue;
+
+                building.SetRecipe(recipe);
+                assigned++;
+                if (assigned >= 6)
+                    break;
             }
         }
     }
@@ -263,6 +311,19 @@ public class TeamBootstrap : MonoBehaviour
             for (int i = 0; i < startingWorkers; i++)
             {
                 SpawnCivilian(team, hq, workerPrefab, startingWorkerRole, CivilianJobRegistry.ToJobType(startingWorkerRole), spawnIndex);
+                spawnIndex++;
+            }
+        }
+
+        if (spawnStarterSpecialists && workerPrefab != null && starterSpecialistJobs != null)
+        {
+            for (int i = 0; i < starterSpecialistJobs.Count; i++)
+            {
+                CivilianJobType jobType = starterSpecialistJobs[i];
+                if (jobType == CivilianJobType.Generalist || jobType == CivilianJobType.Idle)
+                    continue;
+
+                SpawnCivilian(team, hq, workerPrefab, CivilianJobRegistry.GetProfile(jobType).legacyRole, jobType, spawnIndex);
                 spawnIndex++;
             }
         }

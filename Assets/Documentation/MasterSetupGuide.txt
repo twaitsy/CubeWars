@@ -635,3 +635,16 @@ If no resource is manually assigned:
 - ResourceNode attempts to auto-resolve by matching node GameObject name to a resource id/display key from loaded/global ResourcesDatabase.
 
 This allows rapid map authoring when node names follow resource ids.
+
+-----------------------------------------------------------------
+Latest workforce/crafting reliability updates
+-----------------------------------------------------------------
+- WorkerTaskGenerationSystem now prioritizes Build/Haul/Craft over Gather, so gathering only fills idle time.
+- Crafting jobs now carry required recipe job metadata to avoid assigning the wrong worker specialization.
+- Civilians can auto-switch to the required crafting job when they accept a valid craft task.
+- CraftingBuilding now supports an in-world progress bar (WorldProgressBar) to visualize production progress.
+- TeamBootstrap can spawn a starter set of specialist crafting workers and auto-assign recipes across up to six crafting buildings per team.
+- UnitInspectorUI Production tab now includes:
+  - a status reason string (why production is blocked/not started),
+  - scrollable recipe selector,
+  - scrollable recipe detail panel.

@@ -15,13 +15,20 @@ public class WorkerTaskGenerationSystem : MonoBehaviour
             return;
 
         timer = 0f;
-        ScanGathering();
         ScanBuildingAndHauling();
         ScanCrafting();
+        ScanGathering();
     }
 
     void ScanGathering()
     {
+        if (WorkerTaskDispatcher.Instance.GetQueuedTaskCountByType(WorkerTaskType.Build) > 0 ||
+            WorkerTaskDispatcher.Instance.GetQueuedTaskCountByType(WorkerTaskType.Haul) > 0 ||
+            WorkerTaskDispatcher.Instance.GetQueuedTaskCountByType(WorkerTaskType.Craft) > 0)
+        {
+            return;
+        }
+
         ResourceNode[] nodes = FindObjectsOfType<ResourceNode>();
         for (int i = 0; i < nodes.Length; i++)
         {
@@ -62,7 +69,8 @@ public class WorkerTaskGenerationSystem : MonoBehaviour
             CraftingBuilding building = buildings[i];
             if (building == null || !building.isActiveAndEnabled)
                 continue;
-            if (!building.NeedsAnyInput() && !building.HasAnyOutputQueued())
+            bool needsWorker = building.State == CraftingBuilding.ProductionState.InputsReady;
+            if (!building.NeedsAnyInput() && !building.HasAnyOutputQueued() && !needsWorker)
                 continue;
 
             WorkerTaskDispatcher.Instance.QueueTask(WorkerTaskRequest.Craft(building.teamID, building));

@@ -50,6 +50,12 @@ public class CraftingBuilding : Building
     public ParticleSystem[] productionEffects;
     public AudioSource productionLoopAudio;
 
+    [Header("Progress UI")]
+    public bool showProgressBar = true;
+    public Vector3 progressBarOffset = new Vector3(0f, 2.8f, 0f);
+    public float progressBarWidth = 1.4f;
+    public float progressBarHeight = 0.12f;
+
     [Header("Upgrades")]
     public List<BuildingUpgradeTier> upgrades = new List<BuildingUpgradeTier>();
 
@@ -69,6 +75,7 @@ public class CraftingBuilding : Building
     float craftTimer;
     float craftDuration;
     int upgradeLevel;
+    WorldProgressBar progressBar;
 
 
     protected override void ApplyDefinition(BuildingDefinition def)
@@ -89,6 +96,7 @@ public class CraftingBuilding : Building
         base.Start();
         InitializeResourceMaps();
         state = ProductionState.WaitingForInputs;
+        EnsureProgressBar();
         CraftingJobManager.Instance?.RegisterBuilding(this);
     }
 
@@ -106,6 +114,63 @@ public class CraftingBuilding : Building
     {
         TickState();
         TickProductionFx();
+        TickProgressBar();
+    }
+
+    void EnsureProgressBar()
+    {
+        if (!showProgressBar)
+            return;
+
+        if (progressBar == null)
+            progressBar = GetComponent<WorldProgressBar>();
+
+        if (progressBar == null)
+            progressBar = gameObject.AddComponent<WorldProgressBar>();
+
+        progressBar.offset = progressBarOffset;
+        progressBar.width = Mathf.Max(0.1f, progressBarWidth);
+        progressBar.height = Mathf.Max(0.02f, progressBarHeight);
+        progressBar.hideWhenZero = true;
+        progressBar.progress01 = 0f;
+    }
+
+    void TickProgressBar()
+    {
+        if (!showProgressBar)
+            return;
+
+        if (progressBar == null)
+            EnsureProgressBar();
+
+        if (progressBar == null)
+            return;
+
+        progressBar.progress01 = state == ProductionState.InProgress ? CraftProgress01 : 0f;
+    }
+
+    public string GetProductionBlockerReason()
+    {
+        if (recipe == null)
+            return "No recipe selected.";
+
+        switch (state)
+        {
+            case ProductionState.WaitingForInputs:
+                return $"Missing inputs: {GetMissingInputSummary()}";
+            case ProductionState.InputsReady:
+                return "Inputs ready, waiting for a worker with the required job.";
+            case ProductionState.WaitingForPickup:
+                return "Output buffer is full and must be hauled to storage.";
+            case ProductionState.Idle:
+                return "Building is idle.";
+            case ProductionState.InProgress:
+                return "Production is running.";
+            case ProductionState.OutputReady:
+                return "Outputs are ready to collect.";
+            default:
+                return string.Empty;
+        }
     }
 
     void InitializeResourceMaps()

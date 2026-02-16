@@ -292,3 +292,10 @@ Crafting stability requirement
 [2026-02 resource node auto-assignment compile fix]
 - ResourceNode now uses the node GameObject name token directly when attempting auto-assignment from ResourcesDatabase IDs/display names.
 - Keep node names aligned with resource IDs/display names if relying on auto-assignment fallback.
+
+Worker task priority + crafting role coverage (latest)
+- WorkerTaskGenerationSystem should scan Build/Haul/Craft tasks before Gather tasks.
+- Gather tasks are intentionally lowest priority and should only queue when no other worker tasks are waiting.
+- Craft task assignment should respect ProductionRecipe.requiredJobType and auto-switch assigned workers into the required job type when a valid craft task is accepted.
+- Team bootstrap should provide at least ~6 crafting-capable specialists at match start to prevent early production deadlocks.
+- UnitInspectorUI Production tab should show why crafting has not started and expose recipe lists inside scroll views.
