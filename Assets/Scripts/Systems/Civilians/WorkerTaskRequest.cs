@@ -8,6 +8,7 @@ public struct WorkerTaskRequest
     public ResourceNode resourceNode;
     public ConstructionSite constructionSite;
     public CraftingBuilding craftingBuilding;
+    public CivilianJobType requiredCraftJobType;
 
     public static WorkerTaskRequest Gather(int teamID, ResourceNode node)
     {
@@ -49,7 +50,10 @@ public struct WorkerTaskRequest
             taskType = WorkerTaskType.Craft,
             requiredCapability = WorkerCapability.Craft,
             teamID = teamID,
-            craftingBuilding = building
+            craftingBuilding = building,
+            requiredCraftJobType = building != null && building.recipe != null
+                ? building.recipe.requiredJobType
+                : CivilianJobType.Generalist
         };
     }
 }

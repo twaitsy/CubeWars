@@ -175,6 +175,41 @@ public class SceneRequiredScripts : MonoBehaviour
             Debug.LogWarning("[SceneRequiredScripts] Recipes diagnostics: no RecipesDatabase entries found. Crafting station inspector recipe selection will be empty.", this);
 
         ValidateDatabaseMinimums(loaded);
+        ValidateCraftingRoleCoverage();
+    }
+
+    void ValidateCraftingRoleCoverage()
+    {
+        CraftingBuilding[] buildings = FindObjectsOfType<CraftingBuilding>();
+        Civilian[] civilians = FindObjectsOfType<Civilian>();
+
+        for (int i = 0; i < buildings.Length; i++)
+        {
+            CraftingBuilding building = buildings[i];
+            if (building == null || building.recipe == null)
+                continue;
+
+            CivilianJobType required = building.recipe.requiredJobType;
+            if (required == CivilianJobType.Generalist || required == CivilianJobType.Idle)
+                continue;
+
+            bool hasMatch = false;
+            for (int c = 0; c < civilians.Length; c++)
+            {
+                Civilian civ = civilians[c];
+                if (civ == null || civ.teamID != building.teamID)
+                    continue;
+
+                if (civ.JobType == required)
+                {
+                    hasMatch = true;
+                    break;
+                }
+            }
+
+            if (!hasMatch)
+                Debug.LogWarning($"[SceneRequiredScripts] Crafting diagnostics: '{building.name}' requires {required} but no same-team civilian currently has that job type.", building);
+        }
     }
 
     void ValidateDatabaseMinimums(GameDatabase loaded)

@@ -31,6 +31,8 @@ public class UnitInspectorUI : MonoBehaviour
     private GameObject selected;
     private InspectorTab currentTab = InspectorTab.Info;
     private readonly List<InspectorTab> activeTabs = new List<InspectorTab>();
+    private Vector2 recipeSelectionScroll;
+    private Vector2 recipeDetailsScroll;
     public bool show = true;
 
     public void SetSelected(GameObject obj)
@@ -284,6 +286,7 @@ public class UnitInspectorUI : MonoBehaviour
         }
         DrawRecipeSelection(crafting);
         GUILayout.Label($"State: {crafting.State}");
+        GUILayout.Label($"Status: {crafting.GetProductionBlockerReason()}");
         GUILayout.Label($"Missing Inputs: {crafting.GetMissingInputSummary()}");
         GUILayout.Label($"Progress: {crafting.CraftProgress01:P0}");
         DrawRecipeSummary(crafting.recipe);
@@ -300,6 +303,7 @@ public class UnitInspectorUI : MonoBehaviour
             return;
         }
         GUILayout.Label("Recipe", GUI.skin.box);
+        recipeSelectionScroll = GUILayout.BeginScrollView(recipeSelectionScroll, GUILayout.Height(160f));
         for (int i = 0; i < recipesDb.recipes.Count; i++)
         {
             ProductionRecipeDefinition option = recipesDb.recipes[i];
@@ -310,6 +314,7 @@ public class UnitInspectorUI : MonoBehaviour
                 crafting.SetRecipe(option);
             GUI.enabled = true;
         }
+        GUILayout.EndScrollView();
     }
 
     void DrawRecipeSummary(ProductionRecipeDefinition recipe)
@@ -321,6 +326,7 @@ public class UnitInspectorUI : MonoBehaviour
         }
         GUILayout.Space(4f);
         GUILayout.Label("Recipe Details", GUI.skin.box);
+        recipeDetailsScroll = GUILayout.BeginScrollView(recipeDetailsScroll, GUILayout.Height(180f));
         GUILayout.Label($"Name: {recipe.recipeName}");
         GUILayout.Label($"Required Job: {recipe.requiredJobType}");
         GUILayout.Label($"Craft Time: {recipe.craftTimeSeconds:0.##}s");
@@ -349,6 +355,7 @@ public class UnitInspectorUI : MonoBehaviour
                 GUILayout.Label($"- {output.resource.displayName}: {output.amount}");
             }
         }
+        GUILayout.EndScrollView();
     }
 
     void DrawTrainingQueue()

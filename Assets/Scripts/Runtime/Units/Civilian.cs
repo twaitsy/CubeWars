@@ -186,6 +186,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     private Vector3 idleWanderTarget;
     private float stalledAtWorkPointTimer;
     private WorldProgressBar gatherProgressBar;
+    private bool loggedInactiveNavAgentWarning;
 
     void Awake()
     {
@@ -1351,9 +1352,31 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
     bool Arrived()
     {
+        if (agent == null || !agent.enabled || !agent.gameObject.activeInHierarchy || !agent.isOnNavMesh)
+        {
+            LogInvalidNavMeshAgent("Arrived");
+            return false;
+        }
+
+        loggedInactiveNavAgentWarning = false;
+
         if (agent.pathPending) return false;
+        if (!agent.hasPath) return false;
         if (agent.remainingDistance == Mathf.Infinity) return false;
         return agent.remainingDistance <= agent.stoppingDistance;
+    }
+
+    void LogInvalidNavMeshAgent(string callsite)
+    {
+        if (loggedInactiveNavAgentWarning)
+            return;
+
+        loggedInactiveNavAgentWarning = true;
+
+        string objectName = gameObject != null ? gameObject.name : "Unknown";
+        string stateName = state.ToString();
+        string triggerPath = $"{nameof(Civilian)}.{callsite} -> {nameof(Civilian)}.{nameof(TickSeekFoodStorage)} / {nameof(Civilian)}.{nameof(TickGoWorkPoint)} / {nameof(Civilian)}.{nameof(TickCraftAtWorkPoint)}";
+        Debug.LogWarning($"[{nameof(Civilian)}] Invalid NavMeshAgent access on '{objectName}' (team {teamID}, state {stateName}). Trigger path: {triggerPath}. activeInHierarchy={gameObject.activeInHierarchy}, agentEnabled={(agent != null && agent.enabled)}, isOnNavMesh={(agent != null && agent.isOnNavMesh)}", this);
     }
 
     int GetCarryCapacity()
@@ -1983,6 +2006,8 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
                 return true;
             case WorkerTaskType.Craft:
                 if (task.craftingBuilding == null) return false;
+                if (task.requiredCraftJobType != CivilianJobType.Generalist && task.requiredCraftJobType != CivilianJobType.Idle && jobType != task.requiredCraftJobType)
+                    SetJobType(task.requiredCraftJobType);
                 AssignCraftingBuilding(task.craftingBuilding);
                 return true;
             default:

@@ -89,6 +89,23 @@ public class WorkerTaskDispatcher : MonoBehaviour
         return count;
     }
 
+    public int GetQueuedTaskCountByType(WorkerTaskType taskType, int teamID = -1)
+    {
+        int count = 0;
+        for (int i = 0; i < queuedTasks.Count; i++)
+        {
+            WorkerTaskRequest task = queuedTasks[i];
+            if (task.taskType != taskType)
+                continue;
+            if (teamID >= 0 && task.teamID >= 0 && task.teamID != teamID)
+                continue;
+
+            count++;
+        }
+
+        return count;
+    }
+
     public int GetRegisteredWorkerCount(int teamID = -1)
     {
         if (teamID < 0)
@@ -176,6 +193,8 @@ public class WorkerTaskDispatcher : MonoBehaviour
             if (!IsWorkerAvailable(worker))
                 continue;
             if (!worker.CanPerform(task.requiredCapability))
+                continue;
+            if (task.taskType == WorkerTaskType.Craft && !worker.CanTakeCraftingAssignment(task.requiredCraftJobType))
                 continue;
 
             float distance = (worker.transform.position - ResolveTaskPosition(task)).sqrMagnitude;
