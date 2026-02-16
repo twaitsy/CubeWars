@@ -516,9 +516,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c318d4386374e344b908586ac99d702, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 8
-  material: {fileID: 2100000, guid: f9f5983069e47c649bd3cab7d436eb0c, type: 2}
-  rebuild: 0
+  resource:
+    id: 
+    displayName: 
+    icon: {fileID: 0}
+    category: 0
+    weight: 1
+    baseValue: 1
+  defaultColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!54 &8407079105954863039
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -561,12 +566,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   resource:
-    id: lithium
-    displayName: Lithium
+    id: iron_ingot
+    displayName: Iron Ingot
     icon: {fileID: 0}
-    category: 0
-    weight: 1
-    baseValue: 1
+    category: 1
+    weight: 3
+    baseValue: 9
   remaining: 5000
   maxGatherers: 2
   claimedByTeam: -1

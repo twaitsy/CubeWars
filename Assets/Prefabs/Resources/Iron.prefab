@@ -551,8 +551,8 @@ MonoBehaviour:
     displayName: Iron Ore
     icon: {fileID: 0}
     category: 0
-    weight: 99
-    baseValue: 99
+    weight: 4
+    baseValue: 5
   remaining: 50
   maxGatherers: 2
   claimedByTeam: -1
