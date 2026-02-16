@@ -102,9 +102,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2578880305611124680}
+  - component: {fileID: 8299532770504361808}
   - component: {fileID: 2132388619435381168}
   - component: {fileID: 4259878123215558097}
-  - component: {fileID: 8299532770504361808}
   - component: {fileID: 2283692263590751052}
   - component: {fileID: 5483847372183470645}
   m_Layer: 0
@@ -131,6 +131,28 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8299532770504361808
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1341854994968595624}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63ac4561ce22b114493a05ad20c730ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  resource:
+    id: berries
+    displayName: Berries
+    icon: {fileID: 0}
+    category: 2
+    weight: 1
+    baseValue: 3
+  remaining: 5000
+  maxGatherers: 2
+  claimedByTeam: -1
 --- !u!54 &2132388619435381168
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -160,28 +182,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &8299532770504361808
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1341854994968595624}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 63ac4561ce22b114493a05ad20c730ae, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  resource:
-    id: berries
-    displayName: Berries
-    icon: {fileID: 0}
-    category: 2
-    weight: 1
-    baseValue: 3
-  remaining: 50
-  maxGatherers: 2
-  claimedByTeam: -1
 --- !u!208 &2283692263590751052
 NavMeshObstacle:
   m_ObjectHideFlags: 0

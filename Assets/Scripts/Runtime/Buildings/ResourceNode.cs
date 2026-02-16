@@ -4,6 +4,15 @@ using System.Collections.Generic;
 
 public class ResourceNode : MonoBehaviour
 {
+#if UNITY_EDITOR
+    /// <summary>
+    /// Public wrapper so the Editor can safely auto-assign using the same logic as runtime.
+    /// </summary>
+    public void EditorAutoAssignFromPrefabName()
+    {
+        TryAutoAssignResourceFromAssetName();
+    }
+#endif
     [Header("Resource")]
     public ResourceDefinition resource;
 

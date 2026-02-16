@@ -1,15 +1,16 @@
 ﻿#if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
+using System.Collections.Generic;
+using System.Linq;
 
 [CustomEditor(typeof(ResourceNode))]
+[CanEditMultipleObjects]
 public class ResourceNodeEditor : Editor
 {
-    ResourceNode node;
-    ResourcesDatabase db;
-    ResourceDefinition[] defs;
-    string[] names;
-    int index;
+    private ResourceNode node;
+    private ResourcesDatabase db;
+    private List<ResourceDefinition> defs = new List<ResourceDefinition>();
 
     void OnEnable()
     {
@@ -19,55 +20,67 @@ public class ResourceNodeEditor : Editor
             "Assets/Data/Databases/ResourcesDatabase.asset"
         );
 
-        if (db == null || db.resources == null || db.resources.Count == 0)
+        if (db == null || db.resources == null)
         {
-            defs = new ResourceDefinition[0];
-            names = new[] { "NO DATABASE FOUND" };
-            index = -1;
+            defs.Clear();
             return;
         }
 
-        defs = db.resources.ToArray();
-        names = new string[defs.Length];
-        index = -1;
+        defs = db.resources.ToList();
 
-        for (int i = 0; i < defs.Length; i++)
-        {
-            ResourceDefinition def = defs[i];
-            names[i] = def != null ? def.displayName : "(Missing Entry)";
-            if (node.resource == def)
-                index = i;
-        }
+        // This is the line that finally works reliably
+        if (node.resource == null)
+            node.EditorAutoAssignFromPrefabName();
     }
 
     public override void OnInspectorGUI()
     {
         serializedObject.Update();
 
-        if (defs == null || defs.Length == 0)
-        {
-            EditorGUILayout.HelpBox("No ResourceDefinitions found in ResourcesDatabase.asset.", MessageType.Warning);
-        }
-        else
-        {
-            if (node.resource != null && index < 0)
-                EditorGUILayout.HelpBox($"Current resource '{node.resource.displayName}' is not from ResourcesDatabase.asset. Re-select to migrate.", MessageType.Info);
+        // ── SEARCHABLE PICKER ─────────────────────────────────────────────
+        ResourceDefinition current = node.resource;
+        string buttonLabel = current != null ? current.displayName : "— None —";
 
-            int displayedIndex = Mathf.Clamp(index, 0, defs.Length - 1);
-            int newIndex = EditorGUILayout.Popup("Resource", displayedIndex, names);
-            if (newIndex != index && newIndex >= 0 && newIndex < defs.Length)
-            {
-                Undo.RecordObject(node, "Change Resource");
-                index = newIndex;
-                node.resource = defs[index];
-                EditorUtility.SetDirty(node);
-            }
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.PrefixLabel("Resource");
+        if (GUILayout.Button(buttonLabel, EditorStyles.popup, GUILayout.MinWidth(200)))
+        {
+            ShowSearchablePicker();
         }
+        EditorGUILayout.EndHorizontal();
 
+        if (current == null)
+            EditorGUILayout.HelpBox("Auto-assign ran from prefab name. Use the button to pick manually.", MessageType.Info);
+
+        // Other fields
         EditorGUILayout.PropertyField(serializedObject.FindProperty("remaining"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("maxGatherers"));
 
+        DrawPropertiesExcluding(serializedObject, "resource", "remaining", "maxGatherers");
+
         serializedObject.ApplyModifiedProperties();
+    }
+
+    private void ShowSearchablePicker()
+    {
+        List<object> items = defs.Cast<object>().ToList();
+
+        SearchablePickerPopup.Show(
+            new Rect(Event.current.mousePosition, Vector2.zero),
+            items,
+            item => (item as ResourceDefinition)?.displayName ?? "None",
+            item => (item as ResourceDefinition)?.id ?? "",
+            item =>
+            {
+                if (item is ResourceDefinition selected)
+                {
+                    Undo.RecordObject(node, "Change Resource");
+                    node.resource = selected;
+                    EditorUtility.SetDirty(node);
+                    serializedObject.Update();
+                }
+            }
+        );
     }
 }
 #endif
