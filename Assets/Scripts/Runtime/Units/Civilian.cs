@@ -32,9 +32,15 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     public int carryCapacity = 30;
 
     [Header("Gathering")]
-    public float gatherTickSeconds = 0.8f;
-    public int harvestPerTick = 10;
+    public float gatherTickSeconds = 1f;
+    public int harvestPerTick = 1;
     public float searchRetrySeconds = 1.5f;
+
+    [Header("Gathering Progress UI")]
+    public bool showGatherProgressBar = true;
+    public Vector3 gatherProgressBarOffset = new Vector3(0f, 2.2f, 0f);
+    public float gatherProgressBarWidth = 1.0f;
+    public float gatherProgressBarHeight = 0.1f;
 
     [Header("Building/Hauling")]
     public bool buildersCanHaulMaterials = true;
@@ -179,6 +185,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     private float idleWanderTimer;
     private Vector3 idleWanderTarget;
     private float stalledAtWorkPointTimer;
+    private WorldProgressBar gatherProgressBar;
 
     void Awake()
     {
@@ -229,6 +236,8 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         RegisterWithJobManager();
         CraftingJobManager.Instance?.RegisterCivilian(this);
         WorkerTaskDispatcher.Instance?.RegisterWorker(this);
+
+        EnsureGatherProgressBar();
 
         TryAssignHouseIfNeeded();
     }
@@ -344,6 +353,46 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             case State.CollectingCraftOutput: TickCollectCraftOutput(); break;
             case State.DeliveringCraftOutput: TickDeliverCraftOutput(); break;
         }
+
+        UpdateGatherProgressBar();
+    }
+
+    void EnsureGatherProgressBar()
+    {
+        if (!showGatherProgressBar)
+            return;
+
+        if (gatherProgressBar == null)
+            gatherProgressBar = GetComponent<WorldProgressBar>();
+
+        if (gatherProgressBar == null)
+            gatherProgressBar = gameObject.AddComponent<WorldProgressBar>();
+
+        gatherProgressBar.offset = gatherProgressBarOffset;
+        gatherProgressBar.width = Mathf.Max(0.1f, gatherProgressBarWidth);
+        gatherProgressBar.height = Mathf.Max(0.02f, gatherProgressBarHeight);
+        gatherProgressBar.hideWhenZero = true;
+        gatherProgressBar.progress01 = 0f;
+    }
+
+    void UpdateGatherProgressBar()
+    {
+        if (!showGatherProgressBar)
+            return;
+
+        if (gatherProgressBar == null)
+            EnsureGatherProgressBar();
+
+        if (gatherProgressBar == null)
+            return;
+
+        if (state != State.Gathering || gatherTickSeconds <= 0f)
+        {
+            gatherProgressBar.progress01 = 0f;
+            return;
+        }
+
+        gatherProgressBar.progress01 = Mathf.Clamp01(gatherTimer / Mathf.Max(0.01f, gatherTickSeconds));
     }
 
     void TickNeeds()

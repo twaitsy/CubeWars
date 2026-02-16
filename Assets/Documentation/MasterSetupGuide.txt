@@ -218,6 +218,7 @@ Throughput + expansion:
 Selection flow:
 - SelectionManager selects world objects.
 - UnitInspectorUI receives selected object and renders contextual panels.
+- DiagnosticUI provides a full-screen diagnostic overlay (toggle: D) for database/task/worker/system state and closes other gameplay IMGUI panels when opened.
 
 Demolish button behavior:
 - Appears for Building selections (including child-click selections via parent lookup).
@@ -251,7 +252,7 @@ Before pressing Play, verify:
 [ ] Crafting buildings have CraftingBuilding + ProductionRecipe + input/output/workpoint transforms configured.
 [ ] CraftingJobManager + ProductionNotificationManager exist in scene for assignment/bottleneck alerts.
 [ ] Resource nodes have ResourceNode with type/remaining/maxGatherers configured.
-[ ] UI objects exist (SelectionManager, UnitInspectorUI, BuildMenuUI, TaskBoardUI if used).
+[ ] UI objects exist (SelectionManager, UnitInspectorUI, BuildMenuUI, TaskBoardUI if used, DiagnosticUI for runtime deep diagnostics).
 
 -----------------------------------------------------------------
 10B) Crafting Logistics Consistency Notes (latest)
@@ -310,6 +311,7 @@ Main menu expansion:
 11) Civilian Needs + Housing Setup
 -----------------------------------------------------------------
 Civilian prefab additions (new survival system):
+- Gathering defaults: gatherTickSeconds = 1.0 and harvestPerTick = 1 (baseline 1 resource/second before tool bonuses).
 - Food tuning: hungerRatePerSecond, maxHunger, seekFoodThreshold01, foodToEatPerMeal, eatDurationSeconds, starvationDamagePerSecond
 - Sleep tuning: tirednessRatePerSecond, maxTiredness, seekSleepThreshold01, sleepDurationSeconds, exhaustionDamagePerSecond
 - Assign a FoodDatabase (Assets/Data/DatabaseScripts/FoodDatabase.cs) to drive food hunger, eat time, cooking, and spoilage data.
