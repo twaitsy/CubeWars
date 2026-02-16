@@ -35,6 +35,7 @@ UI/interaction scripts
 - UnitInspectorUI
 - BuildMenuUI
 - TaskBoardUI (if using civilian role/task management UI)
+- DiagnosticUI (comprehensive runtime diagnostics overlay; toggles with D and closes other UI when opened)
 - Minimap
 - IMGUIInputBlocker
 

@@ -104,6 +104,41 @@ public class WorkerTaskDispatcher : MonoBehaviour
 
         return count;
     }
+
+    public List<WorkerTaskRequest> GetQueuedTasksSnapshot(int teamID = -1)
+    {
+        var snapshot = new List<WorkerTaskRequest>();
+
+        for (int i = 0; i < queuedTasks.Count; i++)
+        {
+            WorkerTaskRequest task = queuedTasks[i];
+            if (teamID >= 0 && task.teamID != teamID)
+                continue;
+
+            snapshot.Add(task);
+        }
+
+        return snapshot;
+    }
+
+    public List<Civilian> GetRegisteredWorkersSnapshot(int teamID = -1)
+    {
+        var snapshot = new List<Civilian>();
+
+        for (int i = 0; i < workers.Count; i++)
+        {
+            Civilian worker = workers[i];
+            if (worker == null)
+                continue;
+            if (teamID >= 0 && worker.teamID != teamID)
+                continue;
+
+            snapshot.Add(worker);
+        }
+
+        return snapshot;
+    }
+
     public bool TryAssignTaskToWorker(Civilian worker, WorkerTaskRequest task)
     {
         if (worker == null || (task.teamID >= 0 && worker.teamID != task.teamID))

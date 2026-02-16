@@ -26,6 +26,7 @@ public class SceneRequiredScripts : MonoBehaviour
         typeof(SelectionManager),
         typeof(UnitInspectorUI),
         typeof(BuildMenuUI),
+        typeof(DiagnosticUI),
         typeof(Minimap),
         typeof(RTSCamera),
     };
