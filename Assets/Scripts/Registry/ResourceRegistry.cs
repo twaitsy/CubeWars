@@ -16,13 +16,13 @@ public class ResourceRegistry : MonoBehaviour
     // --- Data ---------------------------------------------------------------
 
     readonly Dictionary<string, List<ResourceNode>> nodesById =
-        new Dictionary<string, List<ResourceNode>>();
+        new();
 
-    readonly HashSet<ResourceNode> allNodes = new HashSet<ResourceNode>();
+    readonly HashSet<ResourceNode> allNodes = new();
     public IReadOnlyCollection<ResourceNode> AllNodes => allNodes;
 
     // Tracks which nodes have already fired depletion
-    readonly HashSet<ResourceNode> depletedNodes = new HashSet<ResourceNode>();
+    readonly HashSet<ResourceNode> depletedNodes = new();
 
     // --- Lifecycle ----------------------------------------------------------
 

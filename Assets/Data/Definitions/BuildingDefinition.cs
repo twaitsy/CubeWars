@@ -28,7 +28,7 @@ public class ResourceAmount
 public class StorageSettings
 {
     public int capacity = 0;
-    public List<ResourceCategory> allowedCategories = new List<ResourceCategory>();
+    public List<ResourceCategory> allowedCategories = new();
 }
 
 [Serializable]
@@ -45,12 +45,12 @@ public class BuildingDefinition
     public string subCategory;
 
     // Construction
-    public List<ResourceAmount> constructionCost = new List<ResourceAmount>();
+    public List<ResourceAmount> constructionCost = new();
     public float buildTime = 5f;
     public int maxHealth = 100;
 
     // Upkeep
-    public List<ResourceAmount> upkeepCost = new List<ResourceAmount>();
+    public List<ResourceAmount> upkeepCost = new();
     public float upkeepInterval = 10f;
 
     // Housing
@@ -59,7 +59,7 @@ public class BuildingDefinition
 
     // Production (now references recipe definitions)
     public bool isProducer = false;
-    public List<ProductionRecipeDefinition> recipes = new List<ProductionRecipeDefinition>();
+    public List<ProductionRecipeDefinition> recipes = new();
     public int workerSlots = 0;
 
     // Storage

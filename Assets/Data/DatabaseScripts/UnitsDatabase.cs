@@ -4,7 +4,7 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "CubeWars/Database/Units")]
 public class UnitsDatabase : ScriptableObject
 {
-    public List<UnitDefinition> units = new List<UnitDefinition>();
+    public List<UnitDefinition> units = new();
 
     public bool TryGetById(string id, out UnitDefinition def)
     {

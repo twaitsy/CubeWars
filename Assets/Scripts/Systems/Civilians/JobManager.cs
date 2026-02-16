@@ -5,7 +5,7 @@ public class JobManager : MonoBehaviour
 {
     public static JobManager Instance;
 
-    private readonly List<Civilian> civilians = new List<Civilian>();
+    private readonly List<Civilian> civilians = new();
 
     void Awake()
     {

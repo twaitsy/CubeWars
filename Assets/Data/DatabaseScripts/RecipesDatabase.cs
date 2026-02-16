@@ -4,5 +4,5 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "CubeWars/Database/Recipes")]
 public class RecipesDatabase : ScriptableObject
 {
-    public List<ProductionRecipeDefinition> recipes = new List<ProductionRecipeDefinition>();
+    public List<ProductionRecipeDefinition> recipes = new();
 }

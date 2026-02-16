@@ -6,11 +6,11 @@ public class TeamStorageManager : MonoBehaviour
     public static TeamStorageManager Instance;
     public int defaultCapacityPerType = 0;
 
-    readonly Dictionary<int, List<ResourceStorageContainer>> storages = new Dictionary<int, List<ResourceStorageContainer>>();
-    readonly Dictionary<int, Dictionary<string, int>> siteReserved = new Dictionary<int, Dictionary<string, int>>();
-    readonly Dictionary<int, Dictionary<string, int>> reservedTotals = new Dictionary<int, Dictionary<string, int>>();
-    readonly Dictionary<int, Dictionary<string, int>> baselineStored = new Dictionary<int, Dictionary<string, int>>();
-    readonly Dictionary<int, Dictionary<string, int>> baselineCapacity = new Dictionary<int, Dictionary<string, int>>();
+    readonly Dictionary<int, List<ResourceStorageContainer>> storages = new();
+    readonly Dictionary<int, Dictionary<string, int>> siteReserved = new();
+    readonly Dictionary<int, Dictionary<string, int>> reservedTotals = new();
+    readonly Dictionary<int, Dictionary<string, int>> baselineStored = new();
+    readonly Dictionary<int, Dictionary<string, int>> baselineCapacity = new();
 
     string Key(ResourceDefinition resource) => ResourceIdUtility.GetKey(resource);
 

@@ -25,7 +25,7 @@ public class WinConditionManager : MonoBehaviour
         int aliveTeams = 0;
         int lastTeam = -1;
 
-        var headquarters = GameObject.FindObjectsOfType<Headquarters>();
+        var headquarters = GameObject.FindObjectsByType<Headquarters>(FindObjectsSortMode.None);
         for (int i = 0; i < headquarters.Length; i++)
         {
             var hq = headquarters[i];

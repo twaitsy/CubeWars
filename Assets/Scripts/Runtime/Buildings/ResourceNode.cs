@@ -35,7 +35,7 @@ public class ResourceNode : MonoBehaviour
 
     [HideInInspector] public int claimedByTeam = -1;
 
-    readonly HashSet<int> gathererIds = new HashSet<int>();
+    readonly HashSet<int> gathererIds = new();
     public int ActiveGatherers => gathererIds.Count;
     public bool HasAvailableGatherSlots => gathererIds.Count < Mathf.Max(1, maxGatherers);
 
@@ -91,7 +91,13 @@ public class ResourceNode : MonoBehaviour
             }
         }
 
-        if (!found && ResourcesDatabase.Instance?.resources != null)
+        if (!found &&
+            ResourcesDatabase.Instance != null &&
+            ResourcesDatabase.Instance.resources != null)
+        {
+            // your logic
+        }
+        else
         {
             for (int i = 0; i < ResourcesDatabase.Instance.resources.Count; i++)
             {
@@ -119,7 +125,9 @@ public class ResourceNode : MonoBehaviour
             return;
 
         GameDatabase loaded = GameDatabaseLoader.ResolveLoaded();
-        if (loaded?.resources != null &&
+
+        if (loaded != null &&
+            loaded.resources != null &&
             loaded.resources.TryGetById(candidate, out ResourceDefinition loadedResource))
         {
             resource = loadedResource;

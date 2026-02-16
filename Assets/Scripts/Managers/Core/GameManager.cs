@@ -38,7 +38,7 @@ public class GameManager : MonoBehaviour
     /// </summary>
     private void DetectTeams()
     {
-        allTeams = FindObjectsOfType<Team>();
+        allTeams = FindObjectsByType<Team>(FindObjectsSortMode.None);
 
         // Identify player team
         foreach (var team in allTeams)
@@ -53,6 +53,6 @@ public class GameManager : MonoBehaviour
         // Identify AI teams
         aiTeams = System.Array.FindAll(allTeams, t => t.teamType == TeamType.AI);
 
-        Debug.Log($"Detected {allTeams.Length} teams. Player team: {playerTeam?.teamID}");
+        Debug.Log($"Detected {allTeams.Length} teams. Player team: {(playerTeam != null ? playerTeam.teamID : null)}");
     }
 }

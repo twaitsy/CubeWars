@@ -53,12 +53,12 @@ public class CraftingBuilding : Building
 
     [Header("Progress UI")]
     public bool showProgressBar = true;
-    public Vector3 progressBarOffset = new Vector3(0f, 2.8f, 0f);
+    public Vector3 progressBarOffset = new(0f, 2.8f, 0f);
     public float progressBarWidth = 1.4f;
     public float progressBarHeight = 0.12f;
 
     [Header("Upgrades")]
-    public List<BuildingUpgradeTier> upgrades = new List<BuildingUpgradeTier>();
+    public List<BuildingUpgradeTier> upgrades = new();
 
     public ProductionState State => state;
     public float CraftProgress01 => craftDuration <= 0f ? 0f : Mathf.Clamp01(craftTimer / craftDuration);
@@ -66,11 +66,11 @@ public class CraftingBuilding : Building
     public IReadOnlyDictionary<ResourceDefinition, int> OutputQueue => outputQueue;
     public IReadOnlyList<Civilian> AssignedWorkers => assignedWorkers;
 
-    readonly Dictionary<ResourceDefinition, int> inputBuffer = new Dictionary<ResourceDefinition, int>();
-    readonly Dictionary<ResourceDefinition, int> outputQueue = new Dictionary<ResourceDefinition, int>();
-    readonly Dictionary<Civilian, int> occupiedWorkpoints = new Dictionary<Civilian, int>();
-    readonly Dictionary<Civilian, float> inactiveAssignedWorkerTimers = new Dictionary<Civilian, float>();
-    readonly List<Civilian> assignedWorkers = new List<Civilian>();
+    readonly Dictionary<ResourceDefinition, int> inputBuffer = new();
+    readonly Dictionary<ResourceDefinition, int> outputQueue = new();
+    readonly Dictionary<Civilian, int> occupiedWorkpoints = new();
+    readonly Dictionary<Civilian, float> inactiveAssignedWorkerTimers = new();
+    readonly List<Civilian> assignedWorkers = new();
 
     ProductionState state;
     float craftTimer;
@@ -167,23 +167,16 @@ public class CraftingBuilding : Building
         if (recipe == null)
             return "No recipe selected.";
 
-        switch (state)
+        return state switch
         {
-            case ProductionState.WaitingForInputs:
-                return $"Missing inputs: {GetMissingInputSummary()}";
-            case ProductionState.InputsReady:
-                return "Inputs ready, waiting for a worker with the required job.";
-            case ProductionState.WaitingForPickup:
-                return "Output buffer is full and must be hauled to storage.";
-            case ProductionState.Idle:
-                return "Building is idle.";
-            case ProductionState.InProgress:
-                return "Production is running.";
-            case ProductionState.OutputReady:
-                return "Outputs are ready to collect.";
-            default:
-                return string.Empty;
-        }
+            ProductionState.WaitingForInputs => $"Missing inputs: {GetMissingInputSummary()}",
+            ProductionState.InputsReady => "Inputs ready, waiting for a worker with the required job.",
+            ProductionState.WaitingForPickup => "Output buffer is full and must be hauled to storage.",
+            ProductionState.Idle => "Building is idle.",
+            ProductionState.InProgress => "Production is running.",
+            ProductionState.OutputReady => "Outputs are ready to collect.",
+            _ => string.Empty,
+        };
     }
 
     void InitializeResourceMaps()
@@ -762,7 +755,7 @@ public class CraftingBuilding : Building
 
     ResourceStorageContainer FindNearestExternalStorageWithFree(ResourceDefinition type)
     {
-        var storages = FindObjectsOfType<ResourceStorageContainer>();
+        var storages = FindObjectsByType<ResourceStorageContainer>(FindObjectsSortMode.None);
         var localStorages = GetComponentsInChildren<ResourceStorageContainer>(true);
 
         ResourceStorageContainer best = null;
@@ -878,7 +871,7 @@ public class CraftingBuilding : Building
     {
         if (recipe?.inputs == null) return "No recipe";
 
-        List<string> parts = new List<string>();
+        List<string> parts = new();
         for (int i = 0; i < recipe.inputs.Length; i++)
         {
             var entry = recipe.inputs[i];

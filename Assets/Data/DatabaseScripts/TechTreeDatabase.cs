@@ -4,7 +4,7 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "CubeWars/Database/Tech Tree")]
 public class TechTreeDatabase : ScriptableObject
 {
-    public List<TechNodeDefinition> techNodes = new List<TechNodeDefinition>();
+    public List<TechNodeDefinition> techNodes = new();
 
     public bool TryGetById(string id, out TechNodeDefinition node)
     {

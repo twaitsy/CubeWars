@@ -102,12 +102,12 @@ public class BuildMenuUI : MonoBehaviour
     private int selectedCategoryIndex = 0;
     private Vector2 scroll;
     private string search = "";
-    private readonly StringBuilder sb = new StringBuilder(256);
+    private readonly StringBuilder sb = new(256);
 
-    private readonly StringBuilder costSb = new StringBuilder(128);
-    private readonly StringBuilder detailsSb = new StringBuilder(96);
-    private readonly List<BuildItemDefinition> runtimeGeneratedItems = new List<BuildItemDefinition>();
-    private readonly Dictionary<BuildItemDefinition, BuildingDefinition> detailedByItem = new Dictionary<BuildItemDefinition, BuildingDefinition>();
+    private readonly StringBuilder costSb = new(128);
+    private readonly StringBuilder detailsSb = new(96);
+    private readonly List<BuildItemDefinition> runtimeGeneratedItems = new();
+    private readonly Dictionary<BuildItemDefinition, BuildingDefinition> detailedByItem = new();
 
     public bool IsVisible => show;
 
@@ -192,7 +192,7 @@ public class BuildMenuUI : MonoBehaviour
         if (catalogEntries.Count == 0)
             return new BuildCategory[0];
 
-        List<BuildItemDefinition> items = new List<BuildItemDefinition>(catalogEntries.Count);
+        List<BuildItemDefinition> items = new(catalogEntries.Count);
         for (int i = 0; i < catalogEntries.Count; i++)
         {
             RuntimeBuildEntry entry = catalogEntries[i];
@@ -210,7 +210,7 @@ public class BuildMenuUI : MonoBehaviour
 
     void AutoAssignPlayerTeam()
     {
-        var gm = FindObjectOfType<GameManager>();
+        var gm = FindFirstObjectByType<GameManager>();
         if (gm != null && gm.playerTeam != null)
             playerTeamID = gm.playerTeam.teamID;
     }
@@ -228,7 +228,7 @@ public class BuildMenuUI : MonoBehaviour
         float left = Screen.width - (panelWidth * scale) - marginRight;
         float top = marginTop;
 
-        Rect panelRect = new Rect(left, top, panelWidth * scale, panelHeight * scale);
+        Rect panelRect = new(left, top, panelWidth * scale, panelHeight * scale);
         IMGUIInputBlocker.Register(panelRect);
 
         GUI.Box(panelRect, "BUILD MENU | RTS");
@@ -272,7 +272,7 @@ public class BuildMenuUI : MonoBehaviour
             for (int i = 0; i < rowCount; i++)
             {
                 int idx = tabIndex + i;
-                Rect r = new Rect(x + i * tabW, y, tabW - 6, tabH);
+                Rect r = new(x + i * tabW, y, tabW - 6, tabH);
                 bool isSel = (idx == selectedCategoryIndex);
 
                 bool prev = GUI.enabled;
@@ -298,7 +298,7 @@ public class BuildMenuUI : MonoBehaviour
         GUI.Label(new Rect(x, y, panelRect.width - 20 * scale, 18 * scale), $"Category: {cat.name}");
         y += 20 * scale;
 
-        Rect listRect = new Rect(x, y, panelRect.width - 20 * scale, panelRect.yMax - y - 10 * scale);
+        Rect listRect = new(x, y, panelRect.width - 20 * scale, panelRect.yMax - y - 10 * scale);
         GUI.Box(listRect, "");
 
         float innerX = listRect.x + 8;
@@ -306,13 +306,13 @@ public class BuildMenuUI : MonoBehaviour
         float innerW = listRect.width - 16;
         float innerH = listRect.height - 16;
 
-        Rect viewRect = new Rect(0, 0, innerW - 18, Mathf.Max(innerH, 800));
+        Rect viewRect = new(0, 0, innerW - 18, Mathf.Max(innerH, 800));
         scroll = GUI.BeginScrollView(new Rect(innerX, innerY, innerW, innerH), scroll, viewRect);
 
         float iy = 0f;
         int drawn = 0;
 
-        BuildItemDefinition[] items = (cat != null) ? cat.items : null;
+        BuildItemDefinition[] items = cat?.items;
         if (items == null || items.Length == 0)
         {
             GUI.Label(new Rect(0, iy, innerW - 18, 18), "No items in this category.");
@@ -328,7 +328,7 @@ public class BuildMenuUI : MonoBehaviour
                 if (!string.IsNullOrEmpty(search))
                 {
                     string dn = item.displayName ?? item.name;
-                    if (dn == null) dn = "";
+                    dn ??= "";
                     if (dn.IndexOf(search, StringComparison.OrdinalIgnoreCase) < 0)
                         continue;
                 }
@@ -365,7 +365,7 @@ public class BuildMenuUI : MonoBehaviour
                     sb.Append("  (Need deposited resources)");
 
                 float rowH = 38f * scale;
-                Rect btn = new Rect(0, iy, innerW - 18, rowH);
+                Rect btn = new(0, iy, innerW - 18, rowH);
 
                 bool prev = GUI.enabled;
                 GUI.enabled = canAfford;
@@ -408,7 +408,7 @@ public class BuildMenuUI : MonoBehaviour
     {
         if (sourceItems == null) return new BuildCategory[0];
 
-        Dictionary<string, List<BuildItemDefinition>> grouped = new Dictionary<string, List<BuildItemDefinition>>(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, List<BuildItemDefinition>> grouped = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (var item in sourceItems)
         {
@@ -425,7 +425,7 @@ public class BuildMenuUI : MonoBehaviour
             list.Add(item);
         }
 
-        List<string> catNames = new List<string>();
+        List<string> catNames = new();
 
         if (preferredOrder != null)
         {
@@ -438,7 +438,7 @@ public class BuildMenuUI : MonoBehaviour
             }
         }
 
-        List<string> remaining = new List<string>();
+        List<string> remaining = new();
         foreach (var key in grouped.Keys)
         {
             if (!catNames.Contains(key))
@@ -564,7 +564,7 @@ public class BuildMenuUI : MonoBehaviour
         ClearRuntimeGeneratedItems();
         detailedByItem.Clear();
 
-        List<RuntimeBuildEntry> entries = new List<RuntimeBuildEntry>();
+        List<RuntimeBuildEntry> entries = new();
 
         if (db.buildings != null)
         {
@@ -634,7 +634,7 @@ public class BuildMenuUI : MonoBehaviour
         if (costs == null || costs.Count == 0)
             return Array.Empty<ResourceCost>();
 
-        List<ResourceCost> converted = new List<ResourceCost>(costs.Count);
+        List<ResourceCost> converted = new(costs.Count);
         for (int i = 0; i < costs.Count; i++)
         {
             ResourceAmount amount = costs[i];
@@ -711,7 +711,7 @@ AIBuildingPriority MapAIPriority(BuildingCategory category)
 
     void TrySyncGrid(bool visible)
     {
-        MonoBehaviour[] behaviours = FindObjectsOfType<MonoBehaviour>();
+        MonoBehaviour[] behaviours = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
 
         for (int i = 0; i < behaviours.Length; i++)
         {

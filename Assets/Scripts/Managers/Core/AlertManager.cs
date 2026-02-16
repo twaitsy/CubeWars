@@ -11,8 +11,8 @@ public class AlertManager : MonoBehaviour
         public float timer;
     }
 
-    List<Alert> alerts = new List<Alert>();
-    readonly List<string> recentMessages = new List<string>();
+    List<Alert> alerts = new();
+    readonly List<string> recentMessages = new();
 
     [Min(1)] public int maxRecent = 8;
 

@@ -15,8 +15,8 @@ public class CraftingRegistry : MonoBehaviour
 
     // --- Data ---------------------------------------------------------------
 
-    readonly HashSet<CraftingBuilding> allBuildings = new HashSet<CraftingBuilding>();
-    readonly Dictionary<int, List<CraftingBuilding>> buildingsByTeam = new Dictionary<int, List<CraftingBuilding>>();
+    readonly HashSet<CraftingBuilding> allBuildings = new();
+    readonly Dictionary<int, List<CraftingBuilding>> buildingsByTeam = new();
 
     // --- Lifecycle ----------------------------------------------------------
 

@@ -11,9 +11,9 @@ public class GameBootstrap : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         // ROOTS
-        GameObject worldRoot = new GameObject("World");
-        GameObject systemsRoot = new GameObject("Systems");
-        GameObject teamsRoot = new GameObject("Teams");
+        GameObject worldRoot = new("World");
+        GameObject systemsRoot = new("Systems");
+        GameObject teamsRoot = new("Teams");
 
         // WORLD SUBROOTS
         new GameObject("Terrain").transform.SetParent(worldRoot.transform);
@@ -24,7 +24,7 @@ public class GameBootstrap : MonoBehaviour
         // TEAMS
         for (int i = 1; i <= 8; i++)
         {
-            GameObject team = new GameObject($"Team_{i}");
+            GameObject team = new($"Team_{i}");
             team.transform.SetParent(teamsRoot.transform);
 
             new GameObject("HQ").transform.SetParent(team.transform);
@@ -55,7 +55,7 @@ public class GameBootstrap : MonoBehaviour
 
     void CreateSystem<T>(GameObject parent) where T : Component
     {
-        GameObject obj = new GameObject(typeof(T).Name);
+        GameObject obj = new(typeof(T).Name);
         obj.AddComponent<T>();
         if (parent != null)
             obj.transform.SetParent(parent.transform);

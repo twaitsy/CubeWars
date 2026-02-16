@@ -2,8 +2,8 @@
 
 public class HexGridGenerator : SciFiFloorGenerator
 {
-    public Color hexColor = new Color(0.2f, 0.2f, 0.25f);
-    public Color edgeColor = new Color(0.4f, 0.4f, 0.5f);
+    public Color hexColor = new(0.2f, 0.2f, 0.25f);
+    public Color edgeColor = new(0.4f, 0.4f, 0.5f);
     public float hexScale = 8f;
     public float edgeThickness = 0.03f;
 
@@ -12,8 +12,8 @@ public class HexGridGenerator : SciFiFloorGenerator
         float uu = u * hexScale;
         float vv = v * hexScale * (Mathf.Sqrt(3f) / 2f);  // Proper hex aspect
 
-        Vector2 gv = new Vector2(Mathf.Floor(uu), Mathf.Floor(vv));  // Fixed: Vector2
-        Vector2 f = new Vector2(Mathf.Repeat(uu, 1f), Mathf.Repeat(vv, 1f));  // Fixed: Vector2
+        Vector2 gv = new(Mathf.Floor(uu), Mathf.Floor(vv));  // Fixed: Vector2
+        Vector2 f = new(Mathf.Repeat(uu, 1f), Mathf.Repeat(vv, 1f));  // Fixed: Vector2
 
         // Hex SDF (signed distance)
         Vector2 vertex = f - new Vector2(0.5f, Mathf.Sqrt(3f) / 6f);

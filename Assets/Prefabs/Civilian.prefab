@@ -22,6 +22,16 @@ GameObject:
   - component: {fileID: 126259076976815159}
   - component: {fileID: 6294540286386591285}
   - component: {fileID: 1295376524899511511}
+  - component: {fileID: -5728538364194016333}
+  - component: {fileID: -1004968872118365824}
+  - component: {fileID: 4036510120128909271}
+  - component: {fileID: 4541779348186860377}
+  - component: {fileID: -6942594919045944906}
+  - component: {fileID: 4876506133362684680}
+  - component: {fileID: 1822738216757114564}
+  - component: {fileID: -6111293302236098294}
+  - component: {fileID: 6902862384398968288}
+  - component: {fileID: 5012746280532159221}
   m_Layer: 13
   m_Name: Civilian
   m_TagString: Untagged
@@ -36,12 +46,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5538168870909510437}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &2669674408873748224
 MeshFilter:
@@ -62,10 +73,17 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -87,9 +105,12 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!65 &1370611168807851786
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -98,9 +119,17 @@ BoxCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5538168870909510437}
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
   m_IsTrigger: 0
+  m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 2
+  serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &8889863682863549597
@@ -323,3 +352,213 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   validateOnAwake: 0
   includeOptionalWarnings: 0
+--- !u!114 &-5728538364194016333
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5538168870909510437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20e924d16a6cdee41b33215b9910a7dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HealthComponent
+  maxHealth: 0
+  currentHealth: 0
+--- !u!114 &-1004968872118365824
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5538168870909510437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfeecafb783a3644eb045e0eb88062b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MovementController
+  moveSpeed: 0
+--- !u!114 &4036510120128909271
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5538168870909510437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 459ceb4436a1a214797c42f187b7811e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CarryingController
+  capacity: 0
+--- !u!114 &4541779348186860377
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5538168870909510437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9615e3106d744ca479f9453db09a236a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GatheringController
+  gatherSpeed: 0
+--- !u!114 &-6942594919045944906
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5538168870909510437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99a7101291504e14ea8edf081092bc2d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ConstructionWorkerController
+  buildSpeed: 0
+--- !u!114 &4876506133362684680
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5538168870909510437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ebf3ac4b7dbb6f4cad1eb6206f79a1e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CombatController
+  attackDamage: 0
+  attackRange: 0
+  attackCooldown: 0
+  armor: 0
+--- !u!114 &1822738216757114564
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5538168870909510437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8df0f781e4da4d44a9ea47cbd98152c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ToolController
+  startingTools: []
+--- !u!114 &-6111293302236098294
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5538168870909510437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 466d93bd771b3ca478916b5372372099, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TrainingController
+  trainingCost: []
+  trainingTime: 0
+  trainedAt:
+    id: 
+    displayName: 
+    icon: {fileID: 0}
+    prefab: {fileID: 0}
+    category: 0
+    subCategory: 
+    constructionCost: []
+    buildTime: 5
+    maxHealth: 100
+    upkeepCost: []
+    upkeepInterval: 10
+    maxResidents: 0
+    comfortLevel: 0
+    isProducer: 0
+    recipes: []
+    workerSlots: 0
+    isStorage: 0
+    storageSettings:
+      capacity: 0
+      allowedCategories: 
+    isMilitary: 0
+    attackDamage: 0
+    attackRange: 0
+    garrisonSlots: 0
+    powerConsumption: 0
+    powerGeneration: 0
+    waterConsumption: 0
+--- !u!114 &6902862384398968288
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5538168870909510437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75e618a0af62b0d4f9dd07095ac42c86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UpgradeController
+  upgradeTarget:
+    id: 
+    displayName: 
+    icon: {fileID: 0}
+    prefab: {fileID: 0}
+    jobType: 0
+    isCombatUnit: 0
+    maxHealth: 100
+    moveSpeed: 3.5
+    attackDamage: 0
+    attackRange: 0
+    attackCooldown: 1
+    armor: 0
+    carryCapacity: 10
+    gatherSpeed: 1
+    buildSpeed: 1
+    trainingCost: []
+    trainingTime: 5
+    trainedAt:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      prefab: {fileID: 0}
+      category: 0
+      subCategory: 
+      constructionCost: []
+      buildTime: 5
+      maxHealth: 100
+      upkeepCost: []
+      upkeepInterval: 10
+      maxResidents: 0
+      comfortLevel: 0
+      isProducer: 0
+      recipes: []
+      workerSlots: 0
+      isStorage: 0
+      storageSettings:
+        capacity: 0
+        allowedCategories: 
+      isMilitary: 0
+      attackDamage: 0
+      attackRange: 0
+      garrisonSlots: 0
+      powerConsumption: 0
+      powerGeneration: 0
+      waterConsumption: 0
+    startingTools: []
+    needs: []
+--- !u!114 &5012746280532159221
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5538168870909510437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adece14e84ad75d41816277478b9cd4b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NeedsController
+  startingNeeds: []

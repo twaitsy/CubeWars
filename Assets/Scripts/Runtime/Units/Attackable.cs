@@ -16,7 +16,7 @@ public class Attackable : MonoBehaviour, IHasHealth, IAttackable
 
     [Header("Hit Feedback")]
     public Renderer flashRenderer;
-    public Color hitFlashColor = new Color(1f, 0.3f, 0.3f, 1f);
+    public Color hitFlashColor = new(1f, 0.3f, 0.3f, 1f);
     public float hitFlashDuration = 0.08f;
 
     IAttackable attackProxy;

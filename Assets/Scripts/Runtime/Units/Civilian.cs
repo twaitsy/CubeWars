@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -10,6 +11,16 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
     [Header("Team")]
     public int teamID;
+   
+    
+    // Forward interface properties to HealthComponent
+    public bool IsAlive => health != null && health.IsAlive;
+
+    public float CurrentHealth => health != null ? health.CurrentHealth : 0f;
+
+    public float MaxHealth => health != null ? health.MaxHealth : 0f;
+
+
 
     [Header("Job (Unified Registry)")]
     public JobDefinition jobDefinition;
@@ -20,7 +31,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     public CivilianJobType JobType => jobType;
 
     [Header("Health")]
-    public float maxHealth = 50f;
+//    public float maxHealth = 50f;
 
     [Header("Movement")]
     public float speed = 2.5f;
@@ -38,7 +49,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
     [Header("Gathering Progress UI")]
     public bool showGatherProgressBar = true;
-    public Vector3 gatherProgressBarOffset = new Vector3(0f, 2.2f, 0f);
+    public Vector3 gatherProgressBarOffset = new(0f, 2.2f, 0f);
     public float gatherProgressBarWidth = 1.0f;
     public float gatherProgressBarHeight = 0.1f;
 
@@ -74,7 +85,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     public ResourceDefinition CarriedType => carriedResource;
     public int CarriedAmount => carriedAmount;
 
-    private float currentHealth;
+//    private float currentHealth;
     private NavMeshAgent agent;
 
     private ResourceDefinition carriedResource;
@@ -109,10 +120,9 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
     // IHasHealth / ITargetable style properties
     public int TeamID => teamID;
-    public bool IsAlive => currentHealth > 0f;
-
-    public float CurrentHealth => currentHealth;
-    public float MaxHealth => maxHealth;
+//    public bool IsAlive => currentHealth > 0f;
+//    public float CurrentHealth => currentHealth;
+//    public float MaxHealth => maxHealth;
 
     private enum State
     {
@@ -180,19 +190,21 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     private House targetHouse;
     private House assignedHouse;
 
-    private readonly HashSet<CivilianToolType> equippedTools = new HashSet<CivilianToolType>();
+    private readonly HashSet<CivilianToolType> equippedTools = new();
     private float toolPickupTimer;
     private float idleWanderTimer;
     private Vector3 idleWanderTarget;
     private float stalledAtWorkPointTimer;
     private WorldProgressBar gatherProgressBar;
     private bool loggedInactiveNavAgentWarning;
-
+    private HealthComponent health;
     void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
         agent.updateRotation = true;
         agent.autoBraking = true;
+
+        health = GetComponent<HealthComponent>();
     }
 
     void OnEnable()
@@ -221,7 +233,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     void Start()
     {
         ApplyDatabaseDefinition();
-        currentHealth = maxHealth;
+        health.Initialize();
         currentHunger = 0f;
         currentTiredness = 0f;
 
@@ -259,17 +271,82 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             return;
         }
 
-        if (def.maxHealth > 0)
-            maxHealth = def.maxHealth;
+        // ---------------------------------------------------------
+        // Health
+        // ---------------------------------------------------------
+        health = GetComponent<HealthComponent>();
+        if (health != null)
+            health.SetMaxHealth(def.maxHealth);
 
-        if (def.moveSpeed > 0f)
-            speed = def.moveSpeed;
+        // ---------------------------------------------------------
+        // Movement
+        // ---------------------------------------------------------
+        var movement = GetComponent<MovementController>();
+        if (movement != null)
+            movement.SetMoveSpeed(def.moveSpeed);
 
-        if (def.carryCapacity > 0)
-            carryCapacity = def.carryCapacity;
+        // ---------------------------------------------------------
+        // Carrying
+        // ---------------------------------------------------------
+        var carry = GetComponent<CarryingController>();
+        if (carry != null)
+            carry.SetCapacity(def.carryCapacity);
 
-        if (agent != null && speed > 0f)
-            agent.speed = speed;
+        // ---------------------------------------------------------
+        // Gathering
+        // ---------------------------------------------------------
+        var gather = GetComponent<GatheringController>();
+        if (gather != null)
+            gather.SetGatherSpeed(def.gatherSpeed);
+
+        // ---------------------------------------------------------
+        // Building
+        // ---------------------------------------------------------
+        var builder = GetComponent<ConstructionWorkerController>();
+        if (builder != null)
+            builder.SetBuildSpeed(def.buildSpeed);
+
+        // ---------------------------------------------------------
+        // Combat
+        // ---------------------------------------------------------
+        var combat = GetComponent<CombatController>();
+        if (combat != null)
+            combat.SetCombatStats(def.attackDamage, def.attackRange, def.attackCooldown, def.armor);
+
+        // ---------------------------------------------------------
+        // Tools
+        // ---------------------------------------------------------
+        var tools = GetComponent<ToolController>();
+        if (tools != null && def.startingTools != null)
+            tools.SetStartingTools(def.startingTools);
+
+        // ---------------------------------------------------------
+        // Needs
+        // ---------------------------------------------------------
+        var needs = GetComponent<NeedsController>();
+        if (needs != null && def.needs != null)
+            needs.SetNeeds(def.needs);
+
+        // ---------------------------------------------------------
+        // Jobs
+        // ---------------------------------------------------------
+        var job = GetComponent<JobController>();
+        if (job != null)
+            job.SetJobType(def.jobType);
+
+        // ---------------------------------------------------------
+        // Training
+        // ---------------------------------------------------------
+        var training = GetComponent<TrainingController>();
+        if (training != null)
+            training.SetTraining(def.trainingCost, def.trainingTime, def.trainedAt);
+
+        // ---------------------------------------------------------
+        // Upgrades
+        // ---------------------------------------------------------
+        var upgrade = GetComponent<UpgradeController>();
+        if (upgrade != null)
+            upgrade.SetUpgradeTarget(def.upgradeTo);
     }
 
     void RegisterWithJobManager()
@@ -315,7 +392,8 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
     void Update()
     {
-        if (!IsAlive) return;
+        if (health != null && !health.IsAlive)
+            return;
 
         TickNeeds();
 
@@ -407,25 +485,19 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         TickToolPickup();
 
         if (currentHunger >= maxHunger)
-            TakeDamage(starvationDamagePerSecond * Time.deltaTime);
+            if (health != null)
+                health.TakeDamage(starvationDamagePerSecond * Time.deltaTime);
+
 
         if (currentTiredness >= maxTiredness)
-            TakeDamage(exhaustionDamagePerSecond * Time.deltaTime);
+            if (health != null)
+                health.TakeDamage(exhaustionDamagePerSecond * Time.deltaTime);
 
-        if (!IsAlive)
+
+        if (health != null && !health.IsAlive)
             return;
 
-        if (state == State.Eating || state == State.Sleeping || state == State.SeekingFoodStorage || state == State.SeekingHouse)
-            return;
-
-        if (NeedsSleep())
-        {
-            PushNeedState(State.SeekingHouse);
-            return;
-        }
-
-        if (NeedsFood())
-            PushNeedState(State.SeekingFoodStorage);
+        return;
     }
 
     bool NeedsFood() => currentHunger >= maxHunger * Mathf.Clamp01(seekFoodThreshold01);
@@ -644,7 +716,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         bestType = null;
         bestFood = null;
 
-        ResourceStorageContainer[] storages = FindObjectsOfType<ResourceStorageContainer>();
+        ResourceStorageContainer[] storages = FindObjectsByType<ResourceStorageContainer>(FindObjectsSortMode.None);
         float bestScore = float.MinValue;
 
         for (int s = 0; s < storages.Length; s++)
@@ -1412,7 +1484,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
     ResourceNode FindClosestResourceNode()
     {
-        var nodes = FindObjectsOfType<ResourceNode>();
+        var nodes = FindObjectsByType<ResourceNode>(FindObjectsSortMode.None);
         ResourceNode best = null;
         float bestD = float.MaxValue;
 
@@ -1481,7 +1553,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
     ConstructionSite FindNearestConstructionSite(int team, Vector3 pos)
     {
-        ConstructionSite[] sites = FindObjectsOfType<ConstructionSite>();
+        ConstructionSite[] sites = FindObjectsByType<ConstructionSite>(FindObjectsSortMode.None);
         ConstructionSite best = null;
         float bestD = float.MaxValue;
 
@@ -1969,13 +2041,16 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     }
     public void TakeDamage(float damage)
     {
-        if (!IsAlive) return;
+        if (health == null)
+            return;
 
-        currentHealth -= damage;
-        if (currentHealth <= 0f)
+        health.TakeDamage(damage);
+
+        if (!health.IsAlive)
         {
-            currentHealth = 0f;
-            if (agent != null) agent.isStopped = true;
+            if (agent != null)
+                agent.isStopped = true;
+
             ClearAssignedHouse();
             Destroy(gameObject);
         }

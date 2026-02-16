@@ -3,7 +3,7 @@ using UnityEngine;
 
 public static class IMGUIInputBlocker
 {
-    private static readonly List<Rect> rects = new List<Rect>(8);
+    private static readonly List<Rect> rects = new(8);
     private static int lastRegisterFrame = -999;
 
     /// <summary>
@@ -32,7 +32,7 @@ public static class IMGUIInputBlocker
             return false;
 
         // Convert screen coords (bottom-left) -> IMGUI coords (top-left)
-        Vector2 guiPos = new Vector2(mouseScreenPos.x, Screen.height - mouseScreenPos.y);
+        Vector2 guiPos = new(mouseScreenPos.x, Screen.height - mouseScreenPos.y);
 
         for (int i = 0; i < rects.Count; i++)
         {

@@ -86,8 +86,8 @@ public class BuildGridManager : MonoBehaviour
 
     private bool isVisible = false;
 
-    private readonly List<GameObject> allCells = new List<GameObject>();
-    private readonly Dictionary<CellKey, BuildGridCell> cellLookup = new Dictionary<CellKey, BuildGridCell>();
+    private readonly List<GameObject> allCells = new();
+    private readonly Dictionary<CellKey, BuildGridCell> cellLookup = new();
     private BuildGridCell selectedCell;
     private BuildGridCell hoveredCell;
 
@@ -99,7 +99,7 @@ public class BuildGridManager : MonoBehaviour
 
     void AutoAssignPlayerTeam()
     {
-        var gm = FindObjectOfType<GameManager>();
+        var gm = FindFirstObjectByType<GameManager>();
         if (gm != null && gm.playerTeam != null)
             playerTeamID = gm.playerTeam.teamID;
     }
@@ -141,7 +141,7 @@ public class BuildGridManager : MonoBehaviour
         selectedCell = null;
         hoveredCell = null;
 
-        Headquarters[] hqs = FindObjectsOfType<Headquarters>();
+        Headquarters[] hqs = FindObjectsByType<Headquarters>(FindObjectsSortMode.None);
         Debug.Log($"[BuildGridManager] Found HQs: {hqs.Length}");
 
         foreach (var hq in hqs)
@@ -159,12 +159,12 @@ public class BuildGridManager : MonoBehaviour
 
     void BuildGridAroundHQ(Vector3 hqPos, int teamID)
     {
-        Vector3 origin = new Vector3(hqPos.x, yOffset, hqPos.z);
+        Vector3 origin = new(hqPos.x, yOffset, hqPos.z);
 
         origin.x = Mathf.Round(origin.x / cellSize) * cellSize;
         origin.z = Mathf.Round(origin.z / cellSize) * cellSize;
 
-        GameObject parent = new GameObject($"BuildGrid_Team{teamID}");
+        GameObject parent = new($"BuildGrid_Team{teamID}");
         parent.transform.SetParent(transform, false);
 
         for (int gx = -halfExtent; gx <= halfExtent; gx++)
@@ -204,7 +204,7 @@ public class BuildGridManager : MonoBehaviour
 
     public List<BuildGridCell> GetFootprintCells(int teamID, Vector2Int anchor, Vector2Int dimensions)
     {
-        List<BuildGridCell> result = new List<BuildGridCell>();
+        List<BuildGridCell> result = new();
 
         int width = Mathf.Max(1, dimensions.x);
         int depth = Mathf.Max(1, dimensions.y);
@@ -213,7 +213,7 @@ public class BuildGridManager : MonoBehaviour
         {
             for (int dz = 0; dz < depth; dz++)
             {
-                Vector2Int coord = new Vector2Int(anchor.x + dx, anchor.y + dz);
+                Vector2Int coord = new(anchor.x + dx, anchor.y + dz);
                 if (!TryGetCell(teamID, coord, out BuildGridCell cell))
                     return null;
 
@@ -241,7 +241,7 @@ public class BuildGridManager : MonoBehaviour
         {
             for (int dz = 0; dz < depth; dz++)
             {
-                Vector2Int coord = new Vector2Int(minX + dx, minZ + dz);
+                Vector2Int coord = new(minX + dx, minZ + dz);
                 if (!TryGetCell(teamID, coord, out BuildGridCell cell))
                 {
                     cells = null;

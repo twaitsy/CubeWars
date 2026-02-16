@@ -40,7 +40,7 @@ public class UnitProductionQueue : MonoBehaviour
         public float timeRemaining;
     }
 
-    private readonly List<QueueItem> queue = new List<QueueItem>();
+    private readonly List<QueueItem> queue = new();
     private QueueItem current;
 
     public System.Action<UnitProductionDefinition> OnUnitCompleted;

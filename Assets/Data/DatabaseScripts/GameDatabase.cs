@@ -11,6 +11,7 @@ public class GameDatabase : ScriptableObject
     public RecipesDatabase recipes;
     public FoodDatabase foods;
     public TechTreeDatabase techTree;
+    public NeedsDatabase needs;
 
     public bool TryGetUnitById(string id, out UnitDefinition definition)
     {

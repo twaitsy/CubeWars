@@ -13,5 +13,5 @@ public class ToolDefinition
     public float baseEfficiency = 1f;
 
     // Bonuses this tool provides
-    public List<BonusDefinition> bonuses = new List<BonusDefinition>();
+    public List<BonusDefinition> bonuses = new();
 }

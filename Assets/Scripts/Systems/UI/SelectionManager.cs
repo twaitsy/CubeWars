@@ -13,7 +13,7 @@ public class SelectionManager : MonoBehaviour
     [Min(4f)] public float dragThreshold = 8f;
 
     // Internal state
-    readonly List<GameObject> selected = new List<GameObject>(32);
+    readonly List<GameObject> selected = new(32);
     Vector2 dragStart;
     bool isDragging;
     Selectable hovered;
@@ -130,7 +130,7 @@ public class SelectionManager : MonoBehaviour
         bool shift = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
         Rect rect = BuildScreenRect(dragStart, Input.mousePosition);
 
-        var allSelectables = FindObjectsOfType<Selectable>();
+        var allSelectables = FindObjectsByType<Selectable>(FindObjectsSortMode.None);
         var inside = new List<GameObject>();
 
         foreach (var sel in allSelectables)
@@ -140,7 +140,7 @@ public class SelectionManager : MonoBehaviour
             Vector3 screen = mainCamera.WorldToScreenPoint(sel.transform.position);
             if (screen.z < 0f) continue;
 
-            Vector2 p = new Vector2(screen.x, screen.y);
+            Vector2 p = new(screen.x, screen.y);
             if (rect.Contains(p))
                 inside.Add(sel.gameObject);
         }

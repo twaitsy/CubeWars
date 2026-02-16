@@ -11,7 +11,7 @@ public class AIMilitary : MonoBehaviour
 
     public void DefendLocation(Vector3 pos)
     {
-        Unit[] units = GameObject.FindObjectsOfType<Unit>();
+        Unit[] units = GameObject.FindObjectsByType<Unit>(FindObjectsSortMode.None);
 
         foreach (var u in units)
         {
@@ -25,7 +25,7 @@ public class AIMilitary : MonoBehaviour
 
     public void Tick()
     {
-        UnitCombatController[] units = GameObject.FindObjectsOfType<UnitCombatController>();
+        UnitCombatController[] units = GameObject.FindObjectsByType<UnitCombatController>(FindObjectsSortMode.None);
         int myUnits = 0;
 
         foreach (var u in units)
@@ -56,7 +56,7 @@ public class AIMilitary : MonoBehaviour
 
     Attackable FindEnemyTarget()
     {
-        Attackable[] all = GameObject.FindObjectsOfType<Attackable>();
+        Attackable[] all = GameObject.FindObjectsByType<Attackable>(FindObjectsSortMode.None);
         Attackable best = null;
         float bestDist = float.MaxValue;
 

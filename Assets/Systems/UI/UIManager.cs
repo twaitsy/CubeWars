@@ -5,7 +5,7 @@ public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
 
-    [SerializeField] private List<UIPanel> panels = new List<UIPanel>();
+    [SerializeField] private List<UIPanel> panels = new();
     [SerializeField] private UIPanel mainMenuPanel;
 
     void Awake()

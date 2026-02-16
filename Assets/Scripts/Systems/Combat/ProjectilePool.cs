@@ -22,7 +22,7 @@ public class ProjectilePool : MonoBehaviour
     public static ProjectilePool Instance;
 
     private readonly Dictionary<Projectile, Stack<Projectile>> pools =
-        new Dictionary<Projectile, Stack<Projectile>>();
+        new();
 
     void Awake()
     {

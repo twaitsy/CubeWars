@@ -15,8 +15,8 @@ public class ConstructionRegistry : MonoBehaviour
 
     // --- Data ---------------------------------------------------------------
 
-    readonly HashSet<ConstructionSite> allSites = new HashSet<ConstructionSite>();
-    readonly Dictionary<int, List<ConstructionSite>> sitesByTeam = new Dictionary<int, List<ConstructionSite>>();
+    readonly HashSet<ConstructionSite> allSites = new();
+    readonly Dictionary<int, List<ConstructionSite>> sitesByTeam = new();
 
     // --- Lifecycle ----------------------------------------------------------
 

@@ -102,7 +102,7 @@ public class BuildPlacementManager : MonoBehaviour
         {
             placementQuarterTurns = (placementQuarterTurns + 1) % 4;
 
-            var grid = FindObjectOfType<BuildGridManager>();
+            var grid = FindFirstObjectByType<BuildGridManager>();
             if (grid != null)
                 grid.RefreshHoveredPreview();
         }
@@ -135,7 +135,7 @@ public class BuildPlacementManager : MonoBehaviour
             ? footprint.GetDimensionsForQuarterTurns(placementQuarterTurns)
             : Vector2Int.one;
 
-        BuildGridManager grid = FindObjectOfType<BuildGridManager>();
+        BuildGridManager grid = FindFirstObjectByType<BuildGridManager>();
         Vector3 footprintCenter = cell.worldCenter;
         List<BuildGridCell> cells = null;
 
@@ -306,7 +306,7 @@ public class BuildPlacementManager : MonoBehaviour
             ? footprint.GetDimensionsForQuarterTurns(placementQuarterTurns)
             : Vector2Int.one;
 
-        var grid = FindObjectOfType<BuildGridManager>();
+        var grid = FindFirstObjectByType<BuildGridManager>();
         Vector3 footprintCenter = cell.worldCenter;
         List<BuildGridCell> cells = null;
 
@@ -421,7 +421,7 @@ public class BuildPlacementManager : MonoBehaviour
         {
             if (r == null) continue;
 
-            Material m = new Material(previewMaterial);
+            Material m = new(previewMaterial);
             Color c = m.color;
             c.a = previewAlpha;
             m.color = c;

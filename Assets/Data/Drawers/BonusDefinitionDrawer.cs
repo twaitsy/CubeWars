@@ -21,7 +21,7 @@ public class BonusDefinitionDrawer : PropertyDrawer
         EditorGUI.BeginProperty(position, label, property);
 
         // Foldout
-        Rect fold = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
+        Rect fold = new(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
         property.isExpanded = EditorGUI.Foldout(fold, property.isExpanded, label, true);
 
         if (!property.isExpanded)
@@ -32,7 +32,7 @@ public class BonusDefinitionDrawer : PropertyDrawer
 
         EditorGUI.indentLevel++;
         float line = EditorGUIUtility.singleLineHeight + 2;
-        Rect r = new Rect(position.x, position.y + line, position.width, EditorGUIUtility.singleLineHeight);
+        Rect r = new(position.x, position.y + line, position.width, EditorGUIUtility.singleLineHeight);
 
         // -------------------------
         // ID
@@ -116,8 +116,8 @@ public class BonusDefinitionDrawer : PropertyDrawer
         string display = $"{name} — {cat}";
 
         float buttonWidth = 120f;
-        Rect labelRect = new Rect(r.x, r.y, r.width - buttonWidth - 4, r.height);
-        Rect buttonRect = new Rect(labelRect.xMax + 2, r.y, buttonWidth, r.height);
+        Rect labelRect = new(r.x, r.y, r.width - buttonWidth - 4, r.height);
+        Rect buttonRect = new(labelRect.xMax + 2, r.y, buttonWidth, r.height);
 
         EditorGUI.LabelField(labelRect, display);
 

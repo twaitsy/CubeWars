@@ -31,9 +31,9 @@ public class RTSGameSettings : MonoBehaviour
 
     public static RTSGameSettings Instance;
 
-    public DisplayOptions display = new DisplayOptions();
-    public GameplayOptions gameplay = new GameplayOptions();
-    public CheatOptions cheats = new CheatOptions();
+    public DisplayOptions display = new();
+    public GameplayOptions gameplay = new();
+    public CheatOptions cheats = new();
 
     float applyTimer;
 
@@ -83,10 +83,10 @@ public class RTSGameSettings : MonoBehaviour
     public Dictionary<string, string> BuildLiveStats()
     {
         var stats = new Dictionary<string, string>();
-        stats["Units"] = FindObjectsOfType<Unit>().Length.ToString();
-        stats["Civilians"] = FindObjectsOfType<Civilian>().Length.ToString();
-        stats["Buildings"] = FindObjectsOfType<Building>().Length.ToString();
-        stats["Construction Sites"] = FindObjectsOfType<ConstructionSite>().Length.ToString();
+        stats["Units"] = FindObjectsByType<Unit>(FindObjectsSortMode.None).Length.ToString();
+        stats["Civilians"] = FindObjectsByType<Civilian>(FindObjectsSortMode.None).Length.ToString();
+        stats["Buildings"] = FindObjectsByType<Building>(FindObjectsSortMode.None).Length.ToString();
+        stats["Construction Sites"] = FindObjectsByType<ConstructionSite>(FindObjectsSortMode.None).Length.ToString();
         stats["Stored Notifications"] = AlertManager.Instance != null
             ? AlertManager.Instance.GetRecent(10).Count.ToString()
             : "0";
@@ -96,7 +96,7 @@ public class RTSGameSettings : MonoBehaviour
     public List<string> GetCraftablesSummary()
     {
         var lines = new List<string>();
-        var buildings = FindObjectsOfType<CraftingBuilding>();
+        var buildings = FindObjectsByType<CraftingBuilding>(FindObjectsSortMode.None);
         for (int i = 0; i < buildings.Length; i++)
         {
             var b = buildings[i];
@@ -113,13 +113,13 @@ public class RTSGameSettings : MonoBehaviour
     public List<string> GetAchievementsSummary()
     {
         var achievements = new List<string>();
-        int civCount = FindObjectsOfType<Civilian>().Length;
-        int buildingCount = FindObjectsOfType<Building>().Length;
+        int civCount = FindObjectsByType<Civilian>(FindObjectsSortMode.None).Length;
+        int buildingCount = FindObjectsByType<Building>(FindObjectsSortMode.None).Length;
 
         achievements.Add((civCount >= 10 ? "[Unlocked]" : "[Locked]") + " Community Hub (10+ civilians)");
         achievements.Add((buildingCount >= 6 ? "[Unlocked]" : "[Locked]") + " Settlement Core (6+ buildings)");
 
-        bool hasCrafting = FindObjectsOfType<CraftingBuilding>().Length > 0;
+        bool hasCrafting = FindObjectsByType<CraftingBuilding>(FindObjectsSortMode.None).Length > 0;
         achievements.Add((hasCrafting ? "[Unlocked]" : "[Locked]") + " Industrial Start (place a crafting station)");
 
         return achievements;
@@ -127,7 +127,7 @@ public class RTSGameSettings : MonoBehaviour
 
     static void ToggleComponent<T>(bool show) where T : MonoBehaviour
     {
-        var all = FindObjectsOfType<T>();
+        var all = FindObjectsByType<T>(FindObjectsSortMode.None);
         for (int i = 0; i < all.Length; i++)
         {
             var component = all[i];

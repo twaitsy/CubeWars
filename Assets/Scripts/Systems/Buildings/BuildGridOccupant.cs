@@ -6,7 +6,7 @@ using UnityEngine;
 /// </summary>
 public class BuildGridOccupant : MonoBehaviour
 {
-    private readonly List<BuildGridCell> occupiedCells = new List<BuildGridCell>();
+    private readonly List<BuildGridCell> occupiedCells = new();
 
     public void SetOccupiedCells(List<BuildGridCell> cells, GameObject owner)
     {

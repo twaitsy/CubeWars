@@ -41,7 +41,7 @@ public class MainMenuUI : MonoBehaviour
     [TextArea(5, 10)] public string creditsText = "Twaitsy";
 
     [Header("Match Setup")]
-    [SerializeField] List<TeamSetupEntry> teams = new List<TeamSetupEntry>();
+    [SerializeField] List<TeamSetupEntry> teams = new();
     int teamCount = 6;
 
     MenuScreen screen = MenuScreen.Main;
@@ -220,8 +220,8 @@ public class MainMenuUI : MonoBehaviour
         Rect rect = PanelRect(panelWidth, 500);
         GUI.Box(rect, title, boxStyle);
 
-        Rect scrollArea = new Rect(rect.x + 20, rect.y + 50, rect.width - 40, rect.height - 110);
-        Rect content = new Rect(0, 0, scrollArea.width - 20, Mathf.Max(320, (lines != null ? lines.Count : 1) * 24));
+        Rect scrollArea = new(rect.x + 20, rect.y + 50, rect.width - 40, rect.height - 110);
+        Rect content = new(0, 0, scrollArea.width - 20, Mathf.Max(320, (lines != null ? lines.Count : 1) * 24));
 
         longListScroll = GUI.BeginScrollView(scrollArea, longListScroll, content);
         if (lines == null || lines.Count == 0)
@@ -291,7 +291,7 @@ public class MainMenuUI : MonoBehaviour
 
         y += 32;
 
-        Rect scrollRect = new Rect(x, y, w, rect.yMax - y - buttonHeight - 24);
+        Rect scrollRect = new(x, y, w, rect.yMax - y - buttonHeight - 24);
         float contentH = teams.Count * 56 + 10;
         matchScroll = GUI.BeginScrollView(scrollRect, matchScroll, new Rect(0, 0, w - 20, contentH));
 

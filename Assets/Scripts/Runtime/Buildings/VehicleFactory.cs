@@ -20,7 +20,7 @@ public class VehicleFactory : Building
 
         if (def.constructionCost != null && def.constructionCost.Count > 0)
         {
-            List<ResourceCost> mapped = new List<ResourceCost>();
+            List<ResourceCost> mapped = new();
             for (int i = 0; i < def.constructionCost.Count; i++)
             {
                 var entry = def.constructionCost[i];

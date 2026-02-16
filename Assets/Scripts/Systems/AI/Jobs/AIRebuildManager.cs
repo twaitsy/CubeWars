@@ -7,7 +7,7 @@ public class AIRebuildManager : MonoBehaviour
 
     // Stores (building definition, rebuild position)
     private readonly Queue<(BuildItemDefinition, Vector3)> rebuildQueue
-        = new Queue<(BuildItemDefinition, Vector3)>();
+        = new();
 
     /// <summary>
     /// Call this from your building destruction logic.

@@ -30,7 +30,7 @@ public class TeamAIBuild : MonoBehaviour
     public float buildInterval = 4f;
 
     [Tooltip("Categories the AI will try in order.")]
-    public List<string> categoryPriority = new List<string> { "Economy", "Industry", "Housing", "Tech" };
+    public List<string> categoryPriority = new() { "Economy", "Industry", "Housing", "Tech" };
 
     private float timer;
 
@@ -60,7 +60,7 @@ public class TeamAIBuild : MonoBehaviour
 
     BuildGridCell FindFreeCellForTeam(int t)
     {
-        var cells = FindObjectsOfType<BuildGridCell>();
+        var cells = FindObjectsByType<BuildGridCell>(FindObjectsSortMode.None);
         for (int i = 0; i < cells.Length; i++)
         {
             if (cells[i].teamID == t && !cells[i].isOccupied)

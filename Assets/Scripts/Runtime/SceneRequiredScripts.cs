@@ -46,12 +46,14 @@ public class SceneRequiredScripts : MonoBehaviour
         for (int i = 0; i < RequiredSceneScripts.Length; i++)
         {
             Type requiredType = RequiredSceneScripts[i];
-            if (FindObjectOfType(requiredType) == null)
+
+            // Use the new API: FindFirstObjectByType(Type)
+            if (FindFirstObjectByType(requiredType) == null)
                 missingRequiredTypes.Add(requiredType.Name);
         }
 
         // Check bootstrap requirement
-        if (FindObjectOfType<TeamBootstrap>() == null)
+        if (FindObjectsByType<TeamBootstrap>(FindObjectsSortMode.None) == null)
         {
             missingRequiredTypes.Add("TeamBootstrap OR SixTeamBootstrap OR HQSpawner");
         }
@@ -180,8 +182,8 @@ public class SceneRequiredScripts : MonoBehaviour
 
     void ValidateCraftingRoleCoverage()
     {
-        CraftingBuilding[] buildings = FindObjectsOfType<CraftingBuilding>();
-        Civilian[] civilians = FindObjectsOfType<Civilian>();
+        CraftingBuilding[] buildings = FindObjectsByType<CraftingBuilding>(FindObjectsSortMode.None);
+        Civilian[] civilians = FindObjectsByType<Civilian>(FindObjectsSortMode.None);
 
         for (int i = 0; i < buildings.Length; i++)
         {
@@ -214,8 +216,8 @@ public class SceneRequiredScripts : MonoBehaviour
 
     void ValidateCraftingAssignmentRegistration()
     {
-        CraftingBuilding[] buildings = FindObjectsOfType<CraftingBuilding>();
-        Civilian[] civilians = FindObjectsOfType<Civilian>();
+        CraftingBuilding[] buildings = FindObjectsByType<CraftingBuilding>(FindObjectsSortMode.None);
+        Civilian[] civilians = FindObjectsByType<Civilian>(FindObjectsSortMode.None);
 
         for (int i = 0; i < buildings.Length; i++)
         {
@@ -243,7 +245,7 @@ public class SceneRequiredScripts : MonoBehaviour
 
     void ValidateCraftingHaulerCaps()
     {
-        CraftingBuilding[] buildings = FindObjectsOfType<CraftingBuilding>();
+        CraftingBuilding[] buildings = FindObjectsByType<CraftingBuilding>(FindObjectsSortMode.None);
 
         for (int i = 0; i < buildings.Length; i++)
         {

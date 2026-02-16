@@ -7,8 +7,8 @@ public class WorkerTaskDispatcher : MonoBehaviour
 
     [Min(0.1f)] public float dispatchTickSeconds = 0.4f;
 
-    readonly List<Civilian> workers = new List<Civilian>();
-    readonly List<WorkerTaskRequest> queuedTasks = new List<WorkerTaskRequest>();
+    readonly List<Civilian> workers = new();
+    readonly List<WorkerTaskRequest> queuedTasks = new();
     float dispatchTimer;
 
     void Awake()

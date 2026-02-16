@@ -18,8 +18,8 @@ public class ResourceSpawner : MonoBehaviour
         public int count = 10;
 
         [Header("Node Contents")]
-        public Vector2Int amountRange = new Vector2Int(50, 200);
-        public Vector2Int valueRange = new Vector2Int(1, 5);
+        public Vector2Int amountRange = new(50, 200);
+        public Vector2Int valueRange = new(1, 5);
 
         [Header("Scale by Amount")]
         public bool scaleHeightByAmount = true;
@@ -36,7 +36,7 @@ public class ResourceSpawner : MonoBehaviour
 
     [Header("Spawn Area (world space)")]
     public Vector3 resourceSpawnCenter = Vector3.zero;
-    public Vector2 resourceSpawnSize = new Vector2(80f, 80f);
+    public Vector2 resourceSpawnSize = new(80f, 80f);
     public float spawnHeight = 20f;
 
     [Header("Grounding")]
@@ -51,7 +51,7 @@ public class ResourceSpawner : MonoBehaviour
     [Header("Resource Configs")]
     [Tooltip("Only resources categorized as Raw in this database are spawned.")]
     public ResourcesDatabase resourcesDatabase;
-    public List<ResourceSpawnConfig> configs = new List<ResourceSpawnConfig>();
+    public List<ResourceSpawnConfig> configs = new();
 
     [Header("Lifecycle")]
     public bool spawnOnStart = true;

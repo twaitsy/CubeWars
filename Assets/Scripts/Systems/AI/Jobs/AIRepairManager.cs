@@ -20,7 +20,7 @@ public class AIRepairManager : MonoBehaviour
 
     void RepairNearbyBuildings()
     {
-        Attackable[] all = GameObject.FindObjectsOfType<Attackable>();
+        Attackable[] all = GameObject.FindObjectsByType<Attackable>(FindObjectsSortMode.None);
 
         foreach (var a in all)
         {

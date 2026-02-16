@@ -2,8 +2,8 @@
 
 public class CircuitBoardGenerator : SciFiFloorGenerator
 {
-    public Color boardColor = new Color(0.05f, 0.2f, 0.05f);
-    public Color traceColor = new Color(0.1f, 0.8f, 0.4f);
+    public Color boardColor = new(0.05f, 0.2f, 0.05f);
+    public Color traceColor = new(0.1f, 0.8f, 0.4f);
     public float traceDensity = 12f;
     public float traceWidth = 0.008f;
 

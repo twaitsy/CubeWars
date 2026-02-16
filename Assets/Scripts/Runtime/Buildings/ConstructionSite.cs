@@ -7,7 +7,7 @@ public class ConstructionSite : MonoBehaviour
     public int teamID;
     public BuildItemDefinition buildItem;   // what we’re building
     public BuildGridCell gridCell;         // cell this site occupies
-    private readonly List<BuildGridCell> occupiedCells = new List<BuildGridCell>();
+    private readonly List<BuildGridCell> occupiedCells = new();
 
     [Header("Build Settings")]
     public float baseBuildTime = 10f;      // fallback if item has no override
@@ -23,7 +23,7 @@ public class ConstructionSite : MonoBehaviour
     bool completed;
 
     // delivered[type] = amount delivered to this site
-    Dictionary<ResourceDefinition, int> delivered = new Dictionary<ResourceDefinition, int>();
+    Dictionary<ResourceDefinition, int> delivered = new();
 
     void Awake()
     {

@@ -8,7 +8,7 @@ public class CivilianSpawner : MonoBehaviour
     public int civilianCount = 10;
 
     [Header("Spawn Area")]
-    public Vector3 spawnArea = new Vector3(5f, 0f, 5f);
+    public Vector3 spawnArea = new(5f, 0f, 5f);
 
     void Start()
     {

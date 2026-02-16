@@ -33,12 +33,12 @@ public class TeamColorManager : MonoBehaviour
     [Header("6 Team Colors (index = teamID)")]
     public Color[] teamColors = new Color[6]
     {
-        new Color(0.2f, 0.4f, 1f),  // Team 0 - Blue
-        new Color(1f, 0.25f, 0.25f),// Team 1 - Red
-        new Color(0.2f, 1f, 0.4f),  // Team 2 - Green
-        new Color(1f, 0.85f, 0.2f), // Team 3 - Yellow
-        new Color(0.75f, 0.35f, 1f),// Team 4 - Purple
-        new Color(0.2f, 1f, 1f)     // Team 5 - Cyan
+        new(0.2f, 0.4f, 1f),  // Team 0 - Blue
+        new(1f, 0.25f, 0.25f),// Team 1 - Red
+        new(0.2f, 1f, 0.4f),  // Team 2 - Green
+        new(1f, 0.85f, 0.2f), // Team 3 - Yellow
+        new(0.75f, 0.35f, 1f),// Team 4 - Purple
+        new(0.2f, 1f, 1f)     // Team 5 - Cyan
     };
 
     void Awake()

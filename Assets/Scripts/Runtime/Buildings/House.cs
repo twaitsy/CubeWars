@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class House : Building
 {
-    static readonly List<House> allHouses = new List<House>();
+    static readonly List<House> allHouses = new();
 
     static readonly string[] houseNamePrefixes =
     {
@@ -24,7 +24,7 @@ public class House : Building
     [Min(1)] public int maxInhabitants = 4;
 
     [SerializeField]
-    List<Civilian> civilians = new List<Civilian>();
+    List<Civilian> civilians = new();
 
     public IReadOnlyList<Civilian> Civilians => civilians;
     public static IReadOnlyList<House> AllHouses => allHouses;

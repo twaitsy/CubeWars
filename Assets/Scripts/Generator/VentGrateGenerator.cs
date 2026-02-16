@@ -2,8 +2,8 @@
 
 public class VentGrateGenerator : SciFiFloorGenerator
 {
-    public Color metalColor = new Color(0.35f, 0.35f, 0.4f);
-    public Color holeColor = new Color(0.1f, 0.1f, 0.15f);
+    public Color metalColor = new(0.35f, 0.35f, 0.4f);
+    public Color holeColor = new(0.1f, 0.1f, 0.15f);
     public float grateSize = 0.22f;
     public float holeRadius = 0.035f;
 

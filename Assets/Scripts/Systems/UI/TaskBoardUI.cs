@@ -34,7 +34,7 @@ public class TaskBoardUI : MonoBehaviour
             playerTeamID = GameManager.playerTeam.teamID;
     }
 
-    GameManager GameManager => FindObjectOfType<GameManager>();
+    GameManager GameManager => FindFirstObjectByType<GameManager>();
 
     void Update()
     {
@@ -61,7 +61,7 @@ public class TaskBoardUI : MonoBehaviour
         float left = marginLeft;
         float top = Screen.height - height - marginBottom;
 
-        Rect panelRect = new Rect(left, top, width, height);
+        Rect panelRect = new(left, top, width, height);
         IMGUIInputBlocker.Register(panelRect);
 
         int prevLabelSize = GUI.skin.label.fontSize;
@@ -97,7 +97,7 @@ public class TaskBoardUI : MonoBehaviour
         GUI.Label(new Rect(x, y, width, row), "Civilian Workforce");
         y += row;
 
-        Civilian[] civilians = FindObjectsOfType<Civilian>();
+        Civilian[] civilians = FindObjectsByType<Civilian>(FindObjectsSortMode.None);
         int teamTotal = 0;
         int waitingForJob = 0;
         int movingToTarget = 0;
@@ -144,7 +144,7 @@ public class TaskBoardUI : MonoBehaviour
         GUI.Label(new Rect(x, y, width, row), "Scene Job Board");
         y += row;
 
-        ResourceNode[] nodes = FindObjectsOfType<ResourceNode>();
+        ResourceNode[] nodes = FindObjectsByType<ResourceNode>(FindObjectsSortMode.None);
         int activeNodes = 0;
         for (int i = 0; i < nodes.Length; i++)
         {
@@ -152,7 +152,7 @@ public class TaskBoardUI : MonoBehaviour
                 activeNodes++;
         }
 
-        Civilian[] civilians = FindObjectsOfType<Civilian>();
+        Civilian[] civilians = FindObjectsByType<Civilian>(FindObjectsSortMode.None);
         int nodeJobsFulfilled = 0;
         int buildersWorking = 0;
         int haulersWorking = 0;
@@ -173,7 +173,7 @@ public class TaskBoardUI : MonoBehaviour
                 haulersWorking++;
         }
 
-        ConstructionSite[] sites = FindObjectsOfType<ConstructionSite>();
+        ConstructionSite[] sites = FindObjectsByType<ConstructionSite>(FindObjectsSortMode.None);
         int activeSites = 0;
         int sitesAwaitingMaterials = 0;
         int sitesUnderConstruction = 0;
@@ -189,7 +189,7 @@ public class TaskBoardUI : MonoBehaviour
             else sitesAwaitingMaterials++;
         }
 
-        CraftingBuilding[] craftBuildings = FindObjectsOfType<CraftingBuilding>();
+        CraftingBuilding[] craftBuildings = FindObjectsByType<CraftingBuilding>(FindObjectsSortMode.None);
         int craftingActive = 0;
         int craftingWaitingInputs = 0;
         int craftingWaitingPickup = 0;
@@ -310,7 +310,7 @@ public class TaskBoardUI : MonoBehaviour
         foreach (CivilianRole role in Enum.GetValues(typeof(CivilianRole)))
             result[role] = 0;
 
-        Civilian[] all = FindObjectsOfType<Civilian>();
+        Civilian[] all = FindObjectsByType<Civilian>(FindObjectsSortMode.None);
         for (int i = 0; i < all.Length; i++)
         {
             Civilian c = all[i];

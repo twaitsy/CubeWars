@@ -10,7 +10,7 @@ public class AIResourceManager : MonoBehaviour
     public float claimRadius = 35f;
 
     // Internal list of nodes this AI has claimed
-    private readonly List<ResourceNode> claimedNodes = new List<ResourceNode>();
+    private readonly List<ResourceNode> claimedNodes = new();
 
     private AIThreatDetector threatDetector;
     private AIMilitary military;
@@ -33,7 +33,7 @@ public class AIResourceManager : MonoBehaviour
     // ---------------------------------------------------------
     void ClaimNearbyNodes()
     {
-        ResourceNode[] allNodes = GameObject.FindObjectsOfType<ResourceNode>();
+        ResourceNode[] allNodes = GameObject.FindObjectsByType<ResourceNode>(FindObjectsSortMode.None);
         float claimRadiusSqr = claimRadius * claimRadius;
         Vector3 currentPosition = transform.position;
 

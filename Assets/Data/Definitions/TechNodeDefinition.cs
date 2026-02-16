@@ -13,17 +13,17 @@ public class TechNodeDefinition
     public string description;
 
     // Research cost
-    public List<ResourceAmount> researchCost = new List<ResourceAmount>();
+    public List<ResourceAmount> researchCost = new();
     public float researchTime = 10f;
 
     // Requirements
-    public List<string> prerequisiteIds = new List<string>();
+    public List<string> prerequisiteIds = new();
     public BuildingDefinition requiredBuilding;
 
     // Unlocks
-    public List<BuildingDefinition> unlockBuildings = new List<BuildingDefinition>();
-    public List<UnitDefinition> unlockUnits = new List<UnitDefinition>();
-    public List<ProductionRecipeDefinition> unlockRecipes = new List<ProductionRecipeDefinition>();
+    public List<BuildingDefinition> unlockBuildings = new();
+    public List<UnitDefinition> unlockUnits = new();
+    public List<ProductionRecipeDefinition> unlockRecipes = new();
 
     // Stat modifiers (optional)
     public float globalProductionSpeedMultiplier = 1f;

@@ -7,7 +7,7 @@ public class ProductionNotificationManager : MonoBehaviour
 
     [Min(1f)] public float repeatDelaySeconds = 5f;
 
-    readonly Dictionary<string, float> cooldowns = new Dictionary<string, float>();
+    readonly Dictionary<string, float> cooldowns = new();
 
     void Awake()
     {

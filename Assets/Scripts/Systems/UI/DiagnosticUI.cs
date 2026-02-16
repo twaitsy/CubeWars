@@ -22,7 +22,7 @@ public class DiagnosticUI : MonoBehaviour
     public bool showSceneSystems = true;
 
     Vector2 scroll;
-    readonly StringBuilder line = new StringBuilder(256);
+    readonly StringBuilder line = new(256);
 
     void Update()
     {
@@ -36,19 +36,19 @@ public class DiagnosticUI : MonoBehaviour
 
     void CloseOtherUi()
     {
-        MainMenuUI[] mainMenus = FindObjectsOfType<MainMenuUI>();
+        MainMenuUI[] mainMenus = FindObjectsByType<MainMenuUI>(FindObjectsSortMode.None);
         for (int i = 0; i < mainMenus.Length; i++)
             mainMenus[i].show = false;
-        BuildMenuUI[] buildMenus = FindObjectsOfType<BuildMenuUI>();
+        BuildMenuUI[] buildMenus = FindObjectsByType<BuildMenuUI>(FindObjectsSortMode.None);
         for (int i = 0; i < buildMenus.Length; i++)
             buildMenus[i].SetVisible(false);
-        TaskBoardUI[] taskBoards = FindObjectsOfType<TaskBoardUI>();
+        TaskBoardUI[] taskBoards = FindObjectsByType<TaskBoardUI>(FindObjectsSortMode.None);
         for (int i = 0; i < taskBoards.Length; i++)
             taskBoards[i].show = false;
-        UnitInspectorUI[] inspectors = FindObjectsOfType<UnitInspectorUI>();
+        UnitInspectorUI[] inspectors = FindObjectsByType<UnitInspectorUI>(FindObjectsSortMode.None);
         for (int i = 0; i < inspectors.Length; i++)
             inspectors[i].show = false;
-        Minimap[] minimaps = FindObjectsOfType<Minimap>();
+        Minimap[] minimaps = FindObjectsByType<Minimap>(FindObjectsSortMode.None);
         for (int i = 0; i < minimaps.Length; i++)
             minimaps[i].show = false;
     }
@@ -58,7 +58,7 @@ public class DiagnosticUI : MonoBehaviour
         if (!show)
             return;
 
-        Rect panel = new Rect(margin, margin, Screen.width - margin * 2f, Screen.height - margin * 2f);
+        Rect panel = new(margin, margin, Screen.width - margin * 2f, Screen.height - margin * 2f);
         IMGUIInputBlocker.Register(panel);
 
         int oldLabel = GUI.skin.label.fontSize;
@@ -193,7 +193,7 @@ public class DiagnosticUI : MonoBehaviour
 
         if (showResourcesAndRecipes)
         {
-            ResourceNode[] nodes = FindObjectsOfType<ResourceNode>();
+            ResourceNode[] nodes = FindObjectsByType<ResourceNode>(FindObjectsSortMode.None);
             GUILayout.Label($"- Resource Nodes in Scene: {nodes.Length}");
             for (int i = 0; i < nodes.Length; i++)
             {
@@ -204,7 +204,7 @@ public class DiagnosticUI : MonoBehaviour
                 GUILayout.Label($" • {node.name} | {resourceName} | remaining: {node.remaining}/{node.amount} | gatherers: {node.ActiveGatherers}/{Mathf.Max(1, node.maxGatherers)}");
             }
 
-            CraftingBuilding[] buildings = FindObjectsOfType<CraftingBuilding>();
+            CraftingBuilding[] buildings = FindObjectsByType<CraftingBuilding>(FindObjectsSortMode.None);
             GUILayout.Label($"- Crafting Buildings in Scene: {buildings.Length}");
             for (int i = 0; i < buildings.Length; i++)
             {
@@ -241,7 +241,7 @@ public class DiagnosticUI : MonoBehaviour
                 }
             }
 
-            Civilian[] workers = FindObjectsOfType<Civilian>();
+            Civilian[] workers = FindObjectsByType<Civilian>(FindObjectsSortMode.None);
             GUILayout.Label($"- Workers in Scene: {workers.Length}");
             var waitingWorkers = new List<Civilian>();
             var byState = new Dictionary<string, int>();
@@ -301,7 +301,7 @@ public class DiagnosticUI : MonoBehaviour
             JobManager jm = JobManager.Instance;
             if (jm != null)
             {
-                Civilian[] workers = FindObjectsOfType<Civilian>();
+                Civilian[] workers = FindObjectsByType<Civilian>(FindObjectsSortMode.None);
                 var teams = workers.Select(w => w.teamID).Distinct().OrderBy(id => id).ToArray();
                 for (int i = 0; i < teams.Length; i++)
                 {
@@ -318,7 +318,7 @@ public class DiagnosticUI : MonoBehaviour
             else
                 GUILayout.Label("- TeamResources: missing");
 
-            ResourceStorageContainer[] storages = FindObjectsOfType<ResourceStorageContainer>();
+            ResourceStorageContainer[] storages =   FindObjectsByType<ResourceStorageContainer>(FindObjectsSortMode.None);
             GUILayout.Label($"- Storage Containers: {storages.Length}");
             for (int i = 0; i < storages.Length; i++)
             {

@@ -31,7 +31,7 @@ public class UnitDefinition
     public float buildSpeed = 1f;
 
     // Training
-    public List<ResourceAmount> trainingCost = new List<ResourceAmount>();
+    public List<ResourceAmount> trainingCost = new();
     public float trainingTime = 5f;
     public BuildingDefinition trainedAt;
 
@@ -40,4 +40,5 @@ public class UnitDefinition
 
     // Upgrades
     public UnitDefinition upgradeTo;
+    public List<NeedDefinition> needs;
 }

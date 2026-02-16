@@ -48,7 +48,7 @@ public abstract class SciFiFloorGenerator : MonoBehaviour
 
     private Texture2D GenerateTexture()
     {
-        Texture2D tex = new Texture2D(textureSize, textureSize, TextureFormat.RGBA32, false);
+        Texture2D tex = new(textureSize, textureSize, TextureFormat.RGBA32, false);
         Color[] pixels = new Color[textureSize * textureSize];
 
         for (int x = 0; x < textureSize; x++)

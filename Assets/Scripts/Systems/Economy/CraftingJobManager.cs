@@ -7,8 +7,8 @@ public class CraftingJobManager : MonoBehaviour
 
     [Min(0.25f)] public float assignmentTickSeconds = 1f;
 
-    readonly List<Civilian> civilians = new List<Civilian>();
-    readonly List<CraftingBuilding> buildings = new List<CraftingBuilding>();
+    readonly List<Civilian> civilians = new();
+    readonly List<CraftingBuilding> buildings = new();
     float timer;
 
     void Awake()

@@ -21,7 +21,7 @@ public class TurretProjectilePool : MonoBehaviour
     public static TurretProjectilePool Instance;
 
     private readonly Dictionary<TurretProjectile, Stack<TurretProjectile>> pools =
-        new Dictionary<TurretProjectile, Stack<TurretProjectile>>();
+        new();
 
     void Awake()
     {

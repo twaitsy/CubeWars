@@ -30,7 +30,7 @@ public class UnitInspectorUI : MonoBehaviour
 
     private GameObject selected;
     private InspectorTab currentTab = InspectorTab.Info;
-    private readonly List<InspectorTab> activeTabs = new List<InspectorTab>();
+    private readonly List<InspectorTab> activeTabs = new();
     private Vector2 recipeSelectionScroll;
     private Vector2 recipeDetailsScroll;
     public bool show = true;
@@ -47,7 +47,7 @@ public class UnitInspectorUI : MonoBehaviour
             return;
 
         float scale = RTSGameSettings.UIScale;
-        Rect rect = new Rect(
+        Rect rect = new(
             Screen.width - (width * scale) - padding,
             Screen.height - (height * scale) - padding,
             width * scale,

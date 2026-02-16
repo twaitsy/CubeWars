@@ -12,7 +12,7 @@ public class ResourcesDatabase : ScriptableObject
         Instance = this;
     }
 
-    public List<ResourceDefinition> resources = new List<ResourceDefinition>();
+    public List<ResourceDefinition> resources = new();
 
     public bool TryGetById(string resourceId, out ResourceDefinition definition)
     {

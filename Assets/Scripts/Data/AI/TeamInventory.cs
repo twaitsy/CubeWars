@@ -31,7 +31,7 @@ public class TeamInventory : MonoBehaviour
     public int teamCount = 6;
 
     private Dictionary<int, Dictionary<ToolItem, int>> tools =
-        new Dictionary<int, Dictionary<ToolItem, int>>();
+        new();
 
     void Awake()
     {

@@ -14,7 +14,7 @@ public class DiplomacyManager : MonoBehaviour
     public bool initializeAllTeamsAtWar = true;
 
     private readonly Dictionary<int, HashSet<int>> warMatrix =
-        new Dictionary<int, HashSet<int>>();
+        new();
 
     void Awake()
     {
@@ -62,10 +62,10 @@ public class DiplomacyManager : MonoBehaviour
         foreach (var kv in warMatrix)
             teams.Add(kv.Key);
 
-        foreach (var t in GameObject.FindObjectsOfType<Team>())
+        foreach (var t in GameObject.FindObjectsByType<Team>(FindObjectsSortMode.None))
             teams.Add(t.teamID);
 
-        foreach (var a in GameObject.FindObjectsOfType<Attackable>())
+        foreach (var a in GameObject.FindObjectsByType<Attackable>(FindObjectsSortMode.None))
             teams.Add(a.teamID);
 
         var list = new List<int>(teams);

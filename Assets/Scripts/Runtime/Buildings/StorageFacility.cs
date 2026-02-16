@@ -10,7 +10,7 @@ public class StorageFacility : Building
     [Header("Storage Defaults")]
     [Min(1)] public int defaultCapacityPerResource = 500;
     public bool allowAllResourceCategories = true;
-    public List<ResourceCategory> allowedCategories = new List<ResourceCategory>
+    public List<ResourceCategory> allowedCategories = new()
     {
         ResourceCategory.Raw,
         ResourceCategory.Refined,

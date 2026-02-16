@@ -42,7 +42,7 @@ public class SciFiMapBootstrap : MonoBehaviour
         if (r != null)
         {
             var block = new MaterialPropertyBlock();
-            Color c = new Color(0.2f, 0.9f, 1f);
+            Color c = new(0.2f, 0.9f, 1f);
             block.SetColor(ColorID, c);
             block.SetColor(EmissionID, c * beaconEmission);
             r.SetPropertyBlock(block);

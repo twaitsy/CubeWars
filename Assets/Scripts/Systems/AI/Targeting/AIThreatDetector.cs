@@ -7,7 +7,7 @@ public class AIThreatDetector : MonoBehaviour
 
     public Attackable DetectThreatNear(Vector3 pos)
     {
-        Attackable[] all = GameObject.FindObjectsOfType<Attackable>();
+        Attackable[] all = GameObject.FindObjectsByType<Attackable>(FindObjectsSortMode.None);
         float threatRadiusSqr = threatRadius * threatRadius;
         DiplomacyManager diplomacy = DiplomacyManager.Instance;
 

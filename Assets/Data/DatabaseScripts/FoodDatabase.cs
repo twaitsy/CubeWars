@@ -5,7 +5,7 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "CubeWars/Database/Food", fileName = "FoodDatabase")]
 public class FoodDatabase : ScriptableObject
 {
-    public List<FoodDefinition> foods = new List<FoodDefinition>();
+    public List<FoodDefinition> foods = new();
 
     public bool TryGet(ResourceDefinition resource, out FoodDefinition definition)
     {

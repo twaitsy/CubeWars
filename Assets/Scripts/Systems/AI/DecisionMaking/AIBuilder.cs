@@ -97,7 +97,7 @@ public class AIBuilder : MonoBehaviour
 
     Vector3 FindBaseCenter()
     {
-        foreach (var s in GameObject.FindObjectsOfType<ResourceStorageContainer>())
+        foreach (var s in GameObject.FindObjectsByType<ResourceStorageContainer>(FindObjectsSortMode.None))
         {
             if (s.teamID == teamID)
                 return s.transform.position;

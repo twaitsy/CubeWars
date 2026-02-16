@@ -19,10 +19,10 @@ public class ResourceStorageContainer : MonoBehaviour
     }
 
     public int teamID;
-    public List<ResourceFlowEntry> resourceFlow = new List<ResourceFlowEntry>();
+    public List<ResourceFlowEntry> resourceFlow = new();
 
-    readonly Dictionary<string, int> stored = new Dictionary<string, int>();
-    readonly Dictionary<string, int> capacity = new Dictionary<string, int>();
+    readonly Dictionary<string, int> stored = new();
+    readonly Dictionary<string, int> capacity = new();
 
     string Key(ResourceDefinition resource) => ResourceIdUtility.GetKey(resource);
 

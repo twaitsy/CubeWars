@@ -8,7 +8,7 @@ public class ResourceDropoff : MonoBehaviour
     [Header("If empty, accepts ANY resource.")]
     public ResourceDefinition[] acceptsOnly;
 
-    private static readonly List<ResourceDropoff> all = new List<ResourceDropoff>();
+    private static readonly List<ResourceDropoff> all = new();
 
     void OnEnable()
     {

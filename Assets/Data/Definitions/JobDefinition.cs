@@ -12,8 +12,8 @@ public class JobDefinition : ScriptableObject
     public CivilianJobType defaultJobType = CivilianJobType.Generalist;
     public CivilianRole legacyRole = CivilianRole.Gatherer;
     public float baseSkill = 1f;
-    public List<WorkerCapability> capabilities = new List<WorkerCapability>();
-    public List<ToolDefinition> allowedTools = new List<ToolDefinition>();
+    public List<WorkerCapability> capabilities = new();
+    public List<ToolDefinition> allowedTools = new();
 
     public bool HasCapability(WorkerCapability capability)
     {

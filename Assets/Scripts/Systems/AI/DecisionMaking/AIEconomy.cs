@@ -31,7 +31,7 @@ public class AIEconomy : MonoBehaviour
 
     void FindBarracks()
     {
-        foreach (var b in GameObject.FindObjectsOfType<Barracks>())
+        foreach (var b in GameObject.FindObjectsByType<Barracks>(FindObjectsSortMode.None))
         {
             if (b.teamID == teamID)
             {

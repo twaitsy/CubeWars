@@ -2,8 +2,8 @@
 
 public class IndustrialPanelsGenerator : SciFiFloorGenerator
 {
-    public Color baseColor = new Color(0.25f, 0.25f, 0.3f);
-    public Color seamColor = new Color(0.6f, 0.6f, 0.7f);
+    public Color baseColor = new(0.25f, 0.25f, 0.3f);
+    public Color seamColor = new(0.6f, 0.6f, 0.7f);
     public float panelSize = 0.18f;
     public float seamWidth = 0.015f;
     public float grunge = 0.15f;

@@ -4,12 +4,12 @@ using System.Collections.Generic;
 public class Minimap : MonoBehaviour
 {
     [Header("Map Bounds")]
-    public Vector2 worldMin = new Vector2(-100, -100);
-    public Vector2 worldMax = new Vector2(100, 100);
+    public Vector2 worldMin = new(-100, -100);
+    public Vector2 worldMax = new(100, 100);
 
     [Header("UI")]
-    public Rect minimapRect = new Rect(10, 10, 200, 200);
-    public Rect expandedRect = new Rect(10, 10, 400, 400);
+    public Rect minimapRect = new(10, 10, 200, 200);
+    public Rect expandedRect = new(10, 10, 400, 400);
     public bool isExpanded = false;
 
     [Header("Icons")]
@@ -26,7 +26,7 @@ public class Minimap : MonoBehaviour
     Camera mainCam;
 
     // Resource type → color
-    Dictionary<string, Color> resourceColors = new Dictionary<string, Color>();
+    Dictionary<string, Color> resourceColors = new();
 
     void Awake()
     {
@@ -67,7 +67,7 @@ public class Minimap : MonoBehaviour
 
     void DrawEntities<T>(Rect r) where T : MonoBehaviour
     {
-        T[] all = GameObject.FindObjectsOfType<T>();
+        T[] all = GameObject.FindObjectsByType<T>(FindObjectsSortMode.None);
 
         foreach (var e in all)
         {
@@ -101,7 +101,7 @@ public class Minimap : MonoBehaviour
         float ny = Mathf.InverseLerp(worldMin.y, worldMax.y, world.z);
 
         // Apply rotation correction
-        Vector2 centered = new Vector2(nx - 0.5f, ny - 0.5f);
+        Vector2 centered = new(nx - 0.5f, ny - 0.5f);
         float rad = rotationOffset * Mathf.Deg2Rad;
 
         float rx = centered.x * Mathf.Cos(rad) - centered.y * Mathf.Sin(rad);

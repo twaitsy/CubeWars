@@ -3,7 +3,7 @@ using UnityEngine;
 public class WorldProgressBar : MonoBehaviour
 {
     [Header("Position")]
-    public Vector3 offset = new Vector3(0f, 1.4f, 0f);
+    public Vector3 offset = new(0f, 1.4f, 0f);
 
     [Header("Size")]
     public float width = 1.2f;

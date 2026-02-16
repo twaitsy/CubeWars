@@ -58,7 +58,7 @@ public class TeamBootstrap : MonoBehaviour
     public bool spawnOneCivilianPerJob = true;
 
     [Tooltip("Jobs used for one-per-job spawning when spawnOneCivilianPerJob is enabled.")]
-    public List<CivilianJobType> startingJobTypes = new List<CivilianJobType>
+    public List<CivilianJobType> startingJobTypes = new()
     {
         CivilianJobType.Gatherer,
         CivilianJobType.Builder,
@@ -74,7 +74,7 @@ public class TeamBootstrap : MonoBehaviour
     };
 
     [Tooltip("Detailed civilian setup. If empty, legacy worker fields are used.")]
-    public List<StartingCivilianGroup> civilianGroups = new List<StartingCivilianGroup>();
+    public List<StartingCivilianGroup> civilianGroups = new();
 
     [Tooltip("Legacy fallback: how many workers each team starts with when civilianGroups is empty.")]
     public int startingWorkers = 3;
@@ -87,7 +87,7 @@ public class TeamBootstrap : MonoBehaviour
     public bool spawnStarterSpecialists = true;
 
     [Tooltip("Specialist jobs spawned when spawnStarterSpecialists is enabled.")]
-    public List<CivilianJobType> starterSpecialistJobs = new List<CivilianJobType>
+    public List<CivilianJobType> starterSpecialistJobs = new()
     {
         CivilianJobType.Carpenter,
         CivilianJobType.Blacksmith,
@@ -99,7 +99,7 @@ public class TeamBootstrap : MonoBehaviour
 
     [Header("Starting Combat Units")]
     [Tooltip("Detailed starting combat unit setup. If empty, legacy unit fields are used.")]
-    public List<StartingUnitGroup> startingUnitGroups = new List<StartingUnitGroup>();
+    public List<StartingUnitGroup> startingUnitGroups = new();
 
     [Tooltip("Legacy fallback combat unit prefab when startingUnitGroups is empty.")]
     public GameObject startingUnitPrefab;
@@ -109,7 +109,7 @@ public class TeamBootstrap : MonoBehaviour
 
     [Header("Starting Buildings")]
     [Tooltip("Starting building prefabs to place directly on team build-grid cells.")]
-    public List<StartingBuildingSpawn> startingBuildings = new List<StartingBuildingSpawn>();
+    public List<StartingBuildingSpawn> startingBuildings = new();
 
     [Header("Starter Housing")]
     [Tooltip("When enabled, automatically attempts to place a few houses on each team's grid if not already listed in startingBuildings.")]
@@ -119,7 +119,7 @@ public class TeamBootstrap : MonoBehaviour
     public GameObject starterHousePrefab;
 
     [Tooltip("Grid coordinates used when auto-adding houses.")]
-    public List<Vector2Int> starterHouseGridCoords = new List<Vector2Int>
+    public List<Vector2Int> starterHouseGridCoords = new()
     {
         new Vector2Int(7, 7),
         new Vector2Int(9, 7),
@@ -131,11 +131,11 @@ public class TeamBootstrap : MonoBehaviour
     public Vector3 hqSpawnOffset = Vector3.zero;
 
     [Tooltip("Base offset used for civilian/unit spawn rings around HQ.")]
-    public Vector3 unitSpawnOffset = new Vector3(2f, 0f, 2f);
+    public Vector3 unitSpawnOffset = new(2f, 0f, 2f);
 
     void Start()
     {
-        Team[] teams = FindObjectsOfType<Team>();
+        Team[] teams = FindObjectsByType<Team>(FindObjectsSortMode.None);
 
         foreach (var team in teams)
         {
@@ -159,7 +159,7 @@ public class TeamBootstrap : MonoBehaviour
         yield return null;
         yield return null;
 
-        BuildGridManager grid = FindObjectOfType<BuildGridManager>();
+        BuildGridManager grid = FindFirstObjectByType<BuildGridManager>();
         if (grid == null)
         {
             Debug.LogWarning("[TeamBootstrap] Cannot place starting buildings: no BuildGridManager found.");
@@ -224,7 +224,7 @@ public class TeamBootstrap : MonoBehaviour
             if (team == null)
                 continue;
 
-            CraftingBuilding[] buildings = FindObjectsOfType<CraftingBuilding>();
+            CraftingBuilding[] buildings = FindObjectsByType<CraftingBuilding>(FindObjectsSortMode.None);
             int assigned = 0;
             for (int i = 0; i < buildings.Length; i++)
             {
@@ -257,7 +257,7 @@ public class TeamBootstrap : MonoBehaviour
         // Start with root + inspector offset
         Vector3 spawnPos = team.hqRoot.position + hqSpawnOffset;
 
-        BuildGridManager grid = FindObjectOfType<BuildGridManager>();
+        BuildGridManager grid = FindFirstObjectByType<BuildGridManager>();
         if (grid != null)
         {
             float cellSize = Mathf.Max(0.1f, grid.cellSize);
@@ -397,7 +397,7 @@ public class TeamBootstrap : MonoBehaviour
         int col = spawnIndex % 4;
 
         Vector3 rowOffset = unitSpawnOffset.normalized * spacing * (row + 1);
-        Vector3 sideOffset = new Vector3((col - 1.5f) * spacing, 0f, 0f);
+        Vector3 sideOffset = new((col - 1.5f) * spacing, 0f, 0f);
         return hqPos + rowOffset + sideOffset;
     }
 
@@ -440,7 +440,7 @@ public class TeamBootstrap : MonoBehaviour
             building.transform.SetParent(parent);
             TeamAssignmentUtility.ApplyTeamToHierarchy(building, team.teamID);
 
-            BuildGridOccupant occupant = building.GetComponent<BuildGridOccupant>();
+            building.TryGetComponent<BuildGridOccupant>(out BuildGridOccupant occupant);
             if (occupant == null)
                 occupant = building.AddComponent<BuildGridOccupant>();
 

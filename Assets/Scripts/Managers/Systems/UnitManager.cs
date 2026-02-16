@@ -8,7 +8,7 @@ public class UnitManager : MonoBehaviour
     [Header("Formation")]
     [Min(0.2f)] public float formationSpacing = 1.4f;
 
-    readonly List<Unit> units = new List<Unit>(256);
+    readonly List<Unit> units = new(256);
 
     void Awake()
     {
@@ -25,7 +25,7 @@ public class UnitManager : MonoBehaviour
     public void RefreshRegistry()
     {
         units.Clear();
-        units.AddRange(FindObjectsOfType<Unit>());
+        units.AddRange(FindObjectsByType<Unit>(FindObjectsSortMode.None));
     }
 
     public void Register(Unit unit)
