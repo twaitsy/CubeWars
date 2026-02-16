@@ -288,3 +288,7 @@ Resource node assignment behavior
 
 Crafting stability requirement
 - CraftingBuilding and related recipe-selection flows must tolerate incomplete/invalid recipe entries without crashing (null-safe recipe entry handling).
+
+[2026-02 resource node auto-assignment compile fix]
+- ResourceNode now uses the node GameObject name token directly when attempting auto-assignment from ResourcesDatabase IDs/display names.
+- Keep node names aligned with resource IDs/display names if relying on auto-assignment fallback.
