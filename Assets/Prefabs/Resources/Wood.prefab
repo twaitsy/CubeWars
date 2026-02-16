@@ -183,7 +183,7 @@ MonoBehaviour:
     category: 0
     weight: 2
     baseValue: 2
-  remaining: 50
+  remaining: 5000
   maxGatherers: 2
   claimedByTeam: -1
 --- !u!208 &-6790057688027364375

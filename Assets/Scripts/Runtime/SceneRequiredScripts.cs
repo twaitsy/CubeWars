@@ -51,9 +51,7 @@ public class SceneRequiredScripts : MonoBehaviour
         }
 
         // Check bootstrap requirement
-        if (FindObjectOfType<TeamBootstrap>() == null &&
-            FindObjectOfType<SixTeamBootstrap>() == null &&
-            FindObjectOfType<HQSpawner>() == null)
+        if (FindObjectOfType<TeamBootstrap>() == null)
         {
             missingRequiredTypes.Add("TeamBootstrap OR SixTeamBootstrap OR HQSpawner");
         }

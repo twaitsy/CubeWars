@@ -251,23 +251,27 @@ public class TeamBootstrap : MonoBehaviour
             Debug.LogWarning($"Team {team.teamID} has no HQ root. Expected: Team_X -> HQ.");
             return;
         }
-
         if (team.hqRoot.childCount > 0 || hqPrefab == null)
             return;
 
+        // Start with root + inspector offset
         Vector3 spawnPos = team.hqRoot.position + hqSpawnOffset;
+
         BuildGridManager grid = FindObjectOfType<BuildGridManager>();
         if (grid != null)
         {
             float cellSize = Mathf.Max(0.1f, grid.cellSize);
+
+            // Snap only X and Z to the build grid
             spawnPos.x = Mathf.Round(spawnPos.x / cellSize) * cellSize;
             spawnPos.z = Mathf.Round(spawnPos.z / cellSize) * cellSize;
-            spawnPos.y = grid.yOffset;
+
+            // Y = grid base height + whatever you set in the inspector
+            spawnPos.y = grid.yOffset + hqSpawnOffset.y;
         }
 
         GameObject hq = Instantiate(hqPrefab, spawnPos, Quaternion.identity);
         hq.transform.SetParent(team.hqRoot);
-
         TeamAssignmentUtility.ApplyTeamToHierarchy(hq, team.teamID);
     }
 

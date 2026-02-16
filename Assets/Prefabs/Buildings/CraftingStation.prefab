@@ -155,15 +155,20 @@ MonoBehaviour:
   outputSlot: {fileID: 4465389164846448858}
   workPoints:
   - {fileID: 1766575201802066558}
-  maxWorkers: 1
+  maxWorkers: 3
   maxInputCapacityPerResource: 1000
   maxOutputCapacityPerResource: 1000
   craftingSpeedModifier: 1
   requireHaulerLogistics: 1
+  maxAssignedHaulers: 3
   assignmentPriority: 5
   allowAutomaticAssignment: 1
   productionEffects: []
   productionLoopAudio: {fileID: 0}
+  showProgressBar: 1
+  progressBarOffset: {x: 0, y: 2.8, z: 0}
+  progressBarWidth: 1.4
+  progressBarHeight: 0.12
   upgrades: []
 --- !u!114 &7966352210135232285
 MonoBehaviour:

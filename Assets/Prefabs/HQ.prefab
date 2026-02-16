@@ -141,12 +141,12 @@ MonoBehaviour:
       baseValue: 6578
     amount: 2000
   - resource:
-      id: ironore
+      id: iron_ore
       displayName: Iron Ore
       icon: {fileID: 0}
       category: 0
-      weight: 99
-      baseValue: 99
+      weight: 4
+      baseValue: 5
     amount: 2000
   - resource:
       id: berries

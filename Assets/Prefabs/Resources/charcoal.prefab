@@ -103,13 +103,13 @@ GameObject:
   m_Component:
   - component: {fileID: 5473745927397923751}
   - component: {fileID: 6702767616496207834}
-  - component: {fileID: 2165386833636302172}
   - component: {fileID: 1693553468804252380}
   - component: {fileID: -5649342042414044457}
   - component: {fileID: 6085473644784457841}
+  - component: {fileID: 2165386833636302172}
   - component: {fileID: -8894855953775586557}
   m_Layer: 0
-  m_Name: Gold
+  m_Name: coal
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -148,28 +148,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &2165386833636302172
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3585627338332981593}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 63ac4561ce22b114493a05ad20c730ae, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  resource:
-    id: gold
-    displayName: Gold
-    icon: {fileID: 0}
-    category: 8
-    weight: 1
-    baseValue: 15
-  remaining: 5000
-  maxGatherers: 2
-  claimedByTeam: -1
 --- !u!65 &1693553468804252380
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -238,6 +216,28 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!114 &2165386833636302172
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3585627338332981593}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63ac4561ce22b114493a05ad20c730ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  resource:
+    id: charcoal
+    displayName: Charcoal
+    icon: {fileID: 0}
+    category: 3
+    weight: 2
+    baseValue: 5
+  remaining: 500
+  maxGatherers: 2
+  claimedByTeam: -1
 --- !u!114 &-8894855953775586557
 MonoBehaviour:
   m_ObjectHideFlags: 0
