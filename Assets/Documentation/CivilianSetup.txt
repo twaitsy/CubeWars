@@ -62,3 +62,16 @@ Latest notes
 - Idle-role civilians path to their assigned house while inactive.
 - Inspector house line now reports "Homeless" if no residence is assigned.
 - While actively operating a crafting work point during an in-progress craft cycle, civilians will not divert to needs until that cycle is complete.
+Compatibility fields (legacy UI/validator support)
+- Civilian exposes the following runtime-read properties for inspector/tools compatibility:
+  - speed
+  - stopDistance
+  - carryCapacity
+  - gatherTickSeconds
+  - harvestPerTick
+  - foodToEatPerMeal
+  - maxTiredness
+  - maxHunger
+  - hungerRatePerSecond
+  - tirednessRatePerSecond
+- Civilian also includes optional `foodDatabase` and `resourcesDatabase` references for food definition lookup.

@@ -315,3 +315,6 @@ Workforce dispatcher tuning (2026-02 automatic assignment fixes)
 Civilian component requirements (latest)
 - Civilian prefab should include: Civilian, HealthComponent, MovementController, CarryingController, GatheringControl, ConstructionWorkerControl, NeedsController, NavMeshAgent.
 - NeedsDatabase should contain at least baseline needs (toilet, entertainment, social, hygiene, food, water, rest, safety, health, learning).
+Update: civilian data-source validation
+- SceneRequiredScripts now emits a civilian diagnostic warning when both `foodDatabase` and `resourcesDatabase` are unassigned on a civilian.
+- This warning exists to catch prefabs that cannot enumerate configured food definitions unless a global `ResourcesDatabase.Instance` fallback is present.

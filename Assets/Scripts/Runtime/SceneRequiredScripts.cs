@@ -336,6 +336,11 @@ public class SceneRequiredScripts : MonoBehaviour
             {
                 Debug.LogWarning($"[SceneRequiredScripts] Civilian diagnostics: '{civ.name}' is missing one or more required controller components (Health/Movement/Carrying/Gathering/Construction/Needs).", civ);
             }
+
+            if (civ.foodDatabase == null && civ.resourcesDatabase == null)
+            {
+                Debug.LogWarning($"[SceneRequiredScripts] Civilian diagnostics: '{civ.name}' has neither FoodDatabase nor ResourcesDatabase assigned. Hunger food fallback will depend on global ResourcesDatabase.Instance.", civ);
+            }
         }
     }
 

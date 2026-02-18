@@ -666,3 +666,7 @@ Civilian controller split (latest)
 - Civilian logic now relies on dedicated components: HealthComponent, MovementController, CarryingController, GatheringControl, ConstructionWorkerControl, NeedsController.
 - Add CivilianRegistry-aware systems by querying CivilianRegistry.All instead of scene-wide finds where possible.
 - NeedsDatabase.asset now expects baseline civilian needs including toilet and entertainment plus other quality-of-life needs.
+[2026-02 civilian compatibility accessor update]
+- Civilian now exposes legacy inspector/runtime accessors again (`speed`, `stopDistance`, `carryCapacity`, `gatherTickSeconds`, `harvestPerTick`, `foodToEatPerMeal`, `maxTiredness`, `maxHunger`, `hungerRatePerSecond`, `tirednessRatePerSecond`).
+- Civilian once again surfaces optional `foodDatabase` and `resourcesDatabase` references used by needs/validator tooling.
+- SceneRequiredScripts civilian diagnostics now warn when both food database references are unset.

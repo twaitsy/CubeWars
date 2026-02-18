@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent))]
-public class Civilian : MonoBehaviour, ITargetable
+public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 {
     [Header("Identity")]
     public string unitDefinitionId = "civilian";
@@ -30,7 +30,7 @@ public class Civilian : MonoBehaviour, ITargetable
     [Header("Health")]
 //    public float maxHealth = 50f;
 
-    [Header("Gathering Progress UI")]]
+    [Header("Gathering Progress UI")]
     public bool showGatherProgressBar = true;
     public Vector3 gatherProgressBarOffset = new(0f, 2.2f, 0f);
     public float gatherProgressBarWidth = 1.0f;
@@ -74,6 +74,8 @@ public class Civilian : MonoBehaviour, ITargetable
     public float CurrentHunger => needsController != null ? needsController.CurrentHunger : 0f;
     public float CurrentTiredness => needsController != null ? needsController.CurrentTiredness : 0f;
     public House AssignedHouse => assignedHouse;
+    public FoodDatabase foodDatabase;
+    public ResourcesDatabase resourcesDatabase;
 
     // IHasHealth / ITargetable style properties
     public int TeamID => teamID;
@@ -163,19 +165,22 @@ public class Civilian : MonoBehaviour, ITargetable
     private ConstructionWorkerControl constructionWorkerControl;
     private NeedsController needsController;
 
-    private float speed => movementController != null ? movementController.MoveSpeed : 2.5f;
-    private float stopDistance => movementController != null ? movementController.StopDistance : 1.2f;
+    public float speed => movementController != null ? movementController.MoveSpeed : 2.5f;
+    public float stopDistance => movementController != null ? movementController.StopDistance : 1.2f;
     private bool useRoadBonus => movementController != null && movementController.UseRoadBonus;
     private float roadSpeedMultiplier => movementController != null ? movementController.RoadSpeedMultiplier : 1.2f;
-    private int carryCapacity => carryingController != null ? carryingController.Capacity : 30;
-    private float gatherTickSeconds => gatheringControl != null ? gatheringControl.GatherTickSeconds : 1f;
-    private int harvestPerTick => gatheringControl != null ? gatheringControl.HarvestPerTick : 1;
+    public int carryCapacity => carryingController != null ? carryingController.Capacity : 30;
+    public float gatherTickSeconds => gatheringControl != null ? gatheringControl.GatherTickSeconds : 1f;
+    public int harvestPerTick => gatheringControl != null ? gatheringControl.HarvestPerTick : 1;
     private float searchRetrySeconds => gatheringControl != null ? gatheringControl.SearchRetrySeconds : 1.5f;
     private bool buildersCanHaulMaterials => constructionWorkerControl == null || constructionWorkerControl.CanHaulMaterials;
     private float retargetSeconds => constructionWorkerControl != null ? constructionWorkerControl.RetargetSeconds : 0.6f;
-    private int foodToEatPerMeal => needsController != null ? needsController.FoodToEatPerMeal : 10;
+    public int foodToEatPerMeal => needsController != null ? needsController.FoodToEatPerMeal : 10;
     private float eatDurationSeconds => needsController != null ? needsController.EatDurationSeconds : 1.2f;
-    private float maxTiredness => needsController != null ? needsController.MaxTiredness : 100f;
+    public float maxTiredness => needsController != null ? needsController.MaxTiredness : 100f;
+    public float maxHunger => needsController != null ? needsController.MaxHunger : 100f;
+    public float hungerRatePerSecond => needsController != null ? needsController.HungerRatePerSecond : 0f;
+    public float tirednessRatePerSecond => needsController != null ? needsController.TirednessRatePerSecond : 0f;
     private float sleepDurationSeconds => needsController != null ? needsController.SleepDurationSeconds : 5f;
     void Awake()
     {
