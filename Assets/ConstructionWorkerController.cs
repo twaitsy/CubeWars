@@ -1,13 +1,5 @@
 using UnityEngine;
 
-public class ConstructionWorkerController : MonoBehaviour
+public class ConstructionWorkerController : ConstructionWorkerControl
 {
-    [SerializeField] private float buildSpeed;
-
-    public float BuildSpeed => buildSpeed;
-
-    public void SetBuildSpeed(float value)
-    {
-        buildSpeed = value;
-    }
 }

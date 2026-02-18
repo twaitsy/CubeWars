@@ -12,4 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92fa07aa53831c441b72ec39c8181830, type: 3}
   m_Name: NeedsDatabase
   m_EditorClassIdentifier: Assembly-CSharp::NeedsDatabase
-  needs: []
+  needs:
+  - {fileID: 11400000, guid: 05a4042dfc6f4062ae9e80fce5e74540, type: 2}
+  - {fileID: 11400000, guid: 07ecb0d871c8442d966f713b9113fd03, type: 2}
+  - {fileID: 11400000, guid: 8153608c12044844873efece1ed26d3b, type: 2}
+  - {fileID: 11400000, guid: 127559ca1ee4470999dcca7d818d5b33, type: 2}
+  - {fileID: 11400000, guid: d07de76d05fa440fb1f57ef1f9aef00c, type: 2}
+  - {fileID: 11400000, guid: 31e690358ef445b682be4b5c2e0c4728, type: 2}
+  - {fileID: 11400000, guid: 98f8b51ef3084dc09b0e9c8dd6f44594, type: 2}
+  - {fileID: 11400000, guid: 773c42e8d12242018b6c9aca56295159, type: 2}
+  - {fileID: 11400000, guid: cd34b669beb3426191f517a097bf0fd6, type: 2}
+  - {fileID: 11400000, guid: 7473b868c2aa41c4b0e57eea10b97f5e, type: 2}
