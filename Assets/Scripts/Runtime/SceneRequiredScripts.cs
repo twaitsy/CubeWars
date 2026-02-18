@@ -178,6 +178,7 @@ public class SceneRequiredScripts : MonoBehaviour
         ValidateCraftingRoleCoverage();
         ValidateCraftingAssignmentRegistration();
         ValidateCraftingHaulerCaps();
+        ValidateCivilianControllerSetup();
     }
 
     void ValidateCraftingRoleCoverage()
@@ -317,4 +318,25 @@ public class SceneRequiredScripts : MonoBehaviour
 
         return missingCount;
     }
+    void ValidateCivilianControllerSetup()
+    {
+        Civilian[] civilians = FindObjectsByType<Civilian>(FindObjectsSortMode.None);
+        for (int i = 0; i < civilians.Length; i++)
+        {
+            Civilian civ = civilians[i];
+            if (civ == null)
+                continue;
+
+            if (civ.GetComponent<HealthComponent>() == null ||
+                civ.GetComponent<MovementController>() == null ||
+                civ.GetComponent<CarryingController>() == null ||
+                civ.GetComponent<GatheringControl>() == null ||
+                civ.GetComponent<ConstructionWorkerControl>() == null ||
+                civ.GetComponent<NeedsController>() == null)
+            {
+                Debug.LogWarning($"[SceneRequiredScripts] Civilian diagnostics: '{civ.name}' is missing one or more required controller components (Health/Movement/Carrying/Gathering/Construction/Needs).", civ);
+            }
+        }
+    }
+
 }

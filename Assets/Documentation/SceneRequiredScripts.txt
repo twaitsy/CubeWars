@@ -14,6 +14,7 @@ Core bootstrap/system scripts (required)
 - CraftingJobManager
 - ProductionNotificationManager
 - ProjectilePool
+- CivilianRegistry (runtime registry used for civilian lookup by future systems)
 
 Common global managers (recommended / used by existing systems)
 - SaveLoadManager
@@ -310,3 +311,7 @@ Workforce dispatcher tuning (2026-02 automatic assignment fixes)
 - Construction build/haul task generation is now demand-limited per site to avoid unbounded queue growth and job thrashing.
 - Crafting task generation is now worker-slot aware (`GetMaxWorkers` + currently assigned + queued tasks) to avoid over-assignment spam.
 - CraftingBuilding has `maxAssignedHaulers` (default 1) so each crafting building can cap how many Hauler job workers can attach.
+
+Civilian component requirements (latest)
+- Civilian prefab should include: Civilian, HealthComponent, MovementController, CarryingController, GatheringControl, ConstructionWorkerControl, NeedsController, NavMeshAgent.
+- NeedsDatabase should contain at least baseline needs (toilet, entertainment, social, hygiene, food, water, rest, safety, health, learning).

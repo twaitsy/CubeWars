@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent))]
-public class Civilian : MonoBehaviour, ITargetable, IHasHealth
+public class Civilian : MonoBehaviour, ITargetable
 {
     [Header("Identity")]
     public string unitDefinitionId = "civilian";
@@ -13,13 +13,10 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     public int teamID;
    
     
-    // Forward interface properties to HealthComponent
+    // Forward health properties to HealthComponent
     public bool IsAlive => health != null && health.IsAlive;
-
     public float CurrentHealth => health != null ? health.CurrentHealth : 0f;
-
     public float MaxHealth => health != null ? health.MaxHealth : 0f;
-
 
 
     [Header("Job (Unified Registry)")]
@@ -33,48 +30,11 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     [Header("Health")]
 //    public float maxHealth = 50f;
 
-    [Header("Movement")]
-    public float speed = 2.5f;
-    public float stopDistance = 1.2f;
-    public bool useRoadBonus = true;
-    public float roadSpeedMultiplier = 1.2f;
-
-    [Header("Carrying")]
-    public int carryCapacity = 30;
-
-    [Header("Gathering")]
-    public float gatherTickSeconds = 1f;
-    public int harvestPerTick = 1;
-    public float searchRetrySeconds = 1.5f;
-
-    [Header("Gathering Progress UI")]
+    [Header("Gathering Progress UI")]]
     public bool showGatherProgressBar = true;
     public Vector3 gatherProgressBarOffset = new(0f, 2.2f, 0f);
     public float gatherProgressBarWidth = 1.0f;
     public float gatherProgressBarHeight = 0.1f;
-
-    [Header("Building/Hauling")]
-    public bool buildersCanHaulMaterials = true;
-    public float retargetSeconds = 0.6f;
-
-    [Header("Needs - Food")]
-    [Tooltip("Resource database used to resolve ResourceDefinition assets by id.")]
-    public ResourcesDatabase resourcesDatabase;
-    [Tooltip("Maps edible resources to hunger/eat/cooking/spoilage data.")]
-    public FoodDatabase foodDatabase;
-    [Min(0.01f)] public float hungerRatePerSecond = 0.45f;
-    [Min(1f)] public float maxHunger = 100f;
-    [Range(0.1f, 1f)] public float seekFoodThreshold01 = 0.55f;
-    [Min(1)] public int foodToEatPerMeal = 10;
-    [Min(0.1f)] public float eatDurationSeconds = 1.2f;
-    [Min(0f)] public float starvationDamagePerSecond = 2f;
-
-    [Header("Needs - Sleep")]
-    [Min(0.01f)] public float tirednessRatePerSecond = 0.3f;
-    [Min(1f)] public float maxTiredness = 100f;
-    [Range(0.1f, 1f)] public float seekSleepThreshold01 = 0.6f;
-    [Min(0.1f)] public float sleepDurationSeconds = 5f;
-    [Min(0f)] public float exhaustionDamagePerSecond = 1f;
 
     // Compatibility fields referenced elsewhere
     public ResourceNode CurrentReservedNode { get; set; }
@@ -82,14 +42,11 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     public ConstructionSite CurrentDeliverySite { get; set; }
 
     // Expose carried for UI
-    public ResourceDefinition CarriedType => carriedResource;
-    public int CarriedAmount => carriedAmount;
+    public ResourceDefinition CarriedType => carryingController != null ? carryingController.CarriedResource : null;
+    public int CarriedAmount => carryingController != null ? carryingController.CarriedAmount : 0;
 
 //    private float currentHealth;
     private NavMeshAgent agent;
-
-    private ResourceDefinition carriedResource;
-    private int carriedAmount;
 
     // Legacy/compat fields (kept for external references)
     public bool HasJob;
@@ -114,8 +71,8 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     public float CraftingProgress => targetCraftingBuilding != null ? targetCraftingBuilding.CraftProgress01 : 0f;
     public bool IsAtAssignedCraftingWorkPoint => state == State.CraftingAtWorkPoint && Arrived();
 
-    public float CurrentHunger => currentHunger;
-    public float CurrentTiredness => currentTiredness;
+    public float CurrentHunger => needsController != null ? needsController.CurrentHunger : 0f;
+    public float CurrentTiredness => needsController != null ? needsController.CurrentTiredness : 0f;
     public House AssignedHouse => assignedHouse;
 
     // IHasHealth / ITargetable style properties
@@ -178,6 +135,8 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     private bool started;
     private bool registeredWithJobManager;
 
+    private ResourceDefinition carriedResource;
+    private int carriedAmount;
     private float currentHunger;
     private float currentTiredness;
     private float needActionTimer;
@@ -198,6 +157,26 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     private WorldProgressBar gatherProgressBar;
     private bool loggedInactiveNavAgentWarning;
     private HealthComponent health;
+    private MovementController movementController;
+    private CarryingController carryingController;
+    private GatheringControl gatheringControl;
+    private ConstructionWorkerControl constructionWorkerControl;
+    private NeedsController needsController;
+
+    private float speed => movementController != null ? movementController.MoveSpeed : 2.5f;
+    private float stopDistance => movementController != null ? movementController.StopDistance : 1.2f;
+    private bool useRoadBonus => movementController != null && movementController.UseRoadBonus;
+    private float roadSpeedMultiplier => movementController != null ? movementController.RoadSpeedMultiplier : 1.2f;
+    private int carryCapacity => carryingController != null ? carryingController.Capacity : 30;
+    private float gatherTickSeconds => gatheringControl != null ? gatheringControl.GatherTickSeconds : 1f;
+    private int harvestPerTick => gatheringControl != null ? gatheringControl.HarvestPerTick : 1;
+    private float searchRetrySeconds => gatheringControl != null ? gatheringControl.SearchRetrySeconds : 1.5f;
+    private bool buildersCanHaulMaterials => constructionWorkerControl == null || constructionWorkerControl.CanHaulMaterials;
+    private float retargetSeconds => constructionWorkerControl != null ? constructionWorkerControl.RetargetSeconds : 0.6f;
+    private int foodToEatPerMeal => needsController != null ? needsController.FoodToEatPerMeal : 10;
+    private float eatDurationSeconds => needsController != null ? needsController.EatDurationSeconds : 1.2f;
+    private float maxTiredness => needsController != null ? needsController.MaxTiredness : 100f;
+    private float sleepDurationSeconds => needsController != null ? needsController.SleepDurationSeconds : 5f;
     void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -205,6 +184,12 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         agent.autoBraking = true;
 
         health = GetComponent<HealthComponent>();
+        movementController = GetComponent<MovementController>();
+        carryingController = GetComponent<CarryingController>();
+        gatheringControl = GetComponent<GatheringControl>();
+        constructionWorkerControl = GetComponent<ConstructionWorkerControl>();
+        needsController = GetComponent<NeedsController>();
+        CivilianRegistry.Register(this);
     }
 
     void OnEnable()
@@ -228,14 +213,19 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
         CraftingJobManager.Instance?.UnregisterCivilian(this);
         WorkerTaskDispatcher.Instance?.UnregisterWorker(this);
+        CivilianRegistry.Unregister(this);
     }
 
     void Start()
     {
+        if (health != null)
+            health.SetTeam(teamID);
+
         ApplyDatabaseDefinition();
         health.Initialize();
-        currentHunger = 0f;
-        currentTiredness = 0f;
+        needsController?.ResetCivilianNeeds();
+        currentHunger = needsController != null ? needsController.CurrentHunger : 0f;
+        currentTiredness = needsController != null ? needsController.CurrentTiredness : 0f;
 
         if (jobDefinition != null)
         {
@@ -249,6 +239,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         RegisterWithJobManager();
         CraftingJobManager.Instance?.RegisterCivilian(this);
         WorkerTaskDispatcher.Instance?.RegisterWorker(this);
+        CivilianRegistry.Register(this);
 
         EnsureGatherProgressBar();
 
@@ -275,6 +266,11 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         // Health
         // ---------------------------------------------------------
         health = GetComponent<HealthComponent>();
+        movementController = GetComponent<MovementController>();
+        carryingController = GetComponent<CarryingController>();
+        gatheringControl = GetComponent<GatheringControl>();
+        constructionWorkerControl = GetComponent<ConstructionWorkerControl>();
+        needsController = GetComponent<NeedsController>();
         if (health != null)
             health.SetMaxHealth(def.maxHealth);
 
@@ -295,14 +291,14 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         // ---------------------------------------------------------
         // Gathering
         // ---------------------------------------------------------
-        var gather = GetComponent<GatheringController>();
+        var gather = GetComponent<GatheringControl>();
         if (gather != null)
             gather.SetGatherSpeed(def.gatherSpeed);
 
         // ---------------------------------------------------------
         // Building
         // ---------------------------------------------------------
-        var builder = GetComponent<ConstructionWorkerController>();
+        var builder = GetComponent<ConstructionWorkerControl>();
         if (builder != null)
             builder.SetBuildSpeed(def.buildSpeed);
 
@@ -377,6 +373,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
         CraftingJobManager.Instance?.UnregisterCivilian(this);
         WorkerTaskDispatcher.Instance?.UnregisterWorker(this);
+        CivilianRegistry.Unregister(this);
 
         RegisterWithJobManager();
         CraftingJobManager.Instance?.RegisterCivilian(this);
@@ -397,8 +394,12 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
         TickNeeds();
 
-        agent.speed = speed * GetMovementSpeedMultiplier();
-        agent.stoppingDistance = stopDistance;
+        movementController?.ApplyToAgent(GetMovementSpeedMultiplier());
+        if (movementController == null)
+        {
+            agent.speed = speed * GetMovementSpeedMultiplier();
+            agent.stoppingDistance = stopDistance;
+        }
 
         switch (state)
         {
@@ -479,20 +480,15 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         if (state == State.CraftingAtWorkPoint && Arrived() && targetCraftingBuilding != null && targetCraftingBuilding.State == CraftingBuilding.ProductionState.InProgress)
             return;
 
-        currentHunger = Mathf.Clamp(currentHunger + hungerRatePerSecond * Time.deltaTime, 0f, maxHunger);
-        currentTiredness = Mathf.Clamp(currentTiredness + GetTirednessRate() * Time.deltaTime, 0f, maxTiredness);
-
         TickToolPickup();
 
-        if (currentHunger >= maxHunger)
-            if (health != null)
-                health.TakeDamage(starvationDamagePerSecond * Time.deltaTime);
-
-
-        if (currentTiredness >= maxTiredness)
-            if (health != null)
-                health.TakeDamage(exhaustionDamagePerSecond * Time.deltaTime);
-
+        if (needsController != null)
+        {
+            float tirednessMultiplier = GetTirednessRate() / Mathf.Max(0.01f, 0.3f);
+            needsController.TickCivilianNeeds(Time.deltaTime, tirednessMultiplier, health);
+            currentHunger = needsController.CurrentHunger;
+            currentTiredness = needsController.CurrentTiredness;
+        }
 
         if (health != null && !health.IsAlive)
             return;
@@ -500,8 +496,8 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         return;
     }
 
-    bool NeedsFood() => currentHunger >= maxHunger * Mathf.Clamp01(seekFoodThreshold01);
-    bool NeedsSleep() => currentTiredness >= maxTiredness * Mathf.Clamp01(seekSleepThreshold01);
+    bool NeedsFood() => needsController != null && needsController.NeedsFood();
+    bool NeedsSleep() => needsController != null && needsController.NeedsSleep();
 
     void PushNeedState(State needState)
     {
@@ -644,7 +640,8 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
         float restorePerUnit = targetFoodDefinition != null ? Mathf.Max(1, targetFoodDefinition.hungerRestore) : 1f;
         float restore = Mathf.Max(1, pendingFoodAmount) * restorePerUnit;
-        currentHunger = Mathf.Max(0f, currentHunger - restore);
+        needsController?.RestoreHunger(restore);
+        currentHunger = needsController != null ? needsController.CurrentHunger : Mathf.Max(0f, currentHunger - restore);
         pendingFoodAmount = 0;
         targetFoodStorage = null;
         targetFoodDefinition = null;
@@ -699,13 +696,15 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         }
 
         needActionTimer += Time.deltaTime;
-        currentTiredness = Mathf.Max(0f, currentTiredness - (maxTiredness / Mathf.Max(0.1f, sleepDurationSeconds)) * Time.deltaTime);
+        needsController?.RestoreTiredness((maxTiredness / Mathf.Max(0.1f, sleepDurationSeconds)) * Time.deltaTime);
+        currentTiredness = needsController != null ? needsController.CurrentTiredness : currentTiredness;
         ConsumeHouseFoodWhileResting();
 
         if (needActionTimer < sleepDurationSeconds)
             return;
 
-        currentTiredness = 0f;
+        needsController?.RestoreTiredness(maxTiredness);
+        currentTiredness = needsController != null ? needsController.CurrentTiredness : 0f;
         targetHouse = assignedHouse;
         ResumeAfterNeed();
     }
@@ -860,6 +859,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         CurrentNode = node;
 
         carriedAmount = 0;
+        carryingController?.SetCarried(carriedResource, carriedAmount);
         targetSite = null;
         targetStorage = null;
 
@@ -1040,6 +1040,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         int want = Mathf.Min(GetHarvestPerTick(), remaining);
         int got = targetNode.Harvest(want);
         if (got > 0) carriedAmount += got;
+        carryingController?.SetCarried(carriedResource, carriedAmount);
 
         if (carriedAmount >= GetCarryCapacity())
             state = State.GoingToDepositStorage;
@@ -1058,6 +1059,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             // fallback: dump into TeamResources primary storage
             TeamResources.Instance?.Deposit(teamID, carriedResource, carriedAmount);
             carriedAmount = 0;
+        carryingController?.SetCarried(carriedResource, carriedAmount);
             state = GetPostDepositWorkState();
             return;
         }
@@ -1090,6 +1092,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             {
                 TeamResources.Instance?.Deposit(teamID, carriedResource, carriedAmount);
                 carriedAmount = 0;
+        carryingController?.SetCarried(carriedResource, carriedAmount);
                 state = GetPostDepositWorkState();
             }
             return;
@@ -1111,6 +1114,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
         int accepted = targetStorage.Deposit(carriedResource, carriedAmount);
         carriedAmount -= accepted;
+        carryingController?.SetCarried(carriedResource, carriedAmount);
 
         if (carriedAmount > 0)
         {
@@ -1353,6 +1357,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         TeamStorageManager.Instance.ConsumeReserved(teamID, targetSite.SiteKey, carriedResource, took);
 
         carriedAmount = took;
+        carryingController?.SetCarried(carriedResource, carriedAmount);
 
         targetStorage = null;
         state = State.GoingToDeliverSite;
@@ -1381,6 +1386,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
         int accepted = targetSite.ReceiveDelivery(carriedResource, carriedAmount);
         carriedAmount -= accepted;
+        carryingController?.SetCarried(carriedResource, carriedAmount);
 
         if (carriedAmount > 0)
         {
@@ -1681,6 +1687,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             {
                 int took = targetStorage.Withdraw(carriedResource, Mathf.Min(amount, GetCarryCapacity()));
                 carriedAmount = took;
+        carryingController?.SetCarried(carriedResource, carriedAmount);
                 state = took > 0 ? State.DeliveringCraftInput : State.FetchingCraftInput;
             }
             return;
@@ -1713,6 +1720,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
         targetCraftingBuilding.TryDeliverInput(carriedResource, carriedAmount, out int accepted);
         carriedAmount -= accepted;
+        carryingController?.SetCarried(carriedResource, carriedAmount);
 
         if (carriedAmount > 0)
         {
@@ -1830,6 +1838,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         if (!Arrived()) return;
 
         carriedAmount = targetCraftingBuilding.CollectOutput(carriedResource, Mathf.Min(amount, GetCarryCapacity()));
+        carryingController?.SetCarried(carriedResource, carriedAmount);
         state = carriedAmount > 0 ? State.DeliveringCraftOutput : State.FetchingCraftInput;
     }
 
@@ -1861,6 +1870,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
         int accepted = targetStorage.Deposit(carriedResource, carriedAmount);
         carriedAmount -= accepted;
+        carryingController?.SetCarried(carriedResource, carriedAmount);
 
         if (carriedAmount > 0)
             ProductionNotificationManager.Instance?.NotifyIfReady($"full-output-{targetStorage.GetInstanceID()}-{carriedResource}", $"Storage full for {carriedResource}. Output queue blocked.");
@@ -1967,7 +1977,8 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     float GetTirednessRate()
     {
         float reduction = assignedHouse != null ? Mathf.Max(0, assignedHouse.comfort) * 0.1f : 0f;
-        return tirednessRatePerSecond * Mathf.Max(0.1f, 1f - reduction);
+        float baseRate = needsController != null ? needsController.TirednessRatePerSecond : 0.3f;
+        return baseRate * Mathf.Max(0.1f, 1f - reduction);
     }
 
     void TickToolPickup()
@@ -2029,7 +2040,8 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
                 continue;
 
             float restore = consumed * Mathf.Max(1, food.hungerRestore);
-            currentHunger = Mathf.Max(0f, currentHunger - restore);
+            needsController?.RestoreHunger(restore);
+        currentHunger = needsController != null ? needsController.CurrentHunger : Mathf.Max(0f, currentHunger - restore);
             if (!NeedsFood())
                 return;
         }

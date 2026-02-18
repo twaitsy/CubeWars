@@ -1,13 +1,5 @@
 using UnityEngine;
 
-public class GatheringController : MonoBehaviour
+public class GatheringController : GatheringControl
 {
-    [SerializeField] private float gatherSpeed;
-
-    public float GatherSpeed => gatherSpeed;
-
-    public void SetGatherSpeed(float value)
-    {
-        gatherSpeed = value;
-    }
 }
