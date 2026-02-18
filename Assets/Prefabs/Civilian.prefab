@@ -32,6 +32,8 @@ GameObject:
   - component: {fileID: -6111293302236098294}
   - component: {fileID: 6902862384398968288}
   - component: {fileID: 5012746280532159221}
+  - component: {fileID: 7525030119714089293}
+  - component: {fileID: -4711462141099521366}
   m_Layer: 13
   m_Name: Civilian
   m_TagString: Untagged
@@ -149,36 +151,14 @@ MonoBehaviour:
   jobDefinition: {fileID: 0}
   jobType: 0
   role: 0
-  maxHealth: 50
-  speed: 2.5
-  stopDistance: 3
-  useRoadBonus: 1
-  roadSpeedMultiplier: 1.2
-  carryCapacity: 300
-  gatherTickSeconds: 0.8
-  harvestPerTick: 1
-  searchRetrySeconds: 2
   showGatherProgressBar: 1
   gatherProgressBarOffset: {x: 0, y: 2.2, z: 0}
   gatherProgressBarWidth: 1
   gatherProgressBarHeight: 0.1
-  buildersCanHaulMaterials: 1
-  retargetSeconds: 0.6
-  resourcesDatabase: {fileID: 0}
-  foodDatabase: {fileID: 11400000, guid: c7e14d390ed4edf45b16b190c79256ae, type: 2}
-  hungerRatePerSecond: 0.45
-  maxHunger: 100
-  seekFoodThreshold01: 0.55
-  foodToEatPerMeal: 10
-  eatDurationSeconds: 1.2
-  starvationDamagePerSecond: 2
-  tirednessRatePerSecond: 0.3
-  maxTiredness: 100
-  seekSleepThreshold01: 0.6
-  sleepDurationSeconds: 5
-  exhaustionDamagePerSecond: 1
   HasJob: 0
   CurrentNode: {fileID: 0}
+  foodDatabase: {fileID: 11400000, guid: c7e14d390ed4edf45b16b190c79256ae, type: 2}
+  resourcesDatabase: {fileID: 0}
 --- !u!114 &5931790422279658392
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -364,6 +344,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 20e924d16a6cdee41b33215b9910a7dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealthComponent
+  teamID: 0
   maxHealth: 0
   currentHealth: 0
 --- !u!114 &-1004968872118365824
@@ -379,6 +360,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MovementController
   moveSpeed: 0
+  stopDistance: 1.2
+  useRoadBonus: 1
+  roadSpeedMultiplier: 1.2
 --- !u!114 &4036510120128909271
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -399,12 +383,14 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5538168870909510437}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9615e3106d744ca479f9453db09a236a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GatheringController
-  gatherSpeed: 0
+  gatherTickSeconds: 1
+  harvestPerTick: 1
+  searchRetrySeconds: 1.5
 --- !u!114 &-6942594919045944906
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -412,12 +398,14 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5538168870909510437}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 99a7101291504e14ea8edf081092bc2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ConstructionWorkerController
   buildSpeed: 0
+  canHaulMaterials: 1
+  retargetSeconds: 0.6
 --- !u!114 &4876506133362684680
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -556,9 +544,50 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5538168870909510437}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: adece14e84ad75d41816277478b9cd4b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NeedsController
   startingNeeds: []
+  hungerRatePerSecond: 0.45
+  maxHunger: 100
+  seekFoodThreshold01: 0.55
+  foodToEatPerMeal: 10
+  eatDurationSeconds: 1.2
+  starvationDamagePerSecond: 2
+  tirednessRatePerSecond: 0.3
+  maxTiredness: 100
+  seekSleepThreshold01: 0.6
+  sleepDurationSeconds: 5
+  exhaustionDamagePerSecond: 1
+--- !u!114 &7525030119714089293
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5538168870909510437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7a22804915c4beaa4d01ad44d957b0c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ConstructionWorkerControl
+  buildSpeed: 1
+  canHaulMaterials: 1
+  retargetSeconds: 0.6
+--- !u!114 &-4711462141099521366
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5538168870909510437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6828e58893c429993a13397196344f2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GatheringControl
+  gatherTickSeconds: 1
+  harvestPerTick: 1
+  searchRetrySeconds: 1.5

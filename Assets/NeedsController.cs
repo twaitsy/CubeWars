@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class NeedsController : MonoBehaviour
 {
+
     [Header("Need Definitions")]
     [SerializeField] private List<NeedDefinition> startingNeeds = new();
     private readonly List<NeedInstance> activeNeeds = new();
@@ -30,7 +31,14 @@ public class NeedsController : MonoBehaviour
     public int FoodToEatPerMeal => foodToEatPerMeal;
     public float EatDurationSeconds => eatDurationSeconds;
     public float SleepDurationSeconds => sleepDurationSeconds;
+    public float HungerRatePerSecond => hungerRatePerSecond;
+    public float SeekFoodThreshold01 => seekFoodThreshold01;
+    public float StarvationDamagePerSecond => starvationDamagePerSecond;
 
+
+    public float SeekSleepThreshold01 => seekSleepThreshold01;
+
+    public float ExhaustionDamagePerSecond => exhaustionDamagePerSecond;
     void Awake()
     {
         InitializeNeeds();
