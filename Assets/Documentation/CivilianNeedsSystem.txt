@@ -58,3 +58,6 @@ Update: category-based food logic
 - Civilians now treat any resource in `ResourceCategory.Food` (from ResourcesDatabase) as edible.
 - Food choice scoring is simplified to favor nearby/high-stock storages (plus house-local bonus).
 - Hunger restoration is now 1 hunger point per consumed food unit (uniform per food category item).
+Compatibility update
+- Needs/UI integrations may read hunger/tiredness values through Civilian's compatibility accessors (`maxHunger`, `maxTiredness`, `hungerRatePerSecond`, `tirednessRatePerSecond`, `foodToEatPerMeal`).
+- Food lookup still prefers `foodDatabase` when assigned and falls back to `resourcesDatabase` category filtering.
