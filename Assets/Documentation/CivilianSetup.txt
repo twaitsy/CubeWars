@@ -75,3 +75,8 @@ Compatibility fields (legacy UI/validator support)
   - hungerRatePerSecond
   - tirednessRatePerSecond
 - Civilian also includes optional `foodDatabase` and `resourcesDatabase` references for food definition lookup.
+
+Movement ownership update
+- `MovementController` now owns movement behavior for civilians.
+- `Civilian` no longer directly manipulates `NavMeshAgent` (for example, direct `isStopped` toggles or agent configuration).
+- Civilian movement commands should continue to use `MovementController.MoveTo(...)`, with arrival checks via `MovementController.HasArrived()`.

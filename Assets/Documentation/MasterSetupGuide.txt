@@ -670,3 +670,8 @@ Civilian controller split (latest)
 - Civilian now exposes legacy inspector/runtime accessors again (`speed`, `stopDistance`, `carryCapacity`, `gatherTickSeconds`, `harvestPerTick`, `foodToEatPerMeal`, `maxTiredness`, `maxHunger`, `hungerRatePerSecond`, `tirednessRatePerSecond`).
 - Civilian once again surfaces optional `foodDatabase` and `resourcesDatabase` references used by needs/validator tooling.
 - SceneRequiredScripts civilian diagnostics now warn when both food database references are unset.
+
+[2026-02 civilian movement ownership cleanup]
+- Civilian movement control is centralized in `MovementController`.
+- `Civilian` no longer directly configures or stops `NavMeshAgent`; movement commands route through `MovementController.MoveTo(...)` and arrival checks through `MovementController.HasArrived()`.
+- Keep both `MovementController` and `NavMeshAgent` on civilian prefabs (the agent remains required by `MovementController`).

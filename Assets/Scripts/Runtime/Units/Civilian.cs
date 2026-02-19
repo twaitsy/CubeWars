@@ -1,9 +1,6 @@
 ﻿using System.Collections.Generic;
-using UnityEditor.PackageManager;
 using UnityEngine;
-using static UnityEditor.MaterialProperty;
 
-[RequireComponent(typeof(UnityEngine.AI.NavMeshAgent))]
 [RequireComponent(typeof(HealthComponent))]
 [RequireComponent(typeof(MovementController))]
 
@@ -45,7 +42,6 @@ public class Civilian : MonoBehaviour, ITargetable
     public int CarriedAmount => carryingController != null ? carryingController.CarriedAmount : 0;
 
 //    private float currentHealth;
-    private UnityEngine.AI.NavMeshAgent agent;
 
     // Legacy/compat fields (kept for external references)
     public bool HasJob;
@@ -156,7 +152,6 @@ public class Civilian : MonoBehaviour, ITargetable
     private Vector3 idleWanderTarget;
     private float stalledAtWorkPointTimer;
     private WorldProgressBar gatherProgressBar;
-    private bool loggedInactiveNavAgentWarning;
     private HealthComponent health;
     private MovementController movementController;
     private CarryingController carryingController;
@@ -183,10 +178,6 @@ public class Civilian : MonoBehaviour, ITargetable
     private float sleepDurationSeconds => needsController != null ? needsController.SleepDurationSeconds : 5f;
     void Awake()
     {
-        agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
-        agent.updateRotation = true;
-        agent.autoBraking = true;
-
         health = GetComponent<HealthComponent>();
         movementController = GetComponent<MovementController>();
         carryingController = GetComponent<CarryingController>();
@@ -926,9 +917,8 @@ public class Civilian : MonoBehaviour, ITargetable
         CurrentNode = null;
         state = State.Idle;
 
-        if (agent != null && agent.enabled)
+        if (movementController != null)
         {
-            agent.isStopped = false;
             float stop = ResolveStopDistance(null, BuildingStopDistanceType.Default);
             movementController.MoveTo(worldPos, stop);
         }
@@ -1431,19 +1421,6 @@ public class Civilian : MonoBehaviour, ITargetable
             return Mathf.Max(0.1f, stopDistance);
 
         return settings.GetStopDistance(stopType, stopDistance);
-    }
-
-    void LogInvalidNavMeshAgent(string callsite)
-    {
-        if (loggedInactiveNavAgentWarning)
-            return;
-
-        loggedInactiveNavAgentWarning = true;
-
-        string objectName = gameObject != null ? gameObject.name : "Unknown";
-        string stateName = state.ToString();
-        string triggerPath = $"{nameof(Civilian)}.{callsite} -> {nameof(Civilian)}.{nameof(TickSeekFoodStorage)} / {nameof(Civilian)}.{nameof(TickGoWorkPoint)} / {nameof(Civilian)}.{nameof(TickCraftAtWorkPoint)}";
-        Debug.LogWarning($"[{nameof(Civilian)}] Invalid NavMeshAgent access on '{objectName}' (team {teamID}, state {stateName}). Trigger path: {triggerPath}. activeInHierarchy={gameObject.activeInHierarchy}, agentEnabled={(agent != null && agent.enabled)}, isOnNavMesh={(agent != null && agent.isOnNavMesh)}", this);
     }
 
     int GetCarryCapacity()
@@ -2057,9 +2034,6 @@ public class Civilian : MonoBehaviour, ITargetable
 
         if (!health.IsAlive)
         {
-            if (agent != null)
-                agent.isStopped = true;
-
             ClearAssignedHouse();
             Destroy(gameObject);
         }
