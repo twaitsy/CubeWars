@@ -8,18 +8,44 @@ public class MovementController : MonoBehaviour
     [SerializeField] private float stopDistance = 1.2f;
     [SerializeField] private bool useRoadBonus = true;
     [SerializeField] private float roadSpeedMultiplier = 1.2f;
-
-    private NavMeshAgent agent;
-
     public float MoveSpeed => moveSpeed;
     public float StopDistance => stopDistance;
     public bool UseRoadBonus => useRoadBonus;
     public float RoadSpeedMultiplier => roadSpeedMultiplier;
+    private NavMeshAgent agent;
+
 
     void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
+    }
+    void Start()
+    {
         ApplyToAgent(1f);
+    }
+    public void ApplyMovement(float speedMultiplier)
+    {
+        agent.speed = moveSpeed * speedMultiplier;
+        agent.stoppingDistance = stopDistance;
+    }
+    public void MoveTo(Vector3 destination, float stoppingDistance)
+    {
+        if (agent == null || !agent.enabled)
+            return;
+
+        agent.stoppingDistance = stoppingDistance;
+        agent.SetDestination(destination);
+    }
+    public bool HasArrived()
+    {
+        if (agent == null || !agent.enabled || !agent.gameObject.activeInHierarchy || !agent.isOnNavMesh)
+            return false;
+
+        if (agent.pathPending) return false;
+        if (!agent.hasPath) return false;
+        if (agent.remainingDistance == Mathf.Infinity) return false;
+
+        return agent.remainingDistance <= agent.stoppingDistance;
     }
 
     public void SetMoveSpeed(float value)
@@ -52,6 +78,6 @@ public class MovementController : MonoBehaviour
             return;
 
         agent.speed = GetEffectiveSpeed(worldMultiplier);
-        agent.stoppingDistance = stopDistance;
+        agent.stoppingDistance = StopDistance;
     }
 }

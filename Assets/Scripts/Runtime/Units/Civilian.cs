@@ -1,22 +1,24 @@
 ﻿using System.Collections.Generic;
 using UnityEditor.PackageManager;
 using UnityEngine;
-using UnityEngine.AI;
+using static UnityEditor.MaterialProperty;
 
-[RequireComponent(typeof(NavMeshAgent))]
-public class Civilian : MonoBehaviour, ITargetable, IHasHealth
+[RequireComponent(typeof(UnityEngine.AI.NavMeshAgent))]
+[RequireComponent(typeof(HealthComponent))]
+[RequireComponent(typeof(MovementController))]
+
+public class Civilian : MonoBehaviour, ITargetable
 {
     [Header("Identity")]
-    public string unitDefinitionId = "civilian";
-
+    public string unitDefinitionId = "civilian"; 
     [Header("Team")]
     public int teamID;
-   
-    
-    // Forward health properties to HealthComponent
     public bool IsAlive => health != null && health.IsAlive;
-    public float CurrentHealth => health != null ? health.CurrentHealth : 0f;
-    public float MaxHealth => health != null ? health.MaxHealth : 0f;
+
+    // Forward health properties to HealthComponent
+    //   public bool IsAlive => health != null && health.IsAlive;
+    //    public float CurrentHealth => health != null ? health.CurrentHealth : 0f;
+    //   public float MaxHealth => health != null ? health.MaxHealth : 0f;
 
 
     [Header("Job (Unified Registry)")]
@@ -26,9 +28,6 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     public CivilianRole role = CivilianRole.Gatherer;
 
     public CivilianJobType JobType => jobType;
-
-    [Header("Health")]
-//    public float maxHealth = 50f;
 
     [Header("Gathering Progress UI")]
     public bool showGatherProgressBar = true;
@@ -46,7 +45,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     public int CarriedAmount => carryingController != null ? carryingController.CarriedAmount : 0;
 
 //    private float currentHealth;
-    private NavMeshAgent agent;
+    private UnityEngine.AI.NavMeshAgent agent;
 
     // Legacy/compat fields (kept for external references)
     public bool HasJob;
@@ -69,7 +68,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     public string CurrentTaskLabel => BuildTaskLabel();
     public string CurrentStateDetails => BuildStateDetails();
     public float CraftingProgress => targetCraftingBuilding != null ? targetCraftingBuilding.CraftProgress01 : 0f;
-    public bool IsAtAssignedCraftingWorkPoint => state == State.CraftingAtWorkPoint && Arrived();
+    public bool IsAtAssignedCraftingWorkPoint => state == State.CraftingAtWorkPoint && movementController.HasArrived();
 
     public float CurrentHunger => needsController != null ? needsController.CurrentHunger : 0f;
     public float CurrentTiredness => needsController != null ? needsController.CurrentTiredness : 0f;
@@ -184,7 +183,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
     private float sleepDurationSeconds => needsController != null ? needsController.SleepDurationSeconds : 5f;
     void Awake()
     {
-        agent = GetComponent<NavMeshAgent>();
+        agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
         agent.updateRotation = true;
         agent.autoBraking = true;
 
@@ -226,8 +225,8 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         if (health != null)
             health.SetTeam(teamID);
 
-        ApplyDatabaseDefinition();
-        health.Initialize();
+        ApplyDatabaseDefinition(); // now calls health.ApplyDefinition()
+
         needsController?.ResetCivilianNeeds();
         currentHunger = needsController != null ? needsController.CurrentHunger : 0f;
         currentTiredness = needsController != null ? needsController.CurrentTiredness : 0f;
@@ -247,7 +246,6 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         CivilianRegistry.Register(this);
 
         EnsureGatherProgressBar();
-
         TryAssignHouseIfNeeded();
     }
 
@@ -277,7 +275,8 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         constructionWorkerControl = GetComponent<ConstructionWorkerControl>();
         needsController = GetComponent<NeedsController>();
         if (health != null)
-            health.SetMaxHealth(def.maxHealth);
+            health.ApplyDefinition(def);
+
 
         // ---------------------------------------------------------
         // Movement
@@ -399,12 +398,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
         TickNeeds();
 
-        movementController?.ApplyToAgent(GetMovementSpeedMultiplier());
-        if (movementController == null)
-        {
-            agent.speed = speed * GetMovementSpeedMultiplier();
-            agent.stoppingDistance = stopDistance;
-        }
+        movementController.ApplyMovement(GetMovementSpeedMultiplier());
 
         switch (state)
         {
@@ -482,7 +476,7 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
     void TickNeeds()
     {
-        if (state == State.CraftingAtWorkPoint && Arrived() && targetCraftingBuilding != null && targetCraftingBuilding.State == CraftingBuilding.ProductionState.InProgress)
+        if (state == State.CraftingAtWorkPoint && movementController.HasArrived() && targetCraftingBuilding != null && targetCraftingBuilding.State == CraftingBuilding.ProductionState.InProgress)
             return;
 
         TickToolPickup();
@@ -571,7 +565,8 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             idleWanderTarget = assignedHouse.transform.position + new Vector3(jitter.x, 0f, jitter.y);
         }
 
-        MoveTo(idleWanderTarget, assignedHouse.transform, BuildingStopDistanceType.House);
+        float stop = ResolveStopDistance(assignedHouse.transform, BuildingStopDistanceType.House);
+        movementController.MoveTo(idleWanderTarget, stop);
     }
 
     void TickSeekFoodStorage()
@@ -588,8 +583,9 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
                 return;
         }
 
-        MoveTo(targetFoodStorage.transform.position, targetFoodStorage.transform, BuildingStopDistanceType.Storage);
-        if (!Arrived())
+        float stop = ResolveStopDistance(targetFoodStorage.transform, BuildingStopDistanceType.Storage);
+        movementController.MoveTo(targetFoodStorage.transform.position, stop);
+        if (!movementController.HasArrived())
             return;
 
         pendingFoodAmount = Mathf.Max(1, foodToEatPerMeal);
@@ -672,8 +668,9 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         if (targetHouse == null)
             return;
 
-        MoveTo(targetHouse.transform.position, targetHouse.transform, BuildingStopDistanceType.House);
-        if (!Arrived())
+        float stop = ResolveStopDistance(targetHouse.transform, BuildingStopDistanceType.House);
+        movementController.MoveTo(targetHouse.transform.position, stop);
+        if (!movementController.HasArrived())
             return;
 
         if (!targetHouse.TryAddResident(this))
@@ -879,7 +876,8 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         if (targetNode != null)
         {
             state = State.GoingToNode;
-            MoveTo(targetNode.transform.position, targetNode.transform);
+            float stop = ResolveStopDistance(targetSite.transform, BuildingStopDistanceType.Construction);
+            movementController.MoveTo(targetSite.transform.position, stop);
         }
         else
         {
@@ -900,7 +898,8 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         if (targetNode != null)
         {
             state = State.GoingToNode;
-            MoveTo(targetNode.transform.position, targetNode.transform);
+            float stop = ResolveStopDistance(targetSite.transform, BuildingStopDistanceType.Construction);
+            movementController.MoveTo(targetSite.transform.position, stop);
         }
         else if (carriedAmount > 0)
         {
@@ -930,7 +929,8 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         if (agent != null && agent.enabled)
         {
             agent.isStopped = false;
-            MoveTo(worldPos, null);
+            float stop = ResolveStopDistance(null, BuildingStopDistanceType.Default);
+            movementController.MoveTo(worldPos, stop);
         }
     }
     // ---------- Gatherer ----------
@@ -953,7 +953,8 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         if (targetNode != null)
         {
             state = State.GoingToNode;
-            MoveTo(targetNode.transform.position, targetNode.transform);
+            float stop = ResolveStopDistance(targetNode.transform, BuildingStopDistanceType.Default);
+            movementController.MoveTo(targetNode.transform.position, stop); ;
         }
     }
 
@@ -982,10 +983,11 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         if (retargetTimer >= retargetSeconds)
         {
             retargetTimer = 0f;
-            MoveTo(targetNode.transform.position, targetNode.transform);
+            float stop = ResolveStopDistance(targetNode.transform, BuildingStopDistanceType.Default);
+            movementController.MoveTo(targetNode.transform.position, stop);
         }
 
-        if (Arrived())
+        if (movementController.HasArrived())
         {
             state = State.Gathering;
             gatherTimer = 0f;
@@ -1103,9 +1105,10 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             return;
         }
 
-        MoveTo(targetStorage.transform.position, targetStorage.transform, BuildingStopDistanceType.Storage);
+        float stop = ResolveStopDistance(targetStorage.transform, BuildingStopDistanceType.Storage);
+        movementController.MoveTo(targetStorage.transform.position, stop);
 
-        if (Arrived())
+        if (movementController.HasArrived())
             state = State.Depositing;
     }
 
@@ -1166,7 +1169,9 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         }
 
         state = State.GoingToBuildSite;
-        MoveTo(targetSite.transform.position, targetSite.transform, BuildingStopDistanceType.Construction);
+
+        float stop = ResolveStopDistance(targetSite.transform, BuildingStopDistanceType.Construction);
+        movementController.MoveTo(targetSite.transform.position, stop);
     }
 
     void TickGoBuildSite()
@@ -1185,8 +1190,9 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             return;
         }
 
-        MoveTo(targetSite.transform.position, targetSite.transform, BuildingStopDistanceType.Construction);
-        if (Arrived()) state = State.Building;
+        float stop = ResolveStopDistance(targetSite.transform, BuildingStopDistanceType.Construction);
+        movementController.MoveTo(targetSite.transform.position, stop);
+        if (movementController.HasArrived()) state = State.Building;
     }
 
     void TickBuild()
@@ -1323,9 +1329,10 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         if (targetStorage == null)
             return;
 
-        MoveTo(targetStorage.transform.position, targetStorage.transform, BuildingStopDistanceType.Storage);
+        float stop = ResolveStopDistance(targetStorage.transform, BuildingStopDistanceType.Storage);
+        movementController.MoveTo(targetStorage.transform.position, stop);
 
-        if (Arrived())
+        if (movementController.HasArrived())
             state = State.PickingUp;
     }
 
@@ -1366,7 +1373,8 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
 
         targetStorage = null;
         state = State.GoingToDeliverSite;
-        MoveTo(targetSite.transform.position, targetSite.transform, BuildingStopDistanceType.Construction);
+        float stop = ResolveStopDistance(targetSite.transform, BuildingStopDistanceType.Construction);
+        movementController.MoveTo(targetSite.transform.position, stop);
     }
 
     void TickGoDeliver()
@@ -1377,8 +1385,9 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             return;
         }
 
-        MoveTo(targetSite.transform.position, targetSite.transform, BuildingStopDistanceType.Construction);
-        if (Arrived()) state = State.Delivering;
+        float stop = ResolveStopDistance(targetSite.transform, BuildingStopDistanceType.Construction);
+        movementController.MoveTo(targetSite.transform.position, stop);
+        if (movementController.HasArrived()) state = State.Delivering;
     }
 
     void TickDeliver()
@@ -1422,31 +1431,6 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             return Mathf.Max(0.1f, stopDistance);
 
         return settings.GetStopDistance(stopType, stopDistance);
-    }
-
-    void MoveTo(Vector3 destination, Transform destinationContext, BuildingStopDistanceType stopType = BuildingStopDistanceType.Default)
-    {
-        if (agent == null || !agent.enabled)
-            return;
-
-        agent.stoppingDistance = ResolveStopDistance(destinationContext, stopType);
-        agent.SetDestination(destination);
-    }
-
-    bool Arrived()
-    {
-        if (agent == null || !agent.enabled || !agent.gameObject.activeInHierarchy || !agent.isOnNavMesh)
-        {
-            LogInvalidNavMeshAgent("Arrived");
-            return false;
-        }
-
-        loggedInactiveNavAgentWarning = false;
-
-        if (agent.pathPending) return false;
-        if (!agent.hasPath) return false;
-        if (agent.remainingDistance == Mathf.Infinity) return false;
-        return agent.remainingDistance <= agent.stoppingDistance;
     }
 
     void LogInvalidNavMeshAgent(string callsite)
@@ -1687,8 +1671,9 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
                 return;
             }
 
-            MoveTo(targetStorage.transform.position, targetStorage.transform, BuildingStopDistanceType.Storage);
-            if (Arrived())
+            float stop = ResolveStopDistance(targetStorage.transform, BuildingStopDistanceType.Storage);
+            movementController.MoveTo(targetStorage.transform.position, stop);
+            if (movementController.HasArrived())
             {
                 int took = targetStorage.Withdraw(carriedResource, Mathf.Min(amount, GetCarryCapacity()));
                 carriedAmount = took;
@@ -1713,9 +1698,11 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         }
 
         Vector3 slot = targetCraftingBuilding.inputSlot != null ? targetCraftingBuilding.inputSlot.position : targetCraftingBuilding.transform.position;
-        MoveTo(slot, targetCraftingBuilding != null ? targetCraftingBuilding.transform : null, BuildingStopDistanceType.CraftInput);
+        Transform ctx = targetCraftingBuilding != null ? targetCraftingBuilding.transform : null;
+        float stop = ResolveStopDistance(ctx, BuildingStopDistanceType.CraftInput);
+        movementController.MoveTo(slot, stop);
 
-        if (!Arrived()) return;
+        if (!movementController.HasArrived()) return;
 
         if (carriedAmount <= 0)
         {
@@ -1762,8 +1749,10 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         if (!targetCraftingBuilding.TryReserveWorkPoint(this, out targetWorkPoint) || targetWorkPoint == null)
             return;
 
-        MoveTo(targetWorkPoint.position, targetCraftingBuilding != null ? targetCraftingBuilding.transform : targetWorkPoint, BuildingStopDistanceType.CraftWork);
-        if (Arrived())
+        Transform ctx = targetCraftingBuilding != null ? targetCraftingBuilding.transform : targetWorkPoint;
+        float stop = ResolveStopDistance(ctx, BuildingStopDistanceType.CraftWork);
+        movementController.MoveTo(targetWorkPoint.position, stop);
+        if (movementController.HasArrived())
         {
             stalledAtWorkPointTimer = 0f;
             state = State.CraftingAtWorkPoint;
@@ -1839,8 +1828,10 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
         }
 
         Vector3 slot = targetCraftingBuilding.outputSlot != null ? targetCraftingBuilding.outputSlot.position : targetCraftingBuilding.transform.position;
-        MoveTo(slot, targetCraftingBuilding != null ? targetCraftingBuilding.transform : null, BuildingStopDistanceType.CraftOutput);
-        if (!Arrived()) return;
+        Transform ctx = targetCraftingBuilding != null ? targetCraftingBuilding.transform : null;
+        float stop = ResolveStopDistance(ctx, BuildingStopDistanceType.CraftOutput);
+        movementController.MoveTo(slot, stop);
+        if (!movementController.HasArrived()) return;
 
         carriedAmount = targetCraftingBuilding.CollectOutput(carriedResource, Mathf.Min(amount, GetCarryCapacity()));
         carryingController?.SetCarried(carriedResource, carriedAmount);
@@ -1870,8 +1861,9 @@ public class Civilian : MonoBehaviour, ITargetable, IHasHealth
             return;
         }
 
-        MoveTo(targetStorage.transform.position, targetStorage.transform, BuildingStopDistanceType.Storage);
-        if (!Arrived()) return;
+        float stop = ResolveStopDistance(targetStorage.transform, BuildingStopDistanceType.Storage);
+        movementController.MoveTo(targetStorage.transform.position, stop);
+        if (!movementController.HasArrived()) return;
 
         int accepted = targetStorage.Deposit(carriedResource, carriedAmount);
         carriedAmount -= accepted;

@@ -49,7 +49,7 @@ public class Attackable : MonoBehaviour, IHasHealth, IAttackable
         {
             teamID = civ.teamID;
             civilianProxy = civ;
-            healthProxy = civ;
+            healthProxy = civ.GetComponent<HealthComponent>();
             isCivilian = true;
         }
         else if (building != null)
