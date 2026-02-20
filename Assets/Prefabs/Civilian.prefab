@@ -31,6 +31,9 @@ GameObject:
   - component: {fileID: 4682958629965996819}
   - component: {fileID: -5695085413734152957}
   - component: {fileID: -8969266345814265463}
+  - component: {fileID: 780070873142901490}
+  - component: {fileID: 6226395856008311691}
+  - component: {fileID: 2966127184537858420}
   m_Layer: 13
   m_Name: Civilian
   m_TagString: Untagged
@@ -255,6 +258,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f8fa9c478f3ea64993ca8810844a9a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HousingController
+  homelessRecheckIntervalSeconds: 2
 --- !u!114 &5262847259082431760
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -504,3 +508,64 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DepositStorageComponent
   searchRetrySeconds: 1.5
+--- !u!114 &780070873142901490
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5538168870909510437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ecce943bc2ce40343bc0ca368ac9a235, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GatheringUIController
+  showGatherProgressBar: 1
+  gatherProgressBarOffset: {x: 0, y: 2, z: 0}
+  gatherProgressBarWidth: 1
+  gatherProgressBarHeight: 0.15
+  gatherTickSeconds: 2
+  gatherTimer: 0
+  state: 0
+--- !u!114 &6226395856008311691
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5538168870909510437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0eacc16e1e9ddf34bb76feee9649f848, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WorldProgressBar
+  offset: {x: 0, y: 1.4, z: 0}
+  width: 1.2
+  height: 0.12
+  depth: 0.08
+  progress01: 0
+  hideWhenZero: 1
+  smoothSpeed: 18
+  glowStrength: 1.8
+  billboardToCamera: 1
+--- !u!114 &2966127184537858420
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5538168870909510437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75ff9a1ea6f0a164fa4d2b68b60b9de1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WorldHealthBar
+  offset: {x: 0, y: 1.2, z: 0}
+  width: 1.2
+  height: 0.12
+  depth: 0.08
+  onlyShowForBuildings: 1
+  hideWhenFullHealth: 1
+  smoothSpeed: 18
+  glowStrength: 1.8
+  billboardToCamera: 1

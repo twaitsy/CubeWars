@@ -25,36 +25,22 @@ public class Civilian : MonoBehaviour, ITargetable
 
     [Header("Job (Unified Registry)")]
     public JobDefinition jobDefinition;
-    public CivilianJobType jobType = CivilianJobType.Gatherer;
 
+    public CivilianJobType jobType = CivilianJobType.Gatherer;
     public CivilianJobType JobType => jobType;
 
-    [Header("Gathering Progress UI")]
-    public bool showGatherProgressBar = true;
-    public Vector3 gatherProgressBarOffset = new(0f, 2.2f, 0f);
-    public float gatherProgressBarWidth = 1.0f;
-    public float gatherProgressBarHeight = 0.1f;
     private ResourceStorageContainer targetStorage; 
-    // Compatibility fields referenced elsewhere
-    public ResourceNode CurrentReservedNode { get; set; }
     public ConstructionSite CurrentAssignedSite { get; set; }
     public ConstructionSite CurrentDeliverySite { get; set; }
-
-    // Expose carried for UI
     public ResourceDefinition CarriedType => carryingController != null ? carryingController.CarriedResource : null;
     public int CarriedAmount => carryingController != null ? carryingController.CarriedAmount : 0;
     private GatheringController gatheringController;
 
     private ResourceDropoff targetDropoff;
-    // Legacy/compat fields (kept for external references)
     public bool HasJob;
-    public ResourceNode CurrentNode;
 
-    private float gatherTimer;
     private float searchTimer;
-    private float retargetTimer;
 
-    private ResourceNode forcedNode;
     private ConstructionSite targetSite;
 
     private CraftingBuilding targetCraftingBuilding;
@@ -147,6 +133,7 @@ public class Civilian : MonoBehaviour, ITargetable
     private ResourceDefinition carriedResource;
     private int carriedAmount;
     private float currentHunger;
+
     private float currentTiredness;
     private float needActionTimer;
     private bool hasStoredRoleState;
@@ -161,7 +148,6 @@ public class Civilian : MonoBehaviour, ITargetable
     private Vector3 idleWanderTarget;
     private float idleNoTaskTimer;
     private float stalledAtWorkPointTimer;
-    private WorldProgressBar gatherProgressBar;
     private HealthComponent health;
     private MovementController movementController;
     private CarryingController carryingController;
@@ -179,7 +165,6 @@ public class Civilian : MonoBehaviour, ITargetable
     public int harvestPerTick => gatheringController != null ? gatheringController.harvestPerTick : 1;
     private float searchRetrySeconds => 1.5f;
     private bool buildersCanHaulMaterials => constructionWorkerControl == null || constructionWorkerControl.CanHaulMaterials;
-    private float retargetSeconds => constructionWorkerControl != null ? constructionWorkerControl.RetargetSeconds : 0.6f;
     public int foodToEatPerMeal => needsController != null ? needsController.FoodToEatPerMeal : 10;
     private float eatDurationSeconds => needsController != null ? needsController.EatDurationSeconds : 1.2f;
     public float maxTiredness => needsController != null ? needsController.MaxTiredness : 100f;
@@ -252,7 +237,6 @@ public class Civilian : MonoBehaviour, ITargetable
         WorkerTaskDispatcher.Instance?.RegisterWorker(this);
         CivilianRegistry.Register(this);
 
-        EnsureGatherProgressBar();
         housingController?.TryAssignHouseIfNeeded();
     }
 
@@ -272,90 +256,46 @@ public class Civilian : MonoBehaviour, ITargetable
             return;
         }
 
-        // ---------------------------------------------------------
         // Health
-        // ---------------------------------------------------------
-        health = GetComponent<HealthComponent>();
-        movementController = GetComponent<MovementController>();
-        carryingController = GetComponent<CarryingController>();
-        gatheringController = GetComponent<GatheringController>();
-        constructionWorkerControl = GetComponent<ConstructionWorkerControl>();
-        needsController = GetComponent<NeedsController>();
-        housingController = GetComponent<HousingController>();
-        if (health != null)
-            health.ApplyDefinition(def);
+        health?.ApplyDefinition(def);
 
-
-        // ---------------------------------------------------------
         // Movement
-        // ---------------------------------------------------------
-        var movement = GetComponent<MovementController>();
-        if (movement != null)
-            movement.SetMoveSpeed(def.moveSpeed);
+        movementController?.SetMoveSpeed(def.moveSpeed);
 
-        // ---------------------------------------------------------
         // Carrying
-        // ---------------------------------------------------------
-        var carry = GetComponent<CarryingController>();
-        if (carry != null)
-            carry.SetCapacity(def.carryCapacity);
+        carryingController?.SetCapacity(def.carryCapacity);
 
-        // ---------------------------------------------------------
         // Gathering
-        // ---------------------------------------------------------
-        var gather = GetComponent<GatheringController>();
-        if (gather != null)
-            gather.harvestPerTick = Mathf.Max(1, Mathf.RoundToInt(def.gatherSpeed));
-        gather.gatherInterval = 1f / Mathf.Max(0.1f, def.gatherSpeed);
+        if (gatheringController != null)
+        {
+            gatheringController.harvestPerTick = Mathf.Max(1, Mathf.RoundToInt(def.gatherSpeed));
+            gatheringController.gatherInterval = 1f / Mathf.Max(0.1f, def.gatherSpeed);
+        }
 
-        // ---------------------------------------------------------
         // Building
-        // ---------------------------------------------------------
-        var builder = GetComponent<ConstructionWorkerControl>();
-        if (builder != null)
-            builder.SetBuildSpeed(def.buildSpeed);
+        constructionWorkerControl?.SetBuildSpeed(def.buildSpeed);
 
-        // ---------------------------------------------------------
         // Combat
-        // ---------------------------------------------------------
-        var combat = GetComponent<CombatController>();
-        if (combat != null)
-            combat.SetCombatStats(def.attackDamage, def.attackRange, def.attackCooldown, def.armor);
+        GetComponent<CombatController>()?.SetCombatStats(
+            def.attackDamage, def.attackRange, def.attackCooldown, def.armor);
 
-        // ---------------------------------------------------------
         // Tools
-        // ---------------------------------------------------------
-        var tools = GetComponent<ToolController>();
-        if (tools != null && def.startingTools != null)
-            tools.SetStartingTools(def.startingTools);
+        if (def.startingTools != null)
+            GetComponent<ToolController>()?.SetStartingTools(def.startingTools);
 
-        // ---------------------------------------------------------
         // Needs
-        // ---------------------------------------------------------
-        var needs = GetComponent<NeedsController>();
-        if (needs != null && def.needs != null)
-            needs.SetNeeds(def.needs);
+        if (def.needs != null)
+            needsController?.SetNeeds(def.needs);
 
-        // ---------------------------------------------------------
         // Jobs
-        // ---------------------------------------------------------
-        var job = GetComponent<JobController>();
-        if (job != null)
-            job.SetJobType(def.jobType);
+        GetComponent<JobController>()?.SetJobType(def.jobType);
 
-        // ---------------------------------------------------------
         // Training
-        // ---------------------------------------------------------
-        var training = GetComponent<TrainingController>();
-        if (training != null)
-            training.SetTraining(def.trainingCost, def.trainingTime, def.trainedAt);
+        GetComponent<TrainingController>()?.SetTraining(
+            def.trainingCost, def.trainingTime, def.trainedAt);
 
-        // ---------------------------------------------------------
         // Upgrades
-        // ---------------------------------------------------------
-        var upgrade = GetComponent<UpgradeController>();
-        if (upgrade != null)
-            upgrade.SetUpgradeTarget(def.upgradeTo);
+        GetComponent<UpgradeController>()?.SetUpgradeTarget(def.upgradeTo);
     }
 
     void RegisterWithJobManager()
@@ -411,46 +351,10 @@ public class Civilian : MonoBehaviour, ITargetable
 
         stateMachineController?.Tick(state);
 
-        UpdateGatherProgressBar();
+
     }
 
-    void EnsureGatherProgressBar()
-    {
-        if (!showGatherProgressBar)
-            return;
 
-        if (gatherProgressBar == null)
-            gatherProgressBar = GetComponent<WorldProgressBar>();
-
-        if (gatherProgressBar == null)
-            gatherProgressBar = gameObject.AddComponent<WorldProgressBar>();
-
-        gatherProgressBar.offset = gatherProgressBarOffset;
-        gatherProgressBar.width = Mathf.Max(0.1f, gatherProgressBarWidth);
-        gatherProgressBar.height = Mathf.Max(0.02f, gatherProgressBarHeight);
-        gatherProgressBar.hideWhenZero = true;
-        gatherProgressBar.progress01 = 0f;
-    }
-
-    void UpdateGatherProgressBar()
-    {
-        if (!showGatherProgressBar)
-            return;
-
-        if (gatherProgressBar == null)
-            EnsureGatherProgressBar();
-
-        if (gatherProgressBar == null)
-            return;
-
-        if (state != State.Gathering || gatherTickSeconds <= 0f)
-        {
-            gatherProgressBar.progress01 = 0f;
-            return;
-        }
-
-        gatherProgressBar.progress01 = Mathf.Clamp01(gatherTimer / Mathf.Max(0.01f, gatherTickSeconds));
-    }
 
     void TickNeeds()
     {
@@ -813,37 +717,6 @@ public class Civilian : MonoBehaviour, ITargetable
         equippedTools.Add(toolType);
     }
 
-    public void AssignGatherJob(ResourceNode node)
-    {
-        HasJob = node != null;
-        CurrentNode = node;
-
-        carriedAmount = 0;
-        carryingController?.SetCarried(carriedResource, carriedAmount);
-        targetSite = null;
-        targetStorage = null;
-
-        CurrentAssignedSite = null;
-        CurrentDeliverySite = null;
-
-        forcedNode = node;
-
-    }
-
-    public void AssignPreferredNode(ResourceNode node)
-    {
-        forcedNode = node;
-        if (node != null && gatheringController.AssignNode(node))
-        {
-            CurrentNode = node;
-            SetState(State.GoingToNode);
-            return;
-        }
-
-        SetState(State.SearchingNode);
-    }
-
-
 
     public void IssueMoveCommand(Vector3 worldPos)
     {
@@ -873,34 +746,34 @@ public class Civilian : MonoBehaviour, ITargetable
     {
         idleNoTaskTimer += Time.deltaTime;
 
-        if (forcedNode != null)
+        // 1. If a preferred node was set, let the controller handle it
+        if (gatheringController.forcedNode != null)
         {
-            if (!forcedNode.IsDepleted && gatheringController.AssignNode(forcedNode))
+            var node = gatheringController.forcedNode;
+
+            if (!node.IsDepleted && gatheringController.AssignNode(node))
             {
                 idleNoTaskTimer = 0f;
-                CurrentNode = forcedNode;
                 SetState(State.GoingToNode);
                 return;
             }
 
-            forcedNode = null;
-            CurrentNode = null;
+            // Clear forced node if unusable
+            gatheringController.forcedNode = null;
         }
 
-        // Ask the controller to find a valid node
-        if (gatheringController.TryFindNode(out var node))
+        // 2. Ask controller to find a node
+        if (gatheringController.TryFindNode(out var bestNode))
         {
-            // Attempt to reserve + move
-            if (gatheringController.AssignNode(node))
+            if (gatheringController.AssignNode(bestNode))
             {
                 idleNoTaskTimer = 0f;
-                CurrentNode = node;
                 SetState(State.GoingToNode);
                 return;
             }
         }
 
-        // If we reach here, no node was found OR reservation failed.
+        // 3. No node found → fallback
         TryFallbackToHouseInteractionPoint();
     }
     private void TickGoNode()
@@ -1959,7 +1832,7 @@ public class Civilian : MonoBehaviour, ITargetable
             case WorkerTaskType.Gather:
                 if (task.resourceNode == null) return false;
                 SetJobType(CivilianJobType.Gatherer);
-                AssignPreferredNode(task.resourceNode);
+                gatheringController.AssignPreferredNode(task.resourceNode);
                 return true;
             case WorkerTaskType.Build:
                 SetJobType(CivilianJobType.Builder);

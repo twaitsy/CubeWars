@@ -577,6 +577,7 @@ GameObject:
   - component: {fileID: -3039651668397046738}
   - component: {fileID: -6613366737955769395}
   - component: {fileID: 4005654350740676380}
+  - component: {fileID: 6107207384418395162}
   m_Layer: 0
   m_Name: iron_ore
   m_TagString: Untagged
@@ -750,3 +751,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InteractionPoint
   pointType: 0
   priority: 0
+--- !u!114 &6107207384418395162
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6089014581457673032}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0eacc16e1e9ddf34bb76feee9649f848, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WorldProgressBar
+  offset: {x: 0, y: 1.4, z: 0}
+  width: 1.2
+  height: 0.12
+  depth: 0.08
+  progress01: 0
+  hideWhenZero: 1
+  smoothSpeed: 18
+  glowStrength: 1.8
+  billboardToCamera: 1

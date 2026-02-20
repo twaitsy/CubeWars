@@ -12,32 +12,33 @@ public class GatheringController : MonoBehaviour
 
     [Header("Gathering")]
     public int harvestPerTick = 1;
-    public float gatherInterval = 1.0f;
+    public float gatherInterval = 1f;
     public float gatherRange = 1.5f;
 
     private float nextGatherTime;
+
+    public ResourceNode forcedNode;
     public ResourceNode CurrentNode { get; private set; }
-    public CarryingController Carrying => carrying;
+
+    public object CurrentAssignedSite { get; private set; }
+    public object CurrentDeliverySite { get; private set; }
+
     void Awake()
     {
         civilian = GetComponent<Civilian>();
         movement = GetComponent<MovementController>();
         carrying = GetComponent<CarryingController>();
-
         deposit = GetComponent<DepositStorageComponent>();
         withdraw = GetComponent<WithdrawStorageComponent>();
     }
 
-    // ---------------------------------------------------------
-    // ASSIGNMENT
-    // ---------------------------------------------------------
+    // ASSIGNMENT ------------------------------------------------
 
     public bool AssignNode(ResourceNode node)
     {
         if (node == null || node.IsDepleted)
             return false;
 
-        // Release previous node if switching
         if (CurrentNode != null && CurrentNode != node)
             Release(CurrentNode);
 
@@ -51,6 +52,33 @@ public class GatheringController : MonoBehaviour
         return true;
     }
 
+    public void AssignPreferredNode(ResourceNode node)
+    {
+        forcedNode = node;
+
+        if (node != null && AssignNode(node))
+        {
+            civilian.SetState(Civilian.State.GoingToNode);
+            return;
+        }
+
+        civilian.SetState(Civilian.State.SearchingNode);
+    }
+
+    public void AssignGatherJob(ResourceNode node)
+    {
+        civilian.HasJob = node != null;
+        CurrentNode = node;
+
+        if (carrying != null)
+            carrying.SetCarried(null, 0); // reset carried contents
+
+        CurrentAssignedSite = null;
+        CurrentDeliverySite = null;
+
+        forcedNode = node;
+    }
+
     public void StopGathering()
     {
         if (CurrentNode != null)
@@ -60,9 +88,7 @@ public class GatheringController : MonoBehaviour
         nextGatherTime = 0f;
     }
 
-    // ---------------------------------------------------------
-    // SEARCH
-    // ---------------------------------------------------------
+    // SEARCH ----------------------------------------------------
 
     public bool TryFindNode(out ResourceNode best)
     {
@@ -100,9 +126,7 @@ public class GatheringController : MonoBehaviour
         return best != null;
     }
 
-    // ---------------------------------------------------------
-    // RESERVATION
-    // ---------------------------------------------------------
+    // RESERVATION -----------------------------------------------
 
     public bool TryReserve(ResourceNode node)
     {
@@ -111,25 +135,20 @@ public class GatheringController : MonoBehaviour
 
     public void Release(ResourceNode node)
     {
-        if (node != null)
-            node.ReleaseGatherSlot(civilian);
+        node?.ReleaseGatherSlot(civilian);
     }
 
-    // ---------------------------------------------------------
-    // MOVEMENT
-    // ---------------------------------------------------------
+    // MOVEMENT --------------------------------------------------
 
     public void MoveToNode(ResourceNode node)
     {
-        if (node == null || movement == null)
+        if (node == null)
             return;
 
-        movement.MoveTo(node.transform.position, gatherRange);
+        movement?.MoveTo(node.transform.position, gatherRange);
     }
 
-    // ---------------------------------------------------------
-    // GATHERING TICK
-    // ---------------------------------------------------------
+    // GATHERING TICK --------------------------------------------
 
     public bool TickGathering()
     {
@@ -139,7 +158,6 @@ public class GatheringController : MonoBehaviour
         if (movement == null || !movement.HasArrived())
             return false;
 
-        // Optional: prevent gathering when full
         if (carrying != null && carrying.IsFull)
             return false;
 
@@ -151,24 +169,19 @@ public class GatheringController : MonoBehaviour
         int taken = CurrentNode.Harvest(harvestPerTick);
         if (taken > 0)
         {
-            if (carrying != null)
-                carrying.AddToInventory(CurrentNode.resource, taken);
+            carrying?.AddToInventory(CurrentNode.resource, taken);
 
-            // If node depleted on this tick, stop using it
             if (CurrentNode.IsDepleted)
                 StopGathering();
 
             return true;
         }
 
-        // Nothing harvested → node likely depleted
         StopGathering();
         return false;
     }
 
-    // ---------------------------------------------------------
-    // DEPOSIT / WITHDRAW
-    // ---------------------------------------------------------
+    // DEPOSIT / WITHDRAW ----------------------------------------
 
     public bool TryFindDepositStorage(out ResourceStorageContainer container)
     {
@@ -190,8 +203,7 @@ public class GatheringController : MonoBehaviour
 
     public void MoveToDeposit(Transform target)
     {
-        if (deposit != null)
-            deposit.MoveToStorage(target);
+        deposit?.MoveToStorage(target);
     }
 
     public bool TryDeposit(ResourceStorageContainer container)
@@ -215,8 +227,7 @@ public class GatheringController : MonoBehaviour
 
     public void MoveToWithdraw(ResourceStorageContainer container)
     {
-        if (withdraw != null)
-            withdraw.MoveToStorage(container);
+        withdraw?.MoveToStorage(container);
     }
 
     public bool TryWithdraw(ResourceStorageContainer container, ResourceDefinition resource, int amount)
