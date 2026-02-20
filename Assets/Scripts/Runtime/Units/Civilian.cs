@@ -966,7 +966,16 @@ public class Civilian : MonoBehaviour, ITargetable
     }
     private void TickFindDepositStorage()
     {
+        targetStorage = null;
+        targetDropoff = null;
+
         if (gatheringController.TryFindDepositStorage(out targetStorage))
+        {
+            state = State.GoingToDepositStorage;
+            return;
+        }
+
+        if (gatheringController.TryFindDropoff(out targetDropoff))
         {
             state = State.GoingToDepositStorage;
             return;
@@ -977,25 +986,42 @@ public class Civilian : MonoBehaviour, ITargetable
     }
     void TickDepositing()
     {
-        if (targetStorage == null)
+        if (targetStorage == null && targetDropoff == null)
         {
             state = State.FindDepositStorage;
             return;
         }
 
-        if (gatheringController.TryDeposit(targetStorage))
+        bool emptiedInventory = targetStorage != null
+            ? gatheringController.TryDeposit(targetStorage)
+            : gatheringController.TryDeposit(targetDropoff);
+
+        if (emptiedInventory)
+        {
             state = State.SearchingNode;
+            return;
+        }
+
+        if (!carryingController.IsCarrying)
+        {
+            state = State.SearchingNode;
+            return;
+        }
+
+        state = State.FindDepositStorage;
     }
     void TickGoingToDepositStorage()
     {
-        if (targetStorage == null)
+        Transform depositTarget = targetStorage != null ? targetStorage.transform : targetDropoff != null ? targetDropoff.transform : null;
+
+        if (depositTarget == null)
         {
             state = State.FindDepositStorage;
             return;
         }
 
-        float stop = ResolveStopDistance(targetStorage.transform, BuildingStopDistanceType.Storage);
-        Transform interactionTarget = ResolveInteractionTarget(targetStorage.transform, BuildingInteractionPointType.Storage);
+        float stop = ResolveStopDistance(depositTarget, BuildingStopDistanceType.Storage);
+        Transform interactionTarget = ResolveInteractionTarget(depositTarget, BuildingInteractionPointType.Storage);
 
         movementController.MoveTo(interactionTarget.position, stop);
 
