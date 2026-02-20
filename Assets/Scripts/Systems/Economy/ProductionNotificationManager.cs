@@ -22,6 +22,6 @@ public class ProductionNotificationManager : MonoBehaviour
 
         cooldowns[key] = time + repeatDelaySeconds;
         AlertManager.Instance?.Push(message);
-        Debug.Log($"[ProductionNotification] {message}");
+ //       Debug.Log($"[ProductionNotification] {message}");
     }
 }

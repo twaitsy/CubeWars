@@ -19,6 +19,8 @@ GameObject:
   - component: {fileID: 3124892137413273334}
   - component: {fileID: 1549477667382319587}
   - component: {fileID: 7195897650002401758}
+  - component: {fileID: 4731780670107431229}
+  - component: {fileID: 2041911848521726391}
   m_Layer: 0
   m_Name: House
   m_TagString: Untagged
@@ -33,12 +35,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7618349653826479655}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &4802251805427908095
 MeshFilter:
@@ -59,10 +62,17 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -84,9 +94,12 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!65 &7173214579724961004
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -95,9 +108,17 @@ BoxCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7618349653826479655}
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
   m_IsTrigger: 0
+  m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 2
+  serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &9072237368166501742
@@ -112,6 +133,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f681ea031004d098a5fbe0cc7e130de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  buildingDefinitionId: 
   teamID: 0
   maxHealth: 300
   currentHealth: 0
@@ -191,37 +213,133 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   teamID: 0
   resourceFlow:
-  - type: 0
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 1
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 2
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 3
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 4
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 5
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 6
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 7
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 8
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 9
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 10
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 11
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 12
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 13
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 14
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
-  - type: 15
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     flowMode: 3
 --- !u!114 &7195897650002401758
 MonoBehaviour:
@@ -237,7 +355,40 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   teamID: 0
   capacities:
-  - type: 0
+  - resource:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      category: 0
+      weight: 1
+      baseValue: 1
     capacity: 200
   grantStartingResources: 0
   startingResources: []
+--- !u!114 &4731780670107431229
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7618349653826479655}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e4710a8aa104296997d2dad40065b09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BuildingInteractionPointController
+  interactionPoints: []
+--- !u!114 &2041911848521726391
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7618349653826479655}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb128d43901c4bcdb80ab116e0fea151, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InteractionPoint
+  pointType: 0
+  priority: 0

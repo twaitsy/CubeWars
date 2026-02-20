@@ -23,6 +23,8 @@ GameObject:
   - component: {fileID: 1022117379780279856}
   - component: {fileID: 7390252300050527218}
   - component: {fileID: -652211977011231118}
+  - component: {fileID: 2154604465497319296}
+  - component: {fileID: -388935383389409144}
   m_Layer: 0
   m_Name: CraftingStation
   m_TagString: Untagged
@@ -473,6 +475,33 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   validateOnAwake: 1
   includeOptionalWarnings: 1
+--- !u!114 &2154604465497319296
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2971650436058892313}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e4710a8aa104296997d2dad40065b09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BuildingInteractionPointController
+  interactionPoints: []
+--- !u!114 &-388935383389409144
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2971650436058892313}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb128d43901c4bcdb80ab116e0fea151, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InteractionPoint
+  pointType: 0
+  priority: 0
 --- !u!1 &4013298796735140841
 GameObject:
   m_ObjectHideFlags: 0
