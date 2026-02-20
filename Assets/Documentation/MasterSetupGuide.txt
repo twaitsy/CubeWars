@@ -737,3 +737,11 @@ Prefab validator scope expansion (2026-02)
 - BuildingPrefabValidator now supports validation of combat-unit prefabs (`Unit`) in addition to Building, Civilian, and ResourceNode prefabs.
 - Combat-unit validation checks required gameplay components (`Attackable`, `UnitCombatController`, `NavMeshAgent`) and warns for missing `Selectable`, `WeaponComponent`, or unknown `unitDefinitionId` entries.
 - Recommended workflow: keep BuildingPrefabValidator on reusable gameplay prefabs and run Validate Building Components before committing prefab changes.
+
+
+Update (2026-02-20)
+- Farm.cs has been removed. Use CraftingBuilding + ProductionRecipe for food production instead of legacy farm scripts.
+- Unit and Civilian `unitDefinitionId` values should be selected from UnitsDatabase (Unit uses inspector dropdown).
+- UnitsDatabase now includes common baseline entries: Civilian, Villager, Militia, Archer, Spearman, Swordsman, Knight, Scout, Priest, Catapult.
+- WorkerTaskGenerationSystem now creates separate crafting requests for production workers and haulers so `maxAssignedHaulers` is respected.
+- Gather tasks now force the assigned node in Civilian state flow (SearchingNode -> GoingToNode) to align task registry requests with actual assignment behavior.

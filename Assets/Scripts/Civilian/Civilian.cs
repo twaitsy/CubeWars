@@ -822,7 +822,15 @@ public class Civilian : MonoBehaviour, ITargetable
 
     public void AssignPreferredNode(ResourceNode node)
     {
-        gatheringController.AssignNode(node);
+        forcedNode = node;
+        if (node != null && gatheringController.AssignNode(node))
+        {
+            CurrentNode = node;
+            SetState(State.GoingToNode);
+            return;
+        }
+
+        SetState(State.SearchingNode);
     }
 
 
@@ -853,12 +861,26 @@ public class Civilian : MonoBehaviour, ITargetable
     }
     private void TickSearchNode()
     {
+        if (forcedNode != null)
+        {
+            if (!forcedNode.IsDepleted && gatheringController.AssignNode(forcedNode))
+            {
+                CurrentNode = forcedNode;
+                SetState(State.GoingToNode);
+                return;
+            }
+
+            forcedNode = null;
+            CurrentNode = null;
+        }
+
         // Ask the controller to find a valid node
         if (gatheringController.TryFindNode(out var node))
         {
             // Attempt to reserve + move
             if (gatheringController.AssignNode(node))
             {
+                CurrentNode = node;
                 SetState(State.GoingToNode);
                 return;
             }
@@ -1423,7 +1445,10 @@ public class Civilian : MonoBehaviour, ITargetable
         if (targetCraftingBuilding != null && !manualCraftingAssignment)
             return false;
 
-        return requiredType == CivilianJobType.Generalist || jobType == requiredType || CivilianJobRegistry.GetProfile(jobType).supportsCraftingAssignment;
+        if (requiredType == CivilianJobType.Generalist || requiredType == CivilianJobType.Idle)
+            return jobType == requiredType || CivilianJobRegistry.GetProfile(jobType).supportsCraftingAssignment;
+
+        return jobType == requiredType;
     }
 
     public void AssignCraftingBuilding(CraftingBuilding building, bool manual = false)

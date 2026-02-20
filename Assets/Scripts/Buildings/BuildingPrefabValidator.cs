@@ -253,12 +253,11 @@ public class BuildingPrefabValidator : MonoBehaviour
     {
         int productionScriptCount = 0;
         if (hasCrafting) productionScriptCount++;
-        if (TryGetComponent<Farm>(out _)) productionScriptCount++;
         if (TryGetComponent<Barracks>(out _)) productionScriptCount++;
         if (TryGetComponent<WeaponsFactory>(out _)) productionScriptCount++;
 
         if (productionScriptCount > 1)
-            conflicts.Add("Multiple production scripts detected (CraftingBuilding/Farm/Barracks/WeaponsFactory)");
+            conflicts.Add("Multiple production scripts detected (CraftingBuilding/Barracks/WeaponsFactory)");
 
         if (TryGetComponent<ProductionStatusVisualizer>(out _) && !hasCrafting)
             conflicts.Add("ProductionStatusVisualizer present without CraftingBuilding");

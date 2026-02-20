@@ -7,6 +7,7 @@ using UnityEngine.AI;
 public class Unit : MonoBehaviour, IHasHealth, IAttackable, ICommandable
 {
     [Header("Identity")]
+    [UnitDefinitionId]
     public string unitDefinitionId;
 
     [Header("Team")]

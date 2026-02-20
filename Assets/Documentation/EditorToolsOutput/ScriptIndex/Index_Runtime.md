@@ -13,7 +13,6 @@ Generated: 2026-02-15 19:53:01
 - ConstructionSite.cs
 - CraftingBuilding.cs
 - DefenseTurret.cs
-- Farm.cs
 - Headquarters.cs
 - House.cs
 - ProductionStatusVisualizer.cs
