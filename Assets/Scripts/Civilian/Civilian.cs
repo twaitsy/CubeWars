@@ -76,6 +76,7 @@ public class Civilian : MonoBehaviour, ITargetable
     public bool IsAtAssignedCraftingWorkPoint => state == State.CraftingAtWorkPoint && movementController.HasArrived();
     public float CurrentHunger => needsController != null ? needsController.CurrentHunger : 0f;
     public float CurrentTiredness => needsController != null ? needsController.CurrentTiredness : 0f;
+    public float CurrentWaterNeed => needsController != null ? needsController.CurrentWaterNeed : 0f;
     public House AssignedHouse => housingController != null ? housingController.AssignedHouse : null;
     public FoodDatabase foodDatabase;
     public ResourcesDatabase resourcesDatabase;
@@ -195,8 +196,10 @@ public class Civilian : MonoBehaviour, ITargetable
     private float eatDurationSeconds => needsController != null ? needsController.EatDurationSeconds : 1.2f;
     public float maxTiredness => needsController != null ? needsController.MaxTiredness : 100f;
     public float maxHunger => needsController != null ? needsController.MaxHunger : 100f;
+    public float maxWaterNeed => needsController != null ? needsController.MaxWaterNeed : 100f;
     public float hungerRatePerSecond => needsController != null ? needsController.HungerRatePerSecond : 0f;
     public float tirednessRatePerSecond => needsController != null ? needsController.TirednessRatePerSecond : 0f;
+    public float waterRatePerSecond => needsController != null ? needsController.WaterRatePerSecond : 0f;
     private float sleepDurationSeconds => needsController != null ? needsController.SleepDurationSeconds : 5f;
     void Awake()
     {
@@ -475,6 +478,7 @@ public class Civilian : MonoBehaviour, ITargetable
             needsController.TickCivilianNeeds(Time.deltaTime, tirednessMultiplier, health);
             currentHunger = needsController.CurrentHunger;
             currentTiredness = needsController.CurrentTiredness;
+            ProcessNeedDrivenState();
         }
 
         if (health != null && !health.IsAlive)
@@ -484,6 +488,37 @@ public class Civilian : MonoBehaviour, ITargetable
     }
 
     bool NeedsFood() => needsController != null && needsController.NeedsFood();
+
+    void ProcessNeedDrivenState()
+    {
+        if (needsController == null)
+            return;
+
+        NeedDrivenActionType action = needsController.GetRecommendedAction();
+        if (action == NeedDrivenActionType.None)
+            return;
+
+        if (state == State.Eating || state == State.Sleeping || state == State.SeekingFoodStorage || state == State.SeekingHouse)
+            return;
+
+        if (!hasStoredRoleState)
+        {
+            stateBeforeNeed = state;
+            hasStoredRoleState = true;
+        }
+
+        switch (action)
+        {
+            case NeedDrivenActionType.SeekRest:
+                state = State.SeekingHouse;
+                break;
+            case NeedDrivenActionType.SeekFood:
+            case NeedDrivenActionType.SeekWater:
+                state = State.SeekingFoodStorage;
+                break;
+        }
+    }
+
     void ResumeAfterNeed()
     {
         State fallback = ResolveRoleFallbackState();
@@ -1729,6 +1764,16 @@ public class Civilian : MonoBehaviour, ITargetable
     {
         float multiplier = 1f + (GetHouseSpeedBonusMultiplier() - 1f);
         multiplier *= GetToolMoveSpeedMultiplier();
+
+        if (needsController != null)
+        {
+            float tiredness01 = maxTiredness <= 0f ? 0f : Mathf.Clamp01(currentTiredness / maxTiredness);
+            if (tiredness01 > 0.7f)
+            {
+                float penalty = Mathf.Lerp(1f, 0.55f, Mathf.InverseLerp(0.7f, 1f, tiredness01));
+                multiplier *= penalty;
+            }
+        }
 
         if (!useRoadBonus)
             return multiplier;
