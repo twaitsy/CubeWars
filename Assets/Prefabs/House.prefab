@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 776b1a72a2b183248af0c45dc0f9d7b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractionPoint
-  pointType: 0
+  pointType: 5
   priority: 0
 --- !u!1 &4169989315823356799
 GameObject:
@@ -90,7 +90,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 776b1a72a2b183248af0c45dc0f9d7b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractionPoint
-  pointType: 0
+  pointType: 5
   priority: 0
 --- !u!1 &4897311529003436564
 GameObject:
@@ -136,7 +136,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 776b1a72a2b183248af0c45dc0f9d7b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractionPoint
-  pointType: 0
+  pointType: 5
   priority: 0
 --- !u!1 &7618349653826479655
 GameObject:
@@ -269,7 +269,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 706213d782c60394e9d81bc6374da59f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BuildingInteractionPointController
-  interactionPoints: []
+  interactionPoints:
+  - {fileID: 7657592039124137582}
+  - {fileID: 2967970760064079345}
+  - {fileID: 5539996989949491256}
+  - {fileID: 7808465018563706228}
 --- !u!114 &6530582743270232354
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -349,5 +353,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 776b1a72a2b183248af0c45dc0f9d7b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractionPoint
-  pointType: 0
+  pointType: 5
   priority: 0

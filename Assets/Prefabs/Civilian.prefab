@@ -181,7 +181,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MovementController
   moveSpeed: 2.5
-  stopDistance: 1.2
+  stopDistance: 2
   useRoadBonus: 1
   roadSpeedMultiplier: 1.2
 --- !u!114 &447393647185965927
@@ -225,17 +225,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NeedsController
   startingNeeds: []
-  hungerRatePerSecond: 0.45
+  needsDatabase: {fileID: 11400000, guid: cc51fc37d2e88ff49864b7e41a755afa, type: 2}
+  needsActionDatabase: {fileID: 11400000, guid: 6a654de5e4a247f5b93f516e9be3d2d1,
+    type: 2}
+  hungerRatePerSecond: 0.6
   maxHunger: 100
-  seekFoodThreshold01: 0.55
+  seekFoodThreshold01: 0.5
   foodToEatPerMeal: 10
   eatDurationSeconds: 1.2
   starvationDamagePerSecond: 2
   tirednessRatePerSecond: 0.3
   maxTiredness: 100
-  seekSleepThreshold01: 0.6
+  seekSleepThreshold01: 0.55
   sleepDurationSeconds: 5
   exhaustionDamagePerSecond: 1
+  waterRatePerSecond: 0.7
+  maxWaterNeed: 100
+  seekWaterThreshold01: 0.5
+  dehydrationDamagePerSecond: 2
 --- !u!114 &3082717544939108339
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -471,7 +478,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WithdrawStorageComponent
   searchRetrySeconds: 1.5
-  stopDistance: 1.2
 --- !u!114 &-5695085413734152957
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -498,4 +504,3 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DepositStorageComponent
   searchRetrySeconds: 1.5
-  stopDistance: 1.2
