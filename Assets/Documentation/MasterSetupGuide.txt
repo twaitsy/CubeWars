@@ -752,3 +752,13 @@ Update (2026-02-20)
 - `NeedsActionDatabase` should be populated with need-action thresholds/priorities so civilians can route into `SeekingFoodStorage` / `SeekingHouse` via the state machine.
 - Civilians now take dehydration damage in addition to starvation/exhaustion when water need is maxed.
 - High tiredness now reduces civilian movement speed automatically.
+
+
+[2026-02 civilian movement + interaction point routing]
+- Civilian building-target movement is now centralized through `MovementController`.
+- `MovementController` is responsible for:
+  - resolving per-building stop distances via `BuildingInteractionSettings`
+  - resolving closest interaction-point targets via `BuildingInteractionPointController`
+  - issuing the final `NavMeshAgent` destination
+- Ensure all building prefabs that civilians interact with (HQ, Resource Nodes with storage/dropoff chains, Barracks, Crafting, Storage Facility, House, Construction targets) include correctly typed `InteractionPoint` children under a `BuildingInteractionPointController`.
+- For storage pickup/dropoff and crafting input/output, civilians now target the closest valid interaction point first; fallback remains the building transform when no matching point exists.

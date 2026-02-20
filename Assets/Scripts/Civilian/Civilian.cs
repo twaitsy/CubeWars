@@ -573,7 +573,7 @@ public class Civilian : MonoBehaviour, ITargetable
             idleWanderTarget = AssignedHouse.transform.position + new Vector3(jitter.x, 0f, jitter.y);
         }
 
-        float stop = ResolveStopDistance(AssignedHouse.transform, BuildingStopDistanceType.House);
+        float stop = movementController.ResolveStopDistance(AssignedHouse.transform, BuildingStopDistanceType.House);
         movementController.MoveTo(idleWanderTarget, stop);
     }
 
@@ -591,8 +591,7 @@ public class Civilian : MonoBehaviour, ITargetable
                 return;
         }
 
-        float stop = ResolveStopDistance(targetFoodStorage.transform, BuildingStopDistanceType.Storage);
-        movementController.MoveTo(targetFoodStorage.transform.position, stop);
+        movementController.MoveToBuildingTarget(targetFoodStorage.transform, BuildingStopDistanceType.Storage, BuildingInteractionPointType.Storage);
         if (!movementController.HasArrived())
             return;
 
@@ -671,8 +670,7 @@ public class Civilian : MonoBehaviour, ITargetable
         if (targetHouse == null)
             return;
 
-        float stop = ResolveStopDistance(targetHouse.transform, BuildingStopDistanceType.House);
-        movementController.MoveTo(targetHouse.transform.position, stop);
+        movementController.MoveToBuildingTarget(targetHouse.transform, BuildingStopDistanceType.House, BuildingInteractionPointType.House);
         if (!movementController.HasArrived())
             return;
 
@@ -890,7 +888,7 @@ public class Civilian : MonoBehaviour, ITargetable
         // Move civilian
         if (movementController != null)
         {
-            float stop = ResolveStopDistance(null, BuildingStopDistanceType.Default);
+            float stop = movementController.ResolveStopDistance(null, BuildingStopDistanceType.Default);
             movementController.MoveTo(worldPos, stop);
         }
     }
@@ -1046,10 +1044,7 @@ public class Civilian : MonoBehaviour, ITargetable
             return;
         }
 
-        float stop = ResolveStopDistance(depositTarget, BuildingStopDistanceType.Storage);
-        Transform interactionTarget = ResolveInteractionTarget(depositTarget, BuildingInteractionPointType.Storage);
-
-        movementController.MoveTo(interactionTarget.position, stop);
+        movementController.MoveToBuildingTarget(depositTarget, BuildingStopDistanceType.Storage, BuildingInteractionPointType.Storage);
 
         if (movementController.HasArrived())
             state = State.Depositing;
@@ -1073,8 +1068,7 @@ public class Civilian : MonoBehaviour, ITargetable
 
         state = State.GoingToBuildSite;
 
-        float stop = ResolveStopDistance(targetSite.transform, BuildingStopDistanceType.Construction);
-        movementController.MoveTo(targetSite.transform.position, stop);
+        movementController.MoveToBuildingTarget(targetSite.transform, BuildingStopDistanceType.Construction, BuildingInteractionPointType.Default);
     }
 
     void TickGoBuildSite()
@@ -1093,8 +1087,7 @@ public class Civilian : MonoBehaviour, ITargetable
             return;
         }
 
-        float stop = ResolveStopDistance(targetSite.transform, BuildingStopDistanceType.Construction);
-        movementController.MoveTo(targetSite.transform.position, stop);
+        movementController.MoveToBuildingTarget(targetSite.transform, BuildingStopDistanceType.Construction, BuildingInteractionPointType.Default);
         if (movementController.HasArrived()) state = State.Building;
     }
 
@@ -1232,8 +1225,7 @@ public class Civilian : MonoBehaviour, ITargetable
         if (targetStorage == null)
             return;
 
-        float stop = ResolveStopDistance(targetStorage.transform, BuildingStopDistanceType.Storage);
-        movementController.MoveTo(ResolveInteractionTarget(targetStorage.transform, BuildingInteractionPointType.Storage).position, stop);
+        movementController.MoveToBuildingTarget(targetStorage.transform, BuildingStopDistanceType.Storage, BuildingInteractionPointType.Storage);
 
         if (movementController.HasArrived())
             state = State.PickingUp;
@@ -1276,8 +1268,7 @@ public class Civilian : MonoBehaviour, ITargetable
 
         targetStorage = null;
         state = State.GoingToDeliverSite;
-        float stop = ResolveStopDistance(targetSite.transform, BuildingStopDistanceType.Construction);
-        movementController.MoveTo(targetSite.transform.position, stop);
+        movementController.MoveToBuildingTarget(targetSite.transform, BuildingStopDistanceType.Construction, BuildingInteractionPointType.Default);
     }
 
     void TickGoDeliver()
@@ -1288,8 +1279,7 @@ public class Civilian : MonoBehaviour, ITargetable
             return;
         }
 
-        float stop = ResolveStopDistance(targetSite.transform, BuildingStopDistanceType.Construction);
-        movementController.MoveTo(targetSite.transform.position, stop);
+        movementController.MoveToBuildingTarget(targetSite.transform, BuildingStopDistanceType.Construction, BuildingInteractionPointType.Default);
         if (movementController.HasArrived()) state = State.Delivering;
     }
 
@@ -1322,30 +1312,6 @@ public class Civilian : MonoBehaviour, ITargetable
         return targetCraftingBuilding != null
             && targetCraftingBuilding.requireHaulerLogistics
             && jobType == CivilianJobType.Hauler;
-    }
-
-    float ResolveStopDistance(Transform destination, BuildingStopDistanceType stopType)
-    {
-        if (destination == null)
-            return Mathf.Max(0.1f, stopDistance);
-
-        var settings = destination.GetComponentInParent<BuildingInteractionSettings>();
-        if (settings == null)
-            return Mathf.Max(0.1f, stopDistance);
-
-        return settings.GetStopDistance(stopType, stopDistance);
-    }
-
-    Transform ResolveInteractionTarget(Transform destination, BuildingInteractionPointType pointType)
-    {
-        if (destination == null)
-            return transform;
-
-        var controller = destination.GetComponentInParent<BuildingInteractionPointController>();
-        if (controller != null && controller.TryGetClosestPoint(pointType, transform.position, out Transform interactionPoint))
-            return interactionPoint;
-
-        return destination;
     }
 
     int GetCarryCapacity()
@@ -1551,8 +1517,7 @@ public class Civilian : MonoBehaviour, ITargetable
                 return;
             }
 
-            float stop = ResolveStopDistance(targetStorage.transform, BuildingStopDistanceType.Storage);
-            movementController.MoveTo(ResolveInteractionTarget(targetStorage.transform, BuildingInteractionPointType.Storage).position, stop);
+            movementController.MoveToBuildingTarget(targetStorage.transform, BuildingStopDistanceType.Storage, BuildingInteractionPointType.Storage);
             if (movementController.HasArrived())
             {
                 int took = targetStorage.Withdraw(carriedResource, Mathf.Min(amount, GetCarryCapacity()));
@@ -1577,11 +1542,11 @@ public class Civilian : MonoBehaviour, ITargetable
             return;
         }
 
-        Transform inputTransform = targetCraftingBuilding.inputSlot != null ? targetCraftingBuilding.inputSlot : ResolveInteractionTarget(targetCraftingBuilding.transform, BuildingInteractionPointType.CraftInput);
-        Vector3 slot = inputTransform.position;
-        Transform ctx = targetCraftingBuilding != null ? targetCraftingBuilding.transform : null;
-        float stop = ResolveStopDistance(ctx, BuildingStopDistanceType.CraftInput);
-        movementController.MoveTo(slot, stop);
+        Transform inputTransform = targetCraftingBuilding.inputSlot != null
+            ? targetCraftingBuilding.inputSlot
+            : movementController.ResolveInteractionTarget(targetCraftingBuilding.transform, BuildingInteractionPointType.CraftInput);
+        float stop = movementController.ResolveStopDistance(targetCraftingBuilding != null ? targetCraftingBuilding.transform : null, BuildingStopDistanceType.CraftInput);
+        movementController.MoveTo(inputTransform.position, stop);
 
         if (!movementController.HasArrived()) return;
 
@@ -1631,7 +1596,7 @@ public class Civilian : MonoBehaviour, ITargetable
             return;
 
         Transform ctx = targetCraftingBuilding != null ? targetCraftingBuilding.transform : targetWorkPoint;
-        float stop = ResolveStopDistance(ctx, BuildingStopDistanceType.CraftWork);
+        float stop = movementController.ResolveStopDistance(ctx, BuildingStopDistanceType.CraftWork);
         movementController.MoveTo(targetWorkPoint.position, stop);
         if (movementController.HasArrived())
         {
@@ -1708,11 +1673,11 @@ public class Civilian : MonoBehaviour, ITargetable
             return;
         }
 
-        Transform outputTransform = targetCraftingBuilding.outputSlot != null ? targetCraftingBuilding.outputSlot : ResolveInteractionTarget(targetCraftingBuilding.transform, BuildingInteractionPointType.CraftOutput);
-        Vector3 slot = outputTransform.position;
-        Transform ctx = targetCraftingBuilding != null ? targetCraftingBuilding.transform : null;
-        float stop = ResolveStopDistance(ctx, BuildingStopDistanceType.CraftOutput);
-        movementController.MoveTo(slot, stop);
+        Transform outputTransform = targetCraftingBuilding.outputSlot != null
+            ? targetCraftingBuilding.outputSlot
+            : movementController.ResolveInteractionTarget(targetCraftingBuilding.transform, BuildingInteractionPointType.CraftOutput);
+        float stop = movementController.ResolveStopDistance(targetCraftingBuilding != null ? targetCraftingBuilding.transform : null, BuildingStopDistanceType.CraftOutput);
+        movementController.MoveTo(outputTransform.position, stop);
         if (!movementController.HasArrived()) return;
 
         carriedAmount = targetCraftingBuilding.CollectOutput(carriedResource, Mathf.Min(amount, GetCarryCapacity()));
@@ -1743,8 +1708,7 @@ public class Civilian : MonoBehaviour, ITargetable
             return;
         }
 
-        float stop = ResolveStopDistance(targetStorage.transform, BuildingStopDistanceType.Storage);
-        movementController.MoveTo(ResolveInteractionTarget(targetStorage.transform, BuildingInteractionPointType.Storage).position, stop);
+        movementController.MoveToBuildingTarget(targetStorage.transform, BuildingStopDistanceType.Storage, BuildingInteractionPointType.Storage);
         if (!movementController.HasArrived()) return;
 
         int accepted = targetStorage.Deposit(carriedResource, carriedAmount);

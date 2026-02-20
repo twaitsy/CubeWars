@@ -96,3 +96,11 @@ Latest component enforcement
   - `NeedsDatabase` containing `food`, `rest`, `water` NeedDefinitions
   - `NeedsActionDatabase` entries mapping those needs to seek-food/seek-rest decisions.
 - Tired civilians now move slower automatically; verify `MovementController` + `NeedsController` are both present.
+
+
+Building interaction targeting update
+- Civilian building movement should be issued through `MovementController.MoveToBuildingTarget(...)`.
+- `MovementController` now resolves both:
+  - stop distance by `BuildingInteractionSettings`
+  - closest interaction point by `BuildingInteractionPointController`
+- For all building types used in civilian workflows (HQ, Node-related dropoff/storage chains, Barracks, Crafting buildings, Storage facilities, Houses), add correctly typed `InteractionPoint` markers so pickup/dropoff/input/output can path to the nearest valid point.

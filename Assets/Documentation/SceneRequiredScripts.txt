@@ -377,3 +377,13 @@ Update (2026-02-20)
 - Civilian prefab/runtime validation pass should now include:
   - Need ids present in `NeedsDatabase`: `food`, `rest`, `water`
   - Need action entries present in `NeedsActionDatabase` for food/rest/water routing.
+
+
+[2026-02 movement-controller ownership + interaction-point validation expectations]
+- Civilian movement-to-building logic is expected to route through `MovementController` APIs.
+- Verify civilian-accessible buildings provide `BuildingInteractionPointController` and typed `InteractionPoint` entries for relevant lanes:
+  - Storage (pickup/dropoff)
+  - CraftInput / CraftOutput / CraftWork
+  - House
+  - Default (optional fallback for generic building approach)
+- Closest matching interaction point should be used first; when missing, fallback to transform-position targeting is expected.
