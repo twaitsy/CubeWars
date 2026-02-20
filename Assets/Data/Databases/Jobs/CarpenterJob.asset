@@ -16,7 +16,6 @@ MonoBehaviour:
   displayName: Carpenter
   icon: {fileID: 0}
   defaultJobType: Carpenter
-  legacyRole: Carpenter
   baseSkill: 1
   capabilities:
   - Build

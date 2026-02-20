@@ -16,7 +16,6 @@ MonoBehaviour:
   displayName: Machinist
   icon: {fileID: 0}
   defaultJobType: Engineer
-  legacyRole: Engineer
   baseSkill: 1
   capabilities:
   - Craft

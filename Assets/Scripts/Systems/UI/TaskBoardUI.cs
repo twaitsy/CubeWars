@@ -126,11 +126,11 @@ public class TaskBoardUI : MonoBehaviour
                 producingGoods++;
         }
 
-        Dictionary<CivilianRole, int> counts = JobManager.Instance != null
-            ? JobManager.Instance.GetRoleCounts(playerTeamID)
-            : BuildFallbackRoleCounts();
+        Dictionary<CivilianJobType, int> counts = JobManager.Instance != null
+            ? JobManager.Instance.GetJobCounts(playerTeamID)
+            : BuildFallbackJobCounts();
 
-        GUI.Label(new Rect(x, y, width, row), BuildRoleSummary(counts));
+        GUI.Label(new Rect(x, y, width, row), BuildJobSummary(counts));
         y += row;
 
         GUI.Label(new Rect(x, y, width, row), $"Active Civilians: {teamTotal} | Waiting For Job: {waitingForJob} | Moving To Target: {movingToTarget}");
@@ -304,33 +304,36 @@ public class TaskBoardUI : MonoBehaviour
         }
     }
 
-    Dictionary<CivilianRole, int> BuildFallbackRoleCounts()
+    Dictionary<CivilianJobType, int> BuildFallbackJobCounts()
     {
-        var result = new Dictionary<CivilianRole, int>();
-        foreach (CivilianRole role in Enum.GetValues(typeof(CivilianRole)))
-            result[role] = 0;
+        var result = new Dictionary<CivilianJobType, int>();
+        foreach (CivilianJobType job in Enum.GetValues(typeof(CivilianJobType)))
+            result[job] = 0;
 
         Civilian[] all = FindObjectsByType<Civilian>(FindObjectsSortMode.None);
         for (int i = 0; i < all.Length; i++)
         {
             Civilian c = all[i];
             if (c == null || c.teamID != playerTeamID) continue;
-            if (!result.ContainsKey(c.role)) result[c.role] = 0;
-            result[c.role]++;
+            if (!result.ContainsKey(c.JobType)) result[c.JobType] = 0;
+            result[c.JobType]++;
         }
 
         return result;
     }
 
-    string BuildRoleSummary(Dictionary<CivilianRole, int> counts)
+    string BuildJobSummary(Dictionary<CivilianJobType, int> counts)
     {
         var parts = new List<string>();
-        foreach (CivilianRole role in Enum.GetValues(typeof(CivilianRole)))
+        foreach (CivilianJobType job in Enum.GetValues(typeof(CivilianJobType)))
         {
-            int value = (counts != null && counts.ContainsKey(role)) ? counts[role] : 0;
-            parts.Add($"{role} {value}");
+            if (job == CivilianJobType.Generalist)
+                continue;
+
+            int value = (counts != null && counts.ContainsKey(job)) ? counts[job] : 0;
+            parts.Add($"{job} {value}");
         }
 
-        return "Roles: " + string.Join(" | ", parts);
+        return "Jobs: " + string.Join(" | ", parts);
     }
 }

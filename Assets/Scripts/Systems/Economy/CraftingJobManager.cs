@@ -161,7 +161,7 @@ public class CraftingJobManager : MonoBehaviour
     {
         bool needsHauler = building.requireHaulerLogistics && !building.HasAssignedHauler();
 
-        Civilian best = FindBestCandidate(building, c => !needsHauler || c.role == CivilianRole.Hauler);
+        Civilian best = FindBestCandidate(building, c => !needsHauler || c.JobType == CivilianJobType.Hauler);
         if (best != null)
             return best;
 

@@ -699,3 +699,11 @@ Building Interaction Points:
 Migration notes:
 - StorageFacility legacy interactionPoint field was removed in favor of InteractionPoint components.
 - If civilians stop short of storage/crafting interactions, verify NavMesh reachability to the selected InteractionPoint child transforms.
+
+[2026-02 modular civilian AI + job cleanup]
+- `Civilian` now enforces required runtime controllers directly on its GameObject (`HealthComponent`, `MovementController`, `CarryingController`, `GatheringController`, `NeedsController`, `HousingController`, `ConstructionWorkerControl`, `CivilianStateMachineController`).
+- Civilian update flow is now state-machine driven through `CivilianStateMachineController`; `Civilian` is now a coordinator that wires state handlers.
+- Legacy `CivilianRole` runtime usage was removed from worker systems/UI flows; worker counting and assignment now use `CivilianJobType`.
+- Job definition assets/scripts no longer rely on `legacyRole`; jobs are authored around `defaultJobType` + capability/tool data.
+- Job database assets under `Assets/Data/Databases/Jobs` were cleaned to remove serialized `legacyRole` fields.
+- Civilian food and construction targeting paths now prefer registries/managers (`TeamStorageManager`, `ConstructionRegistry`) instead of scene-wide object scans.

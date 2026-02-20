@@ -64,12 +64,12 @@ public class JobManager : MonoBehaviour
         return count;
     }
 
-    public Dictionary<CivilianRole, int> GetRoleCounts(int teamID)
+    public Dictionary<CivilianJobType, int> GetJobCounts(int teamID)
     {
-        var result = new Dictionary<CivilianRole, int>();
+        var result = new Dictionary<CivilianJobType, int>();
 
-        foreach (CivilianRole r in System.Enum.GetValues(typeof(CivilianRole)))
-            result[r] = 0;
+        foreach (CivilianJobType job in System.Enum.GetValues(typeof(CivilianJobType)))
+            result[job] = 0;
 
         for (int i = 0; i < civilians.Count; i++)
         {
@@ -80,7 +80,7 @@ public class JobManager : MonoBehaviour
             if (civ.teamID != teamID)
                 continue;
 
-            result[civ.role]++;
+            result[civ.JobType]++;
         }
 
         return result;

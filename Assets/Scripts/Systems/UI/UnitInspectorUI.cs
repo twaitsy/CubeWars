@@ -147,12 +147,6 @@ public class UnitInspectorUI : MonoBehaviour
         DrawButtonGrid(jobs, 3, job => civ.SetJobType(job), job => job.ToString());
     }
 
-    void DrawRoleButtons(Civilian civ)
-    {
-        var roles = (CivilianRole[])Enum.GetValues(typeof(CivilianRole));
-        DrawButtonGrid(roles, 3, role => civ.SetRole(role), role => role.ToString());
-    }
-
     void RebuildTabs()
     {
         activeTabs.Clear();
@@ -204,7 +198,7 @@ public class UnitInspectorUI : MonoBehaviour
             case InspectorTab.Info: return "Info";
             case InspectorTab.Attributes: return "Attributes";
             case InspectorTab.Needs: return "Needs";
-            case InspectorTab.RolesSkills: return "Roles & Skills";
+            case InspectorTab.RolesSkills: return "Jobs & Skills";
             case InspectorTab.Inventory: return "Inventory";
             case InspectorTab.BuildingStats: return "Building Stats";
             case InspectorTab.Storage: return "Storage";
@@ -611,7 +605,7 @@ public class UnitInspectorUI : MonoBehaviour
     {
         if (civ.JobType != CivilianJobType.Generalist)
             return civ.JobType.ToString();
-        return civ.role.ToString();
+        return civ.JobType.ToString();
     }
 
     static string SanitizeName(string raw)

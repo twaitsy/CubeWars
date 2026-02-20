@@ -48,20 +48,20 @@ public class SixTeamBootstrap : MonoBehaviour
             for (int i = 0; i < gathererCount; i++)
             {
                 Vector3 cpos = pos + right * (civilianOffset + index * 1.25f) + forward * 1.5f;
-                SpawnCivilian(team, CivilianRole.Gatherer, cpos, rot);
+                SpawnCivilian(team, CivilianJobType.Gatherer, cpos, rot);
                 index++;
             }
 
             for (int i = 0; i < builderCount; i++)
             {
                 Vector3 cpos = pos - right * (civilianOffset + index * 1.25f) + forward * 1.5f;
-                SpawnCivilian(team, CivilianRole.Builder, cpos, rot);
+                SpawnCivilian(team, CivilianJobType.Builder, cpos, rot);
                 index++;
             }
         }
     }
 
-    void SpawnCivilian(int teamID, CivilianRole role, Vector3 pos, Quaternion rot)
+    void SpawnCivilian(int teamID, CivilianJobType jobType, Vector3 pos, Quaternion rot)
     {
         if (civilianPrefab == null) return;
 
@@ -70,6 +70,6 @@ public class SixTeamBootstrap : MonoBehaviour
 
         Civilian civ = c.GetComponent<Civilian>();
         if (civ != null)
-            civ.SetRole(role);
+            civ.SetJobType(jobType);
     }
 }

@@ -16,7 +16,6 @@ MonoBehaviour:
   displayName: Brewer
   icon: {fileID: 0}
   defaultJobType: Cook
-  legacyRole: Cook
   baseSkill: 1
   capabilities:
   - Craft

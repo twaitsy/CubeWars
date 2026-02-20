@@ -16,7 +16,6 @@ MonoBehaviour:
   displayName: Quartermaster
   icon: {fileID: 0}
   defaultJobType: Hauler
-  legacyRole: Hauler
   baseSkill: 1
   capabilities:
   - Haul

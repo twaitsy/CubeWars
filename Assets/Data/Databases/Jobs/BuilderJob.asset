@@ -16,7 +16,6 @@ MonoBehaviour:
   displayName: Builder
   icon: {fileID: 0}
   defaultJobType: Builder
-  legacyRole: Builder
   baseSkill: 1
   capabilities:
   - Build

@@ -3,7 +3,12 @@ using UnityEngine;
 
 [RequireComponent(typeof(HealthComponent))]
 [RequireComponent(typeof(MovementController))]
+[RequireComponent(typeof(CarryingController))]
+[RequireComponent(typeof(GatheringController))]
+[RequireComponent(typeof(NeedsController))]
 [RequireComponent(typeof(HousingController))]
+[RequireComponent(typeof(ConstructionWorkerControl))]
+[RequireComponent(typeof(CivilianStateMachineController))]
 
 public class Civilian : MonoBehaviour, ITargetable
 {
@@ -22,8 +27,6 @@ public class Civilian : MonoBehaviour, ITargetable
     [Header("Job (Unified Registry)")]
     public JobDefinition jobDefinition;
     public CivilianJobType jobType = CivilianJobType.Gatherer;
-    [Tooltip("Legacy mirror of jobType for older systems/UI.")]
-    public CivilianRole role = CivilianRole.Gatherer;
 
     public CivilianJobType JobType => jobType;
 
@@ -172,6 +175,7 @@ public class Civilian : MonoBehaviour, ITargetable
     private ConstructionWorkerControl constructionWorkerControl;
     private NeedsController needsController;
     private HousingController housingController;
+    private CivilianStateMachineController stateMachineController;
 
     public float speed => movementController != null ? movementController.MoveSpeed : 2.5f;
     public float stopDistance => movementController != null ? movementController.StopDistance : 1.2f;
@@ -199,6 +203,9 @@ public class Civilian : MonoBehaviour, ITargetable
   //      constructionWorkerControl = GetComponent<ConstructionWorkerControl>();
         needsController = GetComponent<NeedsController>();
         housingController = GetComponent<HousingController>();
+        constructionWorkerControl = GetComponent<ConstructionWorkerControl>();
+        stateMachineController = GetComponent<CivilianStateMachineController>();
+        ConfigureStateMachine();
         CivilianRegistry.Register(this);
     }
 
@@ -241,10 +248,7 @@ public class Civilian : MonoBehaviour, ITargetable
         currentTiredness = needsController != null ? needsController.CurrentTiredness : 0f;
 
         if (jobDefinition != null)
-        {
             jobType = jobDefinition.defaultJobType;
-            role = jobDefinition.legacyRole;
-        }
 
         SetJobType(jobType);
 
@@ -411,43 +415,7 @@ public class Civilian : MonoBehaviour, ITargetable
 
         movementController.ApplyMovement(GetMovementSpeedMultiplier());
 
-        switch (state)
-        {
-            case State.Idle: TickIdle(); break;
-
-            case State.SeekingFoodStorage: TickSeekFoodStorage(); break;
-            case State.Eating: TickEating(); break;
-            case State.SeekingHouse: TickSeekHouse(); break;
-            case State.Sleeping: TickSleeping(); break;
-
-            case State.SearchingNode: TickSearchNode(); break;
-            case State.GoingToNode: TickGoNode(); break;
-            case State.Gathering: TickGather(); break;
-            case State.FindDepositStorage: TickFindDepositStorage(); break;
-            case State.GoingToDepositStorage: TickGoingToDepositStorage(); break;
-            case State.Depositing: TickDepositing(); break;
-
-
-
-
-
-            case State.SearchingBuildSite: TickSearchBuildSite(); break;
-            case State.GoingToBuildSite: TickGoBuildSite(); break;
-            case State.Building: TickBuild(); break;
-
-            case State.SearchingSupplySite: TickSearchSupplySite(); break;
-            case State.GoingToPickupStorage: TickGoPickup(); break;
-            case State.PickingUp: TickPickup(); break;
-            case State.GoingToDeliverSite: TickGoDeliver(); break;
-            case State.Delivering: TickDeliver(); break;
-
-            case State.FetchingCraftInput: TickFetchCraftInput(); break;
-            case State.DeliveringCraftInput: TickDeliverCraftInput(); break;
-            case State.GoingToWorkPoint: TickGoWorkPoint(); break;
-            case State.CraftingAtWorkPoint: TickCraftAtWorkPoint(); break;
-            case State.CollectingCraftOutput: TickCollectCraftOutput(); break;
-            case State.DeliveringCraftOutput: TickDeliverCraftOutput(); break;
-        }
+        stateMachineController?.Tick(state);
 
         UpdateGatherProgressBar();
     }
@@ -710,10 +678,14 @@ public class Civilian : MonoBehaviour, ITargetable
         bestType = null;
         bestFood = null;
 
-        ResourceStorageContainer[] storages = FindObjectsByType<ResourceStorageContainer>(FindObjectsSortMode.None);
+        var storageManager = TeamStorageManager.Instance;
+        if (storageManager == null)
+            return false;
+
+        var storages = storageManager.GetStoragesForTeam(teamID);
         float bestScore = float.MinValue;
 
-        for (int s = 0; s < storages.Length; s++)
+        for (int s = 0; s < storages.Count; s++)
         {
             ResourceStorageContainer storage = storages[s];
             if (storage == null || storage.teamID != teamID)
@@ -796,15 +768,9 @@ public class Civilian : MonoBehaviour, ITargetable
         housingController?.ClearAssignedHouse();
     }
 
-    public void SetRole(CivilianRole newRole)
-    {
-        SetJobType(CivilianJobRegistry.ToJobType(newRole));
-    }
-
     public void SetJobType(CivilianJobType newJobType)
     {
         jobType = newJobType;
-        role = CivilianJobRegistry.GetProfile(jobType).legacyRole;
 
         GrantStartingToolForCurrentJob();
 
@@ -846,7 +812,6 @@ public class Civilian : MonoBehaviour, ITargetable
         CurrentAssignedSite = null;
         CurrentDeliverySite = null;
 
-        role = CivilianRole.Gatherer;
         forcedNode = node;
 
     }
@@ -1360,7 +1325,11 @@ public class Civilian : MonoBehaviour, ITargetable
 
     ConstructionSite FindNearestConstructionSite(int team, Vector3 pos)
     {
-        ConstructionSite[] sites = FindObjectsByType<ConstructionSite>(FindObjectsSortMode.None);
+        var registry = ConstructionRegistry.Instance;
+        if (registry == null)
+            return null;
+
+        var sites = registry.GetSitesForTeam(team);
         ConstructionSite best = null;
         float bestD = float.MaxValue;
 
@@ -1380,6 +1349,41 @@ public class Civilian : MonoBehaviour, ITargetable
         }
 
         return best;
+    }
+
+    private void ConfigureStateMachine()
+    {
+        if (stateMachineController == null)
+            return;
+
+        stateMachineController.Configure(new Dictionary<State, System.Action>
+        {
+            { State.Idle, TickIdle },
+            { State.SeekingFoodStorage, TickSeekFoodStorage },
+            { State.Eating, TickEating },
+            { State.SeekingHouse, TickSeekHouse },
+            { State.Sleeping, TickSleeping },
+            { State.SearchingNode, TickSearchNode },
+            { State.GoingToNode, TickGoNode },
+            { State.Gathering, TickGather },
+            { State.FindDepositStorage, TickFindDepositStorage },
+            { State.GoingToDepositStorage, TickGoingToDepositStorage },
+            { State.Depositing, TickDepositing },
+            { State.SearchingBuildSite, TickSearchBuildSite },
+            { State.GoingToBuildSite, TickGoBuildSite },
+            { State.Building, TickBuild },
+            { State.SearchingSupplySite, TickSearchSupplySite },
+            { State.GoingToPickupStorage, TickGoPickup },
+            { State.PickingUp, TickPickup },
+            { State.GoingToDeliverSite, TickGoDeliver },
+            { State.Delivering, TickDeliver },
+            { State.FetchingCraftInput, TickFetchCraftInput },
+            { State.DeliveringCraftInput, TickDeliverCraftInput },
+            { State.GoingToWorkPoint, TickGoWorkPoint },
+            { State.CraftingAtWorkPoint, TickCraftAtWorkPoint },
+            { State.CollectingCraftOutput, TickCollectCraftOutput },
+            { State.DeliveringCraftOutput, TickDeliverCraftOutput }
+        });
     }
 
     bool TryChooseNeededResource(ConstructionSite site, out ResourceDefinition neededType)

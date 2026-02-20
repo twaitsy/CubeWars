@@ -80,3 +80,8 @@ Movement ownership update
 - `MovementController` now owns movement behavior for civilians.
 - `Civilian` no longer directly manipulates `NavMeshAgent` (for example, direct `isStopped` toggles or agent configuration).
 - Civilian movement commands should continue to use `MovementController.MoveTo(...)`, with arrival checks via `MovementController.HasArrived()`.
+
+Modular AI architecture update
+- `CivilianStateMachineController` is now required on the civilian GameObject.
+- `Civilian` delegates per-state execution through the state-machine controller and should remain a thin coordinator.
+- Job/runtime systems now operate on `CivilianJobType`; legacy role-based setup paths were removed.

@@ -16,7 +16,6 @@ MonoBehaviour:
   displayName: Lumberjack
   icon: {fileID: 0}
   defaultJobType: Gatherer
-  legacyRole: Gatherer
   baseSkill: 1
   capabilities:
   - Gather
