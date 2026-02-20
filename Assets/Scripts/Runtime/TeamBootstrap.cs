@@ -394,7 +394,7 @@ public class TeamBootstrap : MonoBehaviour
         int row = spawnIndex / 4;
         int col = spawnIndex % 4;
 
-        Vector3 rowOffset = unitSpawnOffset.normalized * spacing * (row + 1);
+        Vector3 rowOffset = (row + 1) * spacing * unitSpawnOffset.normalized;
         Vector3 sideOffset = new((col - 1.5f) * spacing, 0f, 0f);
         return hqPos + rowOffset + sideOffset;
     }

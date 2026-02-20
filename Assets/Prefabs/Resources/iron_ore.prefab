@@ -688,7 +688,7 @@ MonoBehaviour:
     weight: 4
     baseValue: 5
   remaining: 500
-  maxGatherers: 2
+  maxGatherers: 4
   claimedByTeam: -1
 --- !u!114 &5608567850516079958
 MonoBehaviour:

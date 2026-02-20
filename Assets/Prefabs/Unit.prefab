@@ -13,15 +13,13 @@ GameObject:
   - component: {fileID: 3362314717312498299}
   - component: {fileID: 5671926464391697719}
   - component: {fileID: 8135703904419491166}
-  - component: {fileID: 2732635039501306432}
-  - component: {fileID: 5346403553399551991}
-  - component: {fileID: 5698747395136932435}
-  - component: {fileID: 2693829284941731090}
   - component: {fileID: 4646788487840639628}
-  - component: {fileID: -3108631485046487415}
-  - component: {fileID: 7308953244192399137}
-  - component: {fileID: 4156195193998033707}
-  - component: {fileID: -8658835610250245775}
+  - component: {fileID: 2745843083940781272}
+  - component: {fileID: 7666261143022642592}
+  - component: {fileID: 2762934088643659748}
+  - component: {fileID: 6911372553664493839}
+  - component: {fileID: 6076600068045810662}
+  - component: {fileID: 2571437006147457707}
   m_Layer: 11
   m_Name: Unit
   m_TagString: Untagged
@@ -36,13 +34,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1254357736737325336}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7133294977835756933}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &8700758986608289085
 MeshFilter:
@@ -63,10 +62,17 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -88,9 +94,12 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!65 &5671926464391697719
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -99,9 +108,17 @@ BoxCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1254357736737325336}
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
   m_IsTrigger: 0
+  m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 2
+  serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &8135703904419491166
@@ -111,86 +128,26 @@ Rigidbody:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1254357736737325336}
-  serializedVersion: 2
+  serializedVersion: 5
   m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &2732635039501306432
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1254357736737325336}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 95286dfb2c1efff45b24cf8a5c948dee, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  teamID: 1
-  combatEnabled: 1
-  attackRange: 100
-  damage: 10
-  MaxHealth: 100
-  CurrentHealth: 100
---- !u!114 &5346403553399551991
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1254357736737325336}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f7e731a709d78b4458d603bae6a4ecf8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  teamID: 0
-  kind: 0
-  applyOnStart: 1
---- !u!114 &5698747395136932435
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1254357736737325336}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9efbe8cfc370a1e47a8fe7a90a8ecd20, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  teamID: 0
-  kind: 0
-  radius: 0.9
-  height: 0.05
-  yOffset: -0.45
---- !u!114 &2693829284941731090
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1254357736737325336}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8ee6f4facf3c3fd44937e53c2787e554, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  offset: {x: 0, y: 1.2, z: 0}
-  width: 1.2
-  height: 0.12
-  depth: 0.08
-  onlyShowForBuildings: 0
-  hideWhenFullHealth: 0
-  smoothSpeed: 18
-  glowStrength: 1
-  billboardToCamera: 1
 --- !u!195 &4646788487840639628
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -213,7 +170,7 @@ NavMeshAgent:
   m_BaseOffset: 0.5
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!114 &-3108631485046487415
+--- !u!114 &2745843083940781272
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -222,61 +179,25 @@ MonoBehaviour:
   m_GameObject: {fileID: 1254357736737325336}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 51d1077aca999b743b1e64a1d8441152, type: 3}
+  m_Script: {fileID: 11500000, guid: 4b314fed728fbc8488a722e87d6e584d, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
-  selectionRing: {fileID: 0}
-  hoverRing: {fileID: 0}
-  attackRangeCircle: {fileID: 0}
-  visionRangeCircle: {fileID: 0}
---- !u!114 &7308953244192399137
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1254357736737325336}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d63cafae41c5ef14a8927532fb972d1b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  teamID: 0
-  isCivilian: 0
-  isBuilding: 0
-  maxHealth: 1000
-  canBeRepaired: 1
-  flashRenderer: {fileID: 0}
-  hitFlashColor: {r: 1, g: 0.3, b: 0.3, a: 1}
-  hitFlashDuration: 0.08
---- !u!114 &4156195193998033707
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1254357736737325336}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6f136a317ce2c714db1bdf15ade1b5e9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: Assembly-CSharp::UnitCombatController
   teamID: 0
   weapon: {fileID: 0}
   fallbackRange: 8
   fallbackDamage: 10
-  fallbackCooldown: 0.8
+  fallbackCooldown: 0.5
   fallbackProjectileSpeed: 25
   visionRange: 16
-  canAttackCivilians: 1
+  canAttackCivilians: 0
   attackableLayers:
     serializedVersion: 2
     m_Bits: 4294967295
   targetRefreshSeconds: 0.1
   currentTarget: {fileID: 0}
-  stance: 1
+  stance: 2
   behaviorState: 0
---- !u!114 &-8658835610250245775
+--- !u!114 &7666261143022642592
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -285,16 +206,86 @@ MonoBehaviour:
   m_GameObject: {fileID: 1254357736737325336}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5ca14c6727f1c8468cb313e78b51dea, type: 3}
+  m_Script: {fileID: 11500000, guid: d09c19fcf176e4849baeb9c490731daa, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: Assembly-CSharp::Unit
+  unitDefinitionId: 
+  teamID: 0
+  combatEnabled: 1
+  attackRange: 5
+  damage: 10
+  attackCooldown: 0.75
+  armor: 0
+  MaxHealth: 100
+  CurrentHealth: 100
+--- !u!114 &2762934088643659748
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1254357736737325336}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8679a94c221c86c408b2baba451ee772, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BuildingPrefabValidator
+  validateOnAwake: 1
+  includeOptionalWarnings: 1
+--- !u!114 &6911372553664493839
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1254357736737325336}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 946d864e70a93754d823c32a6dd002b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Selectable
+  selectionRing: {fileID: 0}
+  hoverRing: {fileID: 0}
+  attackRangeCircle: {fileID: 0}
+  visionRangeCircle: {fileID: 0}
+--- !u!114 &6076600068045810662
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1254357736737325336}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94efa0fb695f7a44aace7eafe7dafc46, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponComponent
   damage: 10
   fireCooldown: 0.75
-  range: 20
-  projectilePrefab: {fileID: 8817490132780034785, guid: 9c0f5c9cab70a5840b0762071cccf2bf,
-    type: 3}
-  muzzle: {fileID: 7133294977835756933}
+  range: 8
+  projectilePrefab: {fileID: 0}
+  muzzle: {fileID: 0}
   muzzleFlashFX: {fileID: 0}
+--- !u!114 &2571437006147457707
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1254357736737325336}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bdfc8de29fbf7924eaa0f7df095c1e12, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Attackable
+  teamID: 0
+  isCivilian: 0
+  isBuilding: 0
+  maxHealth: 100
+  canBeRepaired: 1
+  flashRenderer: {fileID: 0}
+  hitFlashColor: {r: 1, g: 0.3, b: 0.3, a: 1}
+  hitFlashDuration: 0.08
 --- !u!1 &2455975425163310787
 GameObject:
   m_ObjectHideFlags: 0
@@ -318,10 +309,11 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2455975425163310787}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 2}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5505786571107416348}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

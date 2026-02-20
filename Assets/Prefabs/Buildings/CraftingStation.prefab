@@ -170,26 +170,43 @@ MonoBehaviour:
   maxHealth: 300
   currentHealth: 0
   recipe:
-    recipeName: New Recipe
-    inputs: []
-    outputs: []
-    craftTimeSeconds: 5
+    recipeName: Saw Planks
+    inputs:
+    - resource:
+        id: wood
+        displayName: Wood
+        icon: {fileID: 0}
+        category: 0
+        weight: 2
+        baseValue: 2
+      amount: 4
+    outputs:
+    - resource:
+        id: planks
+        displayName: Planks
+        icon: {fileID: 0}
+        category: 1
+        weight: 2
+        baseValue: 6
+      amount: 3
+    craftTimeSeconds: 6
     batchSize: 1
-    requiredJobType: 0
+    requiredJobType: 10
     outputEfficiencyMultiplier: 1
     inputEfficiencyMultiplier: 1
     requiresPower: 0
     requiresFuel: 0
-  resourcesDatabase: {fileID: 0}
-  inputSlot: {fileID: 0}
-  outputSlot: {fileID: 0}
-  workPoints: []
+  resourcesDatabase: {fileID: 11400000, guid: 87f27aa07d5d1b049bfb1818298c31c9, type: 2}
+  inputSlot: {fileID: 1315570007274987185}
+  outputSlot: {fileID: 4465389164846448858}
+  workPoints:
+  - {fileID: 1766575201802066558}
   maxWorkers: 2
   maxInputCapacityPerResource: 50
   maxOutputCapacityPerResource: 50
   craftingSpeedModifier: 1
   requireHaulerLogistics: 1
-  maxAssignedHaulers: 1
+  maxAssignedHaulers: 2
   assignmentPriority: 5
   allowAutomaticAssignment: 1
   productionEffects: []
@@ -341,6 +358,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4465389164846448858}
+  - component: {fileID: 3574332962501923488}
   m_Layer: 0
   m_Name: Out
   m_TagString: Untagged
@@ -363,6 +381,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1140312428416668570}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3574332962501923488
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7907517961513334011}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 776b1a72a2b183248af0c45dc0f9d7b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InteractionPoint
+  pointType: 0
+  priority: 0
 --- !u!1 &7969463268722584474
 GameObject:
   m_ObjectHideFlags: 0
@@ -372,6 +404,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1315570007274987185}
+  - component: {fileID: 613234704308664387}
   m_Layer: 0
   m_Name: In
   m_TagString: Untagged
@@ -394,3 +427,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1140312428416668570}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &613234704308664387
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7969463268722584474}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 776b1a72a2b183248af0c45dc0f9d7b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InteractionPoint
+  pointType: 0
+  priority: 0

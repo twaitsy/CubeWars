@@ -201,7 +201,7 @@ MonoBehaviour:
   marginTop: 12
   autoDiscover: 1
   resourcesPath: BuildItems
-  buildingsDatabase: {fileID: 0}
+  buildingsDatabase: {fileID: 11400000, guid: fd593b86e9a21e64cb62b09e28e7b7b3, type: 2}
   buildingsDatabaseAssetPath: Assets/Data/Databases/BuildingsDatabase.asset
   useManualCatalogWhenAutoDiscoverOff: 1
   categories: []
@@ -273,13 +273,13 @@ MonoBehaviour:
   teamID: 2
   teamType: 1
   teamColor: {r: 0.1392025, g: 0.15080033, b: 0.18490559, a: 1}
-  hqRoot: {fileID: 0}
-  unitsRoot: {fileID: 0}
-  buildingsRoot: {fileID: 0}
-  teamResources: {fileID: 0}
-  teamColorManager: {fileID: 0}
+  hqRoot: {fileID: 541956026}
+  unitsRoot: {fileID: 1913938962}
+  buildingsRoot: {fileID: 57175271}
+  teamResources: {fileID: 407506891}
+  teamColorManager: {fileID: 968593098}
   teamInventory: {fileID: 0}
-  teamStorageManager: {fileID: 0}
+  teamStorageManager: {fileID: 1897945163}
 --- !u!1 &57175270
 GameObject:
   m_ObjectHideFlags: 0
@@ -532,7 +532,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TaskBoardUI
   playerTeamID: 0
-  show: 0
+  show: 1
   toggleKey: 9
   panelWidth: 720
   panelHeight: 620
@@ -1961,12 +1961,17 @@ MonoBehaviour:
   startingBuildings:
   - prefab: {fileID: 2971650436058892313, guid: db4be7d8501df9749a5d97e3ee27b5cd,
       type: 3}
-    gridCoord: {x: -7, y: 7}
+    gridCoord: {x: -7, y: -8}
     quarterTurns: 0
     yOffset: 0
   - prefab: {fileID: 6089014581457673032, guid: 93e024a59bbce68439ef8a30d0c4181a,
       type: 3}
     gridCoord: {x: 9, y: 9}
+    quarterTurns: 0
+    yOffset: 0
+  - prefab: {fileID: 6012261695760878189, guid: ad1b1b166fe2ea6418336adb6ca206e5,
+      type: 3}
+    gridCoord: {x: -15, y: 19}
     quarterTurns: 0
     yOffset: 0
   autoAddStarterHouses: 1
@@ -1976,7 +1981,7 @@ MonoBehaviour:
   - {x: 7, y: 7}
   - {x: 9, y: 7}
   - {x: 7, y: 9}
-  hqSpawnOffset: {x: 0, y: 0, z: 0}
+  hqSpawnOffset: {x: 0, y: 1, z: 0}
   unitSpawnOffset: {x: 2, y: 0, z: 2}
 --- !u!1 &762303205
 GameObject:
@@ -2524,6 +2529,12 @@ Transform:
   m_Children: []
   m_Father: {fileID: 856841779}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!20 &963194227 stripped
+Camera:
+  m_CorrespondingSourceObject: {fileID: 3967459669801465562, guid: 130a72cd809301f41b76eb228bb45f94,
+    type: 3}
+  m_PrefabInstance: {fileID: 3967459670190021545}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &968593096
 GameObject:
   m_ObjectHideFlags: 0
@@ -3034,8 +3045,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 141e558d85c428643bb3ba01fc94615e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mainCamera: {fileID: 0}
-  inspectorUI: {fileID: 0}
+  mainCamera: {fileID: 963194227}
+  inspectorUI: {fileID: 1993793588}
   dragThreshold: 8
 --- !u!4 &1324085896
 Transform:
@@ -3530,7 +3541,17 @@ MonoBehaviour:
   fontSize: 16
   loadableScenes: []
   creditsText: Twaitsy
-  teams: []
+  teams:
+  - teamID: 0
+    color: {r: 0, g: 0, b: 0, a: 0}
+    aiDifficulty: 0
+    startingResources: 0
+    diplomacy: 0
+  - teamID: 0
+    color: {r: 0, g: 0, b: 0, a: 0}
+    aiDifficulty: 0
+    startingResources: 0
+    diplomacy: 0
 --- !u!1 &1539060708
 GameObject:
   m_ObjectHideFlags: 0
@@ -4416,13 +4437,13 @@ MonoBehaviour:
   teamID: 1
   teamType: 0
   teamColor: {r: 0.7207546, g: 0.10199348, b: 0.10199348, a: 1}
-  hqRoot: {fileID: 0}
-  unitsRoot: {fileID: 0}
-  buildingsRoot: {fileID: 0}
-  teamResources: {fileID: 0}
-  teamColorManager: {fileID: 0}
+  hqRoot: {fileID: 73439548}
+  unitsRoot: {fileID: 2088008834}
+  buildingsRoot: {fileID: 731797151}
+  teamResources: {fileID: 407506891}
+  teamColorManager: {fileID: 968593098}
   teamInventory: {fileID: 0}
-  teamStorageManager: {fileID: 0}
+  teamStorageManager: {fileID: 1897945163}
 --- !u!1 &1787907975
 GameObject:
   m_ObjectHideFlags: 0
@@ -4793,7 +4814,7 @@ MonoBehaviour:
   width: 340
   height: 616
   padding: 10
-  fontSizeBoost: 6
+  fontSizeBoost: 12
   show: 1
 --- !u!1 &2030613692
 GameObject:

@@ -196,6 +196,14 @@ MonoBehaviour:
   currentHealth: 0
   startingResources:
   - resource:
+      id: eggs
+      displayName: Eggs
+      icon: {fileID: 0}
+      category: 2
+      weight: 1
+      baseValue: 4
+    amount: 600
+  - resource:
       id: wood
       displayName: Wood
       icon: {fileID: 0}

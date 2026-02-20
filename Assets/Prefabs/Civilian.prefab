@@ -23,6 +23,14 @@ GameObject:
   - component: {fileID: 2488209600144246014}
   - component: {fileID: 4451373190352058720}
   - component: {fileID: 7023568545619106114}
+  - component: {fileID: 6832389261268637746}
+  - component: {fileID: 849585395706368335}
+  - component: {fileID: 5826366925592990755}
+  - component: {fileID: 4732309954855409459}
+  - component: {fileID: 3105451659457644643}
+  - component: {fileID: 4682958629965996819}
+  - component: {fileID: -5695085413734152957}
+  - component: {fileID: -8969266345814265463}
   m_Layer: 13
   m_Name: Civilian
   m_TagString: Untagged
@@ -289,8 +297,8 @@ MonoBehaviour:
   gatherProgressBarHeight: 0.1
   HasJob: 0
   CurrentNode: {fileID: 0}
-  foodDatabase: {fileID: 0}
-  resourcesDatabase: {fileID: 0}
+  foodDatabase: {fileID: 11400000, guid: c7e14d390ed4edf45b16b190c79256ae, type: 2}
+  resourcesDatabase: {fileID: 11400000, guid: 87f27aa07d5d1b049bfb1818298c31c9, type: 2}
 --- !u!114 &7023568545619106114
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -307,3 +315,187 @@ MonoBehaviour:
   hoverRing: {fileID: 0}
   attackRangeCircle: {fileID: 0}
   visionRangeCircle: {fileID: 0}
+--- !u!114 &6832389261268637746
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5538168870909510437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abb1baf8db285a94a9a0539167b921ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ToolController
+  startingTools: []
+--- !u!114 &849585395706368335
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5538168870909510437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1db434b87cc8f8843b81be1e6f1dc18e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JobController
+  jobType: 0
+--- !u!114 &5826366925592990755
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5538168870909510437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f58f4caf48aef87419e90efae6a40bd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TrainingController
+  trainingCost: []
+  trainingTime: 0
+  trainedAt:
+    id: 
+    displayName: 
+    icon: {fileID: 0}
+    prefab: {fileID: 0}
+    category: 0
+    subCategory: 
+    constructionCost: []
+    buildTime: 5
+    maxHealth: 100
+    upkeepCost: []
+    upkeepInterval: 10
+    maxResidents: 0
+    comfortLevel: 0
+    isProducer: 0
+    recipes: []
+    workerSlots: 0
+    isStorage: 0
+    storageSettings:
+      capacity: 0
+      allowedCategories: 
+    isMilitary: 0
+    attackDamage: 0
+    attackRange: 0
+    garrisonSlots: 0
+    powerConsumption: 0
+    powerGeneration: 0
+    waterConsumption: 0
+--- !u!114 &4732309954855409459
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5538168870909510437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: caf708e51e396bd4db65c61ed61f5b64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UpgradeController
+  upgradeTarget:
+    id: 
+    displayName: 
+    icon: {fileID: 0}
+    prefab: {fileID: 0}
+    jobType: 0
+    isCombatUnit: 0
+    maxHealth: 100
+    moveSpeed: 3.5
+    attackDamage: 0
+    attackRange: 0
+    attackCooldown: 1
+    armor: 0
+    carryCapacity: 10
+    gatherSpeed: 1
+    buildSpeed: 1
+    trainingCost: []
+    trainingTime: 5
+    trainedAt:
+      id: 
+      displayName: 
+      icon: {fileID: 0}
+      prefab: {fileID: 0}
+      category: 0
+      subCategory: 
+      constructionCost: []
+      buildTime: 5
+      maxHealth: 100
+      upkeepCost: []
+      upkeepInterval: 10
+      maxResidents: 0
+      comfortLevel: 0
+      isProducer: 0
+      recipes: []
+      workerSlots: 0
+      isStorage: 0
+      storageSettings:
+        capacity: 0
+        allowedCategories: 
+      isMilitary: 0
+      attackDamage: 0
+      attackRange: 0
+      garrisonSlots: 0
+      powerConsumption: 0
+      powerGeneration: 0
+      waterConsumption: 0
+    startingTools: []
+    needs: []
+--- !u!114 &3105451659457644643
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5538168870909510437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c6a39fe39831c4409c02eacd3dcfd3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TeamVisual
+  teamID: 0
+  kind: 0
+  applyOnStart: 1
+--- !u!114 &4682958629965996819
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5538168870909510437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d9b3cdefe1104547a7cfbc6a0331668, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WithdrawStorageComponent
+  searchRetrySeconds: 1.5
+  stopDistance: 1.2
+--- !u!114 &-5695085413734152957
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5538168870909510437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b51346f7ec8d29479b5f4a0a8be38e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CarryingController
+  capacity: 30
+--- !u!114 &-8969266345814265463
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5538168870909510437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af5e0f07a48b98841a89fe0523d3f1eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DepositStorageComponent
+  searchRetrySeconds: 1.5
+  stopDistance: 1.2

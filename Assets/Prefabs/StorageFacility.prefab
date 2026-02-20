@@ -63,6 +63,10 @@ GameObject:
   - component: {fileID: 5084920714613724538}
   - component: {fileID: 7224557009545880045}
   - component: {fileID: 7598720438364632043}
+  - component: {fileID: -1093751018326937568}
+  - component: {fileID: -2104877527347768285}
+  - component: {fileID: 4751102432804964984}
+  - component: {fileID: 5100344269714635066}
   m_Layer: 0
   m_Name: StorageFacility
   m_TagString: Untagged
@@ -243,3 +247,60 @@ MonoBehaviour:
   defaultCapacityPerResource: 500
   allowAllResourceCategories: 1
   allowedCategories: 000000000100000002000000030000000400000005000000060000000700000008000000090000000a0000000b000000
+--- !u!114 &-1093751018326937568
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6012261695760878189}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8679a94c221c86c408b2baba451ee772, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BuildingPrefabValidator
+  validateOnAwake: 1
+  includeOptionalWarnings: 1
+--- !u!114 &-2104877527347768285
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6012261695760878189}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7925960156ad41a498427785afaafcc0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BuildGridOccupant
+--- !u!114 &4751102432804964984
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6012261695760878189}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c16dcfc04ff5eeb4fb14b8c695aef0c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BuildingFootprint
+  width: 1
+  depth: 1
+  worldOffset: {x: 0, y: 1, z: 0}
+  extraYRotation: 0
+--- !u!114 &5100344269714635066
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6012261695760878189}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c6a39fe39831c4409c02eacd3dcfd3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TeamVisual
+  teamID: 0
+  kind: 0
+  applyOnStart: 1
