@@ -745,3 +745,10 @@ Update (2026-02-20)
 - UnitsDatabase now includes common baseline entries: Civilian, Villager, Militia, Archer, Spearman, Swordsman, Knight, Scout, Priest, Catapult.
 - WorkerTaskGenerationSystem now creates separate crafting requests for production workers and haulers so `maxAssignedHaulers` is respected.
 - Gather tasks now force the assigned node in Civilian state flow (SearchingNode -> GoingToNode) to align task registry requests with actual assignment behavior.
+
+[2026-02 Need-action AI update]
+- Assign `GameDatabase.needs` and `GameDatabase.needsActions` for all scenes using civilians.
+- `NeedsDatabase` must contain (minimum) `food`, `rest`, and `water` ids if you want default civilian survival tuning.
+- `NeedsActionDatabase` should be populated with need-action thresholds/priorities so civilians can route into `SeekingFoodStorage` / `SeekingHouse` via the state machine.
+- Civilians now take dehydration damage in addition to starvation/exhaustion when water need is maxed.
+- High tiredness now reduces civilian movement speed automatically.

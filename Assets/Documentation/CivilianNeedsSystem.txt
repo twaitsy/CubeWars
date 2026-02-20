@@ -61,3 +61,14 @@ Update: category-based food logic
 Compatibility update
 - Needs/UI integrations may read hunger/tiredness values through Civilian's compatibility accessors (`maxHunger`, `maxTiredness`, `hungerRatePerSecond`, `tirednessRatePerSecond`, `foodToEatPerMeal`).
 - Food lookup still prefers `foodDatabase` when assigned and falls back to `resourcesDatabase` category filtering.
+
+Update: database-driven survival rates + need action table (2026-02-20)
+- `NeedsController` now pulls food/rest/water tuning from `NeedsDatabase` (`food`, `rest`, `water` ids).
+- Hunger and tiredness rates are no longer hardcoded-only values; they use `NeedDefinition.decayRatePerSecond` and matching thresholds/max values.
+- Water need is now tracked as a survival requirement. If water and food are both ignored, health falls due to dehydration/starvation damage over time.
+- Civilian speed is now reduced when tiredness is high (starting at ~70% tiredness, scaling down to ~55% movement at max fatigue).
+- Added `NeedsActionDatabase` (small need->action table) used by civilians to decide which state to enter:
+  - `rest` -> `SeekRest` -> `SeekingHouse`
+  - `water` -> `SeekWater` -> `SeekingFoodStorage` (current hydration sourcing path)
+  - `food` -> `SeekFood` -> `SeekingFoodStorage`
+- Civilian state machine now consults this action table every update and interrupts non-need work states when critical needs trigger.

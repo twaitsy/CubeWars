@@ -256,6 +256,7 @@ public class UnitInspectorUI : MonoBehaviour
         GUILayout.Label("Needs", GUI.skin.box);
         GUILayout.Label($"Hunger: {civ.CurrentHunger:0.0}/{civ.maxHunger:0.0}");
         GUILayout.Label($"Tiredness: {civ.CurrentTiredness:0.0}/{civ.maxTiredness:0.0}");
+        GUILayout.Label($"Water Need: {civ.CurrentWaterNeed:0.0}/{civ.maxWaterNeed:0.0}");
         GUILayout.Label($"House: {(civ.AssignedHouse != null ? SanitizeName(civ.AssignedHouse.name) : "Homeless")}");
     }
 
@@ -418,6 +419,7 @@ public class UnitInspectorUI : MonoBehaviour
             GUILayout.Label($"Target: {civ.CurrentTargetName}");
             GUILayout.Label($"Hunger: {civ.CurrentHunger:0.0}/{civ.maxHunger:0.0}");
             GUILayout.Label($"Tiredness: {civ.CurrentTiredness:0.0}/{civ.maxTiredness:0.0}");
+            GUILayout.Label($"Water Need: {civ.CurrentWaterNeed:0.0}/{civ.maxWaterNeed:0.0}");
             GUILayout.Label($"House: {(civ.AssignedHouse != null ? SanitizeName(civ.AssignedHouse.name) : "Homeless")}");
         }
         else if (selected.TryGetComponent<Unit>(out _))
@@ -450,6 +452,7 @@ public class UnitInspectorUI : MonoBehaviour
             GUILayout.Label($"Hunger Rate/s: {civ.hungerRatePerSecond:0.00}");
             GUILayout.Label($"Food/Meal: {civ.foodToEatPerMeal}");
             GUILayout.Label($"Tiredness Rate/s: {civ.tirednessRatePerSecond:0.00}");
+            GUILayout.Label($"Water Need Rate/s: {civ.waterRatePerSecond:0.00}");
         }
         if (selected.TryGetComponent<Building>(out var building))
             DrawBuildingStats(building);

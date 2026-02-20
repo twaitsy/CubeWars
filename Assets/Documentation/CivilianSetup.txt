@@ -89,3 +89,10 @@ Modular AI architecture update
 
 Latest component enforcement
 - RequireComponent on Civilian now enforces core runtime controllers: Health, Movement, Carrying, Gathering, Needs, Housing, ConstructionWorkerControl, CivilianStateMachineController, ToolController, JobController, TrainingController, and UpgradeController.
+
+[2026-02 Needs integration update]
+- Civilian needs behavior is now database-driven via `GameDatabase.needs` and `GameDatabase.needsActions`.
+- Ensure the active GameDatabase points to:
+  - `NeedsDatabase` containing `food`, `rest`, `water` NeedDefinitions
+  - `NeedsActionDatabase` entries mapping those needs to seek-food/seek-rest decisions.
+- Tired civilians now move slower automatically; verify `MovementController` + `NeedsController` are both present.
