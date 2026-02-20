@@ -494,8 +494,7 @@ public class Civilian : MonoBehaviour, ITargetable
                 return;
         }
 
-        movementController.MoveToBuildingTarget(targetFoodStorage.transform, BuildingStopDistanceType.Storage, BuildingInteractionPointType.Storage);
-        if (!movementController.HasArrived())
+        if (!MoveToBuildingAndCheckArrival(targetFoodStorage.transform, BuildingStopDistanceType.Storage, BuildingInteractionPointType.Storage))
             return;
 
         pendingFoodAmount = Mathf.Max(1, foodToEatPerMeal);
@@ -532,9 +531,7 @@ public class Civilian : MonoBehaviour, ITargetable
 
     void TickEating()
     {
-        needActionTimer += Time.deltaTime;
-
-        if (needActionTimer < currentEatDurationSeconds)
+        if (!TickTimer(ref needActionTimer, currentEatDurationSeconds))
             return;
 
         // NeedsController handles the actual hunger restoration
@@ -561,8 +558,7 @@ public class Civilian : MonoBehaviour, ITargetable
         if (targetHouse == null)
             return;
 
-        movementController.MoveToBuildingTarget(targetHouse.transform, BuildingStopDistanceType.House, BuildingInteractionPointType.House);
-        if (!movementController.HasArrived())
+        if (!MoveToBuildingAndCheckArrival(targetHouse.transform, BuildingStopDistanceType.House, BuildingInteractionPointType.House))
             return;
 
         if (!housingController.TryClaimTargetHouse())
@@ -583,14 +579,12 @@ public class Civilian : MonoBehaviour, ITargetable
             return;
         }
 
-        needActionTimer += Time.deltaTime;
-
         needsController.TickSleep(Time.deltaTime);
         currentTiredness = needsController.CurrentTiredness;
 
         ConsumeHouseFoodWhileResting();
 
-        if (needActionTimer < sleepDurationSeconds)
+        if (!TickTimer(ref needActionTimer, sleepDurationSeconds))
             return;
 
         needsController.CompleteSleep();
@@ -822,25 +816,6 @@ public class Civilian : MonoBehaviour, ITargetable
             return;
         }
     }
-    private void TickGoDeposit()
-    {
-        gatheringController.MoveToDeposit(targetStorage.transform);
-
-        if (movementController.HasArrived())
-            state = State.Depositing;
-    }
-    private void TickDeposit()
-    {
-        if (gatheringController.TryDeposit(targetStorage))
-        {
-            carryingController.ClearCarried();
-            state = State.SearchingNode;
-            return;
-        }
-
-        // Could not deposit → idle
-        state = State.Idle;
-    }
     private void TickFindDepositStorage()
     {
         targetStorage = null;
@@ -897,18 +872,14 @@ public class Civilian : MonoBehaviour, ITargetable
             return;
         }
 
-        movementController.MoveToBuildingTarget(depositTarget, BuildingStopDistanceType.Storage, BuildingInteractionPointType.Storage);
-
-        if (movementController.HasArrived())
+        if (MoveToBuildingAndCheckArrival(depositTarget, BuildingStopDistanceType.Storage, BuildingInteractionPointType.Storage))
             state = State.Depositing;
     }
     void TickSearchBuildSite()
     {
         idleNoTaskTimer += Time.deltaTime;
 
-        searchTimer += Time.deltaTime;
-        if (searchTimer < searchRetrySeconds) return;
-        searchTimer = 0f;
+        if (!ShouldRetrySearch(ref searchTimer, searchRetrySeconds)) return;
 
         targetSite = FindNearestConstructionSite(teamID, transform.position);
         CurrentAssignedSite = targetSite;
@@ -986,9 +957,7 @@ public class Civilian : MonoBehaviour, ITargetable
             return;
         }
 
-        searchTimer += Time.deltaTime;
-        if (searchTimer < searchRetrySeconds) return;
-        searchTimer = 0f;
+        if (!ShouldRetrySearch(ref searchTimer, searchRetrySeconds)) return;
 
         targetSite = FindNearestConstructionSite(teamID, transform.position);
         CurrentDeliverySite = targetSite;
@@ -1105,9 +1074,7 @@ public class Civilian : MonoBehaviour, ITargetable
         if (targetStorage == null)
             return;
 
-        movementController.MoveToBuildingTarget(targetStorage.transform, BuildingStopDistanceType.Storage, BuildingInteractionPointType.Storage);
-
-        if (movementController.HasArrived())
+        if (MoveToBuildingAndCheckArrival(targetStorage.transform, BuildingStopDistanceType.Storage, BuildingInteractionPointType.Storage))
             state = State.PickingUp;
     }
 
@@ -1132,7 +1099,7 @@ public class Civilian : MonoBehaviour, ITargetable
             return;
         }
 
-        int took = targetStorage.Withdraw(carriedResource, want);
+        int took = PickupResourceFromStorage(targetStorage, carriedResource, want);
         if (took <= 0)
         {
             targetStorage = null;
@@ -1142,9 +1109,6 @@ public class Civilian : MonoBehaviour, ITargetable
 
         // Reduce reservation as soon as the resources are physically removed from storage
         TeamStorageManager.Instance.ConsumeReserved(teamID, targetSite.SiteKey, carriedResource, took);
-
-        carriedAmount = took;
-        carryingController?.SetCarried(carriedResource, carriedAmount);
 
         targetStorage = null;
         state = State.GoingToDeliverSite;
@@ -1159,8 +1123,7 @@ public class Civilian : MonoBehaviour, ITargetable
             return;
         }
 
-        movementController.MoveToBuildingTarget(targetSite.transform, BuildingStopDistanceType.Construction, BuildingInteractionPointType.Default);
-        if (movementController.HasArrived()) state = State.Delivering;
+        if (MoveToBuildingAndCheckArrival(targetSite.transform, BuildingStopDistanceType.Construction, BuildingInteractionPointType.Default)) state = State.Delivering;
     }
 
     void TickDeliver()
@@ -1172,8 +1135,7 @@ public class Civilian : MonoBehaviour, ITargetable
         }
 
         int accepted = targetSite.ReceiveDelivery(carriedResource, carriedAmount);
-        carriedAmount -= accepted;
-        carryingController?.SetCarried(carriedResource, carriedAmount);
+        ApplyDeliveryAccepted(accepted);
 
         if (carriedAmount > 0)
         {
@@ -1397,12 +1359,9 @@ public class Civilian : MonoBehaviour, ITargetable
                 return;
             }
 
-            movementController.MoveToBuildingTarget(targetStorage.transform, BuildingStopDistanceType.Storage, BuildingInteractionPointType.Storage);
-            if (movementController.HasArrived())
+            if (MoveToBuildingAndCheckArrival(targetStorage.transform, BuildingStopDistanceType.Storage, BuildingInteractionPointType.Storage))
             {
-                int took = targetStorage.Withdraw(carriedResource, Mathf.Min(amount, GetCarryCapacity()));
-                carriedAmount = took;
-        carryingController?.SetCarried(carriedResource, carriedAmount);
+                int took = PickupResourceFromStorage(targetStorage, carriedResource, Mathf.Min(amount, GetCarryCapacity()));
                 state = took > 0 ? State.DeliveringCraftInput : State.FetchingCraftInput;
             }
             return;
@@ -1426,9 +1385,7 @@ public class Civilian : MonoBehaviour, ITargetable
             ? targetCraftingBuilding.inputSlot
             : movementController.ResolveInteractionTarget(targetCraftingBuilding.transform, BuildingInteractionPointType.CraftInput);
         float stop = movementController.ResolveStopDistance(targetCraftingBuilding != null ? targetCraftingBuilding.transform : null, BuildingStopDistanceType.CraftInput);
-        movementController.MoveTo(inputTransform.position, stop);
-
-        if (!movementController.HasArrived()) return;
+        if (!MoveToPositionAndCheckArrival(inputTransform.position, stop)) return;
 
         if (carriedAmount <= 0)
         {
@@ -1437,8 +1394,7 @@ public class Civilian : MonoBehaviour, ITargetable
         }
 
         targetCraftingBuilding.TryDeliverInput(carriedResource, carriedAmount, out int accepted);
-        carriedAmount -= accepted;
-        carryingController?.SetCarried(carriedResource, carriedAmount);
+        ApplyDeliveryAccepted(accepted);
 
         if (carriedAmount > 0)
         {
@@ -1477,8 +1433,7 @@ public class Civilian : MonoBehaviour, ITargetable
 
         Transform ctx = targetCraftingBuilding != null ? targetCraftingBuilding.transform : targetWorkPoint;
         float stop = movementController.ResolveStopDistance(ctx, BuildingStopDistanceType.CraftWork);
-        movementController.MoveTo(targetWorkPoint.position, stop);
-        if (movementController.HasArrived())
+        if (MoveToPositionAndCheckArrival(targetWorkPoint.position, stop))
         {
             stalledAtWorkPointTimer = 0f;
             state = State.CraftingAtWorkPoint;
@@ -1557,8 +1512,7 @@ public class Civilian : MonoBehaviour, ITargetable
             ? targetCraftingBuilding.outputSlot
             : movementController.ResolveInteractionTarget(targetCraftingBuilding.transform, BuildingInteractionPointType.CraftOutput);
         float stop = movementController.ResolveStopDistance(targetCraftingBuilding != null ? targetCraftingBuilding.transform : null, BuildingStopDistanceType.CraftOutput);
-        movementController.MoveTo(outputTransform.position, stop);
-        if (!movementController.HasArrived()) return;
+        if (!MoveToPositionAndCheckArrival(outputTransform.position, stop)) return;
 
         carriedAmount = targetCraftingBuilding.CollectOutput(carriedResource, Mathf.Min(amount, GetCarryCapacity()));
         carryingController?.SetCarried(carriedResource, carriedAmount);
@@ -1588,12 +1542,10 @@ public class Civilian : MonoBehaviour, ITargetable
             return;
         }
 
-        movementController.MoveToBuildingTarget(targetStorage.transform, BuildingStopDistanceType.Storage, BuildingInteractionPointType.Storage);
-        if (!movementController.HasArrived()) return;
+        if (!MoveToBuildingAndCheckArrival(targetStorage.transform, BuildingStopDistanceType.Storage, BuildingInteractionPointType.Storage)) return;
 
         int accepted = targetStorage.Deposit(carriedResource, carriedAmount);
-        carriedAmount -= accepted;
-        carryingController?.SetCarried(carriedResource, carriedAmount);
+        ApplyDeliveryAccepted(accepted);
 
         if (carriedAmount > 0)
             ProductionNotificationManager.Instance?.NotifyIfReady($"full-output-{targetStorage.GetInstanceID()}-{carriedResource}", $"Storage full for {carriedResource}. Output queue blocked.");
@@ -1630,6 +1582,56 @@ public class Civilian : MonoBehaviour, ITargetable
         }
 
         return multiplier;
+    }
+
+    bool MoveToBuildingAndCheckArrival(Transform target, BuildingStopDistanceType stopType, BuildingInteractionPointType pointType)
+    {
+        if (target == null)
+            return false;
+
+        movementController.MoveToBuildingTarget(target, stopType, pointType);
+        return movementController.HasArrived();
+    }
+
+    bool MoveToPositionAndCheckArrival(Vector3 position, float stopDistance)
+    {
+        movementController.MoveTo(position, stopDistance);
+        return movementController.HasArrived();
+    }
+
+    int PickupResourceFromStorage(ResourceStorageContainer storage, ResourceDefinition resource, int maxAmount)
+    {
+        if (storage == null || resource == null || maxAmount <= 0)
+            return 0;
+
+        carriedAmount = storage.Withdraw(resource, maxAmount);
+        carryingController?.SetCarried(resource, carriedAmount);
+        return carriedAmount;
+    }
+
+    void ApplyDeliveryAccepted(int accepted)
+    {
+        if (accepted <= 0)
+            return;
+
+        carriedAmount -= accepted;
+        carryingController?.SetCarried(carriedResource, carriedAmount);
+    }
+
+    bool ShouldRetrySearch(ref float timer, float interval)
+    {
+        timer += Time.deltaTime;
+        if (timer < interval)
+            return false;
+
+        timer = 0f;
+        return true;
+    }
+
+    bool TickTimer(ref float timer, float duration)
+    {
+        timer += Time.deltaTime;
+        return timer >= duration;
     }
 
     string BuildTaskLabel()

@@ -402,3 +402,8 @@ Update (2026-02-20)
 - Housing responsibilities are centralized in `HousingController` (assignment, target selection/claiming, house bonuses, and house food consumption helpers).
 - Homeless civilians now periodically retry house assignment via `HousingController` recheck ticks (no scene setup changes required).
 - Legacy `SkillType.cs` has been removed; `CharacterStats` now uses `CharacterSkillType` defined in `CharacterStats.cs`.
+
+Maintenance note (2026-02 civilian state-machine refactor)
+- No new required scene scripts or bootstrap managers were introduced.
+- Civilian runtime logic now centralizes repeated movement/arrival checks, retry timers, and need-action timers.
+- Legacy civilian deposit methods (`TickGoDeposit`, `TickDeposit`) were removed; required scene wiring for storage/dropoff remains unchanged.
