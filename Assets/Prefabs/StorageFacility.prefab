@@ -41,7 +41,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2716821831764261851}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fb128d43901c4bcdb80ab116e0fea151, type: 3}
+  m_Script: {fileID: 11500000, guid: 776b1a72a2b183248af0c45dc0f9d7b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractionPoint
   pointType: 0
@@ -58,17 +58,11 @@ GameObject:
   - component: {fileID: 6012261695760878187}
   - component: {fileID: 6012261695760878184}
   - component: {fileID: 6012261695760878185}
-  - component: {fileID: 6012261695760878190}
-  - component: {fileID: 6012261695760878191}
-  - component: {fileID: 6012261695760878188}
-  - component: {fileID: 6012261695760878197}
-  - component: {fileID: 6012261695760878196}
   - component: {fileID: -6260031326210086474}
-  - component: {fileID: -2655466256985702169}
-  - component: {fileID: 1251309256661376191}
-  - component: {fileID: 9208702738505990060}
-  - component: {fileID: 664461645612611802}
-  - component: {fileID: 7442100560658825522}
+  - component: {fileID: 5240127858150040587}
+  - component: {fileID: 5084920714613724538}
+  - component: {fileID: 7224557009545880045}
+  - component: {fileID: 7598720438364632043}
   m_Layer: 0
   m_Name: StorageFacility
   m_TagString: Untagged
@@ -170,86 +164,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &6012261695760878190
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6012261695760878189}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0316fc440feb1e4479faf1e9075d7ebf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  teamID: 1
-  capacities: []
-  grantStartingResources: 0
-  startingResources: []
---- !u!114 &6012261695760878191
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6012261695760878189}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9f48b5562f8301542b97848a56fce485, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  teamID: 1
-  resourceFlow: []
---- !u!114 &6012261695760878188
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6012261695760878189}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 14f1da7aff9846eaad3ce74c53a6ca09, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  validateOnAwake: 1
-  includeOptionalWarnings: 1
---- !u!114 &6012261695760878197
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6012261695760878189}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 51d1077aca999b743b1e64a1d8441152, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  selectionRing: {fileID: 0}
-  hoverRing: {fileID: 0}
-  attackRangeCircle: {fileID: 0}
-  visionRangeCircle: {fileID: 0}
---- !u!114 &6012261695760878196
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6012261695760878189}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5c6cde0e3d1844a9a5f4bf85689b22f1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  buildingDefinitionId: storagefacility
-  teamID: 1
-  maxHealth: 800
-  currentHealth: 0
-  resourcesDatabase: {fileID: 11400000, guid: 87f27aa07d5d1b049bfb1818298c31c9, type: 2}
-  defaultCapacityPerResource: 500
-  allowAllResourceCategories: 1
-  allowedCategories: 000000000100000002000000030000000400000005000000060000000700000008000000090000000a0000000b000000
 --- !u!208 &-6260031326210086474
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -266,7 +180,7 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 0, z: 0}
   m_TimeToStationary: 0.5
---- !u!114 &-2655466256985702169
+--- !u!114 &5240127858150040587
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -275,17 +189,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 6012261695760878189}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4d80263f4eb147628e3797654ad1dade, type: 3}
+  m_Script: {fileID: 11500000, guid: 0b637522007a09442908069d91e85e2f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BuildingInteractionSettings
-  defaultStopDistance: 1.2
-  houseStopDistance: 1
-  constructionStopDistance: 1.25
-  storageStopDistance: 4
-  craftInputStopDistance: 0.8
-  craftOutputStopDistance: 0.8
-  craftWorkStopDistance: 0.6
---- !u!114 &1251309256661376191
+  m_EditorClassIdentifier: Assembly-CSharp::ResourceStorageProvider
+  teamID: 0
+  capacities: []
+  grantStartingResources: 0
+  startingResources: []
+--- !u!114 &5084920714613724538
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -294,12 +205,25 @@ MonoBehaviour:
   m_GameObject: {fileID: 6012261695760878189}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5e4710a8aa104296997d2dad40065b09, type: 3}
+  m_Script: {fileID: 11500000, guid: 26cb48eb5be5f8640a3d8e816292703f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ResourceStorageContainer
+  teamID: 0
+  resourceFlow: []
+--- !u!114 &7224557009545880045
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6012261695760878189}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 706213d782c60394e9d81bc6374da59f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BuildingInteractionPointController
-  interactionPoints:
-  - {fileID: 655293943909324141}
---- !u!114 &9208702738505990060
+  interactionPoints: []
+--- !u!114 &7598720438364632043
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -308,37 +232,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 6012261695760878189}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 119cd2cd7e179eb48a9be3b6198bb38a, type: 3}
+  m_Script: {fileID: 11500000, guid: e43fd7c6cb00f644c80f8731232e27df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BuildingFootprint
-  width: 1
-  depth: 1
-  worldOffset: {x: 0, y: 0, z: 0}
-  extraYRotation: 0
---- !u!114 &664461645612611802
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6012261695760878189}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 40ac1f6cf1431c149898946ed4448c61, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BuildGridOccupant
---- !u!114 &7442100560658825522
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6012261695760878189}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f7e731a709d78b4458d603bae6a4ecf8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TeamVisual
+  m_EditorClassIdentifier: Assembly-CSharp::StorageFacility
+  buildingDefinitionId: 
   teamID: 0
-  kind: 0
-  applyOnStart: 1
+  maxHealth: 300
+  currentHealth: 0
+  resourcesDatabase: {fileID: 0}
+  defaultCapacityPerResource: 500
+  allowAllResourceCategories: 1
+  allowedCategories: 000000000100000002000000030000000400000005000000060000000700000008000000090000000a0000000b000000

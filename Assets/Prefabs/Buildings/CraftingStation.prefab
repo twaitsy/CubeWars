@@ -15,6 +15,12 @@ GameObject:
   - component: {fileID: -6308112382038516522}
   - component: {fileID: 7143502957120418442}
   - component: {fileID: 578910375926123519}
+  - component: {fileID: 5165334096536583656}
+  - component: {fileID: 7099847151522244841}
+  - component: {fileID: 7909085053311860360}
+  - component: {fileID: 723683132214858763}
+  - component: {fileID: 5405223110822870719}
+  - component: {fileID: 4253377127505023074}
   m_Layer: 0
   m_Name: CraftingStation
   m_TagString: Untagged
@@ -193,6 +199,93 @@ MonoBehaviour:
   progressBarWidth: 1.4
   progressBarHeight: 0.12
   upgrades: []
+--- !u!114 &5165334096536583656
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2971650436058892313}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26cb48eb5be5f8640a3d8e816292703f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ResourceStorageContainer
+  teamID: 0
+  resourceFlow: []
+--- !u!114 &7099847151522244841
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2971650436058892313}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8679a94c221c86c408b2baba451ee772, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BuildingPrefabValidator
+  validateOnAwake: 1
+  includeOptionalWarnings: 1
+--- !u!114 &7909085053311860360
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2971650436058892313}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c16dcfc04ff5eeb4fb14b8c695aef0c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BuildingFootprint
+  width: 1
+  depth: 1
+  worldOffset: {x: 0, y: 1, z: 0}
+  extraYRotation: 0
+--- !u!114 &723683132214858763
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2971650436058892313}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c6a39fe39831c4409c02eacd3dcfd3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TeamVisual
+  teamID: 0
+  kind: 0
+  applyOnStart: 1
+--- !u!114 &5405223110822870719
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2971650436058892313}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7925960156ad41a498427785afaafcc0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BuildGridOccupant
+--- !u!114 &4253377127505023074
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2971650436058892313}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b637522007a09442908069d91e85e2f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ResourceStorageProvider
+  teamID: 0
+  capacities: []
+  grantStartingResources: 0
+  startingResources: []
 --- !u!1 &4013298796735140841
 GameObject:
   m_ObjectHideFlags: 0
@@ -202,6 +295,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1766575201802066558}
+  - component: {fileID: 5831074664788436021}
   m_Layer: 0
   m_Name: Worker
   m_TagString: Untagged
@@ -224,6 +318,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1140312428416668570}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5831074664788436021
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4013298796735140841}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 776b1a72a2b183248af0c45dc0f9d7b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InteractionPoint
+  pointType: 0
+  priority: 0
 --- !u!1 &7907517961513334011
 GameObject:
   m_ObjectHideFlags: 0

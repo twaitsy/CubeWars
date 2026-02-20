@@ -85,3 +85,7 @@ Modular AI architecture update
 - `CivilianStateMachineController` is now required on the civilian GameObject.
 - `Civilian` delegates per-state execution through the state-machine controller and should remain a thin coordinator.
 - Job/runtime systems now operate on `CivilianJobType`; legacy role-based setup paths were removed.
+
+
+Latest component enforcement
+- RequireComponent on Civilian now enforces core runtime controllers: Health, Movement, Carrying, Gathering, Needs, Housing, ConstructionWorkerControl, CivilianStateMachineController, ToolController, JobController, TrainingController, and UpgradeController.

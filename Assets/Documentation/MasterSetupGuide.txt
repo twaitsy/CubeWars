@@ -713,3 +713,16 @@ Migration notes:
 - `CivilianRegistry` exposes `GetAll()` again for systems that still consume list-style access in diagnostics/validation flows.
 - `UnitInspectorUI` now includes a safe `DrawRoleButtons(Civilian)` implementation to keep inspector compilation stable after legacy role removal.
 - `Civilian` construction-site search now iterates `IReadOnlyList<ConstructionSite>` via `.Count` indexing (not `.Length`).
+
+
+-----------------------------------------------------------------
+Component auto-wiring updates (2026-02)
+-----------------------------------------------------------------
+The following gameplay scripts now enforce required dependencies with RequireComponent:
+- Civilian: HealthComponent, MovementController, CarryingController, GatheringController, NeedsController, HousingController, ConstructionWorkerControl, CivilianStateMachineController, ToolController, JobController, TrainingController, UpgradeController.
+- Unit: NavMeshAgent, UnitCombatController.
+- Headquarters: BuildingInteractionPointController.
+- ConstructionSite: BuildGridOccupant.
+- CraftingBuilding: ResourceStorageContainer.
+- House: ResourceStorageContainer.
+- StorageFacility: ResourceStorageProvider, ResourceStorageContainer.

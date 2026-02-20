@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
+[RequireComponent(typeof(BuildGridOccupant))]
+
 public class ConstructionSite : MonoBehaviour
 {
     [Header("Team & Definition")]

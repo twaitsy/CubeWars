@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(ResourceStorageContainer))]
+
 public class CraftingBuilding : Building
 {
     public enum ProductionState

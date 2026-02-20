@@ -1,6 +1,9 @@
 using UnityEngine;
 using UnityEngine.AI;
 
+[RequireComponent(typeof(NavMeshAgent))]
+[RequireComponent(typeof(UnitCombatController))]
+
 public class Unit : MonoBehaviour, IHasHealth, IAttackable, ICommandable
 {
     [Header("Identity")]
