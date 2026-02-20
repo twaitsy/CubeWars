@@ -34,7 +34,7 @@ Set these fields on `CraftingBuilding`:
 - `recipe` (ProductionRecipe asset)
 - `inputSlot` (Transform where input handoff is visualized)
 - `outputSlot` (Transform where output is visualized)
-- `workPoints[]` (where workers stand while crafting)
+- `InteractionPoint` children with `pointType=CraftWork` (where workers stand while crafting)
 - Throughput/capacity fields used by your current crafting flow
 - `requireHaulerLogistics` should be enabled for the simplified logistics workflow
   (haulers deliver inputs and evacuate outputs; workers stay at workPoints)
@@ -140,7 +140,7 @@ Latest recipe-output restriction
 
 Update (2026-02):
 - Crafting stations can define multiple craft stations using InteractionPoint components with pointType=CraftWork.
-- Keep legacy workPoints[] for backward compatibility, but prefer InteractionPoint authoring for consistent building interaction workflows.
+- Craft worker positioning is now fully InteractionPoint-driven (CraftWork).
 - Job/task queuing now respects workstation count (one queued crafting job per available work point).
 
 - RequireComponent on CraftingBuilding now enforces a root ResourceStorageContainer.
@@ -150,3 +150,10 @@ Update (2026-02-20)
 - Legacy Farm.cs production path removed. CraftingBuilding is the only supported production script for prefab setup in this guide.
 - `maxWorkers` represents production workers at work points; `maxAssignedHaulers` now drives separate hauler-task queueing and assignment caps.
 - Require at least one valid unit definition in UnitsDatabase for each spawned worker/combat prefab, configured via inspector unitDefinitionId dropdowns.
+
+
+Update (2026-02-20)
+- Remove legacy reliance on `workPoints[]` for production worker positioning.
+- Author one or more `InteractionPoint` child markers with `pointType=CraftWork` for production workers.
+- Keep using `CraftInput` and `CraftOutput` interaction points for logistics pathing when `inputSlot`/`outputSlot` are not explicitly assigned.
+- Crafting task generation now follows CraftingRegistry state changes; ensure the building can emit real state transitions (inputs missing, inputs ready, in progress, output ready, waiting pickup).

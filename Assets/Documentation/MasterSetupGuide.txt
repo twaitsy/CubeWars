@@ -693,7 +693,7 @@ Building Interaction Points:
   - CraftInput/CraftOutput: crafting logistics approach targets
   - CraftWork: worker workstation points
   - House: optional sleep/house-specific interaction target
-- CraftingBuilding supports both legacy workPoints[] and InteractionPoint(type=CraftWork).
+- CraftingBuilding uses InteractionPoint(type=CraftWork) for production worker positioning.
 - Worker task generation now caps crafting job requests to available work points (one job per point).
 
 Migration notes:
@@ -762,3 +762,11 @@ Update (2026-02-20)
   - issuing the final `NavMeshAgent` destination
 - Ensure all building prefabs that civilians interact with (HQ, Resource Nodes with storage/dropoff chains, Barracks, Crafting, Storage Facility, House, Construction targets) include correctly typed `InteractionPoint` children under a `BuildingInteractionPointController`.
 - For storage pickup/dropoff and crafting input/output, civilians now target the closest valid interaction point first; fallback remains the building transform when no matching point exists.
+
+
+Update (2026-02-20, crafting + idle behavior)
+- CraftingBuilding production work location support is now fully InteractionPoint-driven (`BuildingInteractionPointType.CraftWork`).
+- Legacy `workPoints[]` authoring for CraftingBuilding has been removed from runtime behavior.
+- Crafting buildings now emit change notifications only when production state actually changes, which keeps registry-driven task generation accurate and reduces queue churn.
+- Registry-driven crafting jobs now include explicit Hauler craft jobs; haulers can accept these without being forced into Craft-capability job types.
+- Civilians that cannot find suitable work for more than ~10 seconds will path to their assigned house `InteractionPoint` (`BuildingInteractionPointType.House`) and wait there until eligible work appears.
