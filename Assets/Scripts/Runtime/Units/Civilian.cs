@@ -1333,7 +1333,7 @@ public class Civilian : MonoBehaviour, ITargetable
         ConstructionSite best = null;
         float bestD = float.MaxValue;
 
-        for (int i = 0; i < sites.Length; i++)
+        for (int i = 0; i < sites.Count; i++)
         {
             var s = sites[i];
             if (s == null) continue;

@@ -6,6 +6,11 @@ public static class CivilianRegistry
 
     public static IReadOnlyCollection<Civilian> All => Civilians;
 
+    public static List<Civilian> GetAll()
+    {
+        return new List<Civilian>(Civilians);
+    }
+
     public static void Register(Civilian civilian)
     {
         if (civilian == null)

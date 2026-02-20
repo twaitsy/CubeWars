@@ -141,6 +141,15 @@ public class UnitInspectorUI : MonoBehaviour
         }
     }
 
+
+    void DrawRoleButtons(Civilian civ)
+    {
+        if (civ == null)
+            return;
+
+        GUILayout.Label("Role controls are currently unified under Job Specialization.");
+    }
+
     void DrawJobTypeButtons(Civilian civ)
     {
         var jobs = (CivilianJobType[])Enum.GetValues(typeof(CivilianJobType));
