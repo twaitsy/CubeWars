@@ -16,7 +16,6 @@ MonoBehaviour:
   displayName: Hunter
   icon: {fileID: 0}
   defaultJobType: Farmer
-  legacyRole: Farmer
   baseSkill: 1
   capabilities:
   - Gather

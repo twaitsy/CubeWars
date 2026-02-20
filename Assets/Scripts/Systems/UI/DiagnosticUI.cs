@@ -237,7 +237,7 @@ public class DiagnosticUI : MonoBehaviour
                     JobDefinition job = jobs.jobs[i];
                     if (job == null)
                         continue;
-                    GUILayout.Label($" • {job.id} | {job.displayName} | default type: {job.defaultJobType} | legacy role: {job.legacyRole}");
+                    GUILayout.Label($" • {job.id} | {job.displayName} | default type: {job.defaultJobType}");
                 }
             }
 
@@ -263,7 +263,7 @@ public class DiagnosticUI : MonoBehaviour
             for (int i = 0; i < waitingWorkers.Count; i++)
             {
                 Civilian worker = waitingWorkers[i];
-                GUILayout.Label($" • {worker.name} | team {worker.teamID} | role {worker.role} | job {worker.JobType}");
+                GUILayout.Label($" • {worker.name} | team {worker.teamID} | job {worker.JobType}");
             }
 
             WorkerTaskDispatcher dispatcher = WorkerTaskDispatcher.Instance;
@@ -306,9 +306,9 @@ public class DiagnosticUI : MonoBehaviour
                 for (int i = 0; i < teams.Length; i++)
                 {
                     int teamId = teams[i];
-                    Dictionary<CivilianRole, int> counts = jm.GetRoleCounts(teamId);
+                    Dictionary<CivilianJobType, int> counts = jm.GetJobCounts(teamId);
                     string parts = string.Join(", ", counts.Select(k => $"{k.Key}:{k.Value}").ToArray());
-                    GUILayout.Label($"- Team {teamId} role counts: {parts}");
+                    GUILayout.Label($"- Team {teamId} job counts: {parts}");
                 }
             }
 

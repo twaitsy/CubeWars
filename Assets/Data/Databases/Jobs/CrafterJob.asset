@@ -16,7 +16,6 @@ MonoBehaviour:
   displayName: Crafter
   icon: {fileID: 0}
   defaultJobType: Crafter
-  legacyRole: Crafter
   baseSkill: 1
   capabilities:
   - Craft

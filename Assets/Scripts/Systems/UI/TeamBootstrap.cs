@@ -18,8 +18,7 @@ public class TeamBootstrap : MonoBehaviour
     {
         public GameObject prefab;
         [Min(0)] public int count = 1;
-        public CivilianRole role = CivilianRole.Gatherer;
-        public CivilianJobType jobType = CivilianJobType.Generalist;
+        public CivilianJobType jobType = CivilianJobType.Gatherer;
     }
 
     [System.Serializable]
@@ -79,8 +78,8 @@ public class TeamBootstrap : MonoBehaviour
     [Tooltip("Legacy fallback: how many workers each team starts with when civilianGroups is empty.")]
     public int startingWorkers = 3;
 
-    [Tooltip("Legacy fallback role assigned to spawned workers when civilianGroups is empty.")]
-    public CivilianRole startingWorkerRole = CivilianRole.Gatherer;
+    [Tooltip("Fallback job assigned to spawned workers when civilianGroups is empty.")]
+    public CivilianJobType startingWorkerJob = CivilianJobType.Gatherer;
 
     [Header("Starter Specialists")]
     [Tooltip("Spawn extra specialist workers for crafting chains.")]
@@ -291,7 +290,7 @@ public class TeamBootstrap : MonoBehaviour
                 if (jobType == CivilianJobType.Generalist || jobType == CivilianJobType.Idle)
                     continue;
 
-                SpawnCivilian(team, hq, workerPrefab, CivilianJobRegistry.GetProfile(jobType).legacyRole, jobType, spawnIndex);
+                SpawnCivilian(team, hq, workerPrefab, jobType, spawnIndex);
                 spawnIndex++;
             }
         }
@@ -305,7 +304,7 @@ public class TeamBootstrap : MonoBehaviour
 
                 for (int i = 0; i < group.count; i++)
                 {
-                    SpawnCivilian(team, hq, group.prefab, group.role, group.jobType, spawnIndex);
+                    SpawnCivilian(team, hq, group.prefab, group.jobType, spawnIndex);
                     spawnIndex++;
                 }
             }
@@ -314,7 +313,7 @@ public class TeamBootstrap : MonoBehaviour
         {
             for (int i = 0; i < startingWorkers; i++)
             {
-                SpawnCivilian(team, hq, workerPrefab, startingWorkerRole, CivilianJobRegistry.ToJobType(startingWorkerRole), spawnIndex);
+                SpawnCivilian(team, hq, workerPrefab, startingWorkerJob, spawnIndex);
                 spawnIndex++;
             }
         }
@@ -327,13 +326,13 @@ public class TeamBootstrap : MonoBehaviour
                 if (jobType == CivilianJobType.Generalist || jobType == CivilianJobType.Idle)
                     continue;
 
-                SpawnCivilian(team, hq, workerPrefab, CivilianJobRegistry.GetProfile(jobType).legacyRole, jobType, spawnIndex);
+                SpawnCivilian(team, hq, workerPrefab, jobType, spawnIndex);
                 spawnIndex++;
             }
         }
     }
 
-    private void SpawnCivilian(Team team, Transform hq, GameObject prefab, CivilianRole role, CivilianJobType jobType, int spawnIndex)
+    private void SpawnCivilian(Team team, Transform hq, GameObject prefab, CivilianJobType jobType, int spawnIndex)
     {
         Vector3 spawnPos = GetSpawnPosition(hq.position, spawnIndex, 1.5f);
         GameObject worker = Instantiate(prefab, spawnPos, Quaternion.identity);
@@ -344,8 +343,7 @@ public class TeamBootstrap : MonoBehaviour
         Civilian civ = worker.GetComponentInChildren<Civilian>();
         if (civ != null)
         {
-            civ.SetRole(role);
-            civ.SetJobType(jobType == CivilianJobType.Generalist ? CivilianJobRegistry.ToJobType(role) : jobType);
+            civ.SetJobType(jobType == CivilianJobType.Generalist ? CivilianJobType.Gatherer : jobType);
             civ.GrantStartingToolForCurrentJob();
         }
     }

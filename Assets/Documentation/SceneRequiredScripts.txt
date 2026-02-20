@@ -332,3 +332,7 @@ Update: civilian data-source validation
 - Building prefabs should include BuildingInteractionPointController and at least one InteractionPoint child for reliable storage/crafting pathing.
 - Crafting stations can expose multiple craft work InteractionPoints; one worker/job is supported per work point.
 - Storage facilities should use InteractionPoint(type=Storage) instead of legacy single StorageFacility interaction Transform fields.
+
+[2026-02 modular civilian AI update]
+- Civilian runtime validation now checks for `CivilianStateMachineController` in addition to existing worker controllers.
+- Crafting diagnostics now prefer registry-backed queries (`CraftingRegistry`, `CivilianRegistry`) for worker/building coverage checks.

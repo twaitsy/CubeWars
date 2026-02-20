@@ -16,7 +16,6 @@ MonoBehaviour:
   displayName: Smelter
   icon: {fileID: 0}
   defaultJobType: Blacksmith
-  legacyRole: Blacksmith
   baseSkill: 1
   capabilities:
   - Craft

@@ -32,7 +32,7 @@ public class CivilianSpawner : MonoBehaviour
 
             Civilian civScript = civ.GetComponent<Civilian>();
             if (civScript != null)
-                civScript.SetRole(CivilianRole.Gatherer);
+                civScript.SetJobType(CivilianJobType.Gatherer);
 
             TeamColorManager.Instance.ApplyTeamColor(civ, teamID);
         }

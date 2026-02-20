@@ -213,6 +213,14 @@ public class TeamStorageManager : MonoBehaviour
         }
         return best;
     }
+
+
+    public IReadOnlyList<ResourceStorageContainer> GetStoragesForTeam(int teamID)
+    {
+        EnsureTeam(teamID);
+        return storages[teamID];
+    }
+
     public bool HasAnyStorage(int teamID)
     {
         EnsureTeam(teamID);

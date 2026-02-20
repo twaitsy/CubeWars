@@ -16,7 +16,6 @@ MonoBehaviour:
   displayName: Cook
   icon: {fileID: 0}
   defaultJobType: Cook
-  legacyRole: Cook
   baseSkill: 1
   capabilities:
   - Craft

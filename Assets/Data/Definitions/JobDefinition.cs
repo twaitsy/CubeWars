@@ -10,7 +10,6 @@ public class JobDefinition : ScriptableObject
 
     [Header("Capability Profile")]
     public CivilianJobType defaultJobType = CivilianJobType.Generalist;
-    public CivilianRole legacyRole = CivilianRole.Gatherer;
     public float baseSkill = 1f;
     public List<WorkerCapability> capabilities = new();
     public List<ToolDefinition> allowedTools = new();

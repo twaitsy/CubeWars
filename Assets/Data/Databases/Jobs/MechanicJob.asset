@@ -16,7 +16,6 @@ MonoBehaviour:
   displayName: Mechanic
   icon: {fileID: 0}
   defaultJobType: Technician
-  legacyRole: Technician
   baseSkill: 1
   capabilities:
   - Craft

@@ -184,12 +184,11 @@ public class SceneRequiredScripts : MonoBehaviour
 
     void ValidateCraftingRoleCoverage()
     {
-        CraftingBuilding[] buildings = FindObjectsByType<CraftingBuilding>(FindObjectsSortMode.None);
-        Civilian[] civilians = FindObjectsByType<Civilian>(FindObjectsSortMode.None);
+        var buildings = CraftingRegistry.Instance != null ? CraftingRegistry.Instance.AllBuildings : Array.Empty<CraftingBuilding>();
+        var civilians = CivilianRegistry.GetAll();
 
-        for (int i = 0; i < buildings.Length; i++)
+        foreach (CraftingBuilding building in buildings)
         {
-            CraftingBuilding building = buildings[i];
             if (building == null || building.recipe == null)
                 continue;
 
@@ -198,7 +197,7 @@ public class SceneRequiredScripts : MonoBehaviour
                 continue;
 
             bool hasMatch = false;
-            for (int c = 0; c < civilians.Length; c++)
+            for (int c = 0; c < civilians.Count; c++)
             {
                 Civilian civ = civilians[c];
                 if (civ == null || civ.teamID != building.teamID)
@@ -218,18 +217,17 @@ public class SceneRequiredScripts : MonoBehaviour
 
     void ValidateCraftingAssignmentRegistration()
     {
-        CraftingBuilding[] buildings = FindObjectsByType<CraftingBuilding>(FindObjectsSortMode.None);
-        Civilian[] civilians = FindObjectsByType<Civilian>(FindObjectsSortMode.None);
+        var buildings = CraftingRegistry.Instance != null ? CraftingRegistry.Instance.AllBuildings : Array.Empty<CraftingBuilding>();
+        var civilians = CivilianRegistry.GetAll();
 
-        for (int i = 0; i < buildings.Length; i++)
+        foreach (CraftingBuilding building in buildings)
         {
-            CraftingBuilding building = buildings[i];
             if (building == null)
                 continue;
 
             int linkedWorkers = 0;
 
-            for (int c = 0; c < civilians.Length; c++)
+            for (int c = 0; c < civilians.Count; c++)
             {
                 Civilian civ = civilians[c];
                 if (civ == null || civ.teamID != building.teamID)
@@ -247,11 +245,10 @@ public class SceneRequiredScripts : MonoBehaviour
 
     void ValidateCraftingHaulerCaps()
     {
-        CraftingBuilding[] buildings = FindObjectsByType<CraftingBuilding>(FindObjectsSortMode.None);
+        var buildings = CraftingRegistry.Instance != null ? CraftingRegistry.Instance.AllBuildings : Array.Empty<CraftingBuilding>();
 
-        for (int i = 0; i < buildings.Length; i++)
+        foreach (CraftingBuilding building in buildings)
         {
-            CraftingBuilding building = buildings[i];
             if (building == null || !building.requireHaulerLogistics)
                 continue;
 
@@ -321,8 +318,8 @@ public class SceneRequiredScripts : MonoBehaviour
     }
     void ValidateCivilianControllerSetup()
     {
-        Civilian[] civilians = FindObjectsByType<Civilian>(FindObjectsSortMode.None);
-        for (int i = 0; i < civilians.Length; i++)
+        var civilians = CivilianRegistry.GetAll();
+        for (int i = 0; i < civilians.Count; i++)
         {
             Civilian civ = civilians[i];
             if (civ == null)
@@ -333,9 +330,10 @@ public class SceneRequiredScripts : MonoBehaviour
                 civ.GetComponent<CarryingController>() == null ||
                 civ.GetComponent<GatheringController>() == null ||
                 civ.GetComponent<ConstructionWorkerControl>() == null ||
-                civ.GetComponent<NeedsController>() == null)
+                civ.GetComponent<NeedsController>() == null ||
+                civ.GetComponent<CivilianStateMachineController>() == null)
             {
-                Debug.LogWarning($"[SceneRequiredScripts] Civilian diagnostics: '{civ.name}' is missing one or more required controller components (Health/Movement/Carrying/Gathering/Construction/Needs).", civ);
+                Debug.LogWarning($"[SceneRequiredScripts] Civilian diagnostics: '{civ.name}' is missing one or more required controller components (Health/Movement/Carrying/Gathering/Construction/Needs/StateMachine).", civ);
             }
 
             if (civ.foodDatabase == null && civ.resourcesDatabase == null)
