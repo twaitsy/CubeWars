@@ -57,6 +57,12 @@ public class BuildingPrefabValidator : MonoBehaviour
         if (!TryGetComponent<TeamVisual>(out _) && includeOptionalWarnings)
             missing.Add("TeamVisual (recommended)");
 
+        if (!TryGetComponent<BuildingInteractionPointController>(out _) && includeOptionalWarnings)
+            missing.Add("BuildingInteractionPointController (required on Building)");
+
+        if (GetComponentsInChildren<InteractionPoint>(true).Length == 0 && includeOptionalWarnings)
+            missing.Add("InteractionPoint (recommended for storage/workflow pathing)");
+
         if (!hasStorageContainer && includeOptionalWarnings)
             missing.Add("ResourceStorageContainer (optional, needed for storage/logistics buildings)");
 

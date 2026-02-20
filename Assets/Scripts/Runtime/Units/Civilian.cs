@@ -3,6 +3,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(HealthComponent))]
 [RequireComponent(typeof(MovementController))]
+[RequireComponent(typeof(HousingController))]
 
 public class Civilian : MonoBehaviour, ITargetable
 {
@@ -68,7 +69,7 @@ public class Civilian : MonoBehaviour, ITargetable
     public bool IsAtAssignedCraftingWorkPoint => state == State.CraftingAtWorkPoint && movementController.HasArrived();
     public float CurrentHunger => needsController != null ? needsController.CurrentHunger : 0f;
     public float CurrentTiredness => needsController != null ? needsController.CurrentTiredness : 0f;
-    public House AssignedHouse => assignedHouse;
+    public House AssignedHouse => housingController != null ? housingController.AssignedHouse : null;
     public FoodDatabase foodDatabase;
     public ResourcesDatabase resourcesDatabase;
 
@@ -158,8 +159,6 @@ public class Civilian : MonoBehaviour, ITargetable
     private FoodDefinition targetFoodDefinition;
     private int pendingFoodAmount;
     private float currentEatDurationSeconds;
-    private House targetHouse;
-    private House assignedHouse;
     private readonly HashSet<CivilianToolType> equippedTools = new();
     private float toolPickupTimer;
     private float idleWanderTimer;
@@ -172,6 +171,7 @@ public class Civilian : MonoBehaviour, ITargetable
 //    private GatheringControl gatheringControl;
     private ConstructionWorkerControl constructionWorkerControl;
     private NeedsController needsController;
+    private HousingController housingController;
 
     public float speed => movementController != null ? movementController.MoveSpeed : 2.5f;
     public float stopDistance => movementController != null ? movementController.StopDistance : 1.2f;
@@ -198,6 +198,7 @@ public class Civilian : MonoBehaviour, ITargetable
         gatheringController = GetComponent<GatheringController>();
   //      constructionWorkerControl = GetComponent<ConstructionWorkerControl>();
         needsController = GetComponent<NeedsController>();
+        housingController = GetComponent<HousingController>();
         CivilianRegistry.Register(this);
     }
 
@@ -282,6 +283,7 @@ public class Civilian : MonoBehaviour, ITargetable
         gatheringController = GetComponent<GatheringController>();
         constructionWorkerControl = GetComponent<ConstructionWorkerControl>();
         needsController = GetComponent<NeedsController>();
+        housingController = GetComponent<HousingController>();
         if (health != null)
             health.ApplyDefinition(def);
 
@@ -553,7 +555,7 @@ public class Civilian : MonoBehaviour, ITargetable
 
         TryAssignHouseIfNeeded();
 
-        if (assignedHouse == null)
+        if (AssignedHouse == null)
             return;
 
         idleWanderTimer -= Time.deltaTime;
@@ -561,10 +563,10 @@ public class Civilian : MonoBehaviour, ITargetable
         {
             idleWanderTimer = Random.Range(2f, 5f);
             Vector2 jitter = Random.insideUnitCircle * 3f;
-            idleWanderTarget = assignedHouse.transform.position + new Vector3(jitter.x, 0f, jitter.y);
+            idleWanderTarget = AssignedHouse.transform.position + new Vector3(jitter.x, 0f, jitter.y);
         }
 
-        float stop = ResolveStopDistance(assignedHouse.transform, BuildingStopDistanceType.House);
+        float stop = ResolveStopDistance(AssignedHouse.transform, BuildingStopDistanceType.House);
         movementController.MoveTo(idleWanderTarget, stop);
     }
 
@@ -603,11 +605,11 @@ public class Civilian : MonoBehaviour, ITargetable
 
     bool TryConsumeFoodFromAssignedHouse()
     {
-        if (assignedHouse == null)
+        if (AssignedHouse == null)
             return false;
 
         float nearDistance = Mathf.Max(0.1f, stopDistance * 2f);
-        if ((transform.position - assignedHouse.transform.position).sqrMagnitude > nearDistance * nearDistance)
+        if ((transform.position - AssignedHouse.transform.position).sqrMagnitude > nearDistance * nearDistance)
             return false;
 
         foreach (FoodDefinition food in EnumerateConfiguredFoods())
@@ -615,7 +617,7 @@ public class Civilian : MonoBehaviour, ITargetable
             if (!TryGetFoodResource(food, out ResourceDefinition type))
                 continue;
 
-            if (!assignedHouse.TryConsumeFood(type, Mathf.Max(1, foodToEatPerMeal), out int consumed) || consumed <= 0)
+            if (!housingController.TryConsumeHouseFood(type, Mathf.Max(1, foodToEatPerMeal), out int consumed) || consumed <= 0)
                 continue;
 
             targetFoodResource = type;
@@ -655,14 +657,10 @@ public class Civilian : MonoBehaviour, ITargetable
 
     void TickSeekHouse()
     {
-        if (targetHouse == null || !targetHouse.IsAlive)
-        {
-            TryAssignHouseIfNeeded();
-            targetHouse = assignedHouse != null && assignedHouse.IsAlive
-                ? assignedHouse
-                : FindClosestAvailableHouse();
-        }
+        if (!housingController.TryEnsureTargetHouse())
+            return;
 
+        House targetHouse = housingController.TargetHouse;
         if (targetHouse == null)
             return;
 
@@ -671,16 +669,10 @@ public class Civilian : MonoBehaviour, ITargetable
         if (!movementController.HasArrived())
             return;
 
-        if (!targetHouse.TryAddResident(this))
+        if (!housingController.TryClaimTargetHouse())
         {
-            targetHouse = null;
+            housingController.SetTargetHouse(null);
             return;
-        }
-
-        if (assignedHouse != targetHouse)
-        {
-            ClearAssignedHouse();
-            assignedHouse = targetHouse;
         }
 
         needActionTimer = 0f;
@@ -689,7 +681,7 @@ public class Civilian : MonoBehaviour, ITargetable
 
     void TickSleeping()
     {
-        if (assignedHouse == null)
+        if (AssignedHouse == null)
         {
             state = State.SeekingHouse;
             return;
@@ -708,7 +700,7 @@ public class Civilian : MonoBehaviour, ITargetable
         needsController.CompleteSleep();
         currentTiredness = needsController.CurrentTiredness;
 
-        targetHouse = assignedHouse;
+        housingController.SetTargetHouse(AssignedHouse);
         ResumeAfterNeed();
     }
 
@@ -794,27 +786,14 @@ public class Civilian : MonoBehaviour, ITargetable
         return type != null;
     }
 
-    House FindClosestAvailableHouse()
-    {
-        return House.FindAvailableForTeam(teamID, this, transform.position);
-    }
-
     void TryAssignHouseIfNeeded()
     {
-        if (assignedHouse != null && assignedHouse.IsAlive)
-            return;
-
-        targetHouse = FindClosestAvailableHouse();
-        if (targetHouse != null && targetHouse.TryAddResident(this))
-            assignedHouse = targetHouse;
+        housingController?.TryAssignHouseIfNeeded();
     }
 
     void ClearAssignedHouse()
     {
-        if (assignedHouse != null)
-            assignedHouse.RemoveResident(this);
-
-        assignedHouse = null;
+        housingController?.ClearAssignedHouse();
     }
 
     public void SetRole(CivilianRole newRole)
@@ -1004,24 +983,8 @@ public class Civilian : MonoBehaviour, ITargetable
             return;
         }
 
-        // Get the REAL storage container component
-        var facility = targetStorage.GetComponent<StorageFacility>();
-        var container = facility != null
-            ? facility.GetComponent<ResourceStorageContainer>()
-            : null;
-
-        if (container == null)
-        {
-            Debug.LogError("Gatherer: StorageFacility has no ResourceStorageContainer component!");
+        if (gatheringController.TryDeposit(targetStorage))
             state = State.SearchingNode;
-            return;
-        }
-
-        // Use the correct TryDeposit overload
-        if (gatheringController.TryDeposit(container))
-        {
-            state = State.SearchingNode;
-        }
     }
     void TickGoingToDepositStorage()
     {
@@ -1031,19 +994,10 @@ public class Civilian : MonoBehaviour, ITargetable
             return;
         }
 
-        // Resolve stop distance
         float stop = ResolveStopDistance(targetStorage.transform, BuildingStopDistanceType.Storage);
+        Transform interactionTarget = ResolveInteractionTarget(targetStorage.transform, BuildingInteractionPointType.Storage);
 
-        // Resolve interaction point
-        Vector3 targetPos;
-        var facility = targetStorage.GetComponent<StorageFacility>();
-        if (facility != null && facility.interactionPoint != null)
-            targetPos = facility.interactionPoint.position;
-        else
-            targetPos = targetStorage.transform.position;
-
-        // Move to the correct point
-        movementController.MoveTo(targetPos, stop);
+        movementController.MoveTo(interactionTarget.position, stop);
 
         if (movementController.HasArrived())
             state = State.Depositing;
@@ -1227,7 +1181,7 @@ public class Civilian : MonoBehaviour, ITargetable
             return;
 
         float stop = ResolveStopDistance(targetStorage.transform, BuildingStopDistanceType.Storage);
-        movementController.MoveTo(targetStorage.transform.position, stop);
+        movementController.MoveTo(ResolveInteractionTarget(targetStorage.transform, BuildingInteractionPointType.Storage).position, stop);
 
         if (movementController.HasArrived())
             state = State.PickingUp;
@@ -1328,6 +1282,18 @@ public class Civilian : MonoBehaviour, ITargetable
             return Mathf.Max(0.1f, stopDistance);
 
         return settings.GetStopDistance(stopType, stopDistance);
+    }
+
+    Transform ResolveInteractionTarget(Transform destination, BuildingInteractionPointType pointType)
+    {
+        if (destination == null)
+            return transform;
+
+        var controller = destination.GetComponentInParent<BuildingInteractionPointController>();
+        if (controller != null && controller.TryGetClosestPoint(pointType, transform.position, out Transform interactionPoint))
+            return interactionPoint;
+
+        return destination;
     }
 
     int GetCarryCapacity()
@@ -1492,7 +1458,7 @@ public class Civilian : MonoBehaviour, ITargetable
             }
 
             float stop = ResolveStopDistance(targetStorage.transform, BuildingStopDistanceType.Storage);
-            movementController.MoveTo(targetStorage.transform.position, stop);
+            movementController.MoveTo(ResolveInteractionTarget(targetStorage.transform, BuildingInteractionPointType.Storage).position, stop);
             if (movementController.HasArrived())
             {
                 int took = targetStorage.Withdraw(carriedResource, Mathf.Min(amount, GetCarryCapacity()));
@@ -1517,7 +1483,8 @@ public class Civilian : MonoBehaviour, ITargetable
             return;
         }
 
-        Vector3 slot = targetCraftingBuilding.inputSlot != null ? targetCraftingBuilding.inputSlot.position : targetCraftingBuilding.transform.position;
+        Transform inputTransform = targetCraftingBuilding.inputSlot != null ? targetCraftingBuilding.inputSlot : ResolveInteractionTarget(targetCraftingBuilding.transform, BuildingInteractionPointType.CraftInput);
+        Vector3 slot = inputTransform.position;
         Transform ctx = targetCraftingBuilding != null ? targetCraftingBuilding.transform : null;
         float stop = ResolveStopDistance(ctx, BuildingStopDistanceType.CraftInput);
         movementController.MoveTo(slot, stop);
@@ -1647,7 +1614,8 @@ public class Civilian : MonoBehaviour, ITargetable
             return;
         }
 
-        Vector3 slot = targetCraftingBuilding.outputSlot != null ? targetCraftingBuilding.outputSlot.position : targetCraftingBuilding.transform.position;
+        Transform outputTransform = targetCraftingBuilding.outputSlot != null ? targetCraftingBuilding.outputSlot : ResolveInteractionTarget(targetCraftingBuilding.transform, BuildingInteractionPointType.CraftOutput);
+        Vector3 slot = outputTransform.position;
         Transform ctx = targetCraftingBuilding != null ? targetCraftingBuilding.transform : null;
         float stop = ResolveStopDistance(ctx, BuildingStopDistanceType.CraftOutput);
         movementController.MoveTo(slot, stop);
@@ -1682,7 +1650,7 @@ public class Civilian : MonoBehaviour, ITargetable
         }
 
         float stop = ResolveStopDistance(targetStorage.transform, BuildingStopDistanceType.Storage);
-        movementController.MoveTo(targetStorage.transform.position, stop);
+        movementController.MoveTo(ResolveInteractionTarget(targetStorage.transform, BuildingInteractionPointType.Storage).position, stop);
         if (!movementController.HasArrived()) return;
 
         int accepted = targetStorage.Deposit(carriedResource, carriedAmount);
@@ -1785,17 +1753,17 @@ public class Civilian : MonoBehaviour, ITargetable
 
     float GetHouseSpeedBonusMultiplier()
     {
-        if (assignedHouse == null)
+        if (AssignedHouse == null)
             return 1f;
 
-        return 1f + Mathf.Max(0, assignedHouse.prestige) * 0.1f;
+        return 1f + Mathf.Max(0, AssignedHouse.prestige) * 0.1f;
     }
 
     float GetTirednessRate()
     {
-        float reduction = assignedHouse != null ? Mathf.Max(0, assignedHouse.comfort) * 0.1f : 0f;
         float baseRate = needsController != null ? needsController.TirednessRatePerSecond : 0.3f;
-        return baseRate * Mathf.Max(0.1f, 1f - reduction);
+        float multiplier = housingController != null ? housingController.GetTirednessReductionMultiplier() : 1f;
+        return baseRate * multiplier;
     }
 
     void TickToolPickup()
@@ -1845,7 +1813,7 @@ public class Civilian : MonoBehaviour, ITargetable
 
     void ConsumeHouseFoodWhileResting()
     {
-        if (assignedHouse == null || !NeedsFood())
+        if (AssignedHouse == null || !NeedsFood())
             return;
 
         foreach (FoodDefinition food in EnumerateConfiguredFoods())
@@ -1853,7 +1821,7 @@ public class Civilian : MonoBehaviour, ITargetable
             if (!TryGetFoodResource(food, out ResourceDefinition type))
                 continue;
 
-            if (!assignedHouse.TryConsumeFood(type, foodToEatPerMeal, out int consumed) || consumed <= 0)
+            if (!housingController.TryConsumeHouseFood(type, foodToEatPerMeal, out int consumed) || consumed <= 0)
                 continue;
 
             float restore = consumed * Mathf.Max(1, food.hungerRestore);

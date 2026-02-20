@@ -24,6 +24,7 @@
 /// - Does NOT delete teams.
 /// - Only destroys THIS building when health reaches zero.
 /// </summary>
+[RequireComponent(typeof(BuildingInteractionPointController))]
 public abstract class Building : MonoBehaviour, ITargetable, IHasHealth, IAttackable
 {
     [Header("Identity")]

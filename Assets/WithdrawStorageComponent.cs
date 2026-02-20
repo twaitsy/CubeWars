@@ -75,7 +75,12 @@ public class WithdrawStorageComponent : MonoBehaviour
         if (container == null)
             return;
 
-        movement.MoveTo(container.transform.position, stopDistance);
+        Transform moveTarget = container.transform;
+        var points = container.GetComponentInParent<BuildingInteractionPointController>();
+        if (points != null && points.TryGetClosestPoint(BuildingInteractionPointType.Storage, transform.position, out Transform interaction))
+            moveTarget = interaction;
+
+        movement.MoveTo(moveTarget.position, stopDistance);
     }
 
     public bool TryWithdraw(ResourceStorageContainer container, ResourceDefinition resource, int amount)

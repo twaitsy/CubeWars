@@ -71,6 +71,7 @@ public class CraftingBuilding : Building
     readonly Dictionary<Civilian, int> occupiedWorkpoints = new();
     readonly Dictionary<Civilian, float> inactiveAssignedWorkerTimers = new();
     readonly List<Civilian> assignedWorkers = new();
+    BuildingInteractionPointController interactionPointController;
 
     ProductionState state;
     float craftTimer;
@@ -117,6 +118,7 @@ public class CraftingBuilding : Building
     protected override void Start()
     {
         base.Start();
+        interactionPointController = GetComponent<BuildingInteractionPointController>();
         InitializeResourceMaps();
         state = ProductionState.WaitingForInputs;
         EnsureProgressBar();
@@ -583,7 +585,9 @@ public class CraftingBuilding : Building
         if (civilian == null || recipe == null) return false;
         if (!allowAutomaticAssignment && !manual) return false;
         if (assignedWorkers.Contains(civilian)) return true;
-        if (assignedWorkers.Count >= GetMaxWorkers()) return false;
+
+        int workerCapacity = Mathf.Min(GetMaxWorkers(), GetWorkPointCapacity());
+        if (assignedWorkers.Count >= workerCapacity) return false;
         if (recipe.requiredJobType != CivilianJobType.Generalist && civilian.JobType != recipe.requiredJobType) return false;
 
         if (requireHaulerLogistics && civilian.JobType == CivilianJobType.Hauler)
@@ -610,13 +614,18 @@ public class CraftingBuilding : Building
     public bool TryReserveWorkPoint(Civilian civilian, out Transform workPoint)
     {
         workPoint = null;
-        if (civilian == null || workPoints == null || workPoints.Length == 0)
+        if (civilian == null)
             return false;
 
-        for (int i = 0; i < workPoints.Length; i++)
+        List<Transform> configuredPoints = GetConfiguredWorkPoints();
+        if (configuredPoints.Count == 0)
+            return false;
+
+        for (int i = 0; i < configuredPoints.Count; i++)
         {
-            var point = workPoints[i];
-            if (point == null) continue;
+            Transform point = configuredPoints[i];
+            if (point == null)
+                continue;
 
             if (occupiedWorkpoints.TryGetValue(civilian, out int existingIndex) && existingIndex == i)
             {
@@ -627,7 +636,8 @@ public class CraftingBuilding : Building
             bool occupied = false;
             foreach (var kv in occupiedWorkpoints)
             {
-                if (kv.Key == civilian) continue;
+                if (kv.Key == civilian)
+                    continue;
                 if (kv.Value == i)
                 {
                     occupied = true;
@@ -635,7 +645,8 @@ public class CraftingBuilding : Building
                 }
             }
 
-            if (occupied) continue;
+            if (occupied)
+                continue;
 
             occupiedWorkpoints[civilian] = i;
             workPoint = point;
@@ -649,6 +660,42 @@ public class CraftingBuilding : Building
     {
         if (civilian == null) return;
         occupiedWorkpoints.Remove(civilian);
+    }
+
+    List<Transform> GetConfiguredWorkPoints()
+    {
+        var points = new List<Transform>();
+
+        if (workPoints != null)
+        {
+            for (int i = 0; i < workPoints.Length; i++)
+            {
+                Transform point = workPoints[i];
+                if (point != null && !points.Contains(point))
+                    points.Add(point);
+            }
+        }
+
+        if (interactionPointController == null)
+            interactionPointController = GetComponent<BuildingInteractionPointController>();
+
+        if (interactionPointController != null)
+        {
+            List<Transform> interactionPoints = interactionPointController.GetPoints(BuildingInteractionPointType.CraftWork);
+            for (int i = 0; i < interactionPoints.Count; i++)
+            {
+                Transform point = interactionPoints[i];
+                if (point != null && !points.Contains(point))
+                    points.Add(point);
+            }
+        }
+
+        return points;
+    }
+
+    public int GetWorkPointCapacity()
+    {
+        return Mathf.Max(1, GetConfiguredWorkPoints().Count);
     }
 
     public bool TryDeliverInput(ResourceDefinition type, int amount, out int accepted)
