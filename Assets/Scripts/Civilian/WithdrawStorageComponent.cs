@@ -10,7 +10,6 @@ public class WithdrawStorageComponent : MonoBehaviour
 
     [Header("Withdraw Settings")]
     [SerializeField] private float searchRetrySeconds = 1.5f;
-    [SerializeField] private float stopDistance = 1.2f;
 
     public float SearchRetrySeconds => Mathf.Max(0.1f, searchRetrySeconds);
 
@@ -75,12 +74,7 @@ public class WithdrawStorageComponent : MonoBehaviour
         if (container == null)
             return;
 
-        Transform moveTarget = container.transform;
-        var points = container.GetComponentInParent<BuildingInteractionPointController>();
-        if (points != null && points.TryGetClosestPoint(BuildingInteractionPointType.Storage, transform.position, out Transform interaction))
-            moveTarget = interaction;
-
-        movement.MoveTo(moveTarget.position, stopDistance);
+        movement.MoveToBuildingTarget(container.transform, BuildingStopDistanceType.Storage, BuildingInteractionPointType.Storage);
     }
 
     public bool TryWithdraw(ResourceStorageContainer container, ResourceDefinition resource, int amount)

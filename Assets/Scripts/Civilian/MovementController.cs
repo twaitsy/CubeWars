@@ -36,6 +36,40 @@ public class MovementController : MonoBehaviour
         agent.stoppingDistance = stoppingDistance;
         agent.SetDestination(destination);
     }
+
+    public void MoveToBuildingTarget(Transform destination, BuildingStopDistanceType stopType, BuildingInteractionPointType interactionType)
+    {
+        if (destination == null)
+            return;
+
+        float stop = ResolveStopDistance(destination, stopType);
+        Transform moveTarget = ResolveInteractionTarget(destination, interactionType);
+        MoveTo(moveTarget.position, stop);
+    }
+
+    public float ResolveStopDistance(Transform destination, BuildingStopDistanceType stopType)
+    {
+        if (destination == null)
+            return Mathf.Max(0.1f, stopDistance);
+
+        var settings = destination.GetComponentInParent<BuildingInteractionSettings>();
+        if (settings == null)
+            return Mathf.Max(0.1f, stopDistance);
+
+        return settings.GetStopDistance(stopType, stopDistance);
+    }
+
+    public Transform ResolveInteractionTarget(Transform destination, BuildingInteractionPointType pointType)
+    {
+        if (destination == null)
+            return transform;
+
+        var controller = destination.GetComponentInParent<BuildingInteractionPointController>();
+        if (controller != null && controller.TryGetClosestPoint(pointType, transform.position, out Transform interactionPoint))
+            return interactionPoint;
+
+        return destination;
+    }
     public bool HasArrived()
     {
         if (agent == null || !agent.enabled || !agent.isOnNavMesh)
