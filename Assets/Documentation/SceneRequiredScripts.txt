@@ -407,3 +407,10 @@ Maintenance note (2026-02 civilian state-machine refactor)
 - No new required scene scripts or bootstrap managers were introduced.
 - Civilian runtime logic now centralizes repeated movement/arrival checks, retry timers, and need-action timers.
 - Legacy civilian deposit methods (`TickGoDeposit`, `TickDeposit`) were removed; required scene wiring for storage/dropoff remains unchanged.
+
+
+[2026-02 civilian FSM class ownership update]
+- No new required scene scripts were added.
+- Civilian state labels/details now come from concrete `CivilianStateBase` derivatives rather than centralized enum switch blocks.
+- Validation/scene bootstrap expectations remain unchanged; only internal state-behavior ownership was refactored.
+- Civilian FSM internals were further refactored: state-class `Tick()` methods now contain full state logic, replacing legacy top-level `Tick*` state methods. Scene requirements remain unchanged.

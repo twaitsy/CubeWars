@@ -782,3 +782,10 @@ Maintenance note (2026-02 civilian state-machine refactor)
 - Civilian search retry timing (build/supply scans) now uses a common retry helper to keep retry cadence consistent.
 - Civilian need-action timing (eat/sleep) now uses a shared timer helper for completion thresholds.
 - Legacy civilian deposit methods (`TickGoDeposit`, `TickDeposit`) were removed; active deposit flow remains `FindDepositStorage -> GoingToDepositStorage -> Depositing`.
+
+
+FSM refactor note (2026-02-20)
+- Civilian FSM presentation metadata (task label + state details text) is now owned by the concrete state classes instead of centralized `switch(state)` blocks.
+- `CivilianStateBase` now exposes virtual task/detail methods so each state can define its own inspector-facing strings.
+- Scene setup requirements are unchanged; this is an internal Civilian architecture cleanup for maintainability.
+- Civilian FSM execution has been fully moved into concrete state classes: each state now owns its complete `Tick()` body, and legacy `Tick*` state methods were removed from `Civilian`.
