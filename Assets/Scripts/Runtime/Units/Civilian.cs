@@ -31,7 +31,7 @@ public class Civilian : MonoBehaviour, ITargetable
     public Vector3 gatherProgressBarOffset = new(0f, 2.2f, 0f);
     public float gatherProgressBarWidth = 1.0f;
     public float gatherProgressBarHeight = 0.1f;
-
+    private ResourceStorageContainer targetStorage; 
     // Compatibility fields referenced elsewhere
     public ResourceNode CurrentReservedNode { get; set; }
     public ConstructionSite CurrentAssignedSite { get; set; }
@@ -40,9 +40,11 @@ public class Civilian : MonoBehaviour, ITargetable
     // Expose carried for UI
     public ResourceDefinition CarriedType => carryingController != null ? carryingController.CarriedResource : null;
     public int CarriedAmount => carryingController != null ? carryingController.CarriedAmount : 0;
+    private GatheringController gatheringController;
 
-//    private float currentHealth;
-
+    //    private float currentHealth;
+//    private StorageFacility targetStorage;
+    private ResourceDropoff targetDropoff;
     // Legacy/compat fields (kept for external references)
     public bool HasJob;
     public ResourceNode CurrentNode;
@@ -51,10 +53,9 @@ public class Civilian : MonoBehaviour, ITargetable
     private float searchTimer;
     private float retargetTimer;
 
-    private ResourceNode targetNode;
     private ResourceNode forcedNode;
     private ConstructionSite targetSite;
-    private ResourceStorageContainer targetStorage;
+//    private ResourceStorageContainer targetStorage;
 
     private CraftingBuilding targetCraftingBuilding;
     private Transform targetWorkPoint;
@@ -65,7 +66,6 @@ public class Civilian : MonoBehaviour, ITargetable
     public string CurrentStateDetails => BuildStateDetails();
     public float CraftingProgress => targetCraftingBuilding != null ? targetCraftingBuilding.CraftProgress01 : 0f;
     public bool IsAtAssignedCraftingWorkPoint => state == State.CraftingAtWorkPoint && movementController.HasArrived();
-
     public float CurrentHunger => needsController != null ? needsController.CurrentHunger : 0f;
     public float CurrentTiredness => needsController != null ? needsController.CurrentTiredness : 0f;
     public House AssignedHouse => assignedHouse;
@@ -78,7 +78,7 @@ public class Civilian : MonoBehaviour, ITargetable
 //    public float CurrentHealth => currentHealth;
 //    public float MaxHealth => maxHealth;
 
-    private enum State
+    public enum State
     {
         Idle,
 
@@ -90,6 +90,8 @@ public class Civilian : MonoBehaviour, ITargetable
         SearchingNode,
         GoingToNode,
         Gathering,
+
+        FindDepositStorage,
         GoingToDepositStorage,
         Depositing,
 
@@ -113,16 +115,29 @@ public class Civilian : MonoBehaviour, ITargetable
 
     private State state;
     private State stateBeforeNeed;
+    public void SetState(State newState)
+    {
+        state = newState;
+    }
 
     public string CurrentState => state.ToString();
     public string CurrentTargetName
     {
         get
         {
-            if (targetCraftingBuilding != null) return SanitizeName(targetCraftingBuilding.name);
-            if (targetSite != null) return SanitizeName(targetSite.name);
-            if (targetNode != null) return SanitizeName(targetNode.name);
-            if (targetStorage != null) return SanitizeName(targetStorage.name);
+            if (targetCraftingBuilding != null)
+                return SanitizeName(targetCraftingBuilding.name);
+
+            if (targetSite != null)
+                return SanitizeName(targetSite.name);
+
+            var node = gatheringController?.CurrentNode;
+            if (node != null)
+                return SanitizeName(node.name);
+
+            if (targetStorage != null)
+                return SanitizeName(targetStorage.name);
+
             return "None";
         }
     }
@@ -145,7 +160,6 @@ public class Civilian : MonoBehaviour, ITargetable
     private float currentEatDurationSeconds;
     private House targetHouse;
     private House assignedHouse;
-
     private readonly HashSet<CivilianToolType> equippedTools = new();
     private float toolPickupTimer;
     private float idleWanderTimer;
@@ -155,7 +169,7 @@ public class Civilian : MonoBehaviour, ITargetable
     private HealthComponent health;
     private MovementController movementController;
     private CarryingController carryingController;
-    private GatheringControl gatheringControl;
+//    private GatheringControl gatheringControl;
     private ConstructionWorkerControl constructionWorkerControl;
     private NeedsController needsController;
 
@@ -164,9 +178,9 @@ public class Civilian : MonoBehaviour, ITargetable
     private bool useRoadBonus => movementController != null && movementController.UseRoadBonus;
     private float roadSpeedMultiplier => movementController != null ? movementController.RoadSpeedMultiplier : 1.2f;
     public int carryCapacity => carryingController != null ? carryingController.Capacity : 30;
-    public float gatherTickSeconds => gatheringControl != null ? gatheringControl.GatherTickSeconds : 1f;
-    public int harvestPerTick => gatheringControl != null ? gatheringControl.HarvestPerTick : 1;
-    private float searchRetrySeconds => gatheringControl != null ? gatheringControl.SearchRetrySeconds : 1.5f;
+    public float gatherTickSeconds => gatheringController != null ? gatheringController.gatherInterval : 1f;
+    public int harvestPerTick => gatheringController != null ? gatheringController.harvestPerTick : 1;
+    private float searchRetrySeconds => 1.5f;
     private bool buildersCanHaulMaterials => constructionWorkerControl == null || constructionWorkerControl.CanHaulMaterials;
     private float retargetSeconds => constructionWorkerControl != null ? constructionWorkerControl.RetargetSeconds : 0.6f;
     public int foodToEatPerMeal => needsController != null ? needsController.FoodToEatPerMeal : 10;
@@ -181,8 +195,8 @@ public class Civilian : MonoBehaviour, ITargetable
         health = GetComponent<HealthComponent>();
         movementController = GetComponent<MovementController>();
         carryingController = GetComponent<CarryingController>();
-        gatheringControl = GetComponent<GatheringControl>();
-        constructionWorkerControl = GetComponent<ConstructionWorkerControl>();
+        gatheringController = GetComponent<GatheringController>();
+  //      constructionWorkerControl = GetComponent<ConstructionWorkerControl>();
         needsController = GetComponent<NeedsController>();
         CivilianRegistry.Register(this);
     }
@@ -200,7 +214,10 @@ public class Civilian : MonoBehaviour, ITargetable
 
     void OnDisable()
     {
-        ReleaseNodeReservation();
+        // Stop any gathering activity cleanly via the new controller
+        if (gatheringController != null)
+            gatheringController.StopGathering();
+
         ClearAssignedHouse();
 
         if (registeredWithJobManager)
@@ -262,7 +279,7 @@ public class Civilian : MonoBehaviour, ITargetable
         health = GetComponent<HealthComponent>();
         movementController = GetComponent<MovementController>();
         carryingController = GetComponent<CarryingController>();
-        gatheringControl = GetComponent<GatheringControl>();
+        gatheringController = GetComponent<GatheringController>();
         constructionWorkerControl = GetComponent<ConstructionWorkerControl>();
         needsController = GetComponent<NeedsController>();
         if (health != null)
@@ -286,9 +303,10 @@ public class Civilian : MonoBehaviour, ITargetable
         // ---------------------------------------------------------
         // Gathering
         // ---------------------------------------------------------
-        var gather = GetComponent<GatheringControl>();
+        var gather = GetComponent<GatheringController>();
         if (gather != null)
-            gather.SetGatherSpeed(def.gatherSpeed);
+            gather.harvestPerTick = Mathf.Max(1, Mathf.RoundToInt(def.gatherSpeed));
+        gather.gatherInterval = 1f / Mathf.Max(0.1f, def.gatherSpeed);
 
         // ---------------------------------------------------------
         // Building
@@ -403,8 +421,13 @@ public class Civilian : MonoBehaviour, ITargetable
             case State.SearchingNode: TickSearchNode(); break;
             case State.GoingToNode: TickGoNode(); break;
             case State.Gathering: TickGather(); break;
-            case State.GoingToDepositStorage: TickGoDeposit(); break;
-            case State.Depositing: TickDeposit(); break;
+            case State.FindDepositStorage: TickFindDepositStorage(); break;
+            case State.GoingToDepositStorage: TickGoingToDepositStorage(); break;
+            case State.Depositing: TickDepositing(); break;
+
+
+
+
 
             case State.SearchingBuildSite: TickSearchBuildSite(); break;
             case State.GoingToBuildSite: TickGoBuildSite(); break;
@@ -487,21 +510,6 @@ public class Civilian : MonoBehaviour, ITargetable
     }
 
     bool NeedsFood() => needsController != null && needsController.NeedsFood();
-    bool NeedsSleep() => needsController != null && needsController.NeedsSleep();
-
-    void PushNeedState(State needState)
-    {
-        if (!hasStoredRoleState)
-        {
-            stateBeforeNeed = state;
-            hasStoredRoleState = true;
-        }
-
-        state = needState;
-        targetStorage = null;
-        targetFoodStorage = null;
-    }
-
     void ResumeAfterNeed()
     {
         State fallback = ResolveRoleFallbackState();
@@ -626,21 +634,20 @@ public class Civilian : MonoBehaviour, ITargetable
     void TickEating()
     {
         needActionTimer += Time.deltaTime;
-        float eatDuration = Mathf.Max(0.1f, currentEatDurationSeconds > 0f ? currentEatDurationSeconds : eatDurationSeconds);
-        if (needActionTimer < eatDuration)
+
+        if (needActionTimer < currentEatDurationSeconds)
             return;
 
-        float restorePerUnit = targetFoodDefinition != null ? Mathf.Max(1, targetFoodDefinition.hungerRestore) : 1f;
-        float restore = Mathf.Max(1, pendingFoodAmount) * restorePerUnit;
-        needsController?.RestoreHunger(restore);
-        currentHunger = needsController != null ? needsController.CurrentHunger : Mathf.Max(0f, currentHunger - restore);
+        // NeedsController handles the actual hunger restoration
+        needsController.BeginEating(targetFoodDefinition, pendingFoodAmount);
+
         pendingFoodAmount = 0;
         targetFoodStorage = null;
         targetFoodDefinition = null;
 
-        if (NeedsSleep())
+        if (needsController.ShouldSleepNow())
             state = State.SeekingHouse;
-        else if (!NeedsFood())
+        else if (!needsController.ShouldEatNow())
             ResumeAfterNeed();
         else
             state = State.SeekingFoodStorage;
@@ -689,15 +696,18 @@ public class Civilian : MonoBehaviour, ITargetable
         }
 
         needActionTimer += Time.deltaTime;
-        needsController?.RestoreTiredness((maxTiredness / Mathf.Max(0.1f, sleepDurationSeconds)) * Time.deltaTime);
-        currentTiredness = needsController != null ? needsController.CurrentTiredness : currentTiredness;
+
+        needsController.TickSleep(Time.deltaTime);
+        currentTiredness = needsController.CurrentTiredness;
+
         ConsumeHouseFoodWhileResting();
 
         if (needActionTimer < sleepDurationSeconds)
             return;
 
-        needsController?.RestoreTiredness(maxTiredness);
-        currentTiredness = needsController != null ? needsController.CurrentTiredness : 0f;
+        needsController.CompleteSleep();
+        currentTiredness = needsController.CurrentTiredness;
+
         targetHouse = assignedHouse;
         ResumeAfterNeed();
     }
@@ -820,11 +830,9 @@ public class Civilian : MonoBehaviour, ITargetable
         GrantStartingToolForCurrentJob();
 
 
-        SetTargetNode(null);
         targetSite = null;
         targetStorage = null;
 
-        CurrentReservedNode = null;
         CurrentAssignedSite = null;
         CurrentDeliverySite = null;
         ClearCraftingAssignment();
@@ -861,286 +869,185 @@ public class Civilian : MonoBehaviour, ITargetable
 
         role = CivilianRole.Gatherer;
         forcedNode = node;
-        bool reserved = TrySetTargetNode(node);
-        CurrentReservedNode = reserved ? targetNode : null;
 
-        if (targetNode != null)
-        {
-            state = State.GoingToNode;
-            float stop = ResolveStopDistance(targetSite.transform, BuildingStopDistanceType.Construction);
-            movementController.MoveTo(targetSite.transform.position, stop);
-        }
-        else
-        {
-            state = State.SearchingNode;
-        }
     }
 
     public void AssignPreferredNode(ResourceNode node)
     {
-        forcedNode = (node != null && node.amount > 0) ? node : null;
-
-        if (role != CivilianRole.Gatherer)
-            SetRole(CivilianRole.Gatherer);
-
-        bool reserved = TrySetTargetNode(forcedNode);
-        CurrentReservedNode = reserved ? targetNode : null;
-
-        if (targetNode != null)
-        {
-            state = State.GoingToNode;
-            float stop = ResolveStopDistance(targetSite.transform, BuildingStopDistanceType.Construction);
-            movementController.MoveTo(targetSite.transform.position, stop);
-        }
-        else if (carriedAmount > 0)
-        {
-            state = State.GoingToDepositStorage;
-        }
-        else
-        {
-            state = State.SearchingNode;
-        }
+        gatheringController.AssignNode(node);
     }
 
 
 
     public void IssueMoveCommand(Vector3 worldPos)
     {
-        forcedNode = null;
-        SetTargetNode(null);
+        // Stop any gathering activity cleanly
+        gatheringController.StopGathering();
+
+        // Clear other job-related targets
         targetSite = null;
         targetStorage = null;
         CurrentAssignedSite = null;
         CurrentDeliverySite = null;
-        CurrentReservedNode = null;
-        HasJob = false;
-        CurrentNode = null;
-        state = State.Idle;
+        ClearCraftingAssignment();
 
+        HasJob = false;
+
+        // Reset state
+        SetState(State.Idle);
+
+        // Move civilian
         if (movementController != null)
         {
             float stop = ResolveStopDistance(null, BuildingStopDistanceType.Default);
             movementController.MoveTo(worldPos, stop);
         }
     }
-    // ---------- Gatherer ----------
-
-    void TickSearchNode()
+    private void TickSearchNode()
     {
-        searchTimer += Time.deltaTime;
-        if (searchTimer < searchRetrySeconds) return;
-        searchTimer = 0f;
-
-        bool assigned = false;
-        if (forcedNode != null && forcedNode.amount > 0)
-            assigned = TrySetTargetNode(forcedNode);
-
-        if (!assigned)
-            assigned = TrySetTargetNode(FindClosestResourceNode());
-
-        CurrentReservedNode = targetNode;
-
-        if (targetNode != null)
+        // Ask the controller to find a valid node
+        if (gatheringController.TryFindNode(out var node))
         {
-            state = State.GoingToNode;
-            float stop = ResolveStopDistance(targetNode.transform, BuildingStopDistanceType.Default);
-            movementController.MoveTo(targetNode.transform.position, stop); ;
-        }
-    }
-
-    void TickGoNode()
-    {
-        if (targetNode == null || targetNode.IsDepleted || targetNode.resource == null)
-        {
-            if (forcedNode == targetNode)
-                forcedNode = null;
-
-            SetTargetNode(null);
-            CurrentReservedNode = null;
-            state = State.SearchingNode;
-            return;
-        }
-
-        if (!targetNode.TryReserveGatherSlot(this))
-        {
-            SetTargetNode(null);
-            CurrentReservedNode = null;
-            state = State.SearchingNode;
-            return;
-        }
-
-        retargetTimer += Time.deltaTime;
-        if (retargetTimer >= retargetSeconds)
-        {
-            retargetTimer = 0f;
-            float stop = ResolveStopDistance(targetNode.transform, BuildingStopDistanceType.Default);
-            movementController.MoveTo(targetNode.transform.position, stop);
-        }
-
-        if (movementController.HasArrived())
-        {
-            state = State.Gathering;
-            gatherTimer = 0f;
-        }
-    }
-
-    void TickGather()
-    {
-        if (targetNode == null || targetNode.IsDepleted || targetNode.resource == null)
-        {
-            if (forcedNode == targetNode)
-                forcedNode = null;
-
-            SetTargetNode(null);
-            CurrentReservedNode = null;
-            state = (carriedAmount > 0) ? State.GoingToDepositStorage : State.SearchingNode;
-            return;
-        }
-
-        if (!targetNode.TryReserveGatherSlot(this))
-        {
-            SetTargetNode(null);
-            CurrentReservedNode = null;
-            state = (carriedAmount > 0) ? State.GoingToDepositStorage : State.SearchingNode;
-            return;
-        }
-
-        gatherTimer += Time.deltaTime;
-        if (gatherTimer < gatherTickSeconds) return;
-        gatherTimer = 0f;
-
-        if (carriedAmount == 0) carriedResource = targetNode.resource;
-        if (carriedResource != targetNode.resource)
-        {
-            state = State.GoingToDepositStorage;
-            return;
-        }
-
-        int remaining = GetCarryCapacity() - carriedAmount;
-        if (remaining <= 0)
-        {
-            state = State.GoingToDepositStorage;
-            return;
-        }
-
-        // Must have physical storage free to avoid “phantom resources”
-        if (TeamStorageManager.Instance != null)
-        {
-            var s = TeamStorageManager.Instance.FindNearestStorageWithFree(teamID, carriedResource, transform.position);
-            if (s == null || s.GetFree(carriedResource) <= 0)
+            // Attempt to reserve + move
+            if (gatheringController.AssignNode(node))
             {
-                state = State.GoingToDepositStorage;
+                SetState(State.GoingToNode);
                 return;
             }
         }
 
-        int want = Mathf.Min(GetHarvestPerTick(), remaining);
-        int got = targetNode.Harvest(want);
-        if (got > 0) carriedAmount += got;
-        carryingController?.SetCarried(carriedResource, carriedAmount);
-
-        if (carriedAmount >= GetCarryCapacity())
-            state = State.GoingToDepositStorage;
+        // If we reach here, no node was found OR reservation failed
+        // Civilian should retry later
+        // (You can add idle animation or wander logic here)
     }
-
-    void TickGoDeposit()
+    private void TickGoNode()
     {
-        if (carriedAmount <= 0)
+        // If full before arrival, go deposit instead
+        if (carryingController.IsFull)
         {
-            state = GetPostDepositWorkState();
+            SetState(State.GoingToDepositStorage);
             return;
         }
 
-        if (TeamStorageManager.Instance == null)
+        var node = gatheringController.CurrentNode;
+
+        if (node == null)
         {
-            // fallback: dump into TeamResources primary storage
-            TeamResources.Instance?.Deposit(teamID, carriedResource, carriedAmount);
-            carriedAmount = 0;
-        carryingController?.SetCarried(carriedResource, carriedAmount);
-            state = GetPostDepositWorkState();
+            SetState(State.SearchingNode);
             return;
         }
 
-        if (targetStorage == null || targetStorage.teamID != teamID || targetStorage.GetFree(carriedResource) <= 0)
-            targetStorage = TeamStorageManager.Instance.FindNearestStorageWithFree(teamID, carriedResource, transform.position);
-
-        if (jobType == CivilianJobType.Gatherer && carriedAmount > 0)
+        if (movementController.HasArrived())
+            SetState(State.Gathering);
+    }
+    private void TickGather()
+    {
+        // If we lost the node, restart search
+        if (gatheringController.CurrentNode == null)
         {
-            CraftingBuilding inputBuilding = CraftingJobManager.Instance?.FindNearestBuildingNeedingInput(teamID, carriedResource, transform.position);
-            if (inputBuilding != null)
-            {
-                float craftingDistance = (inputBuilding.transform.position - transform.position).sqrMagnitude;
-                float storageDistance = targetStorage != null
-                    ? (targetStorage.transform.position - transform.position).sqrMagnitude
-                    : float.MaxValue;
-
-                if (craftingDistance <= storageDistance)
-                {
-                    targetCraftingBuilding = inputBuilding;
-                    state = State.DeliveringCraftInput;
-                    return;
-                }
-            }
-        }
-
-        if (targetStorage == null)
-        {
-            if (!TeamStorageManager.Instance.HasAnyStorage(teamID))
-            {
-                TeamResources.Instance?.Deposit(teamID, carriedResource, carriedAmount);
-                carriedAmount = 0;
-        carryingController?.SetCarried(carriedResource, carriedAmount);
-                state = GetPostDepositWorkState();
-            }
+            SetState(State.SearchingNode);
             return;
         }
 
-        float stop = ResolveStopDistance(targetStorage.transform, BuildingStopDistanceType.Storage);
-        movementController.MoveTo(targetStorage.transform.position, stop);
+        // If full, go deposit
+        if (carryingController.IsFull)
+        {
+            SetState(State.FindDepositStorage);
+            return;
+        }
+
+        // Attempt to gather
+        bool gathered = gatheringController.TickGathering();
+
+        // If gathering failed because node depleted, restart search
+        if (!gathered && gatheringController.CurrentNode == null)
+        {
+            SetState(State.SearchingNode);
+            return;
+        }
+    }
+    private void TickGoDeposit()
+    {
+        gatheringController.MoveToDeposit(targetStorage.transform);
 
         if (movementController.HasArrived())
             state = State.Depositing;
     }
-
-    void TickDeposit()
+    private void TickDeposit()
     {
-        if (targetStorage == null || carriedAmount <= 0)
+        if (gatheringController.TryDeposit(targetStorage))
         {
-            state = GetPostDepositWorkState();
+            carryingController.ClearCarried();
+            state = State.SearchingNode;
             return;
         }
 
-        int accepted = targetStorage.Deposit(carriedResource, carriedAmount);
-        carriedAmount -= accepted;
-        carryingController?.SetCarried(carriedResource, carriedAmount);
-
-        if (carriedAmount > 0)
+        // Could not deposit → idle
+        state = State.Idle;
+    }
+    private void TickFindDepositStorage()
+    {
+        if (gatheringController.TryFindDepositStorage(out targetStorage))
         {
-            targetStorage = null;
             state = State.GoingToDepositStorage;
             return;
         }
 
-        targetStorage = null;
-        state = GetPostDepositWorkState();
+        // No storage found → idle
+        state = State.Idle;
     }
-
-    State GetPostDepositWorkState()
+    void TickDepositing()
     {
-        if (jobType == CivilianJobType.Gatherer)
-            return State.SearchingNode;
+        if (targetStorage == null)
+        {
+            state = State.FindDepositStorage;
+            return;
+        }
 
-        if (jobType == CivilianJobType.Builder)
-            return State.SearchingBuildSite;
+        // Get the REAL storage container component
+        var facility = targetStorage.GetComponent<StorageFacility>();
+        var container = facility != null
+            ? facility.GetComponent<ResourceStorageContainer>()
+            : null;
 
-        if (jobType == CivilianJobType.Hauler)
-            return State.SearchingSupplySite;
+        if (container == null)
+        {
+            Debug.LogError("Gatherer: StorageFacility has no ResourceStorageContainer component!");
+            state = State.SearchingNode;
+            return;
+        }
 
-        return ResolveRoleFallbackState();
+        // Use the correct TryDeposit overload
+        if (gatheringController.TryDeposit(container))
+        {
+            state = State.SearchingNode;
+        }
     }
+    void TickGoingToDepositStorage()
+    {
+        if (targetStorage == null)
+        {
+            state = State.FindDepositStorage;
+            return;
+        }
 
-    // ---------- Builder ----------
+        // Resolve stop distance
+        float stop = ResolveStopDistance(targetStorage.transform, BuildingStopDistanceType.Storage);
 
+        // Resolve interaction point
+        Vector3 targetPos;
+        var facility = targetStorage.GetComponent<StorageFacility>();
+        if (facility != null && facility.interactionPoint != null)
+            targetPos = facility.interactionPoint.position;
+        else
+            targetPos = targetStorage.transform.position;
+
+        // Move to the correct point
+        movementController.MoveTo(targetPos, stop);
+
+        if (movementController.HasArrived())
+            state = State.Depositing;
+    }
     void TickSearchBuildSite()
     {
         searchTimer += Time.deltaTime;
@@ -1453,70 +1360,6 @@ public class Civilian : MonoBehaviour, ITargetable
             baseValue *= 1.5f;
         return baseValue;
     }
-
-    ResourceNode FindClosestResourceNode()
-    {
-        var nodes = FindObjectsByType<ResourceNode>(FindObjectsSortMode.None);
-        ResourceNode best = null;
-        float bestD = float.MaxValue;
-
-        for (int i = 0; i < nodes.Length; i++)
-        {
-            var n = nodes[i];
-            if (n == null || n.IsDepleted || n.resource == null) continue;
-            if (!n.TryReserveGatherSlot(this)) continue;
-
-            if (TeamStorageManager.Instance != null && TeamStorageManager.Instance.GetTotalFreeInBuildings(teamID, n.resource) <= 0)
-            {
-                n.ReleaseGatherSlot(this);
-                continue;
-            }
-
-            float d = (n.transform.position - transform.position).sqrMagnitude;
-            if (d < bestD)
-            {
-                if (best != null)
-                    best.ReleaseGatherSlot(this);
-
-                bestD = d;
-                best = n;
-            }
-            else
-            {
-                n.ReleaseGatherSlot(this);
-            }
-        }
-
-        return best;
-    }
-
-    bool TrySetTargetNode(ResourceNode newNode)
-    {
-        if (newNode != null && !newNode.TryReserveGatherSlot(this))
-            return false;
-
-        if (targetNode == newNode)
-            return true;
-
-        if (targetNode != null)
-            targetNode.ReleaseGatherSlot(this);
-
-        targetNode = newNode;
-        return true;
-    }
-
-    void SetTargetNode(ResourceNode newNode)
-    {
-        TrySetTargetNode(newNode);
-    }
-
-    void ReleaseNodeReservation()
-    {
-        SetTargetNode(null);
-        forcedNode = null;
-        CurrentReservedNode = null;
-    }
-
     static string SanitizeName(string raw)
     {
         if (string.IsNullOrEmpty(raw)) return raw;

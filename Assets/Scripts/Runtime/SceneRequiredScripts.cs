@@ -330,7 +330,7 @@ public class SceneRequiredScripts : MonoBehaviour
             if (civ.GetComponent<HealthComponent>() == null ||
                 civ.GetComponent<MovementController>() == null ||
                 civ.GetComponent<CarryingController>() == null ||
-                civ.GetComponent<GatheringControl>() == null ||
+                civ.GetComponent<GatheringController>() == null ||
                 civ.GetComponent<ConstructionWorkerControl>() == null ||
                 civ.GetComponent<NeedsController>() == null)
             {

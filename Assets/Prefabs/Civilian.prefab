@@ -33,7 +33,8 @@ GameObject:
   - component: {fileID: 6902862384398968288}
   - component: {fileID: 5012746280532159221}
   - component: {fileID: 7525030119714089293}
-  - component: {fileID: -4711462141099521366}
+  - component: {fileID: 2138149510851935440}
+  - component: {fileID: 6221538617111761241}
   m_Layer: 13
   m_Name: Civilian
   m_TagString: Untagged
@@ -50,7 +51,7 @@ Transform:
   m_GameObject: {fileID: 5538168870909510437}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -0.001, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -383,14 +384,14 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5538168870909510437}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9615e3106d744ca479f9453db09a236a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GatheringController
-  gatherTickSeconds: 1
   harvestPerTick: 1
-  searchRetrySeconds: 1.5
+  gatherInterval: 1
+  gatherRange: 1.5
 --- !u!114 &-6942594919045944906
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -576,7 +577,7 @@ MonoBehaviour:
   buildSpeed: 1
   canHaulMaterials: 1
   retargetSeconds: 0.6
---- !u!114 &-4711462141099521366
+--- !u!114 &2138149510851935440
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -585,9 +586,22 @@ MonoBehaviour:
   m_GameObject: {fileID: 5538168870909510437}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d6828e58893c429993a13397196344f2, type: 3}
+  m_Script: {fileID: 11500000, guid: d1ff4151f4eaf234a87bbf2abd4a6b8c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GatheringControl
-  gatherTickSeconds: 1
-  harvestPerTick: 1
+  m_EditorClassIdentifier: Assembly-CSharp::DepositStorageComponent
   searchRetrySeconds: 1.5
+  stopDistance: 1.2
+--- !u!114 &6221538617111761241
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5538168870909510437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f10814761cfb1c14b905e820d94806d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WithdrawStorageComponent
+  searchRetrySeconds: 1.5
+  stopDistance: 1.2

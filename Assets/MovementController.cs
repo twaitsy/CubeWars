@@ -38,14 +38,21 @@ public class MovementController : MonoBehaviour
     }
     public bool HasArrived()
     {
-        if (agent == null || !agent.enabled || !agent.gameObject.activeInHierarchy || !agent.isOnNavMesh)
+        if (agent == null || !agent.enabled || !agent.isOnNavMesh)
             return false;
 
-        if (agent.pathPending) return false;
-        if (!agent.hasPath) return false;
-        if (agent.remainingDistance == Mathf.Infinity) return false;
+        if (agent.pathPending)
+            return false;
 
-        return agent.remainingDistance <= agent.stoppingDistance;
+        // If the agent is close enough, consider it arrived
+        if (agent.remainingDistance <= agent.stoppingDistance + 0.05f)
+            return true;
+
+        // If the agent has no path but is very close, also consider it arrived
+        if (!agent.hasPath && agent.velocity.sqrMagnitude < 0.01f)
+            return true;
+
+        return false;
     }
 
     public void SetMoveSpeed(float value)

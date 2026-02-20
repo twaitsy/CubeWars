@@ -3,21 +3,23 @@ using UnityEngine;
 public class WorkerTaskGenerationSystem : MonoBehaviour
 {
     [Min(0.1f)] public float scanTickSeconds = 1f;
-    float timer;
+    private float timer;
+
+    private WorkerTaskDispatcher Dispatcher => WorkerTaskDispatcher.Instance;
 
     void OnEnable()
     {
-        // --- Gathering events ---
+        // Gathering
         ResourceRegistry.OnNodeRegistered += HandleNodeChanged;
         ResourceRegistry.OnNodeChanged += HandleNodeChanged;
         ResourceRegistry.OnNodeDepleted += HandleNodeChanged;
 
-        // --- Construction events ---
+        // Construction
         ConstructionRegistry.OnSiteRegistered += HandleSiteChanged;
         ConstructionRegistry.OnSiteChanged += HandleSiteChanged;
         ConstructionRegistry.OnSiteCompleted += HandleSiteChanged;
 
-        // --- Crafting events ---
+        // Crafting
         CraftingRegistry.OnBuildingRegistered += HandleCraftingChanged;
         CraftingRegistry.OnBuildingChanged += HandleCraftingChanged;
         CraftingRegistry.OnBuildingCompleted += HandleCraftingChanged;
@@ -25,17 +27,17 @@ public class WorkerTaskGenerationSystem : MonoBehaviour
 
     void OnDisable()
     {
-        // --- Gathering events ---
+        // Gathering
         ResourceRegistry.OnNodeRegistered -= HandleNodeChanged;
         ResourceRegistry.OnNodeChanged -= HandleNodeChanged;
         ResourceRegistry.OnNodeDepleted -= HandleNodeChanged;
 
-        // --- Construction events ---
+        // Construction
         ConstructionRegistry.OnSiteRegistered -= HandleSiteChanged;
         ConstructionRegistry.OnSiteChanged -= HandleSiteChanged;
         ConstructionRegistry.OnSiteCompleted -= HandleSiteChanged;
 
-        // --- Crafting events ---
+        // Crafting
         CraftingRegistry.OnBuildingRegistered -= HandleCraftingChanged;
         CraftingRegistry.OnBuildingChanged -= HandleCraftingChanged;
         CraftingRegistry.OnBuildingCompleted -= HandleCraftingChanged;
@@ -44,10 +46,10 @@ public class WorkerTaskGenerationSystem : MonoBehaviour
     void Update()
     {
         // Dispatcher must exist
-        if (WorkerTaskDispatcher.Instance == null)
+        if (Dispatcher == null)
             return;
 
-        // Timer is no longer used for scanning, but keep it in case you add timed logic later
+        // Timer is unused but kept for future timed logic
         timer += Time.deltaTime;
         if (timer < scanTickSeconds)
             return;
@@ -59,48 +61,56 @@ public class WorkerTaskGenerationSystem : MonoBehaviour
     // EVENT-DRIVEN GATHERING
     // ========================================================================
 
-    void HandleNodeChanged(ResourceNode node)
+    private void HandleNodeChanged(ResourceNode node)
     {
-        if (node == null || node.Amount <= 0)
+        if (Dispatcher == null)
+            return;
+
+        if (node == null || node.IsDepleted)
             return;
 
         int maxSlots = Mathf.Max(1, node.maxGatherers);
         int openSlots = Mathf.Max(0, maxSlots - node.ActiveGatherers);
-        int queuedSlots = WorkerTaskDispatcher.Instance.GetQueuedGatherTaskCount(node);
-        int tasksToQueue = Mathf.Max(0, openSlots - queuedSlots);
+
+        int queued = Dispatcher.GetQueuedGatherTaskCount(node);
+        int tasksToQueue = Mathf.Max(0, openSlots - queued);
 
         for (int i = 0; i < tasksToQueue; i++)
-            WorkerTaskDispatcher.Instance.QueueTask(WorkerTaskRequest.Gather(-1, node));
+            Dispatcher.QueueTask(WorkerTaskRequest.Gather(-1, node));
     }
 
     // ========================================================================
-    // EVENT-DRIVEN CONSTRUCTION (BUILDING + HAULING)
+    // EVENT-DRIVEN CONSTRUCTION
     // ========================================================================
 
-    void HandleSiteChanged(ConstructionSite site)
+    private void HandleSiteChanged(ConstructionSite site)
     {
+        if (Dispatcher == null)
+            return;
+
         if (site == null || site.IsComplete)
             return;
 
         int teamID = site.teamID;
 
         // --- BUILD TASKS ----------------------------------------------------
-        int maxBuilders = Mathf.Max(1, WorkerTaskDispatcher.Instance.GetRegisteredWorkerCount(teamID));
+        int maxBuilders = Mathf.Max(1, Dispatcher.GetRegisteredWorkerCount(teamID));
         int currentBuilders = site.AssignedBuilderCount;
-        int queuedBuild = WorkerTaskDispatcher.Instance.GetQueuedBuildTaskCount(site, teamID);
+        int queuedBuild = Dispatcher.GetQueuedBuildTaskCount(site, teamID);
+
         int buildTasksToQueue = Mathf.Max(0, maxBuilders - currentBuilders - queuedBuild);
 
         for (int i = 0; i < buildTasksToQueue; i++)
-            WorkerTaskDispatcher.Instance.QueueTask(WorkerTaskRequest.Build(teamID, site));
+            Dispatcher.QueueTask(WorkerTaskRequest.Build(teamID, site));
 
         // --- HAUL TASKS -----------------------------------------------------
         if (!site.MaterialsComplete)
         {
-            int queuedHaul = WorkerTaskDispatcher.Instance.GetQueuedHaulTaskCount(site, teamID);
+            int queuedHaul = Dispatcher.GetQueuedHaulTaskCount(site, teamID);
             int haulTasksToQueue = Mathf.Max(0, maxBuilders - queuedHaul);
 
             for (int i = 0; i < haulTasksToQueue; i++)
-                WorkerTaskDispatcher.Instance.QueueTask(WorkerTaskRequest.Haul(teamID, site));
+                Dispatcher.QueueTask(WorkerTaskRequest.Haul(teamID, site));
         }
     }
 
@@ -108,8 +118,11 @@ public class WorkerTaskGenerationSystem : MonoBehaviour
     // EVENT-DRIVEN CRAFTING
     // ========================================================================
 
-    void HandleCraftingChanged(CraftingBuilding building)
+    private void HandleCraftingChanged(CraftingBuilding building)
     {
+        if (Dispatcher == null)
+            return;
+
         if (building == null || !building.isActiveAndEnabled)
             return;
 
@@ -125,10 +138,11 @@ public class WorkerTaskGenerationSystem : MonoBehaviour
 
         int maxWorkers = Mathf.Max(1, building.GetMaxWorkers());
         int activeWorkers = building.AssignedWorkers.Count;
-        int queuedCraft = WorkerTaskDispatcher.Instance.GetQueuedCraftTaskCount(building, building.teamID);
+        int queuedCraft = Dispatcher.GetQueuedCraftTaskCount(building, building.teamID);
+
         int missingWorkers = Mathf.Max(0, maxWorkers - activeWorkers - queuedCraft);
 
         for (int w = 0; w < missingWorkers; w++)
-            WorkerTaskDispatcher.Instance.QueueTask(WorkerTaskRequest.Craft(building.teamID, building));
+            Dispatcher.QueueTask(WorkerTaskRequest.Craft(building.teamID, building));
     }
 }

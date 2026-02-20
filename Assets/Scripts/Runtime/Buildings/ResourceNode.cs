@@ -5,16 +5,11 @@ using System.Collections.Generic;
 public class ResourceNode : MonoBehaviour
 {
 #if UNITY_EDITOR
-    /// <summary>
-    /// Public wrapper so the Editor can safely auto-assign using the same logic as runtime.
-    /// </summary>
     public void EditorAutoAssignFromPrefabName()
     {
         TryAutoAssignResourceFromAssetName();
     }
 #endif
-
-    // --- Resource -----------------------------------------------------------
 
     [Header("Resource")]
     public ResourceDefinition resource;
@@ -22,13 +17,7 @@ public class ResourceNode : MonoBehaviour
     [FormerlySerializedAs("amount")]
     public int remaining = 500;
 
-    // 🔹 Compatibility + clarity
-    public int amount => remaining;     // legacy API (DO NOT REMOVE)
-    public int Amount => remaining;     // preferred API
-
     public bool IsDepleted => remaining <= 0;
-
-    // --- Gathering ----------------------------------------------------------
 
     [Header("Gathering")]
     [Min(1)] public int maxGatherers = 2;
@@ -41,25 +30,17 @@ public class ResourceNode : MonoBehaviour
 
     bool isDepleted;
 
-    // --- Unity Lifecycle ----------------------------------------------------
-
     void OnEnable()
     {
         ValidateConfiguration();
-
-        if (ResourceRegistry.Instance != null)
-            ResourceRegistry.Instance.Register(this);
+        ResourceRegistry.Instance?.Register(this);
     }
 
     void OnDisable()
     {
-        if (ResourceRegistry.Instance != null)
-            ResourceRegistry.Instance.Unregister(this);
-
+        ResourceRegistry.Instance?.Unregister(this);
         gathererIds.Clear();
     }
-
-    // --- Validation ---------------------------------------------------------
 
     void ValidateConfiguration()
     {
@@ -68,48 +49,11 @@ public class ResourceNode : MonoBehaviour
 
         if (resource == null)
         {
-            Debug.LogWarning(
-                $"[{nameof(ResourceNode)}] {name}: no ResourceDefinition assigned.",
-                this
-            );
+            Debug.LogWarning($"[{nameof(ResourceNode)}] {name}: no ResourceDefinition assigned.", this);
             return;
         }
 
-        string key = ResourceIdUtility.GetKey(resource);
-        bool found = false;
-
-        GameDatabase loaded = GameDatabaseLoader.ResolveLoaded();
-        if (loaded?.resources?.resources != null)
-        {
-            for (int i = 0; i < loaded.resources.resources.Count; i++)
-            {
-                if (ResourceIdUtility.GetKey(loaded.resources.resources[i]) == key)
-                {
-                    found = true;
-                    break;
-                }
-            }
-        }
-
-        if (!found &&
-            ResourcesDatabase.Instance != null &&
-            ResourcesDatabase.Instance.resources != null)
-        {
-            // your logic
-        }
-        else
-        {
-            for (int i = 0; i < ResourcesDatabase.Instance.resources.Count; i++)
-            {
-                if (ResourceIdUtility.GetKey(ResourcesDatabase.Instance.resources[i]) == key)
-                {
-                    found = true;
-                    break;
-                }
-            }
-        }
-
-        if (!found)
+        if (!IsResourceInDatabases(resource))
         {
             Debug.LogWarning(
                 $"[{nameof(ResourceNode)}] {name}: resource '{resource.id}' is not present in any ResourcesDatabase.",
@@ -118,16 +62,38 @@ public class ResourceNode : MonoBehaviour
         }
     }
 
-    void TryAutoAssignResourceFromAssetName()
+    bool IsResourceInDatabases(ResourceDefinition def)
     {
-        string candidate = name;
-        if (string.IsNullOrWhiteSpace(candidate))
-            return;
+        string key = ResourceIdUtility.GetKey(def);
 
         GameDatabase loaded = GameDatabaseLoader.ResolveLoaded();
+        if (loaded?.resources?.resources != null)
+        {
+            foreach (var r in loaded.resources.resources)
+                if (ResourceIdUtility.GetKey(r) == key)
+                    return true;
+        }
 
-        if (loaded != null &&
-            loaded.resources != null &&
+        var global = ResourcesDatabase.Instance;
+        if (global?.resources != null)
+        {
+            foreach (var r in global.resources)
+                if (ResourceIdUtility.GetKey(r) == key)
+                    return true;
+        }
+
+        return false;
+    }
+
+    void TryAutoAssignResourceFromAssetName()
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return;
+
+        string candidate = name;
+
+        GameDatabase loaded = GameDatabaseLoader.ResolveLoaded();
+        if (loaded?.resources != null &&
             loaded.resources.TryGetById(candidate, out ResourceDefinition loadedResource))
         {
             resource = loadedResource;
@@ -141,8 +107,6 @@ public class ResourceNode : MonoBehaviour
         }
     }
 
-    // --- Claiming & Gathering ----------------------------------------------
-
     public bool IsClaimedByOther(int teamID)
     {
         return claimedByTeam != -1 && claimedByTeam != teamID;
@@ -154,6 +118,7 @@ public class ResourceNode : MonoBehaviour
             return false;
 
         int id = civilian.GetInstanceID();
+
         if (gathererIds.Contains(id))
             return true;
 
@@ -166,13 +131,9 @@ public class ResourceNode : MonoBehaviour
 
     public void ReleaseGatherSlot(Civilian civilian)
     {
-        if (civilian == null)
-            return;
-
-        gathererIds.Remove(civilian.GetInstanceID());
+        if (civilian != null)
+            gathererIds.Remove(civilian.GetInstanceID());
     }
-
-    // --- Harvesting ---------------------------------------------------------
 
     public int Harvest(int amount)
     {
@@ -192,8 +153,7 @@ public class ResourceNode : MonoBehaviour
 
     void NotifyChanged()
     {
-        if (ResourceRegistry.Instance != null)
-            ResourceRegistry.Instance.NotifyNodeChanged(this);
+        ResourceRegistry.Instance?.NotifyNodeChanged(this);
     }
 
     void Deplete()
@@ -205,7 +165,6 @@ public class ResourceNode : MonoBehaviour
         gathererIds.Clear();
 
         NotifyChanged();
-
         Destroy(gameObject);
     }
 }

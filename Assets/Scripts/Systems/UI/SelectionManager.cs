@@ -196,7 +196,7 @@ public class SelectionManager : MonoBehaviour
 
             if (resource != null && go.TryGetComponent<Civilian>(out var civ))
             {
-                civ.AssignPreferredNode(resource);
+   //             civ.AssignPreferredNode(resource);
                 continue;
             }
 

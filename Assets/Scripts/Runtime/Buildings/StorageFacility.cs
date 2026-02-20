@@ -25,10 +25,13 @@ public class StorageFacility : Building
         ResourceCategory.Tool,
         ResourceCategory.Misc
     };
-
+    public Transform interactionPoint;
     ResourceStorageProvider storageProvider;
     ResourceStorageContainer storageContainer;
-
+    protected void Awake()
+    {
+        ConfigureStorageFromDatabase();
+    }
     protected override void Start()
     {
         base.Start();

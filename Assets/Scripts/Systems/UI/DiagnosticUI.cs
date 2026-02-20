@@ -201,7 +201,7 @@ public class DiagnosticUI : MonoBehaviour
                 if (node == null)
                     continue;
                 string resourceName = node.resource != null ? node.resource.displayName : "<none>";
-                GUILayout.Label($" • {node.name} | {resourceName} | remaining: {node.remaining}/{node.amount} | gatherers: {node.ActiveGatherers}/{Mathf.Max(1, node.maxGatherers)}");
+  //              GUILayout.Label($" • {node.name} | {resourceName} | remaining: {node.remaining}/{node.amount} | gatherers: {node.ActiveGatherers}/{Mathf.Max(1, node.maxGatherers)}");
             }
 
             CraftingBuilding[] buildings = FindObjectsByType<CraftingBuilding>(FindObjectsSortMode.None);

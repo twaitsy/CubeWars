@@ -15,18 +15,16 @@ public class ResourceRegistry : MonoBehaviour
 
     // --- Data ---------------------------------------------------------------
 
-    readonly Dictionary<string, List<ResourceNode>> nodesById =
-        new();
-
-    readonly HashSet<ResourceNode> allNodes = new();
+    private readonly Dictionary<string, List<ResourceNode>> nodesById = new();
+    private readonly HashSet<ResourceNode> allNodes = new();
     public IReadOnlyCollection<ResourceNode> AllNodes => allNodes;
 
     // Tracks which nodes have already fired depletion
-    readonly HashSet<ResourceNode> depletedNodes = new();
+    private readonly HashSet<ResourceNode> depletedNodes = new();
 
     // --- Lifecycle ----------------------------------------------------------
 
-    void Awake()
+    private void Awake()
     {
         if (Instance != null && Instance != this)
         {
@@ -38,7 +36,7 @@ public class ResourceRegistry : MonoBehaviour
         Instance = this;
     }
 
-    void OnDestroy()
+    private void OnDestroy()
     {
         if (Instance == this)
             Instance = null;
@@ -59,10 +57,9 @@ public class ResourceRegistry : MonoBehaviour
             nodesById.Add(key, list);
         }
 
-        if (list.Contains(node))
-            return;
+        if (!list.Contains(node))
+            list.Add(node);
 
-        list.Add(node);
         allNodes.Add(node);
         depletedNodes.Remove(node);
 
@@ -79,7 +76,6 @@ public class ResourceRegistry : MonoBehaviour
         if (nodesById.TryGetValue(key, out var list))
         {
             list.Remove(node);
-
             if (list.Count == 0)
                 nodesById.Remove(key);
         }
@@ -97,7 +93,8 @@ public class ResourceRegistry : MonoBehaviour
         if (node == null)
             return;
 
-        if (node.amount <= 0 && depletedNodes.Add(node))
+        // Updated: use node.IsDepleted instead of node.amount
+        if (node.IsDepleted && depletedNodes.Add(node))
         {
             OnNodeDepleted?.Invoke(node);
         }
@@ -141,7 +138,8 @@ public class ResourceRegistry : MonoBehaviour
                 continue;
             }
 
-            if (node.amount <= 0)
+            // Updated: use node.IsDepleted instead of node.amount <= 0
+            if (node.IsDepleted)
                 continue;
 
             float dist = (node.transform.position - position).sqrMagnitude;
