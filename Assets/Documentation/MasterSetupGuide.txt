@@ -707,3 +707,9 @@ Migration notes:
 - Job definition assets/scripts no longer rely on `legacyRole`; jobs are authored around `defaultJobType` + capability/tool data.
 - Job database assets under `Assets/Data/Databases/Jobs` were cleaned to remove serialized `legacyRole` fields.
 - Civilian food and construction targeting paths now prefer registries/managers (`TeamStorageManager`, `ConstructionRegistry`) instead of scene-wide object scans.
+
+
+[2026-02 compile compatibility hotfix]
+- `CivilianRegistry` exposes `GetAll()` again for systems that still consume list-style access in diagnostics/validation flows.
+- `UnitInspectorUI` now includes a safe `DrawRoleButtons(Civilian)` implementation to keep inspector compilation stable after legacy role removal.
+- `Civilian` construction-site search now iterates `IReadOnlyList<ConstructionSite>` via `.Count` indexing (not `.Length`).

@@ -336,3 +336,9 @@ Update: civilian data-source validation
 [2026-02 modular civilian AI update]
 - Civilian runtime validation now checks for `CivilianStateMachineController` in addition to existing worker controllers.
 - Crafting diagnostics now prefer registry-backed queries (`CraftingRegistry`, `CivilianRegistry`) for worker/building coverage checks.
+
+
+[2026-02 validation compile compatibility]
+- SceneRequiredScripts currently reads civilians via `CivilianRegistry.GetAll()` (list snapshot accessor retained for compatibility with index-based diagnostics loops).
+- Civilian controller diagnostics continue to validate Health/Movement/Carrying/Gathering/Construction/Needs/StateMachine components on registered civilians.
+- If extending diagnostics, keep collection iteration compatible with `IReadOnlyList` (`Count`) and registry snapshots to avoid compile breaks.
