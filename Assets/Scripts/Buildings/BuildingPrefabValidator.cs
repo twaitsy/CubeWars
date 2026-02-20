@@ -20,6 +20,7 @@ public class BuildingPrefabValidator : MonoBehaviour
         bool hasBuilding = TryGetComponent<Building>(out _);
         bool hasCivilian = TryGetComponent<Civilian>(out _);
         bool hasResourceNode = TryGetComponent<ResourceNode>(out _);
+        bool hasUnit = TryGetComponent<Unit>(out _);
 
         if (hasBuilding)
             ValidateBuildingPrefab();
@@ -30,8 +31,11 @@ public class BuildingPrefabValidator : MonoBehaviour
         if (hasResourceNode)
             ValidateResourceNodePrefab();
 
-        if (!hasBuilding && !hasCivilian && !hasResourceNode)
-            Debug.Log($"[BuildingPrefabValidator] {name}: no supported root component found (Building/Civilian/ResourceNode).", this);
+        if (hasUnit)
+            ValidateCombatUnitPrefab();
+
+        if (!hasBuilding && !hasCivilian && !hasResourceNode && !hasUnit)
+            Debug.Log($"[BuildingPrefabValidator] {name}: no supported root component found (Building/Civilian/ResourceNode/Unit).", this);
     }
 
     void ValidateBuildingPrefab()
@@ -130,6 +134,40 @@ public class BuildingPrefabValidator : MonoBehaviour
             warnings.Add("ResourceStorageProvider on Civilian is not required for gathering/hauling");
 
         EmitValidationLog("civilian", missing, warnings);
+    }
+
+
+    void ValidateCombatUnitPrefab()
+    {
+        var missing = new List<string>();
+        var warnings = new List<string>();
+
+        Unit unit = GetComponent<Unit>();
+
+        if (!TryGetComponent<Attackable>(out _))
+            missing.Add("Attackable (required for combat targetability)");
+
+        if (!TryGetComponent<UnitCombatController>(out _))
+            missing.Add("UnitCombatController (required for combat behavior)");
+
+        if (!TryGetComponent<NavMeshAgent>(out _))
+            missing.Add("NavMeshAgent (required for movement orders)");
+
+        if (!TryGetComponent<Selectable>(out _) && includeOptionalWarnings)
+            warnings.Add("Selectable (recommended for player control)");
+
+        if (!TryGetComponent<WeaponComponent>(out _) && includeOptionalWarnings)
+            warnings.Add("WeaponComponent (recommended for ranged/melee attack settings)");
+
+        if (unit != null)
+        {
+            if (string.IsNullOrWhiteSpace(unit.unitDefinitionId))
+                warnings.Add("unitDefinitionId missing (runtime stats fallback to inspector defaults)");
+            else if (!IsUnitInDatabase(unit.unitDefinitionId))
+                warnings.Add($"unitDefinitionId '{unit.unitDefinitionId}' not found in loaded GameDatabase units");
+        }
+
+        EmitValidationLog("combat unit", missing, warnings);
     }
 
     void ValidateResourceNodePrefab()

@@ -37,3 +37,8 @@ CubeWars - Unit Prefab Creation Instructions
 
 Latest component enforcement
 - RequireComponent on Unit now enforces NavMeshAgent + UnitCombatController.
+
+
+BuildingPrefabValidator quick check
+- You can add `BuildingPrefabValidator` to combat unit prefabs and use **Validate Building Components** to confirm core runtime dependencies.
+- Required combat unit checks include `Attackable`, `UnitCombatController`, and `NavMeshAgent`; optional warnings include `Selectable`, `WeaponComponent`, and unknown `unitDefinitionId`.
