@@ -22,7 +22,6 @@ Assets/Scripts/Runtime/Buildings
     ResourceSpawner.cs
     ResourceStorageContainer.cs
     ResourceStorageProvider.cs
-    Turret.cs
     VehicleFactory.cs
     WeaponsFactory.cs
 

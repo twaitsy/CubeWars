@@ -99,7 +99,6 @@ public class dependencies : MonoBehaviour
     TeamStorageManager.cs — Storage backend for teams (Core)
     TeamVisual.cs — Applies team visuals (Core)
     TeamWatchdog.cs — Debug tool for detecting team deletion (Debug)
-    Turret.cs — Turret base logic (Combat)
     TurretProjectile.cs — Turret projectile logic (Combat)
     TurretProjectilePool.cs — Pooling for turret projectiles (Combat)
     Unit.cs — Base unit logic (Combat)
@@ -192,7 +191,6 @@ public class dependencies : MonoBehaviour
     Projectile.cs
     ProjectilePool.cs
     SkirmishConfig.cs
-    Turret.cs
     TurretProjectile.cs
     TurretProjectilePool.cs
     Unit.cs

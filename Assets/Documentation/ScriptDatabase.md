@@ -1336,35 +1336,6 @@ actual, AddCapacity, amount, and, before, Building, DEPENDENCIES, implement, Mon
 **Used By:** Building, BuildPlacementManager, ConstructionSite, Dependencies, SixTeamBootstrap
 
 
-## Assets/Scripts/Runtime/Buildings/Turret.cs
-**Script:** Turret
-**System Classification:** Buildings
-**Base Class:** MonoBehaviour
-**Interfaces:** -
-
-### Summary
-Turret appears to be a buildings script derived from MonoBehaviour. It appears to be related to: Turret, MonoBehaviour, Updated, WeaponComponent, DEPENDENCIES, UnitCombatController, Handles, targeting. It may share responsibilities with other defensive buildings such as Turret or DefenseTurret.
-
-### Comments & Documentation
-- // =============================================================
-- // Turret.cs (Updated for WeaponComponent)
-- // DEPENDENCIES:
-- // - UnitCombatController:
-- // * Handles targeting + stance logic.
-- // - WeaponComponent:
-- // * Handles firing.
-- // - Attackable:
-- // * Makes turret a valid target.
-- // NOTES FOR FUTURE MAINTENANCE:
-
-### Keywords
-add, array, Attackable, base, component, DEPENDENCIES, firing, for, FUTURE, gain, Handles, logic, MAINTENANCE, Makes, MonoBehaviour, multiple, NOTES, rotating, rotation, stance, target, targeting, Turret, turrets, UnitCombatController, Updated, valid, WeaponComponent, weapons
-
-### Cross References
-**Uses:** Attackable, UnitCombatController, WeaponComponent
-**Used By:** BuildItemInstance, CombatSystem, Dependencies, Minimap, TurretProjectile, TurretProjectilePool, UnitInspectorUI
-
-
 ## Assets/Scripts/Runtime/Buildings/VehicleFactory.cs
 **Script:** VehicleFactory
 **System Classification:** Buildings

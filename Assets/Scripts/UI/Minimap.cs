@@ -58,7 +58,7 @@ public class Minimap : MonoBehaviour
         }
 
         DrawEntities<Unit>(r);
-        DrawEntities<Turret>(r);
+        DrawEntities<DefenseTurret>(r);
         DrawEntities<ResourceNode>(r);
         DrawEntities<Civilian>(r);
 
@@ -79,7 +79,7 @@ public class Minimap : MonoBehaviour
             if (e.TryGetComponent<Unit>(out var u))
                 c = TeamColorUtils.Get(u.teamID);
 
-            else if (e.TryGetComponent<Turret>(out var t))
+            else if (e.TryGetComponent<DefenseTurret>(out var t))
                 c = TeamColorUtils.Get(t.teamID);
 
             else if (e is ResourceNode rn)

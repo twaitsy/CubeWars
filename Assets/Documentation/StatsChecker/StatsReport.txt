@@ -480,13 +480,6 @@ ResourceStorageProvider (ResourceStorageProvider.cs)
  - isActiveAndEnabled
  - hideFlags
 
-Turret (Turret.cs)
- - teamID
- - useGUILayout
- - runInEditMode
- - enabled
- - isActiveAndEnabled
- - hideFlags
 
 VehicleFactory (VehicleFactory.cs)
  - buildSeconds

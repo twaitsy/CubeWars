@@ -94,7 +94,7 @@ If it produces units:
 - Configure producibleUnits[]
 
 If it is defensive:
-- Add Turret and/or DefenseTurret
+- Add DefenseTurret
 - Add UnitCombatController if required by your combat flow
 
 Build catalog linkage (catalog asset now stored under Assets/Data/Databases):
@@ -410,7 +410,7 @@ Latest Updates (Hauling, Housing, UI, Bootstrap)
 - Crafting workers standing at a work point are now protected from need-driven task interruption while a craft cycle is actively in progress.
 - UnitInspectorUI Storage tab now displays crafting input-buffer and output-queue amounts for CraftingBuilding selections.
 - UnitInspectorUI now labels civilians without homes as "Homeless".
-- UnitInspectorUI Overview now exposes a demolish button for Barracks and Turret selections even when they are not inheriting Building directly.
+- UnitInspectorUI Overview now exposes a demolish button for Barracks selections; DefenseTurret already inherits Building so demolish is available through the standard building path.
 - Added WorldProgressBar script as a visual twin of WorldHealthBar for future construction/upgrade progress display binding.
 - TeamBootstrap HQ spawn logic now snaps HQ world X/Z to BuildGridManager cell size so startup HQ placement aligns with the building grid.
 
