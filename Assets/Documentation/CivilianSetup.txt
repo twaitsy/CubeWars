@@ -104,3 +104,8 @@ Building interaction targeting update
   - stop distance by `BuildingInteractionSettings`
   - closest interaction point by `BuildingInteractionPointController`
 - For all building types used in civilian workflows (HQ, Node-related dropoff/storage chains, Barracks, Crafting buildings, Storage facilities, Houses), add correctly typed `InteractionPoint` markers so pickup/dropoff/input/output can path to the nearest valid point.
+
+
+Update (2026-02-20)
+- Hauler civilians can now accept crafting logistics tasks emitted from the registry-driven worker task queue without requiring craft-capable job conversion.
+- When civilians remain without a valid job target for more than 10 seconds, they now wait at their assigned house interaction point (`BuildingInteractionPointType.House`) until a valid task can be assigned.

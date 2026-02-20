@@ -33,7 +33,6 @@ public class CraftingBuilding : Building
     [Header("Workflow Points")]
     public Transform inputSlot;
     public Transform outputSlot;
-    public Transform[] workPoints;
 
     [Header("Throughput")]
     [Min(1)] public int maxWorkers = 2;
@@ -70,12 +69,12 @@ public class CraftingBuilding : Building
 
     readonly Dictionary<ResourceDefinition, int> inputBuffer = new();
     readonly Dictionary<ResourceDefinition, int> outputQueue = new();
-    readonly Dictionary<Civilian, int> occupiedWorkpoints = new();
     readonly Dictionary<Civilian, float> inactiveAssignedWorkerTimers = new();
     readonly List<Civilian> assignedWorkers = new();
     BuildingInteractionPointController interactionPointController;
 
     ProductionState state;
+    ProductionState previousState;
     float craftTimer;
     float craftDuration;
     int upgradeLevel;
@@ -123,6 +122,7 @@ public class CraftingBuilding : Building
         interactionPointController = GetComponent<BuildingInteractionPointController>();
         InitializeResourceMaps();
         state = ProductionState.WaitingForInputs;
+        previousState = state;
         EnsureProgressBar();
         NotifyChanged();
     }
@@ -228,9 +228,12 @@ public class CraftingBuilding : Building
 
     void TickState()
     {
+        ProductionState stateBeforeTick = state;
+
         if (recipe == null)
         {
             state = ProductionState.Idle;
+            NotifyOnStateChanged(stateBeforeTick);
             return;
         }
 
@@ -238,6 +241,7 @@ public class CraftingBuilding : Building
         {
             state = ProductionState.WaitingForPickup;
             ProductionNotificationManager.Instance?.NotifyIfReady($"output-full-{GetInstanceID()}", $"{name}: output queue full.");
+            NotifyOnStateChanged(stateBeforeTick);
             return;
         }
 
@@ -245,6 +249,7 @@ public class CraftingBuilding : Building
         {
             state = ProductionState.WaitingForInputs;
             ProductionNotificationManager.Instance?.NotifyIfReady($"inputs-missing-{GetInstanceID()}", $"{name}: waiting for crafting inputs.");
+            NotifyOnStateChanged(stateBeforeTick);
             return;
         }
 
@@ -255,6 +260,7 @@ public class CraftingBuilding : Building
         {
             state = ProductionState.InputsReady;
             ProductionNotificationManager.Instance?.NotifyIfReady($"workers-missing-{GetInstanceID()}", $"{name}: no workers assigned.");
+            NotifyOnStateChanged(stateBeforeTick);
             return;
         }
 
@@ -266,6 +272,17 @@ public class CraftingBuilding : Building
         craftTimer += Time.deltaTime * activeWorkers;
         if (craftTimer >= craftDuration)
             CompleteCraft();
+
+        NotifyOnStateChanged(stateBeforeTick);
+    }
+
+    void NotifyOnStateChanged(ProductionState before)
+    {
+        if (state == before || state == previousState)
+            return;
+
+        previousState = state;
+        NotifyChanged();
     }
 
     void TickInactiveAssignedWorkers()
@@ -506,7 +523,6 @@ public class CraftingBuilding : Building
 
         float workerRange = Mathf.Max(1f, worker.stopDistance * 1.5f);
         return (worker.transform.position - transform.position).sqrMagnitude <= workerRange * workerRange
-               || occupiedWorkpoints.ContainsKey(worker)
                || IsWorkerInOperatingRange(worker);
     }
 
@@ -515,14 +531,15 @@ public class CraftingBuilding : Building
         if (worker == null) return false;
 
         Vector3 anchor = transform.position;
-        if (workPoints != null)
+        List<Transform> workInteractionPoints = GetCraftWorkInteractionPoints();
+        for (int i = 0; i < workInteractionPoints.Count; i++)
         {
-            for (int i = 0; i < workPoints.Length; i++)
-            {
-                if (workPoints[i] == null) continue;
-                if ((worker.transform.position - workPoints[i].position).sqrMagnitude <= 2.25f)
-                    return true;
-            }
+            Transform interactionPoint = workInteractionPoints[i];
+            if (interactionPoint == null)
+                continue;
+
+            if ((worker.transform.position - interactionPoint.position).sqrMagnitude <= 2.25f)
+                return true;
         }
 
         return (worker.transform.position - anchor).sqrMagnitude <= 4f;
@@ -627,7 +644,6 @@ public class CraftingBuilding : Building
     {
         if (civilian == null) return;
         assignedWorkers.Remove(civilian);
-        occupiedWorkpoints.Remove(civilian);
         inactiveAssignedWorkerTimers.Remove(civilian);
         NotifyChanged();
     }
@@ -638,38 +654,17 @@ public class CraftingBuilding : Building
         if (civilian == null)
             return false;
 
-        List<Transform> configuredPoints = GetConfiguredWorkPoints();
-        if (configuredPoints.Count == 0)
+        List<Transform> configuredPoints = GetCraftWorkInteractionPoints();
+        if (configuredPoints.Count <= 0)
             return false;
 
-        for (int i = 0; i < configuredPoints.Count; i++)
+        int preferredIndex = Mathf.Abs(civilian.GetInstanceID()) % configuredPoints.Count;
+        for (int offset = 0; offset < configuredPoints.Count; offset++)
         {
-            Transform point = configuredPoints[i];
+            Transform point = configuredPoints[(preferredIndex + offset) % configuredPoints.Count];
             if (point == null)
                 continue;
 
-            if (occupiedWorkpoints.TryGetValue(civilian, out int existingIndex) && existingIndex == i)
-            {
-                workPoint = point;
-                return true;
-            }
-
-            bool occupied = false;
-            foreach (var kv in occupiedWorkpoints)
-            {
-                if (kv.Key == civilian)
-                    continue;
-                if (kv.Value == i)
-                {
-                    occupied = true;
-                    break;
-                }
-            }
-
-            if (occupied)
-                continue;
-
-            occupiedWorkpoints[civilian] = i;
             workPoint = point;
             return true;
         }
@@ -679,23 +674,12 @@ public class CraftingBuilding : Building
 
     public void ReleaseWorkPoint(Civilian civilian)
     {
-        if (civilian == null) return;
-        occupiedWorkpoints.Remove(civilian);
+        // Legacy no-op: craft work locations now route entirely through interaction points.
     }
 
-    List<Transform> GetConfiguredWorkPoints()
+    List<Transform> GetCraftWorkInteractionPoints()
     {
         var points = new List<Transform>();
-
-        if (workPoints != null)
-        {
-            for (int i = 0; i < workPoints.Length; i++)
-            {
-                Transform point = workPoints[i];
-                if (point != null && !points.Contains(point))
-                    points.Add(point);
-            }
-        }
 
         if (interactionPointController == null)
             interactionPointController = GetComponent<BuildingInteractionPointController>();
@@ -716,7 +700,7 @@ public class CraftingBuilding : Building
 
     public int GetWorkPointCapacity()
     {
-        return Mathf.Max(1, GetConfiguredWorkPoints().Count);
+        return Mathf.Max(1, GetCraftWorkInteractionPoints().Count);
     }
 
     public bool TryDeliverInput(ResourceDefinition type, int amount, out int accepted)
@@ -932,7 +916,17 @@ public class CraftingBuilding : Building
 
     public int GetWorkPointOccupancy()
     {
-        return occupiedWorkpoints.Count;
+        int occupants = 0;
+        for (int i = 0; i < assignedWorkers.Count; i++)
+        {
+            Civilian worker = assignedWorkers[i];
+            if (worker == null || worker.JobType == CivilianJobType.Hauler)
+                continue;
+
+            occupants++;
+        }
+
+        return occupants;
     }
 
     public string GetMissingInputSummary()

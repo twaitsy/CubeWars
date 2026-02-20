@@ -130,15 +130,20 @@ public class WorkerTaskGenerationSystem : MonoBehaviour
             building.State == CraftingBuilding.ProductionState.InputsReady ||
             building.State == CraftingBuilding.ProductionState.InProgress;
 
-        // If nothing is needed, skip
-        if (!building.NeedsAnyInput() &&
-            !building.HasAnyOutputQueued() &&
-            !needsWorker)
+        bool hasCraftWork = building.NeedsAnyInput() || building.HasAnyOutputQueued() || needsWorker;
+
+        if (!hasCraftWork)
+        {
+            Dispatcher.RemoveQueuedCraftTasks(building);
             return;
+        }
 
         int workPointCapacity = Mathf.Max(1, building.GetWorkPointCapacity());
         int productionWorkerCapacity = Mathf.Min(Mathf.Max(1, building.GetMaxWorkers()), workPointCapacity);
         int maxHaulers = building.requireHaulerLogistics ? Mathf.Max(0, building.maxAssignedHaulers) : 0;
+
+        if (!building.requireHaulerLogistics)
+            Dispatcher.RemoveQueuedCraftTasks(building, CivilianJobType.Hauler);
 
         int activeProductionWorkers = 0;
         int activeHaulers = 0;

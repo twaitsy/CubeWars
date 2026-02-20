@@ -53,6 +53,27 @@ public class WorkerTaskDispatcher : MonoBehaviour
         queuedTasks.Add(task);
     }
 
+    public void RemoveQueuedCraftTasks(CraftingBuilding building, CivilianJobType requiredJobType = CivilianJobType.Generalist)
+    {
+        if (building == null)
+            return;
+
+        for (int i = queuedTasks.Count - 1; i >= 0; i--)
+        {
+            WorkerTaskRequest task = queuedTasks[i];
+            if (task.taskType != WorkerTaskType.Craft)
+                continue;
+
+            if (task.craftingBuilding != building)
+                continue;
+
+            if (requiredJobType != CivilianJobType.Generalist && task.requiredCraftJobType != requiredJobType)
+                continue;
+
+            queuedTasks.RemoveAt(i);
+        }
+    }
+
     public int GetQueuedGatherTaskCount(ResourceNode node, int teamID = -1)
     {
         if (node == null)
@@ -235,6 +256,12 @@ public class WorkerTaskDispatcher : MonoBehaviour
         for (int i = queuedTasks.Count - 1; i >= 0; i--)
         {
             WorkerTaskRequest task = queuedTasks[i];
+            if (!IsTaskStillValid(task))
+            {
+                queuedTasks.RemoveAt(i);
+                continue;
+            }
+
             Civilian worker = FindBestWorker(task);
             if (worker == null)
                 continue;
@@ -258,9 +285,14 @@ public class WorkerTaskDispatcher : MonoBehaviour
                 continue;
             if (!IsWorkerAvailable(worker))
                 continue;
-            if (!worker.CanPerform(task.requiredCapability))
-                continue;
             if (task.taskType == WorkerTaskType.Craft && !worker.CanTakeCraftingAssignment(task.requiredCraftJobType))
+                continue;
+
+            bool canPerform = task.taskType == WorkerTaskType.Craft && task.requiredCraftJobType == CivilianJobType.Hauler
+                ? worker.CanPerform(WorkerCapability.Haul)
+                : worker.CanPerform(task.requiredCapability);
+
+            if (!canPerform)
                 continue;
 
             float distance = (worker.transform.position - ResolveTaskPosition(task)).sqrMagnitude;
@@ -286,5 +318,32 @@ public class WorkerTaskDispatcher : MonoBehaviour
         if (task.constructionSite != null) return task.constructionSite.transform.position;
         if (task.craftingBuilding != null) return task.craftingBuilding.transform.position;
         return Vector3.zero;
+    }
+
+    static bool IsTaskStillValid(WorkerTaskRequest task)
+    {
+        switch (task.taskType)
+        {
+            case WorkerTaskType.Gather:
+                return task.resourceNode != null && !task.resourceNode.IsDepleted;
+            case WorkerTaskType.Build:
+                return task.constructionSite != null && !task.constructionSite.IsComplete;
+            case WorkerTaskType.Haul:
+                return task.constructionSite != null && !task.constructionSite.IsComplete && !task.constructionSite.MaterialsComplete;
+            case WorkerTaskType.Craft:
+                if (task.craftingBuilding == null || !task.craftingBuilding.isActiveAndEnabled)
+                    return false;
+
+                if (task.requiredCraftJobType == CivilianJobType.Hauler)
+                    return task.craftingBuilding.requireHaulerLogistics
+                        && (task.craftingBuilding.NeedsAnyInput() || task.craftingBuilding.HasAnyOutputQueued());
+
+                bool needsWorker = task.craftingBuilding.State == CraftingBuilding.ProductionState.InputsReady
+                    || task.craftingBuilding.State == CraftingBuilding.ProductionState.InProgress;
+
+                return needsWorker || task.craftingBuilding.NeedsAnyInput() || task.craftingBuilding.HasAnyOutputQueued();
+            default:
+                return false;
+        }
     }
 }

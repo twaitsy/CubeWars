@@ -55,7 +55,7 @@ Notes
 - Resource nodes require ResourceNode and rely on ResourceRegistry for discovery.
 
 - Civilians assigned to crafting need matching CivilianJobType (Blacksmith, Carpenter, Farmer, Cook, Engineer) for recipe.requiredJobType.
-- Crafting buildings should define inputSlot, outputSlot, workPoints[], throughput caps, and recipe batches for full logistics behavior.
+- Crafting buildings should define inputSlot, outputSlot, CraftWork interaction points, throughput caps, and recipe batches for full logistics behavior.
 
 RTS control/combat modernization additions
 - SelectionManager (updated: drag-select, shift add/remove, contextual right-click command routing)
@@ -387,3 +387,13 @@ Update (2026-02-20)
   - House
   - Default (optional fallback for generic building approach)
 - Closest matching interaction point should be used first; when missing, fallback to transform-position targeting is expected.
+
+
+Update (2026-02-20)
+- Crafting job flow is registry-first:
+  - `CraftingBuilding` must register/unregister with `CraftingRegistry`.
+  - `WorkerTaskGenerationSystem` should be present to create/remove craft tasks from CraftingRegistry change events.
+  - `WorkerTaskDispatcher` should be present to prune invalid craft tasks and dispatch valid ones.
+- Hauler craft tasks are now treated as logistics tasks for assignment capability checks (haulers can accept queued crafting logistics tasks directly).
+- Crafting diagnostics/setup should no longer require legacy CraftingBuilding `workPoints[]`; ensure `InteractionPoint` children with `pointType=CraftWork` are authored instead.
+- Civilian idle fallback behavior now assumes valid house interaction points are authored on House prefabs (`pointType=House`).

@@ -171,6 +171,7 @@ public class Civilian : MonoBehaviour, ITargetable
     private float toolPickupTimer;
     private float idleWanderTimer;
     private Vector3 idleWanderTarget;
+    private float idleNoTaskTimer;
     private float stalledAtWorkPointTimer;
     private WorldProgressBar gatherProgressBar;
     private HealthComponent health;
@@ -557,6 +558,8 @@ public class Civilian : MonoBehaviour, ITargetable
 
     void TickIdle()
     {
+        idleNoTaskTimer += Time.deltaTime;
+
         if (jobType != CivilianJobType.Idle)
             return;
 
@@ -575,6 +578,16 @@ public class Civilian : MonoBehaviour, ITargetable
 
         float stop = movementController.ResolveStopDistance(AssignedHouse.transform, BuildingStopDistanceType.House);
         movementController.MoveTo(idleWanderTarget, stop);
+    }
+
+    void TickIdleAtAssignedHousePoint()
+    {
+        if (AssignedHouse == null)
+            return;
+
+        Transform houseTarget = movementController.ResolveInteractionTarget(AssignedHouse.transform, BuildingInteractionPointType.House);
+        float stop = movementController.ResolveStopDistance(AssignedHouse.transform, BuildingStopDistanceType.House);
+        movementController.MoveTo(houseTarget.position, stop);
     }
 
     void TickSeekFoodStorage()
@@ -894,10 +907,13 @@ public class Civilian : MonoBehaviour, ITargetable
     }
     private void TickSearchNode()
     {
+        idleNoTaskTimer += Time.deltaTime;
+
         if (forcedNode != null)
         {
             if (!forcedNode.IsDepleted && gatheringController.AssignNode(forcedNode))
             {
+                idleNoTaskTimer = 0f;
                 CurrentNode = forcedNode;
                 SetState(State.GoingToNode);
                 return;
@@ -913,15 +929,15 @@ public class Civilian : MonoBehaviour, ITargetable
             // Attempt to reserve + move
             if (gatheringController.AssignNode(node))
             {
+                idleNoTaskTimer = 0f;
                 CurrentNode = node;
                 SetState(State.GoingToNode);
                 return;
             }
         }
 
-        // If we reach here, no node was found OR reservation failed
-        // Civilian should retry later
-        // (You can add idle animation or wander logic here)
+        // If we reach here, no node was found OR reservation failed.
+        TryFallbackToHouseInteractionPoint();
     }
     private void TickGoNode()
     {
@@ -1051,6 +1067,8 @@ public class Civilian : MonoBehaviour, ITargetable
     }
     void TickSearchBuildSite()
     {
+        idleNoTaskTimer += Time.deltaTime;
+
         searchTimer += Time.deltaTime;
         if (searchTimer < searchRetrySeconds) return;
         searchTimer = 0f;
@@ -1058,14 +1076,20 @@ public class Civilian : MonoBehaviour, ITargetable
         targetSite = FindNearestConstructionSite(teamID, transform.position);
         CurrentAssignedSite = targetSite;
 
-        if (targetSite == null) return;
+        if (targetSite == null)
+        {
+            TryFallbackToHouseInteractionPoint();
+            return;
+        }
 
         if (!targetSite.MaterialsComplete && buildersCanHaulMaterials)
         {
+            idleNoTaskTimer = 0f;
             state = State.SearchingSupplySite;
             return;
         }
 
+        idleNoTaskTimer = 0f;
         state = State.GoingToBuildSite;
 
         movementController.MoveToBuildingTarget(targetSite.transform, BuildingStopDistanceType.Construction, BuildingInteractionPointType.Default);
@@ -1114,6 +1138,8 @@ public class Civilian : MonoBehaviour, ITargetable
 
     void TickSearchSupplySite()
     {
+        idleNoTaskTimer += Time.deltaTime;
+
         if (jobType == CivilianJobType.Hauler && TryHandleCraftingHaulerPriority())
             return;
 
@@ -1130,7 +1156,11 @@ public class Civilian : MonoBehaviour, ITargetable
         targetSite = FindNearestConstructionSite(teamID, transform.position);
         CurrentDeliverySite = targetSite;
 
-        if (targetSite == null) return;
+        if (targetSite == null)
+        {
+            TryFallbackToHouseInteractionPoint();
+            return;
+        }
         if (targetSite.IsComplete || targetSite.MaterialsComplete)
         {
             state = (jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite;
@@ -1146,6 +1176,19 @@ public class Civilian : MonoBehaviour, ITargetable
         }
 
         state = State.GoingToPickupStorage;
+        idleNoTaskTimer = 0f;
+    }
+
+    bool TryFallbackToHouseInteractionPoint()
+    {
+        if (idleNoTaskTimer < 10f)
+            return false;
+
+        if (AssignedHouse == null)
+            return false;
+
+        TickIdleAtAssignedHousePoint();
+        return true;
     }
 
 
@@ -1953,8 +1996,14 @@ public class Civilian : MonoBehaviour, ITargetable
 
     public bool TryAssignTask(WorkerTaskRequest task)
     {
-        if (!CanPerform(task.requiredCapability))
+        bool canPerform = task.taskType == WorkerTaskType.Craft && task.requiredCraftJobType == CivilianJobType.Hauler
+            ? CanPerform(WorkerCapability.Haul)
+            : CanPerform(task.requiredCapability);
+
+        if (!canPerform)
             return false;
+
+        idleNoTaskTimer = 0f;
 
         switch (task.taskType)
         {
