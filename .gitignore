@@ -9,7 +9,8 @@
 /[Bb]uilds/
 /[Ll]ogs/
 /[Mm]emoryCaptures/
-
+/Assets/Documentation/EditorToolsOutput/
+/Assets/Documentation/StatsChecker/
 # Never ignore Asset meta data
 !/[Aa]ssets/**/*.meta
 
