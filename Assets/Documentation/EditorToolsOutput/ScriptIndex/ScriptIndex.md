@@ -49,7 +49,6 @@ Generated: 2026-02-15 19:53:01
 - CharacterStats.cs
 - CivilianJobRegistry.cs
 - CombatStance.cs
-- SkillType.cs
 - UnitProductionDefinition.cs
 
 ## Documents

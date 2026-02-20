@@ -17,15 +17,10 @@ using UnityEngine;
 public class Civilian : MonoBehaviour, ITargetable
 {
     [Header("Identity")]
-    public string unitDefinitionId = "civilian"; 
+    public string unitDefinitionId = "civilian";
     [Header("Team")]
     public int teamID;
     public bool IsAlive => health != null && health.IsAlive;
-
-    // Forward health properties to HealthComponent
-    //   public bool IsAlive => health != null && health.IsAlive;
-    //    public float CurrentHealth => health != null ? health.CurrentHealth : 0f;
-    //   public float MaxHealth => health != null ? health.MaxHealth : 0f;
 
 
     [Header("Job (Unified Registry)")]
@@ -50,8 +45,6 @@ public class Civilian : MonoBehaviour, ITargetable
     public int CarriedAmount => carryingController != null ? carryingController.CarriedAmount : 0;
     private GatheringController gatheringController;
 
-    //    private float currentHealth;
-//    private StorageFacility targetStorage;
     private ResourceDropoff targetDropoff;
     // Legacy/compat fields (kept for external references)
     public bool HasJob;
@@ -63,7 +56,6 @@ public class Civilian : MonoBehaviour, ITargetable
 
     private ResourceNode forcedNode;
     private ConstructionSite targetSite;
-//    private ResourceStorageContainer targetStorage;
 
     private CraftingBuilding targetCraftingBuilding;
     private Transform targetWorkPoint;
@@ -83,10 +75,6 @@ public class Civilian : MonoBehaviour, ITargetable
 
     // IHasHealth / ITargetable style properties
     public int TeamID => teamID;
-//    public bool IsAlive => currentHealth > 0f;
-//    public float CurrentHealth => currentHealth;
-//    public float MaxHealth => maxHealth;
-
     public enum State
     {
         Idle,
@@ -177,7 +165,6 @@ public class Civilian : MonoBehaviour, ITargetable
     private HealthComponent health;
     private MovementController movementController;
     private CarryingController carryingController;
-//    private GatheringControl gatheringControl;
     private ConstructionWorkerControl constructionWorkerControl;
     private NeedsController needsController;
     private HousingController housingController;
@@ -208,7 +195,6 @@ public class Civilian : MonoBehaviour, ITargetable
         movementController = GetComponent<MovementController>();
         carryingController = GetComponent<CarryingController>();
         gatheringController = GetComponent<GatheringController>();
-  //      constructionWorkerControl = GetComponent<ConstructionWorkerControl>();
         needsController = GetComponent<NeedsController>();
         housingController = GetComponent<HousingController>();
         constructionWorkerControl = GetComponent<ConstructionWorkerControl>();
@@ -234,7 +220,7 @@ public class Civilian : MonoBehaviour, ITargetable
         if (gatheringController != null)
             gatheringController.StopGathering();
 
-        ClearAssignedHouse();
+        housingController?.ClearAssignedHouse();
 
         if (registeredWithJobManager)
             UnregisterFromJobManager();
@@ -267,7 +253,7 @@ public class Civilian : MonoBehaviour, ITargetable
         CivilianRegistry.Register(this);
 
         EnsureGatherProgressBar();
-        TryAssignHouseIfNeeded();
+        housingController?.TryAssignHouseIfNeeded();
     }
 
 
@@ -563,7 +549,7 @@ public class Civilian : MonoBehaviour, ITargetable
         if (jobType != CivilianJobType.Idle)
             return;
 
-        TryAssignHouseIfNeeded();
+        housingController?.TryAssignHouseIfNeeded();
 
         if (AssignedHouse == null)
             return;
@@ -624,32 +610,20 @@ public class Civilian : MonoBehaviour, ITargetable
 
     bool TryConsumeFoodFromAssignedHouse()
     {
-        if (AssignedHouse == null)
+        if (housingController == null)
             return false;
 
-        float nearDistance = Mathf.Max(0.1f, stopDistance * 2f);
-        if ((transform.position - AssignedHouse.transform.position).sqrMagnitude > nearDistance * nearDistance)
+        if (!housingController.TryConsumeNearbyHouseFood(transform.position, Mathf.Max(0.1f, stopDistance * 2f), EnumerateConfiguredFoods(), foodToEatPerMeal, out ResourceDefinition consumedType, out FoodDefinition consumedFood, out int consumed))
             return false;
 
-        foreach (FoodDefinition food in EnumerateConfiguredFoods())
-        {
-            if (!TryGetFoodResource(food, out ResourceDefinition type))
-                continue;
-
-            if (!housingController.TryConsumeHouseFood(type, Mathf.Max(1, foodToEatPerMeal), out int consumed) || consumed <= 0)
-                continue;
-
-            targetFoodResource = type;
-            targetFoodDefinition = food;
-            pendingFoodAmount = consumed;
-            currentEatDurationSeconds = Mathf.Max(0.1f, food.eatTime);
-            needActionTimer = 0f;
-            state = State.Eating;
-            targetFoodStorage = null;
-            return true;
-        }
-
-        return false;
+        targetFoodResource = consumedType;
+        targetFoodDefinition = consumedFood;
+        pendingFoodAmount = consumed;
+        currentEatDurationSeconds = Mathf.Max(0.1f, consumedFood != null ? consumedFood.eatTime : eatDurationSeconds);
+        needActionTimer = 0f;
+        state = State.Eating;
+        targetFoodStorage = null;
+        return true;
     }
 
     void TickEating()
@@ -806,16 +780,6 @@ public class Civilian : MonoBehaviour, ITargetable
     {
         type = food != null ? food.resource : null;
         return type != null;
-    }
-
-    void TryAssignHouseIfNeeded()
-    {
-        housingController?.TryAssignHouseIfNeeded();
-    }
-
-    void ClearAssignedHouse()
-    {
-        housingController?.ClearAssignedHouse();
     }
 
     public void SetJobType(CivilianJobType newJobType)
@@ -1864,10 +1828,7 @@ public class Civilian : MonoBehaviour, ITargetable
 
     float GetHouseSpeedBonusMultiplier()
     {
-        if (AssignedHouse == null)
-            return 1f;
-
-        return 1f + Mathf.Max(0, AssignedHouse.prestige) * 0.1f;
+        return housingController != null ? housingController.GetHouseSpeedBonusMultiplier() : 1f;
     }
 
     float GetTirednessRate()
@@ -1924,23 +1885,11 @@ public class Civilian : MonoBehaviour, ITargetable
 
     void ConsumeHouseFoodWhileResting()
     {
-        if (AssignedHouse == null || !NeedsFood())
+        if (housingController == null || needsController == null)
             return;
 
-        foreach (FoodDefinition food in EnumerateConfiguredFoods())
-        {
-            if (!TryGetFoodResource(food, out ResourceDefinition type))
-                continue;
-
-            if (!housingController.TryConsumeHouseFood(type, foodToEatPerMeal, out int consumed) || consumed <= 0)
-                continue;
-
-            float restore = consumed * Mathf.Max(1, food.hungerRestore);
-            needsController?.RestoreHunger(restore);
-        currentHunger = needsController != null ? needsController.CurrentHunger : Mathf.Max(0f, currentHunger - restore);
-            if (!NeedsFood())
-                return;
-        }
+        if (housingController.TryConsumeHouseFoodWhileResting(EnumerateConfiguredFoods(), foodToEatPerMeal, needsController, NeedsFood))
+            currentHunger = needsController.CurrentHunger;
     }
 
     public float GetCraftingSpeedMultiplierFromTools()
@@ -1956,7 +1905,7 @@ public class Civilian : MonoBehaviour, ITargetable
 
         if (!health.IsAlive)
         {
-            ClearAssignedHouse();
+            housingController?.ClearAssignedHouse();
             Destroy(gameObject);
         }
     }

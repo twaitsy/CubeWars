@@ -770,3 +770,8 @@ Update (2026-02-20, crafting + idle behavior)
 - Crafting buildings now emit change notifications only when production state actually changes, which keeps registry-driven task generation accurate and reduces queue churn.
 - Registry-driven crafting jobs now include explicit Hauler craft jobs; haulers can accept these without being forced into Craft-capability job types.
 - Civilians that cannot find suitable work for more than ~10 seconds will path to their assigned house `InteractionPoint` (`BuildingInteractionPointType.House`) and wait there until eligible work appears.
+
+[2026-02 civilian housing + skill enum cleanup]
+- Housing responsibilities are centralized in `HousingController` (assignment, target selection/claiming, house bonuses, and house food consumption helpers).
+- Homeless civilians now periodically retry house assignment via `HousingController` recheck ticks (no scene setup changes required).
+- Legacy `SkillType.cs` has been removed; `CharacterStats` now uses `CharacterSkillType` defined in `CharacterStats.cs`.

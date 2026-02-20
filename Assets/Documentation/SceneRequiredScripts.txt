@@ -397,3 +397,8 @@ Update (2026-02-20)
 - Hauler craft tasks are now treated as logistics tasks for assignment capability checks (haulers can accept queued crafting logistics tasks directly).
 - Crafting diagnostics/setup should no longer require legacy CraftingBuilding `workPoints[]`; ensure `InteractionPoint` children with `pointType=CraftWork` are authored instead.
 - Civilian idle fallback behavior now assumes valid house interaction points are authored on House prefabs (`pointType=House`).
+
+[2026-02 civilian housing + skill enum cleanup]
+- Housing responsibilities are centralized in `HousingController` (assignment, target selection/claiming, house bonuses, and house food consumption helpers).
+- Homeless civilians now periodically retry house assignment via `HousingController` recheck ticks (no scene setup changes required).
+- Legacy `SkillType.cs` has been removed; `CharacterStats` now uses `CharacterSkillType` defined in `CharacterStats.cs`.

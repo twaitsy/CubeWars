@@ -1,9 +1,0 @@
-﻿public enum SkillType
-{
-    Mining,
-    Building,
-    Farming,
-    Hauling,
-    Combat,
-    Driving
-}
