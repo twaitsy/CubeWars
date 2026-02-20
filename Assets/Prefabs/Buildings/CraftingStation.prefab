@@ -152,7 +152,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 706213d782c60394e9d81bc6374da59f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BuildingInteractionPointController
-  interactionPoints: []
+  interactionPoints:
+  - {fileID: 3574332962501923488}
+  - {fileID: 613234704308664387}
+  - {fileID: 5831074664788436021}
 --- !u!114 &578910375926123519
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -170,32 +173,40 @@ MonoBehaviour:
   maxHealth: 300
   currentHealth: 0
   recipe:
-    recipeName: Saw Planks
+    recipeName: Forge Steel Ingot
     inputs:
     - resource:
-        id: wood
-        displayName: Wood
-        icon: {fileID: 0}
-        category: 0
-        weight: 2
-        baseValue: 2
-      amount: 4
-    outputs:
-    - resource:
-        id: planks
-        displayName: Planks
+        id: iron_ingot
+        displayName: Iron Ingot
         icon: {fileID: 0}
         category: 1
-        weight: 2
-        baseValue: 6
-      amount: 3
-    craftTimeSeconds: 6
+        weight: 3
+        baseValue: 9
+      amount: 2
+    - resource:
+        id: coal
+        displayName: Coal
+        icon: {fileID: 0}
+        category: 3
+        weight: 3
+        baseValue: 4
+      amount: 2
+    outputs:
+    - resource:
+        id: steel_ingot
+        displayName: Steel Ingot
+        icon: {fileID: 0}
+        category: 1
+        weight: 4
+        baseValue: 12
+      amount: 1
+    craftTimeSeconds: 11
     batchSize: 1
-    requiredJobType: 10
+    requiredJobType: 9
     outputEfficiencyMultiplier: 1
     inputEfficiencyMultiplier: 1
     requiresPower: 0
-    requiresFuel: 0
+    requiresFuel: 1
   resourcesDatabase: {fileID: 11400000, guid: 87f27aa07d5d1b049bfb1818298c31c9, type: 2}
   inputSlot: {fileID: 1315570007274987185}
   outputSlot: {fileID: 4465389164846448858}
@@ -347,7 +358,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 776b1a72a2b183248af0c45dc0f9d7b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractionPoint
-  pointType: 0
+  pointType: 4
   priority: 0
 --- !u!1 &7907517961513334011
 GameObject:
@@ -393,7 +404,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 776b1a72a2b183248af0c45dc0f9d7b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractionPoint
-  pointType: 0
+  pointType: 3
   priority: 0
 --- !u!1 &7969463268722584474
 GameObject:
@@ -439,5 +450,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 776b1a72a2b183248af0c45dc0f9d7b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractionPoint
-  pointType: 0
+  pointType: 2
   priority: 0

@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 776b1a72a2b183248af0c45dc0f9d7b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractionPoint
-  pointType: 0
+  pointType: 1
   priority: 0
 --- !u!1 &2079643516368143357
 GameObject:
@@ -90,7 +90,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 776b1a72a2b183248af0c45dc0f9d7b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractionPoint
-  pointType: 0
+  pointType: 1
   priority: 0
 --- !u!1 &2609521548526753214
 GameObject:
@@ -301,7 +301,7 @@ MonoBehaviour:
       category: 2
       weight: 1
       baseValue: 4
-    amount: 600
+    amount: 50000
   - resource:
       id: wood
       displayName: Wood
@@ -309,7 +309,7 @@ MonoBehaviour:
       category: 0
       weight: 2
       baseValue: 2
-    amount: 600
+    amount: 50000
   - resource:
       id: water
       displayName: Water
@@ -317,7 +317,23 @@ MonoBehaviour:
       category: 11
       weight: 1
       baseValue: 1
-    amount: 600
+    amount: 50000
+  - resource:
+      id: iron_ore
+      displayName: Iron Ore
+      icon: {fileID: 0}
+      category: 0
+      weight: 4
+      baseValue: 5
+    amount: 50000
+  - resource:
+      id: coal
+      displayName: Coal
+      icon: {fileID: 0}
+      category: 3
+      weight: 3
+      baseValue: 4
+    amount: 50000
 --- !u!114 &763957680912869217
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -435,7 +451,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 776b1a72a2b183248af0c45dc0f9d7b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractionPoint
-  pointType: 0
+  pointType: 1
   priority: 0
 --- !u!1 &5661232736898902367
 GameObject:
@@ -481,5 +497,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 776b1a72a2b183248af0c45dc0f9d7b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractionPoint
-  pointType: 0
+  pointType: 1
   priority: 0
