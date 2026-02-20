@@ -1,15 +1,38 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [DisallowMultipleComponent]
 public class HousingController : MonoBehaviour
 {
+    [SerializeField] private float homelessRecheckIntervalSeconds = 2f;
+
     private Civilian civilian;
+    private float homelessRecheckTimer;
     public House AssignedHouse { get; private set; }
     public House TargetHouse { get; private set; }
 
     void Awake()
     {
         civilian = GetComponent<Civilian>();
+        homelessRecheckTimer = Random.Range(0f, homelessRecheckIntervalSeconds);
+    }
+
+    void Update()
+    {
+        if (civilian == null || !civilian.IsAlive)
+            return;
+
+        if (AssignedHouse != null && !AssignedHouse.IsAlive)
+            ClearAssignedHouse();
+
+        homelessRecheckTimer -= Time.deltaTime;
+        if (homelessRecheckTimer > 0f)
+            return;
+
+        homelessRecheckTimer = Mathf.Max(0.25f, homelessRecheckIntervalSeconds);
+
+        if (AssignedHouse == null)
+            TryAssignHouseIfNeeded();
     }
 
     public bool TryAssignHouseIfNeeded()
@@ -94,5 +117,60 @@ public class HousingController : MonoBehaviour
     {
         consumed = 0;
         return AssignedHouse != null && AssignedHouse.TryConsumeFood(type, amount, out consumed);
+    }
+
+    public bool TryConsumeNearbyHouseFood(Vector3 civilianPosition, float nearDistance, IEnumerable<FoodDefinition> foods, int amountPerMeal, out ResourceDefinition consumedType, out FoodDefinition consumedFood, out int consumedAmount)
+    {
+        consumedType = null;
+        consumedFood = null;
+        consumedAmount = 0;
+
+        if (AssignedHouse == null)
+            return false;
+
+        float maxDistance = Mathf.Max(0.1f, nearDistance);
+        if ((civilianPosition - AssignedHouse.transform.position).sqrMagnitude > maxDistance * maxDistance)
+            return false;
+
+        foreach (FoodDefinition food in foods)
+        {
+            if (food == null || food.resource == null)
+                continue;
+
+            if (!TryConsumeHouseFood(food.resource, Mathf.Max(1, amountPerMeal), out int consumed) || consumed <= 0)
+                continue;
+
+            consumedType = food.resource;
+            consumedFood = food;
+            consumedAmount = consumed;
+            return true;
+        }
+
+        return false;
+    }
+
+    public bool TryConsumeHouseFoodWhileResting(IEnumerable<FoodDefinition> foods, int amountPerMeal, NeedsController needsController, System.Func<bool> needsFood)
+    {
+        if (AssignedHouse == null || needsController == null || needsFood == null || !needsFood())
+            return false;
+
+        bool consumedAny = false;
+        foreach (FoodDefinition food in foods)
+        {
+            if (food == null || food.resource == null)
+                continue;
+
+            if (!TryConsumeHouseFood(food.resource, Mathf.Max(1, amountPerMeal), out int consumed) || consumed <= 0)
+                continue;
+
+            float restore = consumed * Mathf.Max(1, food.hungerRestore);
+            needsController.RestoreHunger(restore);
+            consumedAny = true;
+
+            if (!needsFood())
+                break;
+        }
+
+        return consumedAny;
     }
 }

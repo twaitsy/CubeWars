@@ -172,7 +172,6 @@ public class dependencies : MonoBehaviour
     CivilianRole.cs
     CivilianSpawner.cs
     JobManager.cs
-    SkillType.cs
 
     ------------------------------------------------------------------------
     COMBAT SYSTEM

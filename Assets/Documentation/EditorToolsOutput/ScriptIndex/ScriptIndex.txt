@@ -49,7 +49,6 @@ Assets/Scripts/Data/Units
     CharacterStats.cs
     CivilianJobRegistry.cs
     CombatStance.cs
-    SkillType.cs
     UnitProductionDefinition.cs
 
 DOCUMENTS
