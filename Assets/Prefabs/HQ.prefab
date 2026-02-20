@@ -12,23 +12,16 @@ GameObject:
   - component: {fileID: 2609521548526753219}
   - component: {fileID: 2609521548526753218}
   - component: {fileID: 2609521548526753217}
-  - component: {fileID: 2609521548526753215}
   - component: {fileID: 2609521548526753221}
-  - component: {fileID: 6824609949989635448}
-  - component: {fileID: 6750967473619199372}
-  - component: {fileID: 6031777134745896192}
-  - component: {fileID: 1998264676701100685}
-  - component: {fileID: -7298252083313165663}
-  - component: {fileID: 976683268280428358}
   - component: {fileID: -6935043793972570880}
-  - component: {fileID: 6668936047093886960}
-  - component: {fileID: -2677390483228081505}
-  - component: {fileID: 4957428377965044005}
-  - component: {fileID: 3463630043324579727}
-  - component: {fileID: 5505908675279000675}
-  - component: {fileID: -1719207545997620072}
-  - component: {fileID: 633250825220403324}
-  - component: {fileID: 4991459215353416812}
+  - component: {fileID: 5193812485939852315}
+  - component: {fileID: 2889761976967910805}
+  - component: {fileID: 763957680912869217}
+  - component: {fileID: -199169865201823006}
+  - component: {fileID: 1911357880745758237}
+  - component: {fileID: 4538114713838213507}
+  - component: {fileID: -532834137137034777}
+  - component: {fileID: 8966189336088110626}
   m_Layer: 9
   m_Name: HQ
   m_TagString: Untagged
@@ -129,55 +122,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &2609521548526753215
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2609521548526753214}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b9be34ed616e783418595407b77cfad5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  buildingDefinitionId: 
-  teamID: 0
-  maxHealth: 3009
-  currentHealth: 0
-  startingResources:
-  - resource:
-      id: wood
-      displayName: Wood
-      icon: {fileID: 10901, guid: 0000000000000000f000000000000000, type: 0}
-      category: 0
-      weight: 99
-      baseValue: 99
-    amount: 2000
-  - resource:
-      id: gold
-      displayName: Gold
-      icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
-      category: 0
-      weight: 456
-      baseValue: 6578
-    amount: 2000
-  - resource:
-      id: iron_ore
-      displayName: Iron Ore
-      icon: {fileID: 0}
-      category: 0
-      weight: 4
-      baseValue: 5
-    amount: 2000
-  - resource:
-      id: berries
-      displayName: Berries
-      icon: {fileID: 0}
-      category: 2
-      weight: 1
-      baseValue: 3
-    amount: 2000
 --- !u!54 &2609521548526753221
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -205,193 +149,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &6824609949989635448
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2609521548526753214}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f7e731a709d78b4458d603bae6a4ecf8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  teamID: 0
-  kind: 2
-  applyOnStart: 1
---- !u!114 &6750967473619199372
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2609521548526753214}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9efbe8cfc370a1e47a8fe7a90a8ecd20, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  teamID: 0
-  kind: 0
-  radius: 2
-  height: 0.05
-  yOffset: -0.45
---- !u!114 &6031777134745896192
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2609521548526753214}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8ee6f4facf3c3fd44937e53c2787e554, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  offset: {x: 0, y: 1.2, z: 0}
-  width: 1.2
-  height: 0.12
-  depth: 0.08
-  onlyShowForBuildings: 1
-  hideWhenFullHealth: 0
-  smoothSpeed: 18
-  glowStrength: 1.8
-  billboardToCamera: 1
---- !u!114 &1998264676701100685
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2609521548526753214}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 51d1077aca999b743b1e64a1d8441152, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  selectionRing: {fileID: 0}
-  hoverRing: {fileID: 0}
-  attackRangeCircle: {fileID: 0}
-  visionRangeCircle: {fileID: 0}
---- !u!114 &-7298252083313165663
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2609521548526753214}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b5d327dcf4845434abc6e897f4d3ad3a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  teamID: 0
-  acceptsOnly: []
---- !u!114 &976683268280428358
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2609521548526753214}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0316fc440feb1e4479faf1e9075d7ebf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  teamID: 0
-  capacities:
-  - resource:
-      id: 
-      displayName: 
-      icon: {fileID: 0}
-      category: 0
-      weight: 1
-      baseValue: 1
-    capacity: 50000
-  - resource:
-      id: 
-      displayName: 
-      icon: {fileID: 0}
-      category: 0
-      weight: 1
-      baseValue: 1
-    capacity: 50000
-  - resource:
-      id: 
-      displayName: 
-      icon: {fileID: 0}
-      category: 0
-      weight: 1
-      baseValue: 1
-    capacity: 50000
-  - resource:
-      id: 
-      displayName: 
-      icon: {fileID: 0}
-      category: 0
-      weight: 1
-      baseValue: 1
-    capacity: 50000
-  - resource:
-      id: 
-      displayName: 
-      icon: {fileID: 0}
-      category: 0
-      weight: 1
-      baseValue: 1
-    capacity: 5000
-  - resource:
-      id: 
-      displayName: 
-      icon: {fileID: 0}
-      category: 0
-      weight: 1
-      baseValue: 1
-    capacity: 5000
-  - resource:
-      id: 
-      displayName: 
-      icon: {fileID: 0}
-      category: 0
-      weight: 1
-      baseValue: 1
-    capacity: 333
-  grantStartingResources: 1
-  startingResources:
-  - resource:
-      id: 
-      displayName: 
-      icon: {fileID: 0}
-      category: 0
-      weight: 1
-      baseValue: 1
-    amount: 500
-  - resource:
-      id: 
-      displayName: 
-      icon: {fileID: 0}
-      category: 0
-      weight: 1
-      baseValue: 1
-    amount: 500
-  - resource:
-      id: 
-      displayName: 
-      icon: {fileID: 0}
-      category: 0
-      weight: 1
-      baseValue: 1
-    amount: 500
-  - resource:
-      id: 
-      displayName: 
-      icon: {fileID: 0}
-      category: 0
-      weight: 1
-      baseValue: 1
-    amount: 500
 --- !u!208 &-6935043793972570880
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -408,7 +165,7 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 0, z: 0}
   m_TimeToStationary: 0.5
---- !u!114 &6668936047093886960
+--- !u!114 &5193812485939852315
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -417,234 +174,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 2609521548526753214}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9f48b5562f8301542b97848a56fce485, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  teamID: 0
-  resourceFlow:
-  - resource:
-      id: 
-      displayName: 
-      icon: {fileID: 0}
-      category: 0
-      weight: 1
-      baseValue: 1
-    flowMode: 3
-  - resource:
-      id: 
-      displayName: 
-      icon: {fileID: 0}
-      category: 0
-      weight: 1
-      baseValue: 1
-    flowMode: 3
-  - resource:
-      id: 
-      displayName: 
-      icon: {fileID: 0}
-      category: 0
-      weight: 1
-      baseValue: 1
-    flowMode: 3
-  - resource:
-      id: 
-      displayName: 
-      icon: {fileID: 0}
-      category: 0
-      weight: 1
-      baseValue: 1
-    flowMode: 3
-  - resource:
-      id: 
-      displayName: 
-      icon: {fileID: 0}
-      category: 0
-      weight: 1
-      baseValue: 1
-    flowMode: 3
-  - resource:
-      id: 
-      displayName: 
-      icon: {fileID: 0}
-      category: 0
-      weight: 1
-      baseValue: 1
-    flowMode: 3
-  - resource:
-      id: 
-      displayName: 
-      icon: {fileID: 0}
-      category: 0
-      weight: 1
-      baseValue: 1
-    flowMode: 3
-  - resource:
-      id: 
-      displayName: 
-      icon: {fileID: 0}
-      category: 0
-      weight: 1
-      baseValue: 1
-    flowMode: 3
-  - resource:
-      id: 
-      displayName: 
-      icon: {fileID: 0}
-      category: 0
-      weight: 1
-      baseValue: 1
-    flowMode: 3
-  - resource:
-      id: 
-      displayName: 
-      icon: {fileID: 0}
-      category: 0
-      weight: 1
-      baseValue: 1
-    flowMode: 3
-  - resource:
-      id: 
-      displayName: 
-      icon: {fileID: 0}
-      category: 0
-      weight: 1
-      baseValue: 1
-    flowMode: 3
-  - resource:
-      id: 
-      displayName: 
-      icon: {fileID: 0}
-      category: 0
-      weight: 1
-      baseValue: 1
-    flowMode: 3
-  - resource:
-      id: 
-      displayName: 
-      icon: {fileID: 0}
-      category: 0
-      weight: 1
-      baseValue: 1
-    flowMode: 3
-  - resource:
-      id: 
-      displayName: 
-      icon: {fileID: 0}
-      category: 0
-      weight: 1
-      baseValue: 1
-    flowMode: 3
-  - resource:
-      id: 
-      displayName: 
-      icon: {fileID: 0}
-      category: 0
-      weight: 1
-      baseValue: 1
-    flowMode: 3
-  - resource:
-      id: 
-      displayName: 
-      icon: {fileID: 0}
-      category: 0
-      weight: 1
-      baseValue: 1
-    flowMode: 3
---- !u!114 &-2677390483228081505
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2609521548526753214}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d63cafae41c5ef14a8927532fb972d1b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  teamID: 0
-  isCivilian: 0
-  isBuilding: 1
-  maxHealth: 100
-  canBeRepaired: 1
-  flashRenderer: {fileID: 0}
-  hitFlashColor: {r: 1, g: 0.3, b: 0.3, a: 1}
-  hitFlashDuration: 0.08
---- !u!114 &4957428377965044005
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2609521548526753214}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 119cd2cd7e179eb48a9be3b6198bb38a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  width: 1
-  depth: 1
-  worldOffset: {x: 0, y: 1, z: 0}
-  extraYRotation: 0
---- !u!114 &3463630043324579727
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2609521548526753214}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 14f1da7aff9846eaad3ce74c53a6ca09, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  validateOnAwake: 1
-  includeOptionalWarnings: 1
---- !u!114 &5505908675279000675
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2609521548526753214}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 40ac1f6cf1431c149898946ed4448c61, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &-1719207545997620072
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2609521548526753214}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4d80263f4eb147628e3797654ad1dade, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BuildingInteractionSettings
-  defaultStopDistance: 4
-  houseStopDistance: 1
-  constructionStopDistance: 1.25
-  storageStopDistance: 4
-  craftInputStopDistance: 0.8
-  craftOutputStopDistance: 0.8
-  craftWorkStopDistance: 0.6
---- !u!114 &633250825220403324
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2609521548526753214}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5e4710a8aa104296997d2dad40065b09, type: 3}
+  m_Script: {fileID: 11500000, guid: 706213d782c60394e9d81bc6374da59f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BuildingInteractionPointController
   interactionPoints: []
---- !u!114 &4991459215353416812
+--- !u!114 &2889761976967910805
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -653,8 +187,106 @@ MonoBehaviour:
   m_GameObject: {fileID: 2609521548526753214}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fb128d43901c4bcdb80ab116e0fea151, type: 3}
+  m_Script: {fileID: 11500000, guid: 97440b19831e6734b98fe8ac4b7997b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Headquarters
+  buildingDefinitionId: 
+  teamID: 0
+  maxHealth: 300
+  currentHealth: 0
+  startingResources:
+  - resource:
+      id: wood
+      displayName: Wood
+      icon: {fileID: 0}
+      category: 0
+      weight: 2
+      baseValue: 2
+    amount: 600
+--- !u!114 &763957680912869217
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2609521548526753214}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c16dcfc04ff5eeb4fb14b8c695aef0c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BuildingFootprint
+  width: 1
+  depth: 1
+  worldOffset: {x: 0, y: 0, z: 0}
+  extraYRotation: 0
+--- !u!114 &-199169865201823006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2609521548526753214}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c6a39fe39831c4409c02eacd3dcfd3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TeamVisual
+  teamID: 0
+  kind: 0
+  applyOnStart: 1
+--- !u!114 &1911357880745758237
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2609521548526753214}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 776b1a72a2b183248af0c45dc0f9d7b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractionPoint
   pointType: 0
   priority: 0
+--- !u!114 &4538114713838213507
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2609521548526753214}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7925960156ad41a498427785afaafcc0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BuildGridOccupant
+--- !u!114 &-532834137137034777
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2609521548526753214}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26cb48eb5be5f8640a3d8e816292703f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ResourceStorageContainer
+  teamID: 0
+  resourceFlow: []
+--- !u!114 &8966189336088110626
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2609521548526753214}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b637522007a09442908069d91e85e2f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ResourceStorageProvider
+  teamID: 0
+  capacities: []
+  grantStartingResources: 1
+  startingResources: []

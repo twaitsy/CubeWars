@@ -12,29 +12,17 @@ GameObject:
   - component: {fileID: 2669674408873748224}
   - component: {fileID: 8294099865046579270}
   - component: {fileID: 1370611168807851786}
-  - component: {fileID: 8889863682863549597}
-  - component: {fileID: 5931790422279658392}
-  - component: {fileID: -5033812071124834736}
   - component: {fileID: 9213389186918591329}
-  - component: {fileID: -2079035283298435682}
-  - component: {fileID: -1746909664416513417}
-  - component: {fileID: -8887945087164268857}
-  - component: {fileID: 126259076976815159}
-  - component: {fileID: 6294540286386591285}
-  - component: {fileID: 1295376524899511511}
-  - component: {fileID: -5728538364194016333}
-  - component: {fileID: -1004968872118365824}
-  - component: {fileID: 4036510120128909271}
-  - component: {fileID: 4541779348186860377}
-  - component: {fileID: -6942594919045944906}
-  - component: {fileID: 4876506133362684680}
-  - component: {fileID: 1822738216757114564}
-  - component: {fileID: -6111293302236098294}
-  - component: {fileID: 6902862384398968288}
-  - component: {fileID: 5012746280532159221}
-  - component: {fileID: 7525030119714089293}
-  - component: {fileID: 2138149510851935440}
-  - component: {fileID: 6221538617111761241}
+  - component: {fileID: 4663313771679875327}
+  - component: {fileID: 7393258118754378906}
+  - component: {fileID: 447393647185965927}
+  - component: {fileID: 6947974543672628970}
+  - component: {fileID: 3871291967957977171}
+  - component: {fileID: 3082717544939108339}
+  - component: {fileID: 5262847259082431760}
+  - component: {fileID: 2488209600144246014}
+  - component: {fileID: 4451373190352058720}
+  - component: {fileID: 7023568545619106114}
   m_Layer: 13
   m_Name: Civilian
   m_TagString: Untagged
@@ -135,63 +123,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &8889863682863549597
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5538168870909510437}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 51acafff0e190ab41a08060017800522, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  unitDefinitionId: civilian
-  teamID: 1
-  jobDefinition: {fileID: 0}
-  jobType: 0
-  role: 0
-  showGatherProgressBar: 1
-  gatherProgressBarOffset: {x: 0, y: 2.2, z: 0}
-  gatherProgressBarWidth: 1
-  gatherProgressBarHeight: 0.1
-  HasJob: 0
-  CurrentNode: {fileID: 0}
-  foodDatabase: {fileID: 11400000, guid: c7e14d390ed4edf45b16b190c79256ae, type: 2}
-  resourcesDatabase: {fileID: 0}
---- !u!114 &5931790422279658392
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5538168870909510437}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f7e731a709d78b4458d603bae6a4ecf8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  teamID: 0
-  kind: 1
-  applyOnStart: 1
---- !u!114 &-5033812071124834736
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5538168870909510437}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9efbe8cfc370a1e47a8fe7a90a8ecd20, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  teamID: 0
-  kind: 1
-  radius: 0.7
-  height: 0.05
-  yOffset: -0.45
 --- !u!195 &9213389186918591329
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -214,7 +145,7 @@ NavMeshAgent:
   m_BaseOffset: 0.5
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!114 &-2079035283298435682
+--- !u!114 &4663313771679875327
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -223,132 +154,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 5538168870909510437}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d3d1d39cbe06504989420c4b14831a0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  baseMoveSpeed: 2.5
-  baseCarryCapacity: 30
-  baseHarvestPerTick: 5
-  baseBuildMultiplier: 1
-  baseDamageMultiplier: 1
-  mining:
-    level: 0
-    xp: 0
-  building:
-    level: 0
-    xp: 0
-  farming:
-    level: 0
-    xp: 0
-  hauling:
-    level: 0
-    xp: 0
-  combat:
-    level: 0
-    xp: 0
-  driving:
-    level: 0
-    xp: 0
-  equippedTool: {fileID: 0}
---- !u!114 &-1746909664416513417
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5538168870909510437}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 51d1077aca999b743b1e64a1d8441152, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  selectionRing: {fileID: 0}
-  hoverRing: {fileID: 0}
-  attackRangeCircle: {fileID: 0}
-  visionRangeCircle: {fileID: 0}
---- !u!114 &-8887945087164268857
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5538168870909510437}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d63cafae41c5ef14a8927532fb972d1b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  teamID: 0
-  isCivilian: 1
-  isBuilding: 0
-  maxHealth: 100
-  canBeRepaired: 0
-  flashRenderer: {fileID: 0}
-  hitFlashColor: {r: 1, g: 0.3, b: 0.3, a: 1}
-  hitFlashDuration: 0.08
---- !u!114 &126259076976815159
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5538168870909510437}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d756813491c064147b5a9288ce69358e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &6294540286386591285
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5538168870909510437}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8ee6f4facf3c3fd44937e53c2787e554, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  offset: {x: 0, y: 1.2, z: 0}
-  width: 1.2
-  height: 0.12
-  depth: 0.08
-  onlyShowForBuildings: 0
-  hideWhenFullHealth: 1
-  smoothSpeed: 18
-  glowStrength: 1.8
-  billboardToCamera: 1
---- !u!114 &1295376524899511511
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5538168870909510437}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 14f1da7aff9846eaad3ce74c53a6ca09, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  validateOnAwake: 0
-  includeOptionalWarnings: 0
---- !u!114 &-5728538364194016333
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5538168870909510437}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 20e924d16a6cdee41b33215b9910a7dc, type: 3}
+  m_Script: {fileID: 11500000, guid: 6f44cda5789a3744681ff964d1d10ed4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealthComponent
   teamID: 0
-  maxHealth: 0
-  currentHealth: 0
---- !u!114 &-1004968872118365824
+  maxHealth: 100
+  currentHealth: 100
+--- !u!114 &7393258118754378906
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -357,14 +169,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 5538168870909510437}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dfeecafb783a3644eb045e0eb88062b1, type: 3}
+  m_Script: {fileID: 11500000, guid: f6d3ab3eb1ebf8945a32ded6f2d8c214, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MovementController
-  moveSpeed: 0
+  moveSpeed: 2.5
   stopDistance: 1.2
   useRoadBonus: 1
   roadSpeedMultiplier: 1.2
---- !u!114 &4036510120128909271
+--- !u!114 &447393647185965927
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -373,11 +185,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 5538168870909510437}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 459ceb4436a1a214797c42f187b7811e, type: 3}
+  m_Script: {fileID: 11500000, guid: 0b51346f7ec8d29479b5f4a0a8be38e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CarryingController
-  capacity: 0
---- !u!114 &4541779348186860377
+  capacity: 30
+--- !u!114 &6947974543672628970
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -386,28 +198,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 5538168870909510437}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9615e3106d744ca479f9453db09a236a, type: 3}
+  m_Script: {fileID: 11500000, guid: 8ed517359fab0d5449686c04c34b8524, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GatheringController
   harvestPerTick: 1
   gatherInterval: 1
   gatherRange: 1.5
---- !u!114 &-6942594919045944906
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5538168870909510437}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 99a7101291504e14ea8edf081092bc2d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ConstructionWorkerController
-  buildSpeed: 0
-  canHaulMaterials: 1
-  retargetSeconds: 0.6
---- !u!114 &4876506133362684680
+--- !u!114 &3871291967957977171
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -416,138 +213,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5538168870909510437}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2ebf3ac4b7dbb6f4cad1eb6206f79a1e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CombatController
-  attackDamage: 0
-  attackRange: 0
-  attackCooldown: 0
-  armor: 0
---- !u!114 &1822738216757114564
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5538168870909510437}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f8df0f781e4da4d44a9ea47cbd98152c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ToolController
-  startingTools: []
---- !u!114 &-6111293302236098294
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5538168870909510437}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 466d93bd771b3ca478916b5372372099, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TrainingController
-  trainingCost: []
-  trainingTime: 0
-  trainedAt:
-    id: 
-    displayName: 
-    icon: {fileID: 0}
-    prefab: {fileID: 0}
-    category: 0
-    subCategory: 
-    constructionCost: []
-    buildTime: 5
-    maxHealth: 100
-    upkeepCost: []
-    upkeepInterval: 10
-    maxResidents: 0
-    comfortLevel: 0
-    isProducer: 0
-    recipes: []
-    workerSlots: 0
-    isStorage: 0
-    storageSettings:
-      capacity: 0
-      allowedCategories: 
-    isMilitary: 0
-    attackDamage: 0
-    attackRange: 0
-    garrisonSlots: 0
-    powerConsumption: 0
-    powerGeneration: 0
-    waterConsumption: 0
---- !u!114 &6902862384398968288
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5538168870909510437}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 75e618a0af62b0d4f9dd07095ac42c86, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UpgradeController
-  upgradeTarget:
-    id: 
-    displayName: 
-    icon: {fileID: 0}
-    prefab: {fileID: 0}
-    jobType: 0
-    isCombatUnit: 0
-    maxHealth: 100
-    moveSpeed: 3.5
-    attackDamage: 0
-    attackRange: 0
-    attackCooldown: 1
-    armor: 0
-    carryCapacity: 10
-    gatherSpeed: 1
-    buildSpeed: 1
-    trainingCost: []
-    trainingTime: 5
-    trainedAt:
-      id: 
-      displayName: 
-      icon: {fileID: 0}
-      prefab: {fileID: 0}
-      category: 0
-      subCategory: 
-      constructionCost: []
-      buildTime: 5
-      maxHealth: 100
-      upkeepCost: []
-      upkeepInterval: 10
-      maxResidents: 0
-      comfortLevel: 0
-      isProducer: 0
-      recipes: []
-      workerSlots: 0
-      isStorage: 0
-      storageSettings:
-        capacity: 0
-        allowedCategories: 
-      isMilitary: 0
-      attackDamage: 0
-      attackRange: 0
-      garrisonSlots: 0
-      powerConsumption: 0
-      powerGeneration: 0
-      waterConsumption: 0
-    startingTools: []
-    needs: []
---- !u!114 &5012746280532159221
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5538168870909510437}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: adece14e84ad75d41816277478b9cd4b, type: 3}
+  m_Script: {fileID: 11500000, guid: 41e5f5a8e3099fe44a15def37135af22, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NeedsController
   startingNeeds: []
@@ -562,7 +228,7 @@ MonoBehaviour:
   seekSleepThreshold01: 0.6
   sleepDurationSeconds: 5
   exhaustionDamagePerSecond: 1
---- !u!114 &7525030119714089293
+--- !u!114 &3082717544939108339
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -571,13 +237,25 @@ MonoBehaviour:
   m_GameObject: {fileID: 5538168870909510437}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f7a22804915c4beaa4d01ad44d957b0c, type: 3}
+  m_Script: {fileID: 11500000, guid: 2f8fa9c478f3ea64993ca8810844a9a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HousingController
+--- !u!114 &5262847259082431760
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5538168870909510437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b57602167afef004f999e007c66394e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ConstructionWorkerControl
   buildSpeed: 1
   canHaulMaterials: 1
   retargetSeconds: 0.6
---- !u!114 &2138149510851935440
+--- !u!114 &2488209600144246014
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -586,12 +264,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 5538168870909510437}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d1ff4151f4eaf234a87bbf2abd4a6b8c, type: 3}
+  m_Script: {fileID: 11500000, guid: c6f77b4c338c93649b5003fa31699cbf, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DepositStorageComponent
-  searchRetrySeconds: 1.5
-  stopDistance: 1.2
---- !u!114 &6221538617111761241
+  m_EditorClassIdentifier: Assembly-CSharp::CivilianStateMachineController
+--- !u!114 &4451373190352058720
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -600,8 +276,34 @@ MonoBehaviour:
   m_GameObject: {fileID: 5538168870909510437}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f10814761cfb1c14b905e820d94806d7, type: 3}
+  m_Script: {fileID: 11500000, guid: 17f71c50914cf224a995cb334de47031, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WithdrawStorageComponent
-  searchRetrySeconds: 1.5
-  stopDistance: 1.2
+  m_EditorClassIdentifier: Assembly-CSharp::Civilian
+  unitDefinitionId: civilian
+  teamID: 0
+  jobDefinition: {fileID: 0}
+  jobType: 1
+  showGatherProgressBar: 1
+  gatherProgressBarOffset: {x: 0, y: 2.2, z: 0}
+  gatherProgressBarWidth: 1
+  gatherProgressBarHeight: 0.1
+  HasJob: 0
+  CurrentNode: {fileID: 0}
+  foodDatabase: {fileID: 0}
+  resourcesDatabase: {fileID: 0}
+--- !u!114 &7023568545619106114
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5538168870909510437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 946d864e70a93754d823c32a6dd002b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Selectable
+  selectionRing: {fileID: 0}
+  hoverRing: {fileID: 0}
+  attackRangeCircle: {fileID: 0}
+  visionRangeCircle: {fileID: 0}
