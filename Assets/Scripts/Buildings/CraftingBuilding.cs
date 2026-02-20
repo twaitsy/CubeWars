@@ -589,13 +589,32 @@ public class CraftingBuilding : Building
         if (assignedWorkers.Contains(civilian)) return true;
 
         int workerCapacity = Mathf.Min(GetMaxWorkers(), GetWorkPointCapacity());
-        if (assignedWorkers.Count >= workerCapacity) return false;
-        if (recipe.requiredJobType != CivilianJobType.Generalist && civilian.JobType != recipe.requiredJobType) return false;
+        bool isHauler = civilian.JobType == CivilianJobType.Hauler;
 
-        if (requireHaulerLogistics && civilian.JobType == CivilianJobType.Hauler)
+        if (isHauler)
         {
-            int maxHaulers = Mathf.Max(1, maxAssignedHaulers);
-            if (GetAssignedHaulerCount() >= maxHaulers)
+            if (!requireHaulerLogistics)
+                return false;
+
+            int maxHaulers = Mathf.Max(0, maxAssignedHaulers);
+            if (maxHaulers <= 0 || GetAssignedHaulerCount() >= maxHaulers)
+                return false;
+        }
+        else
+        {
+            if (recipe.requiredJobType != CivilianJobType.Generalist && civilian.JobType != recipe.requiredJobType) return false;
+
+            int nonHaulerCount = 0;
+            for (int i = 0; i < assignedWorkers.Count; i++)
+            {
+                var assigned = assignedWorkers[i];
+                if (assigned == null || assigned.JobType == CivilianJobType.Hauler)
+                    continue;
+
+                nonHaulerCount++;
+            }
+
+            if (nonHaulerCount >= workerCapacity)
                 return false;
         }
 

@@ -43,17 +43,19 @@ public struct WorkerTaskRequest
         };
     }
 
-    public static WorkerTaskRequest Craft(int teamID, CraftingBuilding building)
+    public static WorkerTaskRequest Craft(int teamID, CraftingBuilding building, CivilianJobType requiredJobType = CivilianJobType.Generalist)
     {
+        CivilianJobType resolved = requiredJobType;
+        if (resolved == CivilianJobType.Generalist && building != null && building.recipe != null)
+            resolved = building.recipe.requiredJobType;
+
         return new WorkerTaskRequest
         {
             taskType = WorkerTaskType.Craft,
             requiredCapability = WorkerCapability.Craft,
             teamID = teamID,
             craftingBuilding = building,
-            requiredCraftJobType = building != null && building.recipe != null
-                ? building.recipe.requiredJobType
-                : CivilianJobType.Generalist
+            requiredCraftJobType = resolved
         };
     }
 }

@@ -50,7 +50,6 @@ public class dependencies : MonoBehaviour
     DefenseTurret.cs — Automated turret logic (Buildings)
     DiplomacyManager.cs — Handles alliances and hostility (Combat)
     EventManager.cs — Global event dispatcher (Core)
-    Farm.cs — Produces food resources (Buildings)
     FindTeamDuplicates.cs — Debug tool for detecting duplicate teams (Debug)
     GameBootstrap.cs — High-level scene initialization (Core)
     GameManager.cs — Global game state manager (Core)
@@ -153,7 +152,6 @@ public class dependencies : MonoBehaviour
     ConstructionSite.cs
     CraftingSystem.cs
     DefenseTurret.cs
-    Farm.cs
     Headquarters.cs
     ResourceCapacityEntry.cs
     ResourceCost.cs

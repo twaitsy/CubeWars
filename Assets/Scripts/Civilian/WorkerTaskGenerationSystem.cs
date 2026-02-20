@@ -137,13 +137,48 @@ public class WorkerTaskGenerationSystem : MonoBehaviour
             return;
 
         int workPointCapacity = Mathf.Max(1, building.GetWorkPointCapacity());
-        int maxWorkers = Mathf.Min(Mathf.Max(1, building.GetMaxWorkers()), workPointCapacity);
-        int activeWorkers = building.AssignedWorkers.Count;
-        int queuedCraft = Dispatcher.GetQueuedCraftTaskCount(building, building.teamID);
+        int productionWorkerCapacity = Mathf.Min(Mathf.Max(1, building.GetMaxWorkers()), workPointCapacity);
+        int maxHaulers = building.requireHaulerLogistics ? Mathf.Max(0, building.maxAssignedHaulers) : 0;
 
-        int missingWorkers = Mathf.Max(0, maxWorkers - activeWorkers - queuedCraft);
+        int activeProductionWorkers = 0;
+        int activeHaulers = 0;
+        for (int i = 0; i < building.AssignedWorkers.Count; i++)
+        {
+            Civilian worker = building.AssignedWorkers[i];
+            if (worker == null)
+                continue;
 
-        for (int w = 0; w < missingWorkers; w++)
-            Dispatcher.QueueTask(WorkerTaskRequest.Craft(building.teamID, building));
+            if (worker.JobType == CivilianJobType.Hauler)
+            {
+                activeHaulers++;
+                continue;
+            }
+
+            activeProductionWorkers++;
+        }
+
+        int queuedProductionWorkers = 0;
+        int queuedHaulers = 0;
+
+        var queuedTasks = Dispatcher.GetQueuedTasksSnapshot(building.teamID);
+        for (int i = 0; i < queuedTasks.Count; i++)
+        {
+            WorkerTaskRequest task = queuedTasks[i];
+            if (task.taskType != WorkerTaskType.Craft || task.craftingBuilding != building)
+                continue;
+
+            if (task.requiredCraftJobType == CivilianJobType.Hauler)
+                queuedHaulers++;
+            else
+                queuedProductionWorkers++;
+        }
+
+        int missingWorkers = Mathf.Max(0, productionWorkerCapacity - activeProductionWorkers - queuedProductionWorkers);
+        for (int i = 0; i < missingWorkers; i++)
+            Dispatcher.QueueTask(WorkerTaskRequest.Craft(building.teamID, building, building.recipe != null ? building.recipe.requiredJobType : CivilianJobType.Generalist));
+
+        int missingHaulers = Mathf.Max(0, maxHaulers - activeHaulers - queuedHaulers);
+        for (int i = 0; i < missingHaulers; i++)
+            Dispatcher.QueueTask(WorkerTaskRequest.Craft(building.teamID, building, CivilianJobType.Hauler));
     }
 }

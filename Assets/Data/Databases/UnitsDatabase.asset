@@ -13,53 +13,6 @@ MonoBehaviour:
   m_Name: UnitsDatabase
   m_EditorClassIdentifier:
   units:
-  - id: 51566515
-    displayName: 515
-    icon: {fileID: 0}
-    prefab: {fileID: 1254357736737325336, guid: 9a227d5f58819b64b848e7915c88b548,
-      type: 3}
-    jobType: 0
-    isCombatUnit: 0
-    maxHealth: 0
-    moveSpeed: 0
-    attackDamage: 0
-    attackRange: 0
-    attackCooldown: 0
-    armor: 0
-    carryCapacity: 0
-    gatherSpeed: 0
-    buildSpeed: 0
-    trainingCost: []
-    trainingTime: 0
-    trainedAt:
-      id:
-      displayName:
-      icon: {fileID: 0}
-      prefab: {fileID: 0}
-      category: 0
-      subCategory:
-      constructionCost: []
-      buildTime: 0
-      maxHealth: 0
-      upkeepCost: []
-      upkeepInterval: 0
-      maxResidents: 0
-      comfortLevel: 0
-      isProducer: 0
-      recipes: []
-      workerSlots: 0
-      isStorage: 0
-      storageSettings:
-        capacity: 0
-        allowedCategories:
-      isMilitary: 0
-      attackDamage: 0
-      attackRange: 0
-      garrisonSlots: 0
-      powerConsumption: 0
-      powerGeneration: 0
-      waterConsumption: 0
-    startingTools: []
   - id: civilian
     displayName: Civilian
     icon: {fileID: 0}
@@ -68,41 +21,185 @@ MonoBehaviour:
     isCombatUnit: 0
     maxHealth: 50
     moveSpeed: 2.5
-    attackDamage: 0
-    attackRange: 0
-    attackCooldown: 0
+    attackDamage: 1
+    attackRange: 1.2
+    attackCooldown: 1.2
     armor: 0
     carryCapacity: 30
     gatherSpeed: 1
     buildSpeed: 1
     trainingCost: []
     trainingTime: 0
-    trainedAt:
-      id:
-      displayName:
-      icon: {fileID: 0}
-      prefab: {fileID: 0}
-      category: 0
-      subCategory:
-      constructionCost: []
-      buildTime: 0
-      maxHealth: 0
-      upkeepCost: []
-      upkeepInterval: 0
-      maxResidents: 0
-      comfortLevel: 0
-      isProducer: 0
-      recipes: []
-      workerSlots: 0
-      isStorage: 0
-      storageSettings:
-        capacity: 0
-        allowedCategories:
-      isMilitary: 0
-      attackDamage: 0
-      attackRange: 0
-      garrisonSlots: 0
-      powerConsumption: 0
-      powerGeneration: 0
-      waterConsumption: 0
+    trainedAt: {id: , displayName: , icon: {fileID: 0}, prefab: {fileID: 0}, category: 0, subCategory: , constructionCost: [], buildTime: 0, maxHealth: 0, upkeepCost: [], upkeepInterval: 0, maxResidents: 0, comfortLevel: 0, isProducer: 0, recipes: [], workerSlots: 0, isStorage: 0, storageSettings: {capacity: 0, allowedCategories: []}, isMilitary: 0, attackDamage: 0, attackRange: 0, garrisonSlots: 0, powerConsumption: 0, powerGeneration: 0, waterConsumption: 0}
+    startingTools: []
+  - id: villager
+    displayName: Villager
+    icon: {fileID: 0}
+    prefab: {fileID: 1254357736737325336, guid: 9a227d5f58819b64b848e7915c88b548, type: 3}
+    jobType: 0
+    isCombatUnit: 0
+    maxHealth: 60
+    moveSpeed: 2.8
+    attackDamage: 2
+    attackRange: 1.3
+    attackCooldown: 1.1
+    armor: 1
+    carryCapacity: 35
+    gatherSpeed: 1.1
+    buildSpeed: 1.1
+    trainingCost: []
+    trainingTime: 0
+    trainedAt: {id: , displayName: , icon: {fileID: 0}, prefab: {fileID: 0}, category: 0, subCategory: , constructionCost: [], buildTime: 0, maxHealth: 0, upkeepCost: [], upkeepInterval: 0, maxResidents: 0, comfortLevel: 0, isProducer: 0, recipes: [], workerSlots: 0, isStorage: 0, storageSettings: {capacity: 0, allowedCategories: []}, isMilitary: 0, attackDamage: 0, attackRange: 0, garrisonSlots: 0, powerConsumption: 0, powerGeneration: 0, waterConsumption: 0}
+    startingTools: []
+  - id: militia
+    displayName: Militia
+    icon: {fileID: 0}
+    prefab: {fileID: 1254357736737325336, guid: 9a227d5f58819b64b848e7915c88b548, type: 3}
+    jobType: 0
+    isCombatUnit: 1
+    maxHealth: 90
+    moveSpeed: 3.2
+    attackDamage: 10
+    attackRange: 1.5
+    attackCooldown: 1
+    armor: 2
+    carryCapacity: 10
+    gatherSpeed: 0.8
+    buildSpeed: 0.8
+    trainingCost: []
+    trainingTime: 6
+    trainedAt: {id: , displayName: , icon: {fileID: 0}, prefab: {fileID: 0}, category: 0, subCategory: , constructionCost: [], buildTime: 0, maxHealth: 0, upkeepCost: [], upkeepInterval: 0, maxResidents: 0, comfortLevel: 0, isProducer: 0, recipes: [], workerSlots: 0, isStorage: 0, storageSettings: {capacity: 0, allowedCategories: []}, isMilitary: 0, attackDamage: 0, attackRange: 0, garrisonSlots: 0, powerConsumption: 0, powerGeneration: 0, waterConsumption: 0}
+    startingTools: []
+  - id: archer
+    displayName: Archer
+    icon: {fileID: 0}
+    prefab: {fileID: 1254357736737325336, guid: 9a227d5f58819b64b848e7915c88b548, type: 3}
+    jobType: 0
+    isCombatUnit: 1
+    maxHealth: 75
+    moveSpeed: 3.4
+    attackDamage: 12
+    attackRange: 7
+    attackCooldown: 1.4
+    armor: 1
+    carryCapacity: 8
+    gatherSpeed: 0.7
+    buildSpeed: 0.7
+    trainingCost: []
+    trainingTime: 7
+    trainedAt: {id: , displayName: , icon: {fileID: 0}, prefab: {fileID: 0}, category: 0, subCategory: , constructionCost: [], buildTime: 0, maxHealth: 0, upkeepCost: [], upkeepInterval: 0, maxResidents: 0, comfortLevel: 0, isProducer: 0, recipes: [], workerSlots: 0, isStorage: 0, storageSettings: {capacity: 0, allowedCategories: []}, isMilitary: 0, attackDamage: 0, attackRange: 0, garrisonSlots: 0, powerConsumption: 0, powerGeneration: 0, waterConsumption: 0}
+    startingTools: []
+  - id: spearman
+    displayName: Spearman
+    icon: {fileID: 0}
+    prefab: {fileID: 1254357736737325336, guid: 9a227d5f58819b64b848e7915c88b548, type: 3}
+    jobType: 0
+    isCombatUnit: 1
+    maxHealth: 100
+    moveSpeed: 3.1
+    attackDamage: 11
+    attackRange: 2
+    attackCooldown: 1.1
+    armor: 3
+    carryCapacity: 8
+    gatherSpeed: 0.7
+    buildSpeed: 0.7
+    trainingCost: []
+    trainingTime: 7
+    trainedAt: {id: , displayName: , icon: {fileID: 0}, prefab: {fileID: 0}, category: 0, subCategory: , constructionCost: [], buildTime: 0, maxHealth: 0, upkeepCost: [], upkeepInterval: 0, maxResidents: 0, comfortLevel: 0, isProducer: 0, recipes: [], workerSlots: 0, isStorage: 0, storageSettings: {capacity: 0, allowedCategories: []}, isMilitary: 0, attackDamage: 0, attackRange: 0, garrisonSlots: 0, powerConsumption: 0, powerGeneration: 0, waterConsumption: 0}
+    startingTools: []
+  - id: swordsman
+    displayName: Swordsman
+    icon: {fileID: 0}
+    prefab: {fileID: 1254357736737325336, guid: 9a227d5f58819b64b848e7915c88b548, type: 3}
+    jobType: 0
+    isCombatUnit: 1
+    maxHealth: 120
+    moveSpeed: 3
+    attackDamage: 15
+    attackRange: 1.6
+    attackCooldown: 0.9
+    armor: 4
+    carryCapacity: 8
+    gatherSpeed: 0.6
+    buildSpeed: 0.6
+    trainingCost: []
+    trainingTime: 8
+    trainedAt: {id: , displayName: , icon: {fileID: 0}, prefab: {fileID: 0}, category: 0, subCategory: , constructionCost: [], buildTime: 0, maxHealth: 0, upkeepCost: [], upkeepInterval: 0, maxResidents: 0, comfortLevel: 0, isProducer: 0, recipes: [], workerSlots: 0, isStorage: 0, storageSettings: {capacity: 0, allowedCategories: []}, isMilitary: 0, attackDamage: 0, attackRange: 0, garrisonSlots: 0, powerConsumption: 0, powerGeneration: 0, waterConsumption: 0}
+    startingTools: []
+  - id: knight
+    displayName: Knight
+    icon: {fileID: 0}
+    prefab: {fileID: 1254357736737325336, guid: 9a227d5f58819b64b848e7915c88b548, type: 3}
+    jobType: 0
+    isCombatUnit: 1
+    maxHealth: 180
+    moveSpeed: 3.3
+    attackDamage: 22
+    attackRange: 1.8
+    attackCooldown: 0.95
+    armor: 8
+    carryCapacity: 8
+    gatherSpeed: 0.5
+    buildSpeed: 0.5
+    trainingCost: []
+    trainingTime: 10
+    trainedAt: {id: , displayName: , icon: {fileID: 0}, prefab: {fileID: 0}, category: 0, subCategory: , constructionCost: [], buildTime: 0, maxHealth: 0, upkeepCost: [], upkeepInterval: 0, maxResidents: 0, comfortLevel: 0, isProducer: 0, recipes: [], workerSlots: 0, isStorage: 0, storageSettings: {capacity: 0, allowedCategories: []}, isMilitary: 0, attackDamage: 0, attackRange: 0, garrisonSlots: 0, powerConsumption: 0, powerGeneration: 0, waterConsumption: 0}
+    startingTools: []
+  - id: scout
+    displayName: Scout
+    icon: {fileID: 0}
+    prefab: {fileID: 1254357736737325336, guid: 9a227d5f58819b64b848e7915c88b548, type: 3}
+    jobType: 0
+    isCombatUnit: 1
+    maxHealth: 65
+    moveSpeed: 4.2
+    attackDamage: 8
+    attackRange: 1.4
+    attackCooldown: 0.8
+    armor: 1
+    carryCapacity: 12
+    gatherSpeed: 1
+    buildSpeed: 0.6
+    trainingCost: []
+    trainingTime: 5
+    trainedAt: {id: , displayName: , icon: {fileID: 0}, prefab: {fileID: 0}, category: 0, subCategory: , constructionCost: [], buildTime: 0, maxHealth: 0, upkeepCost: [], upkeepInterval: 0, maxResidents: 0, comfortLevel: 0, isProducer: 0, recipes: [], workerSlots: 0, isStorage: 0, storageSettings: {capacity: 0, allowedCategories: []}, isMilitary: 0, attackDamage: 0, attackRange: 0, garrisonSlots: 0, powerConsumption: 0, powerGeneration: 0, waterConsumption: 0}
+    startingTools: []
+  - id: priest
+    displayName: Priest
+    icon: {fileID: 0}
+    prefab: {fileID: 1254357736737325336, guid: 9a227d5f58819b64b848e7915c88b548, type: 3}
+    jobType: 0
+    isCombatUnit: 1
+    maxHealth: 70
+    moveSpeed: 3
+    attackDamage: 6
+    attackRange: 5
+    attackCooldown: 1.5
+    armor: 1
+    carryCapacity: 10
+    gatherSpeed: 0.8
+    buildSpeed: 0.8
+    trainingCost: []
+    trainingTime: 9
+    trainedAt: {id: , displayName: , icon: {fileID: 0}, prefab: {fileID: 0}, category: 0, subCategory: , constructionCost: [], buildTime: 0, maxHealth: 0, upkeepCost: [], upkeepInterval: 0, maxResidents: 0, comfortLevel: 0, isProducer: 0, recipes: [], workerSlots: 0, isStorage: 0, storageSettings: {capacity: 0, allowedCategories: []}, isMilitary: 0, attackDamage: 0, attackRange: 0, garrisonSlots: 0, powerConsumption: 0, powerGeneration: 0, waterConsumption: 0}
+    startingTools: []
+  - id: catapult
+    displayName: Catapult
+    icon: {fileID: 0}
+    prefab: {fileID: 1254357736737325336, guid: 9a227d5f58819b64b848e7915c88b548, type: 3}
+    jobType: 0
+    isCombatUnit: 1
+    maxHealth: 140
+    moveSpeed: 2.2
+    attackDamage: 40
+    attackRange: 12
+    attackCooldown: 2.5
+    armor: 2
+    carryCapacity: 0
+    gatherSpeed: 0.2
+    buildSpeed: 0.2
+    trainingCost: []
+    trainingTime: 14
+    trainedAt: {id: , displayName: , icon: {fileID: 0}, prefab: {fileID: 0}, category: 0, subCategory: , constructionCost: [], buildTime: 0, maxHealth: 0, upkeepCost: [], upkeepInterval: 0, maxResidents: 0, comfortLevel: 0, isProducer: 0, recipes: [], workerSlots: 0, isStorage: 0, storageSettings: {capacity: 0, allowedCategories: []}, isMilitary: 0, attackDamage: 0, attackRange: 0, garrisonSlots: 0, powerConsumption: 0, powerGeneration: 0, waterConsumption: 0}
     startingTools: []

@@ -489,14 +489,6 @@ public class UnitInspectorUI : MonoBehaviour
         GUILayout.Label($"Max Health: {building.maxHealth:0}");
         if (building.TryGetComponent<Headquarters>(out _))
             GUILayout.Label("Role: Team Core / Spawn Anchor");
-        if (building.TryGetComponent<Farm>(out var farm))
-        {
-            GUILayout.Label($"Farm Level: {farm.level}/{farm.maxLevel}");
-            GUILayout.Label($"Production Interval: {farm.productionInterval:0.00}s");
-            int idx = Mathf.Clamp(farm.level - 1, 0, farm.foodPerTickByLevel.Length - 1);
-            int output = farm.foodPerTickByLevel.Length > 0 ? farm.foodPerTickByLevel[idx] : 0;
-            GUILayout.Label($"Food Per Tick: {output}");
-        }
         if (building.TryGetComponent<DefenseTurret>(out var turret))
         {
             GUILayout.Label($"Range: {turret.range:0.0}");

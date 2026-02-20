@@ -144,3 +144,9 @@ Update (2026-02):
 - Job/task queuing now respects workstation count (one queued crafting job per available work point).
 
 - RequireComponent on CraftingBuilding now enforces a root ResourceStorageContainer.
+
+
+Update (2026-02-20)
+- Legacy Farm.cs production path removed. CraftingBuilding is the only supported production script for prefab setup in this guide.
+- `maxWorkers` represents production workers at work points; `maxAssignedHaulers` now drives separate hauler-task queueing and assignment caps.
+- Require at least one valid unit definition in UnitsDatabase for each spawned worker/combat prefab, configured via inspector unitDefinitionId dropdowns.
