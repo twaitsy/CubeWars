@@ -775,3 +775,10 @@ Update (2026-02-20, crafting + idle behavior)
 - Housing responsibilities are centralized in `HousingController` (assignment, target selection/claiming, house bonuses, and house food consumption helpers).
 - Homeless civilians now periodically retry house assignment via `HousingController` recheck ticks (no scene setup changes required).
 - Legacy `SkillType.cs` has been removed; `CharacterStats` now uses `CharacterSkillType` defined in `CharacterStats.cs`.
+
+Maintenance note (2026-02 civilian state-machine refactor)
+- No new required scene scripts were added.
+- Civilian movement/arrival checks now share helper pathways for building targets and explicit world positions, reducing duplicated state transition code.
+- Civilian search retry timing (build/supply scans) now uses a common retry helper to keep retry cadence consistent.
+- Civilian need-action timing (eat/sleep) now uses a shared timer helper for completion thresholds.
+- Legacy civilian deposit methods (`TickGoDeposit`, `TickDeposit`) were removed; active deposit flow remains `FindDepositStorage -> GoingToDepositStorage -> Depositing`.
