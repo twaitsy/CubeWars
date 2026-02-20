@@ -54,13 +54,18 @@ public class SceneRequiredScripts : MonoBehaviour
         }
 
         // Check bootstrap requirement
-        if (FindObjectsByType<TeamBootstrap>(FindObjectsSortMode.None) == null)
+        bool hasTeamBootstrap = FindObjectsByType<TeamBootstrap>(FindObjectsSortMode.None).Length > 0;
+        bool hasSixTeamBootstrap = FindObjectsByType<SixTeamBootstrap>(FindObjectsSortMode.None).Length > 0;
+        bool hasHQSpawner = FindObjectsByType<HQSpawner>(FindObjectsSortMode.None).Length > 0;
+
+        if (!hasTeamBootstrap && !hasSixTeamBootstrap && !hasHQSpawner)
         {
             missingRequiredTypes.Add("TeamBootstrap OR SixTeamBootstrap OR HQSpawner");
         }
 
         // Check for missing script components
-        int missingScriptComponents = CountMissingScriptComponentsInActiveScene();
+        List<string> missingScriptGameObjects = GetMissingScriptComponentGameObjectPathsInActiveScene();
+        int missingScriptComponents = missingScriptGameObjects.Count;
 
         if (missingRequiredTypes.Count == 0 && missingScriptComponents == 0)
         {
@@ -77,6 +82,13 @@ public class SceneRequiredScripts : MonoBehaviour
         if (missingScriptComponents > 0)
         {
             Debug.LogError("[SceneRequiredScripts] Found " + missingScriptComponents + " missing script component(s) in the active scene hierarchy.", this);
+
+            int maxEntriesToPrint = Mathf.Min(20, missingScriptGameObjects.Count);
+            for (int i = 0; i < maxEntriesToPrint; i++)
+                Debug.LogError($"[SceneRequiredScripts] Missing script detected on GameObject path: {missingScriptGameObjects[i]}", this);
+
+            if (missingScriptGameObjects.Count > maxEntriesToPrint)
+                Debug.LogError($"[SceneRequiredScripts] ...and {missingScriptGameObjects.Count - maxEntriesToPrint} more GameObject(s) with missing scripts.", this);
         }
 
         ValidateWorkforceDataSetup();
@@ -289,13 +301,13 @@ public class SceneRequiredScripts : MonoBehaviour
             Debug.LogWarning($"[SceneRequiredScripts] Database diagnostics: tools count is {toolCount}; expected at least 20 tool definitions.", this);
     }
 
-    static int CountMissingScriptComponentsInActiveScene()
+    static List<string> GetMissingScriptComponentGameObjectPathsInActiveScene()
     {
         Scene scene = SceneManager.GetActiveScene();
         if (!scene.IsValid() || !scene.isLoaded)
-            return 0;
+            return new List<string>();
 
-        int missingCount = 0;
+        var missingPaths = new List<string>();
         GameObject[] roots = scene.GetRootGameObjects();
 
         for (int i = 0; i < roots.Length; i++)
@@ -309,12 +321,32 @@ public class SceneRequiredScripts : MonoBehaviour
                 for (int k = 0; k < components.Length; k++)
                 {
                     if (components[k] == null)
-                        missingCount++;
+                    {
+                        missingPaths.Add(GetHierarchyPath(allTransforms[j]));
+                        break;
+                    }
                 }
             }
         }
 
-        return missingCount;
+        return missingPaths;
+    }
+
+    static string GetHierarchyPath(Transform transform)
+    {
+        if (transform == null)
+            return "<null>";
+
+        var names = new List<string>();
+        Transform current = transform;
+        while (current != null)
+        {
+            names.Add(current.name);
+            current = current.parent;
+        }
+
+        names.Reverse();
+        return string.Join("/", names);
     }
     void ValidateCivilianControllerSetup()
     {

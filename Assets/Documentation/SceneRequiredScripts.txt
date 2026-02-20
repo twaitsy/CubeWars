@@ -352,3 +352,14 @@ Script-enforced component requirements (latest)
 - CraftingBuilding now auto-adds: ResourceStorageContainer.
 - House now auto-adds: ResourceStorageContainer.
 - StorageFacility now auto-adds: ResourceStorageProvider and ResourceStorageContainer.
+
+
+Missing-script component diagnostics (2026-02 update)
+- SceneRequiredScripts now validates bootstrap presence correctly by accepting any of: TeamBootstrap, SixTeamBootstrap, or HQSpawner.
+- Missing script scans now include the full GameObject hierarchy path for each object with missing MonoBehaviour references.
+- Validation logs print up to 20 missing-script object paths, followed by a summary count for any additional objects.
+
+Prefab validator coverage update
+- BuildingPrefabValidator now validates Unit combat prefabs in addition to Building, Civilian, and ResourceNode roots.
+- Combat-unit checks include: Attackable, UnitCombatController, NavMeshAgent, optional Selectable/WeaponComponent, and unitDefinitionId database presence warnings.
+- Attach BuildingPrefabValidator to combat unit prefabs when you want one-click runtime validation logging across all core gameplay prefab categories.

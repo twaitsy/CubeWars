@@ -726,3 +726,14 @@ The following gameplay scripts now enforce required dependencies with RequireCom
 - CraftingBuilding: ResourceStorageContainer.
 - House: ResourceStorageContainer.
 - StorageFacility: ResourceStorageProvider, ResourceStorageContainer.
+
+
+SceneRequiredScripts missing-script alert behavior (2026-02)
+- Scene validation now treats TeamBootstrap, SixTeamBootstrap, and HQSpawner as valid alternatives for team bootstrap.
+- Missing MonoBehaviour references are now reported with explicit GameObject hierarchy paths to speed up scene cleanup.
+- The validator prints the first 20 missing-script object paths, then emits an overflow summary if more are found.
+
+Prefab validator scope expansion (2026-02)
+- BuildingPrefabValidator now supports validation of combat-unit prefabs (`Unit`) in addition to Building, Civilian, and ResourceNode prefabs.
+- Combat-unit validation checks required gameplay components (`Attackable`, `UnitCombatController`, `NavMeshAgent`) and warns for missing `Selectable`, `WeaponComponent`, or unknown `unitDefinitionId` entries.
+- Recommended workflow: keep BuildingPrefabValidator on reusable gameplay prefabs and run Validate Building Components before committing prefab changes.
