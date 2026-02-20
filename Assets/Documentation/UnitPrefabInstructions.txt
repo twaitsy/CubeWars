@@ -33,3 +33,7 @@ CubeWars - Unit Prefab Creation Instructions
 - Unit can acquire and pursue hostile target.
 - Unit fires projectile even without WeaponComponent.
 - Unit appears in inspector and stance can be changed.
+
+
+Latest component enforcement
+- RequireComponent on Unit now enforces NavMeshAgent + UnitCombatController.

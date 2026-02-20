@@ -342,3 +342,13 @@ Update: civilian data-source validation
 - SceneRequiredScripts currently reads civilians via `CivilianRegistry.GetAll()` (list snapshot accessor retained for compatibility with index-based diagnostics loops).
 - Civilian controller diagnostics continue to validate Health/Movement/Carrying/Gathering/Construction/Needs/StateMachine components on registered civilians.
 - If extending diagnostics, keep collection iteration compatible with `IReadOnlyList` (`Count`) and registry snapshots to avoid compile breaks.
+
+
+Script-enforced component requirements (latest)
+- Civilian now auto-adds: HealthComponent, MovementController, CarryingController, GatheringController, NeedsController, HousingController, ConstructionWorkerControl, CivilianStateMachineController, ToolController, JobController, TrainingController, UpgradeController.
+- Unit now auto-adds: NavMeshAgent and UnitCombatController.
+- Headquarters now auto-adds: BuildingInteractionPointController.
+- ConstructionSite now auto-adds: BuildGridOccupant.
+- CraftingBuilding now auto-adds: ResourceStorageContainer.
+- House now auto-adds: ResourceStorageContainer.
+- StorageFacility now auto-adds: ResourceStorageProvider and ResourceStorageContainer.

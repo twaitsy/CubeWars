@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(ResourceStorageProvider))]
+[RequireComponent(typeof(ResourceStorageContainer))]
+
 [DisallowMultipleComponent]
 public class StorageFacility : Building
 {

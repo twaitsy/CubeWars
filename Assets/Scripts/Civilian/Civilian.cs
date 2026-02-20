@@ -9,6 +9,10 @@ using UnityEngine;
 [RequireComponent(typeof(HousingController))]
 [RequireComponent(typeof(ConstructionWorkerControl))]
 [RequireComponent(typeof(CivilianStateMachineController))]
+[RequireComponent(typeof(ToolController))]
+[RequireComponent(typeof(JobController))]
+[RequireComponent(typeof(TrainingController))]
+[RequireComponent(typeof(UpgradeController))]
 
 public class Civilian : MonoBehaviour, ITargetable
 {
