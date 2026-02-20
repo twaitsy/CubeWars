@@ -201,12 +201,12 @@ MonoBehaviour:
   outputSlot: {fileID: 4465389164846448858}
   workPoints:
   - {fileID: 1766575201802066558}
-  maxWorkers: 2
-  maxInputCapacityPerResource: 50
-  maxOutputCapacityPerResource: 50
+  maxWorkers: 1
+  maxInputCapacityPerResource: 1000
+  maxOutputCapacityPerResource: 1000
   craftingSpeedModifier: 1
   requireHaulerLogistics: 1
-  maxAssignedHaulers: 2
+  maxAssignedHaulers: 4
   assignmentPriority: 5
   allowAutomaticAssignment: 1
   productionEffects: []

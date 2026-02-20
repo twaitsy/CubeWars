@@ -209,7 +209,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d09c19fcf176e4849baeb9c490731daa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Unit
-  unitDefinitionId: 
+  unitDefinitionId: militia
   teamID: 0
   combatEnabled: 1
   attackRange: 5
