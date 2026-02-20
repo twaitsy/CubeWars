@@ -109,3 +109,10 @@ Building interaction targeting update
 Update (2026-02-20)
 - Hauler civilians can now accept crafting logistics tasks emitted from the registry-driven worker task queue without requiring craft-capable job conversion.
 - When civilians remain without a valid job target for more than 10 seconds, they now wait at their assigned house interaction point (`BuildingInteractionPointType.House`) until a valid task can be assigned.
+
+
+FSM ownership update (2026-02-20)
+- Civilian state classes now own both execution (`Tick`) and state metadata used by UI/inspector (`TaskLabel` + state detail text).
+- `CivilianStateBase` includes virtual metadata methods, and each concrete state overrides only what it needs.
+- This removes centralized state-to-string switch blocks and keeps future state changes localized per class.
+- FSM migration complete: legacy top-level state `Tick*` methods were removed from `Civilian`; each concrete `CivilianStateBase` derivative now contains full per-state execution logic in `Tick()`.

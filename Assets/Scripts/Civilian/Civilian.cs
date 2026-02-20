@@ -459,30 +459,6 @@ public class Civilian : MonoBehaviour, ITargetable
         }
     }
 
-    void TickIdle()
-    {
-        idleNoTaskTimer += Time.deltaTime;
-
-        if (jobType != CivilianJobType.Idle)
-            return;
-
-        housingController?.TryAssignHouseIfNeeded();
-
-        if (AssignedHouse == null)
-            return;
-
-        idleWanderTimer -= Time.deltaTime;
-        if (idleWanderTimer <= 0f || (idleWanderTarget - transform.position).sqrMagnitude < 1f)
-        {
-            idleWanderTimer = Random.Range(2f, 5f);
-            Vector2 jitter = Random.insideUnitCircle * 3f;
-            idleWanderTarget = AssignedHouse.transform.position + new Vector3(jitter.x, 0f, jitter.y);
-        }
-
-        float stop = movementController.ResolveStopDistance(AssignedHouse.transform, BuildingStopDistanceType.House);
-        movementController.MoveTo(idleWanderTarget, stop);
-    }
-
     void TickIdleAtAssignedHousePoint()
     {
         if (AssignedHouse == null)
@@ -491,37 +467,6 @@ public class Civilian : MonoBehaviour, ITargetable
         Transform houseTarget = movementController.ResolveInteractionTarget(AssignedHouse.transform, BuildingInteractionPointType.House);
         float stop = movementController.ResolveStopDistance(AssignedHouse.transform, BuildingStopDistanceType.House);
         movementController.MoveTo(houseTarget.position, stop);
-    }
-
-    void TickSeekFoodStorage()
-    {
-        if (TryConsumeFoodFromAssignedHouse())
-            return;
-
-        if (TeamStorageManager.Instance == null)
-            return;
-
-        if (targetFoodStorage == null || targetFoodStorage.teamID != teamID || targetFoodStorage.GetStored(targetFoodResource) <= 0)
-        {
-            if (!TryFindBestFoodStorage(out targetFoodStorage, out targetFoodResource, out targetFoodDefinition))
-                return;
-        }
-
-        if (!MoveToBuildingAndCheckArrival(targetFoodStorage.transform, BuildingStopDistanceType.Storage, BuildingInteractionPointType.Storage))
-            return;
-
-        pendingFoodAmount = Mathf.Max(1, foodToEatPerMeal);
-        int eatenUnits = targetFoodStorage.Withdraw(targetFoodResource, pendingFoodAmount);
-        if (eatenUnits <= 0)
-        {
-            targetFoodStorage = null;
-            return;
-        }
-
-        pendingFoodAmount = eatenUnits;
-        currentEatDurationSeconds = targetFoodDefinition != null ? Mathf.Max(0.1f, targetFoodDefinition.eatTime) : eatDurationSeconds;
-        needActionTimer = 0f;
-        SetState(State.Eating);
     }
 
     bool TryConsumeFoodFromAssignedHouse()
@@ -540,71 +485,6 @@ public class Civilian : MonoBehaviour, ITargetable
         SetState(State.Eating);
         targetFoodStorage = null;
         return true;
-    }
-
-    void TickEating()
-    {
-        if (!TickTimer(ref needActionTimer, currentEatDurationSeconds))
-            return;
-
-        // NeedsController handles the actual hunger restoration
-        needsController.BeginEating(targetFoodDefinition, pendingFoodAmount);
-
-        pendingFoodAmount = 0;
-        targetFoodStorage = null;
-        targetFoodDefinition = null;
-
-        if (needsController.ShouldSleepNow())
-            SetState(State.SeekingHouse);
-        else if (!needsController.ShouldEatNow())
-            ResumeAfterNeed();
-        else
-            SetState(State.SeekingFoodStorage);
-    }
-
-    void TickSeekHouse()
-    {
-        if (!housingController.TryEnsureTargetHouse())
-            return;
-
-        House targetHouse = housingController.TargetHouse;
-        if (targetHouse == null)
-            return;
-
-        if (!MoveToBuildingAndCheckArrival(targetHouse.transform, BuildingStopDistanceType.House, BuildingInteractionPointType.House))
-            return;
-
-        if (!housingController.TryClaimTargetHouse())
-        {
-            housingController.SetTargetHouse(null);
-            return;
-        }
-
-        needActionTimer = 0f;
-        SetState(State.Sleeping);
-    }
-
-    void TickSleeping()
-    {
-        if (AssignedHouse == null)
-        {
-            SetState(State.SeekingHouse);
-            return;
-        }
-
-        needsController.TickSleep(Time.deltaTime);
-        currentTiredness = needsController.CurrentTiredness;
-
-        ConsumeHouseFoodWhileResting();
-
-        if (!TickTimer(ref needActionTimer, sleepDurationSeconds))
-            return;
-
-        needsController.CompleteSleep();
-        currentTiredness = needsController.CurrentTiredness;
-
-        housingController.SetTargetHouse(AssignedHouse);
-        ResumeAfterNeed();
     }
 
     bool TryFindBestFoodStorage(out ResourceStorageContainer bestStorage, out ResourceDefinition bestType, out FoodDefinition bestFood)
@@ -749,254 +629,7 @@ public class Civilian : MonoBehaviour, ITargetable
             movementController.MoveTo(worldPos, stop);
         }
     }
-    private void TickSearchNode()
-    {
-        idleNoTaskTimer += Time.deltaTime;
-
-        // 1. If a preferred node was set, let the controller handle it
-        if (gatheringController.forcedNode != null)
-        {
-            var node = gatheringController.forcedNode;
-
-            if (!node.IsDepleted && gatheringController.AssignNode(node))
-            {
-                idleNoTaskTimer = 0f;
-                SetState(State.GoingToNode);
-                return;
-            }
-
-            // Clear forced node if unusable
-            gatheringController.forcedNode = null;
-        }
-
-        // 2. Ask controller to find a node
-        if (gatheringController.TryFindNode(out var bestNode))
-        {
-            if (gatheringController.AssignNode(bestNode))
-            {
-                idleNoTaskTimer = 0f;
-                SetState(State.GoingToNode);
-                return;
-            }
-        }
-
-        // 3. No node found → fallback
-        TryFallbackToHouseInteractionPoint();
-    }
-    private void TickGoNode()
-    {
-        // If full before arrival, go deposit instead
-        if (carryingController.IsFull)
-        {
-            SetState(State.GoingToDepositStorage);
-            return;
-        }
-
-        var node = gatheringController.CurrentNode;
-
-        if (node == null)
-        {
-            SetState(State.SearchingNode);
-            return;
-        }
-
-        if (movementController.HasArrived())
-            SetState(State.Gathering);
-    }
-    private void TickGather()
-    {
-        // If we lost the node, restart search
-        if (gatheringController.CurrentNode == null)
-        {
-            SetState(State.SearchingNode);
-            return;
-        }
-
-        // If full, go deposit
-        if (carryingController.IsFull)
-        {
-            SetState(State.FindDepositStorage);
-            return;
-        }
-
-        // Attempt to gather
-        bool gathered = gatheringController.TickGathering();
-
-        // If gathering failed because node depleted, restart search
-        if (!gathered && gatheringController.CurrentNode == null)
-        {
-            SetState(State.SearchingNode);
-            return;
-        }
-    }
-    private void TickFindDepositStorage()
-    {
-        targetStorage = null;
-        targetDropoff = null;
-
-        if (gatheringController.TryFindDepositStorage(out targetStorage))
-        {
-            SetState(State.GoingToDepositStorage);
-            return;
-        }
-
-        if (gatheringController.TryFindDropoff(out targetDropoff))
-        {
-            SetState(State.GoingToDepositStorage);
-            return;
-        }
-
-        // No storage found → idle
-        SetState(State.Idle);
-    }
-    void TickDepositing()
-    {
-        if (targetStorage == null && targetDropoff == null)
-        {
-            SetState(State.FindDepositStorage);
-            return;
-        }
-
-        bool emptiedInventory = targetStorage != null
-            ? gatheringController.TryDeposit(targetStorage)
-            : gatheringController.TryDeposit(targetDropoff);
-
-        if (emptiedInventory)
-        {
-            SetState(State.SearchingNode);
-            return;
-        }
-
-        if (!carryingController.IsCarrying)
-        {
-            SetState(State.SearchingNode);
-            return;
-        }
-
-        SetState(State.FindDepositStorage);
-    }
-    void TickGoingToDepositStorage()
-    {
-        Transform depositTarget = targetStorage != null ? targetStorage.transform : targetDropoff != null ? targetDropoff.transform : null;
-
-        if (depositTarget == null)
-        {
-            SetState(State.FindDepositStorage);
-            return;
-        }
-
-        if (MoveToBuildingAndCheckArrival(depositTarget, BuildingStopDistanceType.Storage, BuildingInteractionPointType.Storage))
-            SetState(State.Depositing);
-    }
-    void TickSearchBuildSite()
-    {
-        idleNoTaskTimer += Time.deltaTime;
-
-        if (!ShouldRetrySearch(ref searchTimer, searchRetrySeconds)) return;
-
-        targetSite = FindNearestConstructionSite(teamID, transform.position);
-        CurrentAssignedSite = targetSite;
-
-        if (targetSite == null)
-        {
-            TryFallbackToHouseInteractionPoint();
-            return;
-        }
-
-        if (!targetSite.MaterialsComplete && buildersCanHaulMaterials)
-        {
-            idleNoTaskTimer = 0f;
-            SetState(State.SearchingSupplySite);
-            return;
-        }
-
-        idleNoTaskTimer = 0f;
-        SetState(State.GoingToBuildSite);
-
-        movementController.MoveToBuildingTarget(targetSite.transform, BuildingStopDistanceType.Construction, BuildingInteractionPointType.Default);
-    }
-
-    void TickGoBuildSite()
-    {
-        if (targetSite == null || targetSite.IsComplete)
-        {
-            targetSite = null;
-            CurrentAssignedSite = null;
-            SetState(State.SearchingBuildSite);
-            return;
-        }
-
-        if (!targetSite.MaterialsComplete)
-        {
-            SetState(buildersCanHaulMaterials ? State.SearchingSupplySite : State.SearchingBuildSite);
-            return;
-        }
-
-        movementController.MoveToBuildingTarget(targetSite.transform, BuildingStopDistanceType.Construction, BuildingInteractionPointType.Default);
-        if (movementController.HasArrived()) SetState(State.Building);
-    }
-
-    void TickBuild()
-    {
-        if (targetSite == null || targetSite.IsComplete)
-        {
-            targetSite = null;
-            CurrentAssignedSite = null;
-            SetState(State.SearchingBuildSite);
-            return;
-        }
-
-        if (!targetSite.MaterialsComplete)
-        {
-            SetState(buildersCanHaulMaterials ? State.SearchingSupplySite : State.SearchingBuildSite);
-            return;
-        }
-
-        targetSite.AddWork(Time.deltaTime * Mathf.Max(0.25f, GetBuildMultiplier()));
-    }
-
     // ---------- Hauler / Supply to Construction ----------
-
-    void TickSearchSupplySite()
-    {
-        idleNoTaskTimer += Time.deltaTime;
-
-        if (jobType == CivilianJobType.Hauler && TryHandleCraftingHaulerPriority())
-            return;
-
-        if (carriedAmount > 0 && targetSite != null)
-        {
-            SetState(State.GoingToDeliverSite);
-            return;
-        }
-
-        if (!ShouldRetrySearch(ref searchTimer, searchRetrySeconds)) return;
-
-        targetSite = FindNearestConstructionSite(teamID, transform.position);
-        CurrentDeliverySite = targetSite;
-
-        if (targetSite == null)
-        {
-            TryFallbackToHouseInteractionPoint();
-            return;
-        }
-        if (targetSite.IsComplete || targetSite.MaterialsComplete)
-        {
-            SetState((jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite);
-            return;
-        }
-
-        if (!TryChooseNeededResource(targetSite, out carriedResource))
-        {
-            targetSite = null;
-            CurrentDeliverySite = null;
-            SetState((jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite);
-            return;
-        }
-
-        SetState(State.GoingToPickupStorage);
-        idleNoTaskTimer = 0f;
-    }
 
     bool TryFallbackToHouseInteractionPoint()
     {
@@ -1063,101 +696,6 @@ public class Civilian : MonoBehaviour, ITargetable
         }
 
         return false;
-    }
-
-    void TickGoPickup()
-    {
-        if (TeamStorageManager.Instance == null || targetSite == null)
-        {
-            SetState((jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite);
-            return;
-        }
-
-        // Only pick up up to what is reserved for this site
-        int reservedForSite = TeamStorageManager.Instance.GetReservedForSite(targetSite.SiteKey, carriedResource);
-        if (reservedForSite <= 0)
-        {
-            SetState((jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite);
-            return;
-        }
-
-        if (targetStorage == null)
-            targetStorage = TeamStorageManager.Instance.FindNearestStorageWithStored(teamID, carriedResource, transform.position);
-
-        if (targetStorage == null)
-            return;
-
-        if (MoveToBuildingAndCheckArrival(targetStorage.transform, BuildingStopDistanceType.Storage, BuildingInteractionPointType.Storage))
-            SetState(State.PickingUp);
-    }
-
-    void TickPickup()
-    {
-        if (TeamStorageManager.Instance == null || targetStorage == null || targetSite == null)
-        {
-            SetState((jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite);
-            return;
-        }
-
-        int missing = targetSite.GetMissing(carriedResource);
-        int reservedForSite = TeamStorageManager.Instance.GetReservedForSite(targetSite.SiteKey, carriedResource);
-
-        int want = Mathf.Min(GetCarryCapacity(), missing);
-        want = Mathf.Min(want, reservedForSite);
-
-        if (want <= 0)
-        {
-            targetStorage = null;
-            SetState((jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite);
-            return;
-        }
-
-        int took = PickupResourceFromStorage(targetStorage, carriedResource, want);
-        if (took <= 0)
-        {
-            targetStorage = null;
-            SetState((jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite);
-            return;
-        }
-
-        // Reduce reservation as soon as the resources are physically removed from storage
-        TeamStorageManager.Instance.ConsumeReserved(teamID, targetSite.SiteKey, carriedResource, took);
-
-        targetStorage = null;
-        SetState(State.GoingToDeliverSite);
-        movementController.MoveToBuildingTarget(targetSite.transform, BuildingStopDistanceType.Construction, BuildingInteractionPointType.Default);
-    }
-
-    void TickGoDeliver()
-    {
-        if (targetSite == null)
-        {
-            SetState(State.GoingToDepositStorage);
-            return;
-        }
-
-        if (MoveToBuildingAndCheckArrival(targetSite.transform, BuildingStopDistanceType.Construction, BuildingInteractionPointType.Default)) SetState(State.Delivering);
-    }
-
-    void TickDeliver()
-    {
-        if (targetSite == null || carriedAmount <= 0)
-        {
-            SetState((jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite);
-            return;
-        }
-
-        int accepted = targetSite.ReceiveDelivery(carriedResource, carriedAmount);
-        ApplyDeliveryAccepted(accepted);
-
-        if (carriedAmount > 0)
-        {
-            // if somehow couldn’t accept, put it back into storage
-            SetState(State.GoingToDepositStorage);
-            return;
-        }
-
-        SetState((jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite);
     }
 
     // ---------- Helpers ----------
@@ -1339,234 +877,7 @@ public class Civilian : MonoBehaviour, ITargetable
         manualCraftingAssignment = false;
     }
 
-    void TickFetchCraftInput()
-    {
-        if (targetCraftingBuilding == null)
-        {
-            SetState(State.Idle);
-            return;
-        }
-
-        if (targetCraftingBuilding.requireHaulerLogistics && jobType != CivilianJobType.Hauler)
-        {
-            SetState(State.GoingToWorkPoint);
-            return;
-        }
-
-        if (carriedAmount > 0)
-        {
-            SetState(targetCraftingBuilding.NeedsInput(carriedResource)
-                ? State.DeliveringCraftInput
-                : State.GoingToDepositStorage);
-            return;
-        }
-
-        if (targetCraftingBuilding.TryGetInputRequest(transform.position, out carriedResource, out int amount, out targetStorage))
-        {
-            if (targetStorage == null)
-            {
-                ProductionNotificationManager.Instance?.NotifyIfReady($"missing-storage-{targetCraftingBuilding.GetInstanceID()}", $"{targetCraftingBuilding.name}: no storage with {carriedResource} found.");
-                return;
-            }
-
-            if (MoveToBuildingAndCheckArrival(targetStorage.transform, BuildingStopDistanceType.Storage, BuildingInteractionPointType.Storage))
-            {
-                int took = PickupResourceFromStorage(targetStorage, carriedResource, Mathf.Min(amount, GetCarryCapacity()));
-                SetState(took > 0 ? State.DeliveringCraftInput : State.FetchingCraftInput);
-            }
-            return;
-        }
-
-        if (targetCraftingBuilding.requireHaulerLogistics)
-            SetState(targetCraftingBuilding.HasAnyOutputQueued() ? State.CollectingCraftOutput : State.FetchingCraftInput);
-        else
-            SetState(targetCraftingBuilding.HasAnyOutputQueued() ? State.CollectingCraftOutput : State.GoingToWorkPoint);
-    }
-
-    void TickDeliverCraftInput()
-    {
-        if (targetCraftingBuilding == null)
-        {
-            SetState(State.GoingToDepositStorage);
-            return;
-        }
-
-        Transform inputTransform = targetCraftingBuilding.inputSlot != null
-            ? targetCraftingBuilding.inputSlot
-            : movementController.ResolveInteractionTarget(targetCraftingBuilding.transform, BuildingInteractionPointType.CraftInput);
-        float stop = movementController.ResolveStopDistance(targetCraftingBuilding != null ? targetCraftingBuilding.transform : null, BuildingStopDistanceType.CraftInput);
-        if (!MoveToPositionAndCheckArrival(inputTransform.position, stop)) return;
-
-        if (carriedAmount <= 0)
-        {
-            SetState(State.FetchingCraftInput);
-            return;
-        }
-
-        targetCraftingBuilding.TryDeliverInput(carriedResource, carriedAmount, out int accepted);
-        ApplyDeliveryAccepted(accepted);
-
-        if (carriedAmount > 0)
-        {
-            SetState(State.GoingToDepositStorage);
-            return;
-        }
-
-        if (IsCraftingLogisticsHauler())
-        {
-            SetState(State.FetchingCraftInput);
-            return;
-        }
-
-        if (jobType == CivilianJobType.Crafter)
-            SetState(State.GoingToWorkPoint);
-        else
-            SetState(ResolveRoleFallbackState());
-    }
-
-    void TickGoWorkPoint()
-    {
-        if (targetCraftingBuilding == null)
-        {
-            SetState(State.Idle);
-            return;
-        }
-
-        if (IsCraftingLogisticsHauler())
-        {
-            SetState(State.FetchingCraftInput);
-            return;
-        }
-
-        if (!targetCraftingBuilding.TryReserveWorkPoint(this, out targetWorkPoint) || targetWorkPoint == null)
-            return;
-
-        Transform ctx = targetCraftingBuilding != null ? targetCraftingBuilding.transform : targetWorkPoint;
-        float stop = movementController.ResolveStopDistance(ctx, BuildingStopDistanceType.CraftWork);
-        if (MoveToPositionAndCheckArrival(targetWorkPoint.position, stop))
-        {
-            stalledAtWorkPointTimer = 0f;
-            SetState(State.CraftingAtWorkPoint);
-            return;
-        }
-
-        stalledAtWorkPointTimer += Time.deltaTime;
-        if (stalledAtWorkPointTimer < 10f)
-            return;
-
-        Debug.LogWarning($"[{nameof(Civilian)}] Workpoint stalled for {name}. Clearing crafting assignment.");
-        stalledAtWorkPointTimer = 0f;
-        targetCraftingBuilding.RemoveWorker(this);
-        ClearCraftingAssignment();
-        SetState(ResolveRoleFallbackState());
-    }
-
-    void TickCraftAtWorkPoint()
-    {
-        if (targetCraftingBuilding == null)
-        {
-            SetState(State.Idle);
-            return;
-        }
-
-        if (IsCraftingLogisticsHauler())
-        {
-            SetState(State.FetchingCraftInput);
-            return;
-        }
-
-        if (!targetCraftingBuilding.requireHaulerLogistics)
-        {
-            if (targetCraftingBuilding.State == CraftingBuilding.ProductionState.WaitingForInputs)
-                SetState(State.FetchingCraftInput);
-            else if (targetCraftingBuilding.State == CraftingBuilding.ProductionState.OutputReady || targetCraftingBuilding.State == CraftingBuilding.ProductionState.WaitingForPickup)
-                SetState(State.CollectingCraftOutput);
-        }
-    }
-
-    void TickCollectCraftOutput()
-    {
-        if (targetCraftingBuilding == null)
-        {
-            SetState(State.Idle);
-            return;
-        }
-
-        if (targetCraftingBuilding.requireHaulerLogistics && jobType != CivilianJobType.Hauler)
-        {
-            SetState(State.GoingToWorkPoint);
-            return;
-        }
-
-        if (targetCraftingBuilding.NeedsAnyInput())
-        {
-            SetState(State.FetchingCraftInput);
-            return;
-        }
-
-        if (carriedAmount > 0)
-        {
-            SetState(targetCraftingBuilding.NeedsInput(carriedResource)
-                ? State.DeliveringCraftInput
-                : State.DeliveringCraftOutput);
-            return;
-        }
-
-        if (!targetCraftingBuilding.TryGetOutputRequest(transform.position, out carriedResource, out int amount, out targetStorage))
-        {
-            SetState(State.FetchingCraftInput);
-            return;
-        }
-
-        Transform outputTransform = targetCraftingBuilding.outputSlot != null
-            ? targetCraftingBuilding.outputSlot
-            : movementController.ResolveInteractionTarget(targetCraftingBuilding.transform, BuildingInteractionPointType.CraftOutput);
-        float stop = movementController.ResolveStopDistance(targetCraftingBuilding != null ? targetCraftingBuilding.transform : null, BuildingStopDistanceType.CraftOutput);
-        if (!MoveToPositionAndCheckArrival(outputTransform.position, stop)) return;
-
-        carriedAmount = targetCraftingBuilding.CollectOutput(carriedResource, Mathf.Min(amount, GetCarryCapacity()));
-        carryingController?.SetCarried(carriedResource, carriedAmount);
-        SetState(carriedAmount > 0 ? State.DeliveringCraftOutput : State.FetchingCraftInput);
-    }
-
-    void TickDeliverCraftOutput()
-    {
-        if (carriedAmount <= 0)
-        {
-            SetState(State.FetchingCraftInput);
-            return;
-        }
-
-        if (targetCraftingBuilding != null && targetCraftingBuilding.NeedsInput(carriedResource))
-        {
-            SetState(State.DeliveringCraftInput);
-            return;
-        }
-
-        if (targetStorage == null || targetStorage.teamID != teamID || targetStorage.GetFree(carriedResource) <= 0)
-            targetStorage = TeamStorageManager.Instance?.FindNearestStorageCached(teamID, carriedResource, transform.position, true);
-
-        if (targetStorage == null)
-        {
-            ProductionNotificationManager.Instance?.NotifyIfReady($"full-output-{teamID}-{carriedResource}", $"No free storage for {carriedResource}. Production stalled.");
-            return;
-        }
-
-        if (!MoveToBuildingAndCheckArrival(targetStorage.transform, BuildingStopDistanceType.Storage, BuildingInteractionPointType.Storage)) return;
-
-        int accepted = targetStorage.Deposit(carriedResource, carriedAmount);
-        ApplyDeliveryAccepted(accepted);
-
-        if (carriedAmount > 0)
-            ProductionNotificationManager.Instance?.NotifyIfReady($"full-output-{targetStorage.GetInstanceID()}-{carriedResource}", $"Storage full for {carriedResource}. Output queue blocked.");
-
-        if (carriedAmount > 0)
-            SetState(State.DeliveringCraftOutput);
-        else
-            SetState(IsCraftingLogisticsHauler() ? State.FetchingCraftInput : State.GoingToWorkPoint);
-    }
-
-    float GetMovementSpeedMultiplier()
+                            float GetMovementSpeedMultiplier()
     {
         float multiplier = 1f + (GetHouseSpeedBonusMultiplier() - 1f);
         multiplier *= GetToolMoveSpeedMultiplier();
@@ -1646,68 +957,12 @@ public class Civilian : MonoBehaviour, ITargetable
 
     string BuildTaskLabel()
     {
-        switch (state)
-        {
-            case State.Idle: return "Waiting for job";
-            case State.SeekingFoodStorage: return "Seeking food";
-            case State.Eating: return "Eating";
-            case State.SeekingHouse: return "Seeking house";
-            case State.Sleeping: return "Sleeping";
-            case State.SearchingNode: return "Searching for resource node";
-            case State.GoingToNode: return "Moving to target node";
-            case State.Gathering: return "Collecting resource";
-            case State.GoingToDepositStorage: return "Moving to storage";
-            case State.Depositing: return "Depositing carried resources";
-            case State.SearchingBuildSite: return "Searching for construction work";
-            case State.GoingToBuildSite: return "Moving to build site";
-            case State.Building: return "Building structure";
-            case State.SearchingSupplySite: return "Waiting for haul assignment";
-            case State.GoingToPickupStorage: return "Moving to pickup";
-            case State.PickingUp: return "Collecting resource from storage";
-            case State.GoingToDeliverSite: return "Moving to delivery target";
-            case State.Delivering: return "Delivering resources";
-            case State.FetchingCraftInput: return "Fetching crafting inputs";
-            case State.DeliveringCraftInput: return "Delivering crafting inputs";
-            case State.GoingToWorkPoint: return "Moving to work point";
-            case State.CraftingAtWorkPoint: return "Producing goods";
-            case State.CollectingCraftOutput: return "Collecting outputs";
-            case State.DeliveringCraftOutput: return "Delivering crafted goods";
-            default: return state.ToString();
-        }
+        return currentStateHandler != null ? currentStateHandler.TaskLabel : state.ToString();
     }
 
     string BuildStateDetails()
     {
-        string target = CurrentTargetName;
-        switch (state)
-        {
-            case State.Idle:
-                return HasJob ? "Idle between assignments" : "No assignment yet";
-            case State.SearchingNode:
-            case State.SearchingBuildSite:
-            case State.SearchingSupplySite:
-            case State.FetchingCraftInput:
-            case State.CollectingCraftOutput:
-                return "Scanning for nearest valid task";
-            case State.GoingToNode:
-            case State.GoingToDepositStorage:
-            case State.GoingToBuildSite:
-            case State.GoingToPickupStorage:
-            case State.GoingToDeliverSite:
-            case State.GoingToWorkPoint:
-                return $"Moving toward {target}";
-            case State.Gathering:
-            case State.PickingUp:
-            case State.Depositing:
-            case State.Delivering:
-            case State.DeliveringCraftInput:
-            case State.DeliveringCraftOutput:
-                return $"Interacting with {target}";
-            case State.CraftingAtWorkPoint:
-                return "Producing goods at assigned workstation";
-            default:
-                return target != "None" ? $"Target: {target}" : "No active target";
-        }
+        return currentStateHandler != null ? currentStateHandler.GetStateDetails() : "No active target";
     }
 
 
@@ -1876,32 +1131,839 @@ public class Civilian : MonoBehaviour, ITargetable
         public virtual void Enter() { }
         public virtual void Tick() { }
         public virtual void Exit() { }
+        public virtual string TaskLabel => civilian.state.ToString();
+        public virtual string GetStateDetails()
+        {
+            string target = civilian.CurrentTargetName;
+            return target != "None" ? $"Target: {target}" : "No active target";
+        }
+
+        protected string MovingTowardTarget() => $"Moving toward {civilian.CurrentTargetName}";
+        protected string InteractingWithTarget() => $"Interacting with {civilian.CurrentTargetName}";
     }
 
-    private sealed class IdleState : CivilianStateBase { public IdleState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickIdle(); }
-    private sealed class SeekingFoodStorageState : CivilianStateBase { public SeekingFoodStorageState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickSeekFoodStorage(); }
-    private sealed class EatingState : CivilianStateBase { public EatingState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickEating(); }
-    private sealed class SeekingHouseState : CivilianStateBase { public SeekingHouseState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickSeekHouse(); }
-    private sealed class SleepingState : CivilianStateBase { public SleepingState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickSleeping(); }
-    private sealed class SearchingNodeState : CivilianStateBase { public SearchingNodeState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickSearchNode(); }
-    private sealed class GoingToNodeState : CivilianStateBase { public GoingToNodeState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickGoNode(); }
-    private sealed class GatheringState : CivilianStateBase { public GatheringState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickGather(); }
-    private sealed class FindDepositStorageState : CivilianStateBase { public FindDepositStorageState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickFindDepositStorage(); }
-    private sealed class GoingToDepositStorageState : CivilianStateBase { public GoingToDepositStorageState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickGoingToDepositStorage(); }
-    private sealed class DepositingState : CivilianStateBase { public DepositingState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickDepositing(); }
-    private sealed class SearchingBuildSiteState : CivilianStateBase { public SearchingBuildSiteState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickSearchBuildSite(); }
-    private sealed class GoingToBuildSiteState : CivilianStateBase { public GoingToBuildSiteState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickGoBuildSite(); }
-    private sealed class BuildingState : CivilianStateBase { public BuildingState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickBuild(); }
-    private sealed class SearchingSupplySiteState : CivilianStateBase { public SearchingSupplySiteState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickSearchSupplySite(); }
-    private sealed class GoingToPickupStorageState : CivilianStateBase { public GoingToPickupStorageState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickGoPickup(); }
-    private sealed class PickingUpState : CivilianStateBase { public PickingUpState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickPickup(); }
-    private sealed class GoingToDeliverSiteState : CivilianStateBase { public GoingToDeliverSiteState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickGoDeliver(); }
-    private sealed class DeliveringState : CivilianStateBase { public DeliveringState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickDeliver(); }
-    private sealed class FetchingCraftInputState : CivilianStateBase { public FetchingCraftInputState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickFetchCraftInput(); }
-    private sealed class DeliveringCraftInputState : CivilianStateBase { public DeliveringCraftInputState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickDeliverCraftInput(); }
-    private sealed class GoingToWorkPointState : CivilianStateBase { public GoingToWorkPointState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickGoWorkPoint(); }
-    private sealed class CraftingAtWorkPointState : CivilianStateBase { public CraftingAtWorkPointState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickCraftAtWorkPoint(); }
-    private sealed class CollectingCraftOutputState : CivilianStateBase { public CollectingCraftOutputState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickCollectCraftOutput(); }
-    private sealed class DeliveringCraftOutputState : CivilianStateBase { public DeliveringCraftOutputState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickDeliverCraftOutput(); }
+    private sealed class IdleState : CivilianStateBase
+    {
+        public IdleState(Civilian civilian) : base(civilian) { }
+        public override string TaskLabel => "Waiting for job";
+        public override string GetStateDetails() => civilian.HasJob ? "Idle between assignments" : "No assignment yet";
+
+        public override void Tick()
+        {
+            civilian.idleNoTaskTimer += Time.deltaTime;
+
+            if (civilian.jobType != CivilianJobType.Idle)
+                return;
+
+            civilian.housingController?.TryAssignHouseIfNeeded();
+
+            if (civilian.AssignedHouse == null)
+                return;
+
+            civilian.idleWanderTimer -= Time.deltaTime;
+            if (civilian.idleWanderTimer <= 0f || (civilian.idleWanderTarget - civilian.transform.position).sqrMagnitude < 1f)
+            {
+                civilian.idleWanderTimer = Random.Range(2f, 5f);
+                Vector2 jitter = Random.insideUnitCircle * 3f;
+                civilian.idleWanderTarget = civilian.AssignedHouse.transform.position + new Vector3(jitter.x, 0f, jitter.y);
+            }
+
+            float stop = civilian.movementController.ResolveStopDistance(civilian.AssignedHouse.transform, BuildingStopDistanceType.House);
+            civilian.movementController.MoveTo(civilian.idleWanderTarget, stop);
+        }
+    }
+
+    private sealed class SeekingFoodStorageState : CivilianStateBase
+    {
+        public SeekingFoodStorageState(Civilian civilian) : base(civilian) { }
+        public override string TaskLabel => "Seeking food";
+
+        public override void Tick()
+        {
+            if (civilian.TryConsumeFoodFromAssignedHouse())
+                return;
+
+            if (TeamStorageManager.Instance == null)
+                return;
+
+            if (civilian.targetFoodStorage == null || civilian.targetFoodStorage.teamID != civilian.teamID || civilian.targetFoodStorage.GetStored(civilian.targetFoodResource) <= 0)
+            {
+                if (!civilian.TryFindBestFoodStorage(out civilian.targetFoodStorage, out civilian.targetFoodResource, out civilian.targetFoodDefinition))
+                    return;
+            }
+
+            if (!civilian.MoveToBuildingAndCheckArrival(civilian.targetFoodStorage.transform, BuildingStopDistanceType.Storage, BuildingInteractionPointType.Storage))
+                return;
+
+            civilian.pendingFoodAmount = Mathf.Max(1, civilian.foodToEatPerMeal);
+            int eatenUnits = civilian.targetFoodStorage.Withdraw(civilian.targetFoodResource, civilian.pendingFoodAmount);
+            if (eatenUnits <= 0)
+            {
+                civilian.targetFoodStorage = null;
+                return;
+            }
+
+            civilian.pendingFoodAmount = eatenUnits;
+            civilian.currentEatDurationSeconds = civilian.targetFoodDefinition != null ? Mathf.Max(0.1f, civilian.targetFoodDefinition.eatTime) : civilian.eatDurationSeconds;
+            civilian.needActionTimer = 0f;
+            civilian.SetState(State.Eating);
+        }
+    }
+
+    private sealed class EatingState : CivilianStateBase
+    {
+        public EatingState(Civilian civilian) : base(civilian) { }
+        public override string TaskLabel => "Eating";
+
+        public override void Tick()
+        {
+            if (!civilian.TickTimer(ref civilian.needActionTimer, civilian.currentEatDurationSeconds))
+                return;
+
+            civilian.needsController.BeginEating(civilian.targetFoodDefinition, civilian.pendingFoodAmount);
+            civilian.pendingFoodAmount = 0;
+            civilian.targetFoodStorage = null;
+            civilian.targetFoodDefinition = null;
+
+            if (civilian.needsController.ShouldSleepNow())
+                civilian.SetState(State.SeekingHouse);
+            else if (!civilian.needsController.ShouldEatNow())
+                civilian.ResumeAfterNeed();
+            else
+                civilian.SetState(State.SeekingFoodStorage);
+        }
+    }
+
+    private sealed class SeekingHouseState : CivilianStateBase
+    {
+        public SeekingHouseState(Civilian civilian) : base(civilian) { }
+        public override string TaskLabel => "Seeking house";
+
+        public override void Tick()
+        {
+            if (!civilian.housingController.TryEnsureTargetHouse())
+                return;
+
+            House targetHouse = civilian.housingController.TargetHouse;
+            if (targetHouse == null)
+                return;
+
+            if (!civilian.MoveToBuildingAndCheckArrival(targetHouse.transform, BuildingStopDistanceType.House, BuildingInteractionPointType.House))
+                return;
+
+            if (!civilian.housingController.TryClaimTargetHouse())
+            {
+                civilian.housingController.SetTargetHouse(null);
+                return;
+            }
+
+            civilian.needActionTimer = 0f;
+            civilian.SetState(State.Sleeping);
+        }
+    }
+
+    private sealed class SleepingState : CivilianStateBase
+    {
+        public SleepingState(Civilian civilian) : base(civilian) { }
+        public override string TaskLabel => "Sleeping";
+
+        public override void Tick()
+        {
+            if (civilian.AssignedHouse == null)
+            {
+                civilian.SetState(State.SeekingHouse);
+                return;
+            }
+
+            civilian.needsController.TickSleep(Time.deltaTime);
+            civilian.currentTiredness = civilian.needsController.CurrentTiredness;
+            civilian.ConsumeHouseFoodWhileResting();
+
+            if (!civilian.TickTimer(ref civilian.needActionTimer, civilian.sleepDurationSeconds))
+                return;
+
+            civilian.needsController.CompleteSleep();
+            civilian.currentTiredness = civilian.needsController.CurrentTiredness;
+            civilian.housingController.SetTargetHouse(civilian.AssignedHouse);
+            civilian.ResumeAfterNeed();
+        }
+    }
+
+    private sealed class SearchingNodeState : CivilianStateBase
+    {
+        public SearchingNodeState(Civilian civilian) : base(civilian) { }
+        public override string TaskLabel => "Searching for resource node";
+        public override string GetStateDetails() => "Scanning for nearest valid task";
+
+        public override void Tick()
+        {
+            civilian.idleNoTaskTimer += Time.deltaTime;
+
+            if (civilian.gatheringController.forcedNode != null)
+            {
+                var node = civilian.gatheringController.forcedNode;
+                if (!node.IsDepleted && civilian.gatheringController.AssignNode(node))
+                {
+                    civilian.idleNoTaskTimer = 0f;
+                    civilian.SetState(State.GoingToNode);
+                    return;
+                }
+                civilian.gatheringController.forcedNode = null;
+            }
+
+            if (civilian.gatheringController.TryFindNode(out var bestNode) && civilian.gatheringController.AssignNode(bestNode))
+            {
+                civilian.idleNoTaskTimer = 0f;
+                civilian.SetState(State.GoingToNode);
+                return;
+            }
+
+            civilian.TryFallbackToHouseInteractionPoint();
+        }
+    }
+
+    private sealed class GoingToNodeState : CivilianStateBase
+    {
+        public GoingToNodeState(Civilian civilian) : base(civilian) { }
+        public override string TaskLabel => "Moving to target node";
+        public override string GetStateDetails() => MovingTowardTarget();
+
+        public override void Tick()
+        {
+            if (civilian.carryingController.IsFull)
+            {
+                civilian.SetState(State.GoingToDepositStorage);
+                return;
+            }
+
+            if (civilian.gatheringController.CurrentNode == null)
+            {
+                civilian.SetState(State.SearchingNode);
+                return;
+            }
+
+            if (civilian.movementController.HasArrived())
+                civilian.SetState(State.Gathering);
+        }
+    }
+
+    private sealed class GatheringState : CivilianStateBase
+    {
+        public GatheringState(Civilian civilian) : base(civilian) { }
+        public override string TaskLabel => "Collecting resource";
+        public override string GetStateDetails() => InteractingWithTarget();
+
+        public override void Tick()
+        {
+            if (civilian.gatheringController.CurrentNode == null)
+            {
+                civilian.SetState(State.SearchingNode);
+                return;
+            }
+
+            if (civilian.carryingController.IsFull)
+            {
+                civilian.SetState(State.FindDepositStorage);
+                return;
+            }
+
+            bool gathered = civilian.gatheringController.TickGathering();
+            if (!gathered && civilian.gatheringController.CurrentNode == null)
+                civilian.SetState(State.SearchingNode);
+        }
+    }
+
+    private sealed class FindDepositStorageState : CivilianStateBase
+    {
+        public FindDepositStorageState(Civilian civilian) : base(civilian) { }
+        public override string TaskLabel => "Finding storage";
+
+        public override void Tick()
+        {
+            civilian.targetStorage = null;
+            civilian.targetDropoff = null;
+
+            if (civilian.gatheringController.TryFindDepositStorage(out civilian.targetStorage) || civilian.gatheringController.TryFindDropoff(out civilian.targetDropoff))
+            {
+                civilian.SetState(State.GoingToDepositStorage);
+                return;
+            }
+
+            civilian.SetState(State.Idle);
+        }
+    }
+
+    private sealed class GoingToDepositStorageState : CivilianStateBase
+    {
+        public GoingToDepositStorageState(Civilian civilian) : base(civilian) { }
+        public override string TaskLabel => "Moving to storage";
+        public override string GetStateDetails() => MovingTowardTarget();
+
+        public override void Tick()
+        {
+            Transform depositTarget = civilian.targetStorage != null ? civilian.targetStorage.transform : civilian.targetDropoff != null ? civilian.targetDropoff.transform : null;
+            if (depositTarget == null)
+            {
+                civilian.SetState(State.FindDepositStorage);
+                return;
+            }
+
+            if (civilian.MoveToBuildingAndCheckArrival(depositTarget, BuildingStopDistanceType.Storage, BuildingInteractionPointType.Storage))
+                civilian.SetState(State.Depositing);
+        }
+    }
+
+    private sealed class DepositingState : CivilianStateBase
+    {
+        public DepositingState(Civilian civilian) : base(civilian) { }
+        public override string TaskLabel => "Depositing carried resources";
+        public override string GetStateDetails() => InteractingWithTarget();
+
+        public override void Tick()
+        {
+            if (civilian.targetStorage == null && civilian.targetDropoff == null)
+            {
+                civilian.SetState(State.FindDepositStorage);
+                return;
+            }
+
+            bool emptiedInventory = civilian.targetStorage != null
+                ? civilian.gatheringController.TryDeposit(civilian.targetStorage)
+                : civilian.gatheringController.TryDeposit(civilian.targetDropoff);
+
+            if (emptiedInventory || !civilian.carryingController.IsCarrying)
+            {
+                civilian.SetState(State.SearchingNode);
+                return;
+            }
+
+            civilian.SetState(State.FindDepositStorage);
+        }
+    }
+
+    private sealed class SearchingBuildSiteState : CivilianStateBase
+    {
+        public SearchingBuildSiteState(Civilian civilian) : base(civilian) { }
+        public override string TaskLabel => "Searching for construction work";
+        public override string GetStateDetails() => "Scanning for nearest valid task";
+
+        public override void Tick()
+        {
+            civilian.idleNoTaskTimer += Time.deltaTime;
+
+            if (!civilian.ShouldRetrySearch(ref civilian.searchTimer, civilian.searchRetrySeconds))
+                return;
+
+            civilian.targetSite = civilian.FindNearestConstructionSite(civilian.teamID, civilian.transform.position);
+            civilian.CurrentAssignedSite = civilian.targetSite;
+
+            if (civilian.targetSite == null)
+            {
+                civilian.TryFallbackToHouseInteractionPoint();
+                return;
+            }
+
+            if (!civilian.targetSite.MaterialsComplete && civilian.buildersCanHaulMaterials)
+            {
+                civilian.idleNoTaskTimer = 0f;
+                civilian.SetState(State.SearchingSupplySite);
+                return;
+            }
+
+            civilian.idleNoTaskTimer = 0f;
+            civilian.SetState(State.GoingToBuildSite);
+            civilian.movementController.MoveToBuildingTarget(civilian.targetSite.transform, BuildingStopDistanceType.Construction, BuildingInteractionPointType.Default);
+        }
+    }
+
+    private sealed class GoingToBuildSiteState : CivilianStateBase
+    {
+        public GoingToBuildSiteState(Civilian civilian) : base(civilian) { }
+        public override string TaskLabel => "Moving to build site";
+        public override string GetStateDetails() => MovingTowardTarget();
+
+        public override void Tick()
+        {
+            if (civilian.targetSite == null || civilian.targetSite.IsComplete)
+            {
+                civilian.targetSite = null;
+                civilian.CurrentAssignedSite = null;
+                civilian.SetState(State.SearchingBuildSite);
+                return;
+            }
+
+            if (!civilian.targetSite.MaterialsComplete)
+            {
+                civilian.SetState(civilian.buildersCanHaulMaterials ? State.SearchingSupplySite : State.SearchingBuildSite);
+                return;
+            }
+
+            civilian.movementController.MoveToBuildingTarget(civilian.targetSite.transform, BuildingStopDistanceType.Construction, BuildingInteractionPointType.Default);
+            if (civilian.movementController.HasArrived())
+                civilian.SetState(State.Building);
+        }
+    }
+
+    private sealed class BuildingState : CivilianStateBase
+    {
+        public BuildingState(Civilian civilian) : base(civilian) { }
+        public override string TaskLabel => "Building structure";
+
+        public override void Tick()
+        {
+            if (civilian.targetSite == null || civilian.targetSite.IsComplete)
+            {
+                civilian.targetSite = null;
+                civilian.CurrentAssignedSite = null;
+                civilian.SetState(State.SearchingBuildSite);
+                return;
+            }
+
+            if (!civilian.targetSite.MaterialsComplete)
+            {
+                civilian.SetState(civilian.buildersCanHaulMaterials ? State.SearchingSupplySite : State.SearchingBuildSite);
+                return;
+            }
+
+            civilian.targetSite.AddWork(Time.deltaTime * Mathf.Max(0.25f, civilian.GetBuildMultiplier()));
+        }
+    }
+
+    private sealed class SearchingSupplySiteState : CivilianStateBase
+    {
+        public SearchingSupplySiteState(Civilian civilian) : base(civilian) { }
+        public override string TaskLabel => "Waiting for haul assignment";
+        public override string GetStateDetails() => "Scanning for nearest valid task";
+
+        public override void Tick()
+        {
+            civilian.idleNoTaskTimer += Time.deltaTime;
+
+            if (civilian.jobType == CivilianJobType.Hauler && civilian.TryHandleCraftingHaulerPriority())
+                return;
+
+            if (civilian.carriedAmount > 0 && civilian.targetSite != null)
+            {
+                civilian.SetState(State.GoingToDeliverSite);
+                return;
+            }
+
+            if (!civilian.ShouldRetrySearch(ref civilian.searchTimer, civilian.searchRetrySeconds))
+                return;
+
+            civilian.targetSite = civilian.FindNearestConstructionSite(civilian.teamID, civilian.transform.position);
+            civilian.CurrentDeliverySite = civilian.targetSite;
+
+            if (civilian.targetSite == null)
+            {
+                civilian.TryFallbackToHouseInteractionPoint();
+                return;
+            }
+
+            if (civilian.targetSite.IsComplete || civilian.targetSite.MaterialsComplete)
+            {
+                civilian.SetState((civilian.jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite);
+                return;
+            }
+
+            if (!civilian.TryChooseNeededResource(civilian.targetSite, out civilian.carriedResource))
+            {
+                civilian.targetSite = null;
+                civilian.CurrentDeliverySite = null;
+                civilian.SetState((civilian.jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite);
+                return;
+            }
+
+            civilian.SetState(State.GoingToPickupStorage);
+            civilian.idleNoTaskTimer = 0f;
+        }
+    }
+
+    private sealed class GoingToPickupStorageState : CivilianStateBase
+    {
+        public GoingToPickupStorageState(Civilian civilian) : base(civilian) { }
+        public override string TaskLabel => "Moving to pickup";
+        public override string GetStateDetails() => MovingTowardTarget();
+
+        public override void Tick()
+        {
+            if (TeamStorageManager.Instance == null || civilian.targetSite == null)
+            {
+                civilian.SetState((civilian.jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite);
+                return;
+            }
+
+            int reservedForSite = TeamStorageManager.Instance.GetReservedForSite(civilian.targetSite.SiteKey, civilian.carriedResource);
+            if (reservedForSite <= 0)
+            {
+                civilian.SetState((civilian.jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite);
+                return;
+            }
+
+            if (civilian.targetStorage == null)
+                civilian.targetStorage = TeamStorageManager.Instance.FindNearestStorageWithStored(civilian.teamID, civilian.carriedResource, civilian.transform.position);
+
+            if (civilian.targetStorage == null)
+                return;
+
+            if (civilian.MoveToBuildingAndCheckArrival(civilian.targetStorage.transform, BuildingStopDistanceType.Storage, BuildingInteractionPointType.Storage))
+                civilian.SetState(State.PickingUp);
+        }
+    }
+
+    private sealed class PickingUpState : CivilianStateBase
+    {
+        public PickingUpState(Civilian civilian) : base(civilian) { }
+        public override string TaskLabel => "Collecting resource from storage";
+        public override string GetStateDetails() => InteractingWithTarget();
+
+        public override void Tick()
+        {
+            if (TeamStorageManager.Instance == null || civilian.targetStorage == null || civilian.targetSite == null)
+            {
+                civilian.SetState((civilian.jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite);
+                return;
+            }
+
+            int missing = civilian.targetSite.GetMissing(civilian.carriedResource);
+            int reservedForSite = TeamStorageManager.Instance.GetReservedForSite(civilian.targetSite.SiteKey, civilian.carriedResource);
+            int want = Mathf.Min(civilian.GetCarryCapacity(), missing);
+            want = Mathf.Min(want, reservedForSite);
+
+            if (want <= 0)
+            {
+                civilian.targetStorage = null;
+                civilian.SetState((civilian.jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite);
+                return;
+            }
+
+            int took = civilian.PickupResourceFromStorage(civilian.targetStorage, civilian.carriedResource, want);
+            if (took <= 0)
+            {
+                civilian.targetStorage = null;
+                civilian.SetState((civilian.jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite);
+                return;
+            }
+
+            TeamStorageManager.Instance.ConsumeReserved(civilian.teamID, civilian.targetSite.SiteKey, civilian.carriedResource, took);
+            civilian.targetStorage = null;
+            civilian.SetState(State.GoingToDeliverSite);
+            civilian.movementController.MoveToBuildingTarget(civilian.targetSite.transform, BuildingStopDistanceType.Construction, BuildingInteractionPointType.Default);
+        }
+    }
+
+    private sealed class GoingToDeliverSiteState : CivilianStateBase
+    {
+        public GoingToDeliverSiteState(Civilian civilian) : base(civilian) { }
+        public override string TaskLabel => "Moving to delivery target";
+        public override string GetStateDetails() => MovingTowardTarget();
+
+        public override void Tick()
+        {
+            if (civilian.targetSite == null)
+            {
+                civilian.SetState(State.GoingToDepositStorage);
+                return;
+            }
+
+            if (civilian.MoveToBuildingAndCheckArrival(civilian.targetSite.transform, BuildingStopDistanceType.Construction, BuildingInteractionPointType.Default))
+                civilian.SetState(State.Delivering);
+        }
+    }
+
+    private sealed class DeliveringState : CivilianStateBase
+    {
+        public DeliveringState(Civilian civilian) : base(civilian) { }
+        public override string TaskLabel => "Delivering resources";
+        public override string GetStateDetails() => InteractingWithTarget();
+
+        public override void Tick()
+        {
+            if (civilian.targetSite == null || civilian.carriedAmount <= 0)
+            {
+                civilian.SetState((civilian.jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite);
+                return;
+            }
+
+            int accepted = civilian.targetSite.ReceiveDelivery(civilian.carriedResource, civilian.carriedAmount);
+            civilian.ApplyDeliveryAccepted(accepted);
+
+            if (civilian.carriedAmount > 0)
+            {
+                civilian.SetState(State.GoingToDepositStorage);
+                return;
+            }
+
+            civilian.SetState((civilian.jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite);
+        }
+    }
+
+    private sealed class FetchingCraftInputState : CivilianStateBase
+    {
+        public FetchingCraftInputState(Civilian civilian) : base(civilian) { }
+        public override string TaskLabel => "Fetching crafting inputs";
+        public override string GetStateDetails() => "Scanning for nearest valid task";
+
+        public override void Tick()
+        {
+            if (civilian.targetCraftingBuilding == null)
+            {
+                civilian.SetState(State.Idle);
+                return;
+            }
+
+            if (civilian.targetCraftingBuilding.requireHaulerLogistics && civilian.jobType != CivilianJobType.Hauler)
+            {
+                civilian.SetState(State.GoingToWorkPoint);
+                return;
+            }
+
+            if (civilian.carriedAmount > 0)
+            {
+                civilian.SetState(civilian.targetCraftingBuilding.NeedsInput(civilian.carriedResource)
+                    ? State.DeliveringCraftInput
+                    : State.GoingToDepositStorage);
+                return;
+            }
+
+            if (civilian.targetCraftingBuilding.TryGetInputRequest(civilian.transform.position, out civilian.carriedResource, out int amount, out civilian.targetStorage))
+            {
+                if (civilian.targetStorage == null)
+                {
+                    ProductionNotificationManager.Instance?.NotifyIfReady($"missing-storage-{civilian.targetCraftingBuilding.GetInstanceID()}", $"{civilian.targetCraftingBuilding.name}: no storage with {civilian.carriedResource} found.");
+                    return;
+                }
+
+                if (civilian.MoveToBuildingAndCheckArrival(civilian.targetStorage.transform, BuildingStopDistanceType.Storage, BuildingInteractionPointType.Storage))
+                {
+                    int took = civilian.PickupResourceFromStorage(civilian.targetStorage, civilian.carriedResource, Mathf.Min(amount, civilian.GetCarryCapacity()));
+                    civilian.SetState(took > 0 ? State.DeliveringCraftInput : State.FetchingCraftInput);
+                }
+                return;
+            }
+
+            if (civilian.targetCraftingBuilding.requireHaulerLogistics)
+                civilian.SetState(civilian.targetCraftingBuilding.HasAnyOutputQueued() ? State.CollectingCraftOutput : State.FetchingCraftInput);
+            else
+                civilian.SetState(civilian.targetCraftingBuilding.HasAnyOutputQueued() ? State.CollectingCraftOutput : State.GoingToWorkPoint);
+        }
+    }
+
+    private sealed class DeliveringCraftInputState : CivilianStateBase
+    {
+        public DeliveringCraftInputState(Civilian civilian) : base(civilian) { }
+        public override string TaskLabel => "Delivering crafting inputs";
+        public override string GetStateDetails() => InteractingWithTarget();
+
+        public override void Tick()
+        {
+            if (civilian.targetCraftingBuilding == null)
+            {
+                civilian.SetState(State.GoingToDepositStorage);
+                return;
+            }
+
+            Transform inputTransform = civilian.targetCraftingBuilding.inputSlot != null
+                ? civilian.targetCraftingBuilding.inputSlot
+                : civilian.movementController.ResolveInteractionTarget(civilian.targetCraftingBuilding.transform, BuildingInteractionPointType.CraftInput);
+            float stop = civilian.movementController.ResolveStopDistance(civilian.targetCraftingBuilding.transform, BuildingStopDistanceType.CraftInput);
+            if (!civilian.MoveToPositionAndCheckArrival(inputTransform.position, stop))
+                return;
+
+            if (civilian.carriedAmount <= 0)
+            {
+                civilian.SetState(State.FetchingCraftInput);
+                return;
+            }
+
+            civilian.targetCraftingBuilding.TryDeliverInput(civilian.carriedResource, civilian.carriedAmount, out int accepted);
+            civilian.ApplyDeliveryAccepted(accepted);
+
+            if (civilian.carriedAmount > 0)
+            {
+                civilian.SetState(State.GoingToDepositStorage);
+                return;
+            }
+
+            if (civilian.IsCraftingLogisticsHauler())
+            {
+                civilian.SetState(State.FetchingCraftInput);
+                return;
+            }
+
+            civilian.SetState(civilian.jobType == CivilianJobType.Crafter ? State.GoingToWorkPoint : civilian.ResolveRoleFallbackState());
+        }
+    }
+
+    private sealed class GoingToWorkPointState : CivilianStateBase
+    {
+        public GoingToWorkPointState(Civilian civilian) : base(civilian) { }
+        public override string TaskLabel => "Moving to work point";
+        public override string GetStateDetails() => MovingTowardTarget();
+
+        public override void Tick()
+        {
+            if (civilian.targetCraftingBuilding == null)
+            {
+                civilian.SetState(State.Idle);
+                return;
+            }
+
+            if (civilian.IsCraftingLogisticsHauler())
+            {
+                civilian.SetState(State.FetchingCraftInput);
+                return;
+            }
+
+            if (!civilian.targetCraftingBuilding.TryReserveWorkPoint(civilian, out civilian.targetWorkPoint) || civilian.targetWorkPoint == null)
+                return;
+
+            Transform ctx = civilian.targetCraftingBuilding.transform;
+            float stop = civilian.movementController.ResolveStopDistance(ctx, BuildingStopDistanceType.CraftWork);
+            if (civilian.MoveToPositionAndCheckArrival(civilian.targetWorkPoint.position, stop))
+            {
+                civilian.stalledAtWorkPointTimer = 0f;
+                civilian.SetState(State.CraftingAtWorkPoint);
+                return;
+            }
+
+            civilian.stalledAtWorkPointTimer += Time.deltaTime;
+            if (civilian.stalledAtWorkPointTimer < 10f)
+                return;
+
+            Debug.LogWarning($"[{nameof(Civilian)}] Workpoint stalled for {civilian.name}. Clearing crafting assignment.");
+            civilian.stalledAtWorkPointTimer = 0f;
+            civilian.targetCraftingBuilding.RemoveWorker(civilian);
+            civilian.ClearCraftingAssignment();
+            civilian.SetState(civilian.ResolveRoleFallbackState());
+        }
+    }
+
+    private sealed class CraftingAtWorkPointState : CivilianStateBase
+    {
+        public CraftingAtWorkPointState(Civilian civilian) : base(civilian) { }
+        public override string TaskLabel => "Producing goods";
+        public override string GetStateDetails() => "Producing goods at assigned workstation";
+
+        public override void Tick()
+        {
+            if (civilian.targetCraftingBuilding == null)
+            {
+                civilian.SetState(State.Idle);
+                return;
+            }
+
+            if (civilian.IsCraftingLogisticsHauler())
+            {
+                civilian.SetState(State.FetchingCraftInput);
+                return;
+            }
+
+            if (!civilian.targetCraftingBuilding.requireHaulerLogistics)
+            {
+                if (civilian.targetCraftingBuilding.State == CraftingBuilding.ProductionState.WaitingForInputs)
+                    civilian.SetState(State.FetchingCraftInput);
+                else if (civilian.targetCraftingBuilding.State == CraftingBuilding.ProductionState.OutputReady || civilian.targetCraftingBuilding.State == CraftingBuilding.ProductionState.WaitingForPickup)
+                    civilian.SetState(State.CollectingCraftOutput);
+            }
+        }
+    }
+
+    private sealed class CollectingCraftOutputState : CivilianStateBase
+    {
+        public CollectingCraftOutputState(Civilian civilian) : base(civilian) { }
+        public override string TaskLabel => "Collecting outputs";
+        public override string GetStateDetails() => "Scanning for nearest valid task";
+
+        public override void Tick()
+        {
+            if (civilian.targetCraftingBuilding == null)
+            {
+                civilian.SetState(State.Idle);
+                return;
+            }
+
+            if (civilian.targetCraftingBuilding.requireHaulerLogistics && civilian.jobType != CivilianJobType.Hauler)
+            {
+                civilian.SetState(State.GoingToWorkPoint);
+                return;
+            }
+
+            if (civilian.targetCraftingBuilding.NeedsAnyInput())
+            {
+                civilian.SetState(State.FetchingCraftInput);
+                return;
+            }
+
+            if (civilian.carriedAmount > 0)
+            {
+                civilian.SetState(civilian.targetCraftingBuilding.NeedsInput(civilian.carriedResource)
+                    ? State.DeliveringCraftInput
+                    : State.DeliveringCraftOutput);
+                return;
+            }
+
+            if (!civilian.targetCraftingBuilding.TryGetOutputRequest(civilian.transform.position, out civilian.carriedResource, out int amount, out civilian.targetStorage))
+            {
+                civilian.SetState(State.FetchingCraftInput);
+                return;
+            }
+
+            Transform outputTransform = civilian.targetCraftingBuilding.outputSlot != null
+                ? civilian.targetCraftingBuilding.outputSlot
+                : civilian.movementController.ResolveInteractionTarget(civilian.targetCraftingBuilding.transform, BuildingInteractionPointType.CraftOutput);
+            float stop = civilian.movementController.ResolveStopDistance(civilian.targetCraftingBuilding.transform, BuildingStopDistanceType.CraftOutput);
+            if (!civilian.MoveToPositionAndCheckArrival(outputTransform.position, stop))
+                return;
+
+            civilian.carriedAmount = civilian.targetCraftingBuilding.CollectOutput(civilian.carriedResource, Mathf.Min(amount, civilian.GetCarryCapacity()));
+            civilian.carryingController?.SetCarried(civilian.carriedResource, civilian.carriedAmount);
+            civilian.SetState(civilian.carriedAmount > 0 ? State.DeliveringCraftOutput : State.FetchingCraftInput);
+        }
+    }
+
+    private sealed class DeliveringCraftOutputState : CivilianStateBase
+    {
+        public DeliveringCraftOutputState(Civilian civilian) : base(civilian) { }
+        public override string TaskLabel => "Delivering crafted goods";
+        public override string GetStateDetails() => InteractingWithTarget();
+
+        public override void Tick()
+        {
+            if (civilian.carriedAmount <= 0)
+            {
+                civilian.SetState(State.FetchingCraftInput);
+                return;
+            }
+
+            if (civilian.targetCraftingBuilding != null && civilian.targetCraftingBuilding.NeedsInput(civilian.carriedResource))
+            {
+                civilian.SetState(State.DeliveringCraftInput);
+                return;
+            }
+
+            if (civilian.targetStorage == null || civilian.targetStorage.teamID != civilian.teamID || civilian.targetStorage.GetFree(civilian.carriedResource) <= 0)
+                civilian.targetStorage = TeamStorageManager.Instance?.FindNearestStorageCached(civilian.teamID, civilian.carriedResource, civilian.transform.position, true);
+
+            if (civilian.targetStorage == null)
+            {
+                ProductionNotificationManager.Instance?.NotifyIfReady($"full-output-{civilian.teamID}-{civilian.carriedResource}", $"No free storage for {civilian.carriedResource}. Production stalled.");
+                return;
+            }
+
+            if (!civilian.MoveToBuildingAndCheckArrival(civilian.targetStorage.transform, BuildingStopDistanceType.Storage, BuildingInteractionPointType.Storage))
+                return;
+
+            int accepted = civilian.targetStorage.Deposit(civilian.carriedResource, civilian.carriedAmount);
+            civilian.ApplyDeliveryAccepted(accepted);
+
+            if (civilian.carriedAmount > 0)
+                ProductionNotificationManager.Instance?.NotifyIfReady($"full-output-{civilian.targetStorage.GetInstanceID()}-{civilian.carriedResource}", $"Storage full for {civilian.carriedResource}. Output queue blocked.");
+
+            civilian.SetState(civilian.carriedAmount > 0
+                ? State.DeliveringCraftOutput
+                : (civilian.IsCraftingLogisticsHauler() ? State.FetchingCraftInput : State.GoingToWorkPoint));
+        }
+    }
 
 }
