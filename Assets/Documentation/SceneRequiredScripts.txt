@@ -218,6 +218,7 @@ Maintenance note (2026-02 civilian logistics)
   - Hauler -> SearchingSupplySite
 - Verify gatherable nodes are GameObjects with ResourceNode + valid ResourceDefinition assigned.
 - Keep HQ storage wiring intact (ResourceStorageContainer + ResourceStorageProvider) so TeamStorageManager queries still support gatherer, hauler, and builder pickup/delivery flows.
+- Verify gatherer deposit routing handles both StorageContainer and ResourceDropoff targets, and returns to `SearchingNode` after carrying is emptied.
 
 [2026 Capability-profile jobs + unified task dispatcher]
 Required in gameplay scenes:

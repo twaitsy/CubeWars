@@ -526,6 +526,7 @@ Maintenance note (2026-02 civilian logistics)
   - Hauler -> SearchingSupplySite
 - Gatherers now only target valid ResourceNode instances that still have resources and a configured ResourceDefinition.
 - HQ prefab/resource storage setup remains required: keep ResourceStorageContainer + ResourceStorageProvider on HQ so spawned teams have physical capacity for gatherer/hauler/builder logistics.
+- Gatherer deposit flow now supports both ResourceStorageContainer and ResourceDropoff targets; after a successful deposit civilians must return to `SearchingNode` so gathering resumes automatically.
 
 [2026 Capability-profile jobs + unified task dispatcher]
 - Add `WorkerTaskDispatcher` to the scene bootstrap (`_Systems`) to centralize worker-task assignment by capability.
