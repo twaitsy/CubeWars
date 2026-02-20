@@ -20,7 +20,6 @@ GameObject:
   - component: {fileID: 3871291967957977171}
   - component: {fileID: 3082717544939108339}
   - component: {fileID: 5262847259082431760}
-  - component: {fileID: 2488209600144246014}
   - component: {fileID: 4451373190352058720}
   - component: {fileID: 7023568545619106114}
   - component: {fileID: 6832389261268637746}
@@ -274,18 +273,6 @@ MonoBehaviour:
   buildSpeed: 1
   canHaulMaterials: 1
   retargetSeconds: 0.6
---- !u!114 &2488209600144246014
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5538168870909510437}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c6f77b4c338c93649b5003fa31699cbf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CivilianStateMachineController
 --- !u!114 &4451373190352058720
 MonoBehaviour:
   m_ObjectHideFlags: 0

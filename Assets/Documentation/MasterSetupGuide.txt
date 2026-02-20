@@ -701,8 +701,8 @@ Migration notes:
 - If civilians stop short of storage/crafting interactions, verify NavMesh reachability to the selected InteractionPoint child transforms.
 
 [2026-02 modular civilian AI + job cleanup]
-- `Civilian` now enforces required runtime controllers directly on its GameObject (`HealthComponent`, `MovementController`, `CarryingController`, `GatheringController`, `NeedsController`, `HousingController`, `ConstructionWorkerControl`, `CivilianStateMachineController`).
-- Civilian update flow is now state-machine driven through `CivilianStateMachineController`; `Civilian` is now a coordinator that wires state handlers.
+- `Civilian` now enforces required runtime controllers directly on its GameObject (`HealthComponent`, `MovementController`, `CarryingController`, `GatheringController`, `NeedsController`, `HousingController`, `ConstructionWorkerControl`).
+- Civilian update flow now runs through an internal object-oriented FSM dictionary of concrete state classes (`CivilianStateBase` derivatives).
 - Legacy `CivilianRole` runtime usage was removed from worker systems/UI flows; worker counting and assignment now use `CivilianJobType`.
 - Job definition assets/scripts no longer rely on `legacyRole`; jobs are authored around `defaultJobType` + capability/tool data.
 - Job database assets under `Assets/Data/Databases/Jobs` were cleaned to remove serialized `legacyRole` fields.
@@ -719,7 +719,7 @@ Migration notes:
 Component auto-wiring updates (2026-02)
 -----------------------------------------------------------------
 The following gameplay scripts now enforce required dependencies with RequireComponent:
-- Civilian: HealthComponent, MovementController, CarryingController, GatheringController, NeedsController, HousingController, ConstructionWorkerControl, CivilianStateMachineController, ToolController, JobController, TrainingController, UpgradeController.
+- Civilian: HealthComponent, MovementController, CarryingController, GatheringController, NeedsController, HousingController, ConstructionWorkerControl, ToolController, JobController, TrainingController, UpgradeController.
 - Unit: NavMeshAgent, UnitCombatController.
 - Headquarters: BuildingInteractionPointController.
 - ConstructionSite: BuildGridOccupant.

@@ -362,10 +362,9 @@ public class SceneRequiredScripts : MonoBehaviour
                 civ.GetComponent<CarryingController>() == null ||
                 civ.GetComponent<GatheringController>() == null ||
                 civ.GetComponent<ConstructionWorkerControl>() == null ||
-                civ.GetComponent<NeedsController>() == null ||
-                civ.GetComponent<CivilianStateMachineController>() == null)
+                civ.GetComponent<NeedsController>() == null)
             {
-                Debug.LogWarning($"[SceneRequiredScripts] Civilian diagnostics: '{civ.name}' is missing one or more required controller components (Health/Movement/Carrying/Gathering/Construction/Needs/StateMachine).", civ);
+                Debug.LogWarning($"[SceneRequiredScripts] Civilian diagnostics: '{civ.name}' is missing one or more required controller components (Health/Movement/Carrying/Gathering/Construction/Needs).", civ);
             }
 
             if (civ.foodDatabase == null && civ.resourcesDatabase == null)

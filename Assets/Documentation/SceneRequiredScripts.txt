@@ -334,18 +334,18 @@ Update: civilian data-source validation
 - Storage facilities should use InteractionPoint(type=Storage) instead of legacy single StorageFacility interaction Transform fields.
 
 [2026-02 modular civilian AI update]
-- Civilian runtime validation now checks for `CivilianStateMachineController` in addition to existing worker controllers.
+- Civilian runtime validation now focuses on concrete worker controllers because the FSM is internal to `Civilian`.
 - Crafting diagnostics now prefer registry-backed queries (`CraftingRegistry`, `CivilianRegistry`) for worker/building coverage checks.
 
 
 [2026-02 validation compile compatibility]
 - SceneRequiredScripts currently reads civilians via `CivilianRegistry.GetAll()` (list snapshot accessor retained for compatibility with index-based diagnostics loops).
-- Civilian controller diagnostics continue to validate Health/Movement/Carrying/Gathering/Construction/Needs/StateMachine components on registered civilians.
+- Civilian controller diagnostics continue to validate Health/Movement/Carrying/Gathering/Construction/Needs components on registered civilians.
 - If extending diagnostics, keep collection iteration compatible with `IReadOnlyList` (`Count`) and registry snapshots to avoid compile breaks.
 
 
 Script-enforced component requirements (latest)
-- Civilian now auto-adds: HealthComponent, MovementController, CarryingController, GatheringController, NeedsController, HousingController, ConstructionWorkerControl, CivilianStateMachineController, ToolController, JobController, TrainingController, UpgradeController.
+- Civilian now auto-adds: HealthComponent, MovementController, CarryingController, GatheringController, NeedsController, HousingController, ConstructionWorkerControl, ToolController, JobController, TrainingController, UpgradeController.
 - Unit now auto-adds: NavMeshAgent and UnitCombatController.
 - Headquarters now auto-adds: BuildingInteractionPointController.
 - ConstructionSite now auto-adds: BuildGridOccupant.

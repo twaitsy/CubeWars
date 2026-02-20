@@ -82,13 +82,13 @@ Movement ownership update
 - Civilian movement commands should continue to use `MovementController.MoveTo(...)`, with arrival checks via `MovementController.HasArrived()`.
 
 Modular AI architecture update
-- `CivilianStateMachineController` is now required on the civilian GameObject.
-- `Civilian` delegates per-state execution through the state-machine controller and should remain a thin coordinator.
+- `Civilian` now uses an internal object-oriented FSM (`CivilianStateBase` + concrete state classes) for per-state behavior ownership.
+- State transitions now call `SetState(...)`, which runs exit/enter hooks before switching handlers.
 - Job/runtime systems now operate on `CivilianJobType`; legacy role-based setup paths were removed.
 
 
 Latest component enforcement
-- RequireComponent on Civilian now enforces core runtime controllers: Health, Movement, Carrying, Gathering, Needs, Housing, ConstructionWorkerControl, CivilianStateMachineController, ToolController, JobController, TrainingController, and UpgradeController.
+- RequireComponent on Civilian now enforces core runtime controllers: Health, Movement, Carrying, Gathering, Needs, Housing, ConstructionWorkerControl, ToolController, JobController, TrainingController, and UpgradeController.
 
 [2026-02 Needs integration update]
 - Civilian needs behavior is now database-driven via `GameDatabase.needs` and `GameDatabase.needsActions`.

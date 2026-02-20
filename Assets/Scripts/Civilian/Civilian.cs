@@ -8,7 +8,6 @@ using UnityEngine;
 [RequireComponent(typeof(NeedsController))]
 [RequireComponent(typeof(HousingController))]
 [RequireComponent(typeof(ConstructionWorkerControl))]
-[RequireComponent(typeof(CivilianStateMachineController))]
 [RequireComponent(typeof(ToolController))]
 [RequireComponent(typeof(JobController))]
 [RequireComponent(typeof(TrainingController))]
@@ -98,9 +97,25 @@ public class Civilian : MonoBehaviour, ITargetable
 
     private State state;
     private State stateBeforeNeed;
+    private readonly Dictionary<State, CivilianStateBase> states = new();
+    private CivilianStateBase currentStateHandler;
+
     public void SetState(State newState)
     {
+        if (state == newState && currentStateHandler != null)
+            return;
+
+        currentStateHandler?.Exit();
         state = newState;
+
+        if (states.TryGetValue(newState, out var nextState))
+        {
+            currentStateHandler = nextState;
+            currentStateHandler.Enter();
+            return;
+        }
+
+        currentStateHandler = null;
     }
 
     public string CurrentState => state.ToString();
@@ -154,7 +169,6 @@ public class Civilian : MonoBehaviour, ITargetable
     private ConstructionWorkerControl constructionWorkerControl;
     private NeedsController needsController;
     private HousingController housingController;
-    private CivilianStateMachineController stateMachineController;
 
     public float speed => movementController != null ? movementController.MoveSpeed : 2.5f;
     public float stopDistance => movementController != null ? movementController.StopDistance : 1.2f;
@@ -183,8 +197,7 @@ public class Civilian : MonoBehaviour, ITargetable
         needsController = GetComponent<NeedsController>();
         housingController = GetComponent<HousingController>();
         constructionWorkerControl = GetComponent<ConstructionWorkerControl>();
-        stateMachineController = GetComponent<CivilianStateMachineController>();
-        ConfigureStateMachine();
+        InitializeStateMachine();
         CivilianRegistry.Register(this);
     }
 
@@ -349,7 +362,7 @@ public class Civilian : MonoBehaviour, ITargetable
 
         movementController.ApplyMovement(GetMovementSpeedMultiplier());
 
-        stateMachineController?.Tick(state);
+        currentStateHandler?.Tick();
 
 
     }
@@ -401,11 +414,11 @@ public class Civilian : MonoBehaviour, ITargetable
         switch (action)
         {
             case NeedDrivenActionType.SeekRest:
-                state = State.SeekingHouse;
+                SetState(State.SeekingHouse);
                 break;
             case NeedDrivenActionType.SeekFood:
             case NeedDrivenActionType.SeekWater:
-                state = State.SeekingFoodStorage;
+                SetState(State.SeekingFoodStorage);
                 break;
         }
     }
@@ -415,22 +428,22 @@ public class Civilian : MonoBehaviour, ITargetable
         State fallback = ResolveRoleFallbackState();
         if (targetCraftingBuilding != null && (jobType == CivilianJobType.Crafter || CivilianJobRegistry.GetProfile(jobType).supportsCraftingAssignment))
         {
-            state = State.GoingToWorkPoint;
+            SetState(State.GoingToWorkPoint);
             hasStoredRoleState = false;
             return;
         }
 
         if (hasStoredRoleState)
         {
-            state = stateBeforeNeed;
+            SetState(stateBeforeNeed);
             hasStoredRoleState = false;
 
             if (state == State.SeekingFoodStorage || state == State.Eating || state == State.SeekingHouse || state == State.Sleeping)
-                state = fallback;
+                SetState(fallback);
         }
         else
         {
-            state = fallback;
+            SetState(fallback);
         }
     }
 
@@ -508,7 +521,7 @@ public class Civilian : MonoBehaviour, ITargetable
         pendingFoodAmount = eatenUnits;
         currentEatDurationSeconds = targetFoodDefinition != null ? Mathf.Max(0.1f, targetFoodDefinition.eatTime) : eatDurationSeconds;
         needActionTimer = 0f;
-        state = State.Eating;
+        SetState(State.Eating);
     }
 
     bool TryConsumeFoodFromAssignedHouse()
@@ -524,7 +537,7 @@ public class Civilian : MonoBehaviour, ITargetable
         pendingFoodAmount = consumed;
         currentEatDurationSeconds = Mathf.Max(0.1f, consumedFood != null ? consumedFood.eatTime : eatDurationSeconds);
         needActionTimer = 0f;
-        state = State.Eating;
+        SetState(State.Eating);
         targetFoodStorage = null;
         return true;
     }
@@ -542,11 +555,11 @@ public class Civilian : MonoBehaviour, ITargetable
         targetFoodDefinition = null;
 
         if (needsController.ShouldSleepNow())
-            state = State.SeekingHouse;
+            SetState(State.SeekingHouse);
         else if (!needsController.ShouldEatNow())
             ResumeAfterNeed();
         else
-            state = State.SeekingFoodStorage;
+            SetState(State.SeekingFoodStorage);
     }
 
     void TickSeekHouse()
@@ -568,14 +581,14 @@ public class Civilian : MonoBehaviour, ITargetable
         }
 
         needActionTimer = 0f;
-        state = State.Sleeping;
+        SetState(State.Sleeping);
     }
 
     void TickSleeping()
     {
         if (AssignedHouse == null)
         {
-            state = State.SeekingHouse;
+            SetState(State.SeekingHouse);
             return;
         }
 
@@ -696,11 +709,11 @@ public class Civilian : MonoBehaviour, ITargetable
 
         if (carriedAmount > 0)
         {
-            state = State.GoingToDepositStorage;
+            SetState(State.GoingToDepositStorage);
             return;
         }
 
-        state = ResolveRoleFallbackState();
+        SetState(ResolveRoleFallbackState());
     }
 
     public void GrantStartingToolForCurrentJob()
@@ -823,24 +836,24 @@ public class Civilian : MonoBehaviour, ITargetable
 
         if (gatheringController.TryFindDepositStorage(out targetStorage))
         {
-            state = State.GoingToDepositStorage;
+            SetState(State.GoingToDepositStorage);
             return;
         }
 
         if (gatheringController.TryFindDropoff(out targetDropoff))
         {
-            state = State.GoingToDepositStorage;
+            SetState(State.GoingToDepositStorage);
             return;
         }
 
         // No storage found → idle
-        state = State.Idle;
+        SetState(State.Idle);
     }
     void TickDepositing()
     {
         if (targetStorage == null && targetDropoff == null)
         {
-            state = State.FindDepositStorage;
+            SetState(State.FindDepositStorage);
             return;
         }
 
@@ -850,17 +863,17 @@ public class Civilian : MonoBehaviour, ITargetable
 
         if (emptiedInventory)
         {
-            state = State.SearchingNode;
+            SetState(State.SearchingNode);
             return;
         }
 
         if (!carryingController.IsCarrying)
         {
-            state = State.SearchingNode;
+            SetState(State.SearchingNode);
             return;
         }
 
-        state = State.FindDepositStorage;
+        SetState(State.FindDepositStorage);
     }
     void TickGoingToDepositStorage()
     {
@@ -868,12 +881,12 @@ public class Civilian : MonoBehaviour, ITargetable
 
         if (depositTarget == null)
         {
-            state = State.FindDepositStorage;
+            SetState(State.FindDepositStorage);
             return;
         }
 
         if (MoveToBuildingAndCheckArrival(depositTarget, BuildingStopDistanceType.Storage, BuildingInteractionPointType.Storage))
-            state = State.Depositing;
+            SetState(State.Depositing);
     }
     void TickSearchBuildSite()
     {
@@ -893,12 +906,12 @@ public class Civilian : MonoBehaviour, ITargetable
         if (!targetSite.MaterialsComplete && buildersCanHaulMaterials)
         {
             idleNoTaskTimer = 0f;
-            state = State.SearchingSupplySite;
+            SetState(State.SearchingSupplySite);
             return;
         }
 
         idleNoTaskTimer = 0f;
-        state = State.GoingToBuildSite;
+        SetState(State.GoingToBuildSite);
 
         movementController.MoveToBuildingTarget(targetSite.transform, BuildingStopDistanceType.Construction, BuildingInteractionPointType.Default);
     }
@@ -909,18 +922,18 @@ public class Civilian : MonoBehaviour, ITargetable
         {
             targetSite = null;
             CurrentAssignedSite = null;
-            state = State.SearchingBuildSite;
+            SetState(State.SearchingBuildSite);
             return;
         }
 
         if (!targetSite.MaterialsComplete)
         {
-            state = buildersCanHaulMaterials ? State.SearchingSupplySite : State.SearchingBuildSite;
+            SetState(buildersCanHaulMaterials ? State.SearchingSupplySite : State.SearchingBuildSite);
             return;
         }
 
         movementController.MoveToBuildingTarget(targetSite.transform, BuildingStopDistanceType.Construction, BuildingInteractionPointType.Default);
-        if (movementController.HasArrived()) state = State.Building;
+        if (movementController.HasArrived()) SetState(State.Building);
     }
 
     void TickBuild()
@@ -929,13 +942,13 @@ public class Civilian : MonoBehaviour, ITargetable
         {
             targetSite = null;
             CurrentAssignedSite = null;
-            state = State.SearchingBuildSite;
+            SetState(State.SearchingBuildSite);
             return;
         }
 
         if (!targetSite.MaterialsComplete)
         {
-            state = buildersCanHaulMaterials ? State.SearchingSupplySite : State.SearchingBuildSite;
+            SetState(buildersCanHaulMaterials ? State.SearchingSupplySite : State.SearchingBuildSite);
             return;
         }
 
@@ -953,7 +966,7 @@ public class Civilian : MonoBehaviour, ITargetable
 
         if (carriedAmount > 0 && targetSite != null)
         {
-            state = State.GoingToDeliverSite;
+            SetState(State.GoingToDeliverSite);
             return;
         }
 
@@ -969,7 +982,7 @@ public class Civilian : MonoBehaviour, ITargetable
         }
         if (targetSite.IsComplete || targetSite.MaterialsComplete)
         {
-            state = (jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite;
+            SetState((jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite);
             return;
         }
 
@@ -977,11 +990,11 @@ public class Civilian : MonoBehaviour, ITargetable
         {
             targetSite = null;
             CurrentDeliverySite = null;
-            state = (jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite;
+            SetState((jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite);
             return;
         }
 
-        state = State.GoingToPickupStorage;
+        SetState(State.GoingToPickupStorage);
         idleNoTaskTimer = 0f;
     }
 
@@ -1005,25 +1018,25 @@ public class Civilian : MonoBehaviour, ITargetable
             if (carriedAmount > 0)
             {
                 if (targetCraftingBuilding.NeedsInput(carriedResource))
-                    state = State.DeliveringCraftInput;
+                    SetState(State.DeliveringCraftInput);
                 else
-                    state = State.DeliveringCraftOutput;
+                    SetState(State.DeliveringCraftOutput);
                 return true;
             }
 
             if (targetCraftingBuilding.NeedsAnyInput())
             {
-                state = State.FetchingCraftInput;
+                SetState(State.FetchingCraftInput);
                 return true;
             }
 
             if (targetCraftingBuilding.HasAnyOutputQueued())
             {
-                state = State.CollectingCraftOutput;
+                SetState(State.CollectingCraftOutput);
                 return true;
             }
 
-            state = State.FetchingCraftInput;
+            SetState(State.FetchingCraftInput);
             return true;
         }
 
@@ -1033,11 +1046,11 @@ public class Civilian : MonoBehaviour, ITargetable
             if (inputBuilding != null)
             {
                 targetCraftingBuilding = inputBuilding;
-                state = State.DeliveringCraftInput;
+                SetState(State.DeliveringCraftInput);
                 return true;
             }
 
-            state = State.GoingToDepositStorage;
+            SetState(State.GoingToDepositStorage);
             return true;
         }
 
@@ -1045,7 +1058,7 @@ public class Civilian : MonoBehaviour, ITargetable
         if (prioritized != null)
         {
             targetCraftingBuilding = prioritized;
-            state = prioritized.NeedsAnyInput() ? State.FetchingCraftInput : State.CollectingCraftOutput;
+            SetState(prioritized.NeedsAnyInput() ? State.FetchingCraftInput : State.CollectingCraftOutput);
             return true;
         }
 
@@ -1056,7 +1069,7 @@ public class Civilian : MonoBehaviour, ITargetable
     {
         if (TeamStorageManager.Instance == null || targetSite == null)
         {
-            state = (jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite;
+            SetState((jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite);
             return;
         }
 
@@ -1064,7 +1077,7 @@ public class Civilian : MonoBehaviour, ITargetable
         int reservedForSite = TeamStorageManager.Instance.GetReservedForSite(targetSite.SiteKey, carriedResource);
         if (reservedForSite <= 0)
         {
-            state = (jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite;
+            SetState((jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite);
             return;
         }
 
@@ -1075,14 +1088,14 @@ public class Civilian : MonoBehaviour, ITargetable
             return;
 
         if (MoveToBuildingAndCheckArrival(targetStorage.transform, BuildingStopDistanceType.Storage, BuildingInteractionPointType.Storage))
-            state = State.PickingUp;
+            SetState(State.PickingUp);
     }
 
     void TickPickup()
     {
         if (TeamStorageManager.Instance == null || targetStorage == null || targetSite == null)
         {
-            state = (jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite;
+            SetState((jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite);
             return;
         }
 
@@ -1095,7 +1108,7 @@ public class Civilian : MonoBehaviour, ITargetable
         if (want <= 0)
         {
             targetStorage = null;
-            state = (jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite;
+            SetState((jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite);
             return;
         }
 
@@ -1103,7 +1116,7 @@ public class Civilian : MonoBehaviour, ITargetable
         if (took <= 0)
         {
             targetStorage = null;
-            state = (jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite;
+            SetState((jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite);
             return;
         }
 
@@ -1111,7 +1124,7 @@ public class Civilian : MonoBehaviour, ITargetable
         TeamStorageManager.Instance.ConsumeReserved(teamID, targetSite.SiteKey, carriedResource, took);
 
         targetStorage = null;
-        state = State.GoingToDeliverSite;
+        SetState(State.GoingToDeliverSite);
         movementController.MoveToBuildingTarget(targetSite.transform, BuildingStopDistanceType.Construction, BuildingInteractionPointType.Default);
     }
 
@@ -1119,18 +1132,18 @@ public class Civilian : MonoBehaviour, ITargetable
     {
         if (targetSite == null)
         {
-            state = State.GoingToDepositStorage;
+            SetState(State.GoingToDepositStorage);
             return;
         }
 
-        if (MoveToBuildingAndCheckArrival(targetSite.transform, BuildingStopDistanceType.Construction, BuildingInteractionPointType.Default)) state = State.Delivering;
+        if (MoveToBuildingAndCheckArrival(targetSite.transform, BuildingStopDistanceType.Construction, BuildingInteractionPointType.Default)) SetState(State.Delivering);
     }
 
     void TickDeliver()
     {
         if (targetSite == null || carriedAmount <= 0)
         {
-            state = (jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite;
+            SetState((jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite);
             return;
         }
 
@@ -1140,11 +1153,11 @@ public class Civilian : MonoBehaviour, ITargetable
         if (carriedAmount > 0)
         {
             // if somehow couldn’t accept, put it back into storage
-            state = State.GoingToDepositStorage;
+            SetState(State.GoingToDepositStorage);
             return;
         }
 
-        state = (jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite;
+        SetState((jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite);
     }
 
     // ---------- Helpers ----------
@@ -1220,39 +1233,36 @@ public class Civilian : MonoBehaviour, ITargetable
         return best;
     }
 
-    private void ConfigureStateMachine()
+    private void InitializeStateMachine()
     {
-        if (stateMachineController == null)
-            return;
+        states.Clear();
+        states[State.Idle] = new IdleState(this);
+        states[State.SeekingFoodStorage] = new SeekingFoodStorageState(this);
+        states[State.Eating] = new EatingState(this);
+        states[State.SeekingHouse] = new SeekingHouseState(this);
+        states[State.Sleeping] = new SleepingState(this);
+        states[State.SearchingNode] = new SearchingNodeState(this);
+        states[State.GoingToNode] = new GoingToNodeState(this);
+        states[State.Gathering] = new GatheringState(this);
+        states[State.FindDepositStorage] = new FindDepositStorageState(this);
+        states[State.GoingToDepositStorage] = new GoingToDepositStorageState(this);
+        states[State.Depositing] = new DepositingState(this);
+        states[State.SearchingBuildSite] = new SearchingBuildSiteState(this);
+        states[State.GoingToBuildSite] = new GoingToBuildSiteState(this);
+        states[State.Building] = new BuildingState(this);
+        states[State.SearchingSupplySite] = new SearchingSupplySiteState(this);
+        states[State.GoingToPickupStorage] = new GoingToPickupStorageState(this);
+        states[State.PickingUp] = new PickingUpState(this);
+        states[State.GoingToDeliverSite] = new GoingToDeliverSiteState(this);
+        states[State.Delivering] = new DeliveringState(this);
+        states[State.FetchingCraftInput] = new FetchingCraftInputState(this);
+        states[State.DeliveringCraftInput] = new DeliveringCraftInputState(this);
+        states[State.GoingToWorkPoint] = new GoingToWorkPointState(this);
+        states[State.CraftingAtWorkPoint] = new CraftingAtWorkPointState(this);
+        states[State.CollectingCraftOutput] = new CollectingCraftOutputState(this);
+        states[State.DeliveringCraftOutput] = new DeliveringCraftOutputState(this);
 
-        stateMachineController.Configure(new Dictionary<State, System.Action>
-        {
-            { State.Idle, TickIdle },
-            { State.SeekingFoodStorage, TickSeekFoodStorage },
-            { State.Eating, TickEating },
-            { State.SeekingHouse, TickSeekHouse },
-            { State.Sleeping, TickSleeping },
-            { State.SearchingNode, TickSearchNode },
-            { State.GoingToNode, TickGoNode },
-            { State.Gathering, TickGather },
-            { State.FindDepositStorage, TickFindDepositStorage },
-            { State.GoingToDepositStorage, TickGoingToDepositStorage },
-            { State.Depositing, TickDepositing },
-            { State.SearchingBuildSite, TickSearchBuildSite },
-            { State.GoingToBuildSite, TickGoBuildSite },
-            { State.Building, TickBuild },
-            { State.SearchingSupplySite, TickSearchSupplySite },
-            { State.GoingToPickupStorage, TickGoPickup },
-            { State.PickingUp, TickPickup },
-            { State.GoingToDeliverSite, TickGoDeliver },
-            { State.Delivering, TickDeliver },
-            { State.FetchingCraftInput, TickFetchCraftInput },
-            { State.DeliveringCraftInput, TickDeliverCraftInput },
-            { State.GoingToWorkPoint, TickGoWorkPoint },
-            { State.CraftingAtWorkPoint, TickCraftAtWorkPoint },
-            { State.CollectingCraftOutput, TickCollectCraftOutput },
-            { State.DeliveringCraftOutput, TickDeliverCraftOutput }
-        });
+        SetState(state);
     }
 
     bool TryChooseNeededResource(ConstructionSite site, out ResourceDefinition neededType)
@@ -1304,7 +1314,7 @@ public class Civilian : MonoBehaviour, ITargetable
             if (targetCraftingBuilding == building)
                 targetCraftingBuilding = null;
 
-            state = ResolveRoleFallbackState();
+            SetState(ResolveRoleFallbackState());
             return;
         }
 
@@ -1313,7 +1323,7 @@ public class Civilian : MonoBehaviour, ITargetable
 
         targetCraftingBuilding = building;
         manualCraftingAssignment = manual;
-        state = State.FetchingCraftInput;
+        SetState(State.FetchingCraftInput);
     }
 
     public void ClearCraftingAssignment()
@@ -1333,21 +1343,21 @@ public class Civilian : MonoBehaviour, ITargetable
     {
         if (targetCraftingBuilding == null)
         {
-            state = State.Idle;
+            SetState(State.Idle);
             return;
         }
 
         if (targetCraftingBuilding.requireHaulerLogistics && jobType != CivilianJobType.Hauler)
         {
-            state = State.GoingToWorkPoint;
+            SetState(State.GoingToWorkPoint);
             return;
         }
 
         if (carriedAmount > 0)
         {
-            state = targetCraftingBuilding.NeedsInput(carriedResource)
+            SetState(targetCraftingBuilding.NeedsInput(carriedResource)
                 ? State.DeliveringCraftInput
-                : State.GoingToDepositStorage;
+                : State.GoingToDepositStorage);
             return;
         }
 
@@ -1362,22 +1372,22 @@ public class Civilian : MonoBehaviour, ITargetable
             if (MoveToBuildingAndCheckArrival(targetStorage.transform, BuildingStopDistanceType.Storage, BuildingInteractionPointType.Storage))
             {
                 int took = PickupResourceFromStorage(targetStorage, carriedResource, Mathf.Min(amount, GetCarryCapacity()));
-                state = took > 0 ? State.DeliveringCraftInput : State.FetchingCraftInput;
+                SetState(took > 0 ? State.DeliveringCraftInput : State.FetchingCraftInput);
             }
             return;
         }
 
         if (targetCraftingBuilding.requireHaulerLogistics)
-            state = targetCraftingBuilding.HasAnyOutputQueued() ? State.CollectingCraftOutput : State.FetchingCraftInput;
+            SetState(targetCraftingBuilding.HasAnyOutputQueued() ? State.CollectingCraftOutput : State.FetchingCraftInput);
         else
-            state = targetCraftingBuilding.HasAnyOutputQueued() ? State.CollectingCraftOutput : State.GoingToWorkPoint;
+            SetState(targetCraftingBuilding.HasAnyOutputQueued() ? State.CollectingCraftOutput : State.GoingToWorkPoint);
     }
 
     void TickDeliverCraftInput()
     {
         if (targetCraftingBuilding == null)
         {
-            state = State.GoingToDepositStorage;
+            SetState(State.GoingToDepositStorage);
             return;
         }
 
@@ -1389,7 +1399,7 @@ public class Civilian : MonoBehaviour, ITargetable
 
         if (carriedAmount <= 0)
         {
-            state = State.FetchingCraftInput;
+            SetState(State.FetchingCraftInput);
             return;
         }
 
@@ -1398,33 +1408,33 @@ public class Civilian : MonoBehaviour, ITargetable
 
         if (carriedAmount > 0)
         {
-            state = State.GoingToDepositStorage;
+            SetState(State.GoingToDepositStorage);
             return;
         }
 
         if (IsCraftingLogisticsHauler())
         {
-            state = State.FetchingCraftInput;
+            SetState(State.FetchingCraftInput);
             return;
         }
 
         if (jobType == CivilianJobType.Crafter)
-            state = State.GoingToWorkPoint;
+            SetState(State.GoingToWorkPoint);
         else
-            state = ResolveRoleFallbackState();
+            SetState(ResolveRoleFallbackState());
     }
 
     void TickGoWorkPoint()
     {
         if (targetCraftingBuilding == null)
         {
-            state = State.Idle;
+            SetState(State.Idle);
             return;
         }
 
         if (IsCraftingLogisticsHauler())
         {
-            state = State.FetchingCraftInput;
+            SetState(State.FetchingCraftInput);
             return;
         }
 
@@ -1436,7 +1446,7 @@ public class Civilian : MonoBehaviour, ITargetable
         if (MoveToPositionAndCheckArrival(targetWorkPoint.position, stop))
         {
             stalledAtWorkPointTimer = 0f;
-            state = State.CraftingAtWorkPoint;
+            SetState(State.CraftingAtWorkPoint);
             return;
         }
 
@@ -1448,29 +1458,29 @@ public class Civilian : MonoBehaviour, ITargetable
         stalledAtWorkPointTimer = 0f;
         targetCraftingBuilding.RemoveWorker(this);
         ClearCraftingAssignment();
-        state = ResolveRoleFallbackState();
+        SetState(ResolveRoleFallbackState());
     }
 
     void TickCraftAtWorkPoint()
     {
         if (targetCraftingBuilding == null)
         {
-            state = State.Idle;
+            SetState(State.Idle);
             return;
         }
 
         if (IsCraftingLogisticsHauler())
         {
-            state = State.FetchingCraftInput;
+            SetState(State.FetchingCraftInput);
             return;
         }
 
         if (!targetCraftingBuilding.requireHaulerLogistics)
         {
             if (targetCraftingBuilding.State == CraftingBuilding.ProductionState.WaitingForInputs)
-                state = State.FetchingCraftInput;
+                SetState(State.FetchingCraftInput);
             else if (targetCraftingBuilding.State == CraftingBuilding.ProductionState.OutputReady || targetCraftingBuilding.State == CraftingBuilding.ProductionState.WaitingForPickup)
-                state = State.CollectingCraftOutput;
+                SetState(State.CollectingCraftOutput);
         }
     }
 
@@ -1478,33 +1488,33 @@ public class Civilian : MonoBehaviour, ITargetable
     {
         if (targetCraftingBuilding == null)
         {
-            state = State.Idle;
+            SetState(State.Idle);
             return;
         }
 
         if (targetCraftingBuilding.requireHaulerLogistics && jobType != CivilianJobType.Hauler)
         {
-            state = State.GoingToWorkPoint;
+            SetState(State.GoingToWorkPoint);
             return;
         }
 
         if (targetCraftingBuilding.NeedsAnyInput())
         {
-            state = State.FetchingCraftInput;
+            SetState(State.FetchingCraftInput);
             return;
         }
 
         if (carriedAmount > 0)
         {
-            state = targetCraftingBuilding.NeedsInput(carriedResource)
+            SetState(targetCraftingBuilding.NeedsInput(carriedResource)
                 ? State.DeliveringCraftInput
-                : State.DeliveringCraftOutput;
+                : State.DeliveringCraftOutput);
             return;
         }
 
         if (!targetCraftingBuilding.TryGetOutputRequest(transform.position, out carriedResource, out int amount, out targetStorage))
         {
-            state = State.FetchingCraftInput;
+            SetState(State.FetchingCraftInput);
             return;
         }
 
@@ -1516,20 +1526,20 @@ public class Civilian : MonoBehaviour, ITargetable
 
         carriedAmount = targetCraftingBuilding.CollectOutput(carriedResource, Mathf.Min(amount, GetCarryCapacity()));
         carryingController?.SetCarried(carriedResource, carriedAmount);
-        state = carriedAmount > 0 ? State.DeliveringCraftOutput : State.FetchingCraftInput;
+        SetState(carriedAmount > 0 ? State.DeliveringCraftOutput : State.FetchingCraftInput);
     }
 
     void TickDeliverCraftOutput()
     {
         if (carriedAmount <= 0)
         {
-            state = State.FetchingCraftInput;
+            SetState(State.FetchingCraftInput);
             return;
         }
 
         if (targetCraftingBuilding != null && targetCraftingBuilding.NeedsInput(carriedResource))
         {
-            state = State.DeliveringCraftInput;
+            SetState(State.DeliveringCraftInput);
             return;
         }
 
@@ -1551,9 +1561,9 @@ public class Civilian : MonoBehaviour, ITargetable
             ProductionNotificationManager.Instance?.NotifyIfReady($"full-output-{targetStorage.GetInstanceID()}-{carriedResource}", $"Storage full for {carriedResource}. Output queue blocked.");
 
         if (carriedAmount > 0)
-            state = State.DeliveringCraftOutput;
+            SetState(State.DeliveringCraftOutput);
         else
-            state = IsCraftingLogisticsHauler() ? State.FetchingCraftInput : State.GoingToWorkPoint;
+            SetState(IsCraftingLogisticsHauler() ? State.FetchingCraftInput : State.GoingToWorkPoint);
     }
 
     float GetMovementSpeedMultiplier()
@@ -1853,5 +1863,45 @@ public class Civilian : MonoBehaviour, ITargetable
                 return false;
         }
     }
+
+    private abstract class CivilianStateBase
+    {
+        protected readonly Civilian civilian;
+
+        protected CivilianStateBase(Civilian civilian)
+        {
+            this.civilian = civilian;
+        }
+
+        public virtual void Enter() { }
+        public virtual void Tick() { }
+        public virtual void Exit() { }
+    }
+
+    private sealed class IdleState : CivilianStateBase { public IdleState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickIdle(); }
+    private sealed class SeekingFoodStorageState : CivilianStateBase { public SeekingFoodStorageState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickSeekFoodStorage(); }
+    private sealed class EatingState : CivilianStateBase { public EatingState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickEating(); }
+    private sealed class SeekingHouseState : CivilianStateBase { public SeekingHouseState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickSeekHouse(); }
+    private sealed class SleepingState : CivilianStateBase { public SleepingState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickSleeping(); }
+    private sealed class SearchingNodeState : CivilianStateBase { public SearchingNodeState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickSearchNode(); }
+    private sealed class GoingToNodeState : CivilianStateBase { public GoingToNodeState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickGoNode(); }
+    private sealed class GatheringState : CivilianStateBase { public GatheringState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickGather(); }
+    private sealed class FindDepositStorageState : CivilianStateBase { public FindDepositStorageState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickFindDepositStorage(); }
+    private sealed class GoingToDepositStorageState : CivilianStateBase { public GoingToDepositStorageState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickGoingToDepositStorage(); }
+    private sealed class DepositingState : CivilianStateBase { public DepositingState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickDepositing(); }
+    private sealed class SearchingBuildSiteState : CivilianStateBase { public SearchingBuildSiteState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickSearchBuildSite(); }
+    private sealed class GoingToBuildSiteState : CivilianStateBase { public GoingToBuildSiteState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickGoBuildSite(); }
+    private sealed class BuildingState : CivilianStateBase { public BuildingState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickBuild(); }
+    private sealed class SearchingSupplySiteState : CivilianStateBase { public SearchingSupplySiteState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickSearchSupplySite(); }
+    private sealed class GoingToPickupStorageState : CivilianStateBase { public GoingToPickupStorageState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickGoPickup(); }
+    private sealed class PickingUpState : CivilianStateBase { public PickingUpState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickPickup(); }
+    private sealed class GoingToDeliverSiteState : CivilianStateBase { public GoingToDeliverSiteState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickGoDeliver(); }
+    private sealed class DeliveringState : CivilianStateBase { public DeliveringState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickDeliver(); }
+    private sealed class FetchingCraftInputState : CivilianStateBase { public FetchingCraftInputState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickFetchCraftInput(); }
+    private sealed class DeliveringCraftInputState : CivilianStateBase { public DeliveringCraftInputState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickDeliverCraftInput(); }
+    private sealed class GoingToWorkPointState : CivilianStateBase { public GoingToWorkPointState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickGoWorkPoint(); }
+    private sealed class CraftingAtWorkPointState : CivilianStateBase { public CraftingAtWorkPointState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickCraftAtWorkPoint(); }
+    private sealed class CollectingCraftOutputState : CivilianStateBase { public CollectingCraftOutputState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickCollectCraftOutput(); }
+    private sealed class DeliveringCraftOutputState : CivilianStateBase { public DeliveringCraftOutputState(Civilian civilian) : base(civilian) { } public override void Tick() => civilian.TickDeliverCraftOutput(); }
 
 }
