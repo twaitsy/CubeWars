@@ -43,3 +43,9 @@ Unified jobs/tools + housing interactions (latest)
 - House stat buffs on residents:
   - Prestige: +10% movement speed per level.
   - Comfort: -10% tiredness accumulation rate per level.
+
+
+Update (2026-02):
+- Housing assignment is now managed by HousingController + HousingRegistry.
+- Civilians no longer own house search/assignment state directly; they query HousingController.
+- House components auto-register into HousingRegistry for team-based nearest-house lookup.

@@ -51,6 +51,8 @@ public class House : Building
         if (!allHouses.Contains(this))
             allHouses.Add(this);
 
+        HousingRegistry.Instance?.RegisterHouse(this);
+
         EnsureRandomizedName();
         ConfigureHouseStorageReceiveOnly();
     }
@@ -58,6 +60,7 @@ public class House : Building
     void OnDisable()
     {
         allHouses.Remove(this);
+        HousingRegistry.Instance?.UnregisterHouse(this);
     }
 
 

@@ -675,3 +675,26 @@ Civilian controller split (latest)
 - Civilian movement control is centralized in `MovementController`.
 - `Civilian` no longer directly configures or stops `NavMeshAgent`; movement commands route through `MovementController.MoveTo(...)` and arrival checks through `MovementController.HasArrived()`.
 - Keep both `MovementController` and `NavMeshAgent` on civilian prefabs (the agent remains required by `MovementController`).
+
+
+-----------------------------------------------------------------
+11) Housing + Interaction Point System (2026-02)
+-----------------------------------------------------------------
+Housing:
+- Add HousingRegistry to the scene.
+- Civilian prefab now requires HousingController; housing assignment/lookup is registry-driven.
+- House registration is automatic via House.OnEnable/OnDisable.
+
+Building Interaction Points:
+- Add BuildingInteractionPointController to building prefabs.
+- Add one or more InteractionPoint child objects and set pointType:
+  - Storage: civilian deposit/withdraw approach target
+  - CraftInput/CraftOutput: crafting logistics approach targets
+  - CraftWork: worker workstation points
+  - House: optional sleep/house-specific interaction target
+- CraftingBuilding supports both legacy workPoints[] and InteractionPoint(type=CraftWork).
+- Worker task generation now caps crafting job requests to available work points (one job per point).
+
+Migration notes:
+- StorageFacility legacy interactionPoint field was removed in favor of InteractionPoint components.
+- If civilians stop short of storage/crafting interactions, verify NavMesh reachability to the selected InteractionPoint child transforms.

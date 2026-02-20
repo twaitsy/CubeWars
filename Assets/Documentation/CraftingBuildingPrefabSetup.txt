@@ -136,3 +136,9 @@ Latest recipe-output restriction
 - Assign `resourcesDatabase` on CraftingBuilding.
 - Only recipe outputs categorized as `Refined` are produced/queued/picked up.
 - Non-Refined recipe outputs are ignored at runtime with a warning.
+
+
+Update (2026-02):
+- Crafting stations can define multiple craft stations using InteractionPoint components with pointType=CraftWork.
+- Keep legacy workPoints[] for backward compatibility, but prefer InteractionPoint authoring for consistent building interaction workflows.
+- Job/task queuing now respects workstation count (one queued crafting job per available work point).

@@ -17,6 +17,7 @@ public class SceneRequiredScripts : MonoBehaviour
         typeof(BuildPlacementManager),
         typeof(BuildGridManager),
         typeof(ResourceRegistry),
+        typeof(HousingRegistry),
         typeof(JobManager),
         typeof(WorkerTaskDispatcher),
         typeof(WorkerTaskGenerationSystem),

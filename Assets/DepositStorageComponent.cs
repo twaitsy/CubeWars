@@ -89,7 +89,12 @@ public class DepositStorageComponent : MonoBehaviour
         if (target == null)
             return;
 
-        movement.MoveTo(target.position, stopDistance);
+        Transform moveTarget = target;
+        var points = target.GetComponentInParent<BuildingInteractionPointController>();
+        if (points != null && points.TryGetClosestPoint(BuildingInteractionPointType.Storage, transform.position, out Transform interaction))
+            moveTarget = interaction;
+
+        movement.MoveTo(moveTarget.position, stopDistance);
     }
 
     public bool TryDeposit(ResourceStorageContainer container)

@@ -4324,3 +4324,15 @@ TeamColorUtils
 - ResourceType enum references are deprecated and removed from runtime resource logic.
 - Runtime systems now pass ResourceDefinition references and/or normalized resource IDs.
 - Food lookup is provided by FoodDatabase entries mapped by ResourceDefinition.
+
+
+## 2026-02 Added Runtime Scripts
+- `Assets/Scripts/Runtime/Buildings/InteractionPoint.cs`
+- `Assets/Scripts/Runtime/Buildings/BuildingInteractionPointController.cs`
+- `Assets/Scripts/Registry/HousingRegistry.cs`
+- `Assets/Scripts/Runtime/Units/HousingController.cs`
+
+### Migration Notes
+- `Civilian` housing assignment/search responsibilities are delegated to `HousingController` + `HousingRegistry`.
+- `StorageFacility.interactionPoint` legacy single-point field is replaced by `InteractionPoint` components managed through `BuildingInteractionPointController`.
+- Crafting worker task generation caps queued craft jobs by available work points.

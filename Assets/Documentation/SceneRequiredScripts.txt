@@ -323,3 +323,11 @@ Update: civilian data-source validation
 - No new required scene scripts were added.
 - Civilian movement/arrival behavior should be validated through `MovementController` only.
 - Keep `NavMeshAgent` on civilian prefabs because `MovementController` depends on it.
+
+
+[2026-02 Housing + Interaction Point update]
+- Added new required scene script: HousingRegistry.
+- Civilian prefab now requires HousingController (auto-enforced via RequireComponent on Civilian).
+- Building prefabs should include BuildingInteractionPointController and at least one InteractionPoint child for reliable storage/crafting pathing.
+- Crafting stations can expose multiple craft work InteractionPoints; one worker/job is supported per work point.
+- Storage facilities should use InteractionPoint(type=Storage) instead of legacy single StorageFacility interaction Transform fields.

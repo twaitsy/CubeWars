@@ -136,7 +136,8 @@ public class WorkerTaskGenerationSystem : MonoBehaviour
             !needsWorker)
             return;
 
-        int maxWorkers = Mathf.Max(1, building.GetMaxWorkers());
+        int workPointCapacity = Mathf.Max(1, building.GetWorkPointCapacity());
+        int maxWorkers = Mathf.Min(Mathf.Max(1, building.GetMaxWorkers()), workPointCapacity);
         int activeWorkers = building.AssignedWorkers.Count;
         int queuedCraft = Dispatcher.GetQueuedCraftTaskCount(building, building.teamID);
 
