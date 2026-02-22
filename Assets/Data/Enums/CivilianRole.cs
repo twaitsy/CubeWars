@@ -12,6 +12,7 @@
 
 public enum CivilianRole
 {
+    None,
     Gatherer,
     Builder,
     Hauler,

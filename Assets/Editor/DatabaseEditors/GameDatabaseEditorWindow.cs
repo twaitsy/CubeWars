@@ -431,12 +431,33 @@ public abstract class GameDatabaseEditorWindowBase : EditorWindow
         if (db.tools == null || db.tools.tools == null)
             return;
 
-        int length = Mathf.Max(0, EditorGUILayout.IntField("Starting Tools Count", unit.startingTools != null ? unit.startingTools.Length : 0));
-        if (unit.startingTools == null || unit.startingTools.Length != length)
-            Array.Resize(ref unit.startingTools, length);
+        // Ensure the list exists
+        if (unit.startingTools == null)
+            unit.startingTools = new List<ToolDefinition>();
 
-        for (int i = 0; i < length; i++)
-            unit.startingTools[i] = DrawPopup($"Starting Tool {i + 1}", unit.startingTools[i], db.tools.tools, x => x != null ? x.displayName : "(None)");
+        // Editable count field
+        int length = Mathf.Max(0, EditorGUILayout.IntField(
+            "Starting Tools Count",
+            unit.startingTools.Count
+        ));
+
+        // Resize the list to match the requested length
+        while (unit.startingTools.Count < length)
+            unit.startingTools.Add(null);
+
+        while (unit.startingTools.Count > length)
+            unit.startingTools.RemoveAt(unit.startingTools.Count - 1);
+
+        // Draw each tool selector
+        for (int i = 0; i < unit.startingTools.Count; i++)
+        {
+            unit.startingTools[i] = DrawPopup(
+                $"Starting Tool {i + 1}",
+                unit.startingTools[i],
+                db.tools.tools,
+                x => x != null ? x.displayName : "(None)"
+            );
+        }
     }
 
     private void DrawBuildingReferenceSelectors()

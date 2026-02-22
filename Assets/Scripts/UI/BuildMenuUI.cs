@@ -136,7 +136,31 @@ public class BuildMenuUI : MonoBehaviour
             scroll = Vector2.zero;
         }
     }
+    BuildItemDefinition CreateBuildItemFromDetailed(BuildingDefinition def)
+    {
+        if (def == null || def.prefab == null)
+            return null;
 
+        BuildItemDefinition generated = ScriptableObject.CreateInstance<BuildItemDefinition>();
+
+        generated.name = string.IsNullOrWhiteSpace(def.id) ? def.prefab.name : def.id;
+        generated.displayName = string.IsNullOrWhiteSpace(def.displayName) ? generated.name : def.displayName;
+        generated.icon = def.icon;
+        generated.prefab = def.prefab;
+        generated.buildTime = Mathf.Max(0f, def.buildTime);
+
+        // now uses the enum-based mapping
+        generated.menuCategory = GetDetailedCategoryName(def);
+
+        // your existing AI mapping logic
+        generated.aiPriority = MapAIPriority(def.category);
+
+        // convert costs from BuildingDefinition → BuildItemDefinition
+        generated.costs = ConvertConstructionCosts(def.constructionCost);
+
+        runtimeGeneratedItems.Add(generated);
+        return generated;
+    }
     void Start()
     {
         AutoAssignPlayerTeam();
@@ -599,35 +623,24 @@ public class BuildMenuUI : MonoBehaviour
         return entries;
     }
 
-    BuildItemDefinition CreateBuildItemFromDetailed(BuildingDefinition def)
+    BuildMenuCategory GetDetailedCategoryName(BuildingDefinition def)
     {
-        if (def == null || def.prefab == null)
-            return null;
-
-        BuildItemDefinition generated = ScriptableObject.CreateInstance<BuildItemDefinition>();
-        generated.name = string.IsNullOrWhiteSpace(def.id) ? def.prefab.name : def.id;
-        generated.displayName = string.IsNullOrWhiteSpace(def.displayName) ? generated.name : def.displayName;
-        generated.icon = def.icon;
-        generated.prefab = def.prefab;
-        generated.buildTime = Mathf.Max(0f, def.buildTime);
-        generated.category = GetDetailedCategoryName(def);
-        generated.aiPriority = MapAIPriority(def.category);
-        generated.costs = ConvertConstructionCosts(def.constructionCost);
-
-        runtimeGeneratedItems.Add(generated);
-        return generated;
+        switch (def.category)
+        {
+            case BuildingCategory.Housing: return BuildMenuCategory.Housing;
+            case BuildingCategory.Production: return BuildMenuCategory.Industry;
+            case BuildingCategory.Storage: return BuildMenuCategory.Logistics;
+            case BuildingCategory.Military: return BuildMenuCategory.Military;
+            case BuildingCategory.Utility: return BuildMenuCategory.Utility;
+            case BuildingCategory.Research: return BuildMenuCategory.Research;
+            case BuildingCategory.Farming: return BuildMenuCategory.Farming;
+            case BuildingCategory.Mining: return BuildMenuCategory.Industry;   // or a new category if you add one
+            case BuildingCategory.Logistics: return BuildMenuCategory.Logistics;
+            case BuildingCategory.Decoration: return BuildMenuCategory.Decoration;
+            default: return BuildMenuCategory.Other;
+        }
     }
 
-    string GetDetailedCategoryName(BuildingDefinition def)
-    {
-        if (def == null)
-            return "Uncategorized";
-
-        if (!string.IsNullOrWhiteSpace(def.subCategory))
-            return def.subCategory.Trim();
-
-        return def.category.ToString();
-    }
 
     ResourceCost[] ConvertConstructionCosts(List<ResourceAmount> costs)
     {

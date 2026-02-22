@@ -350,7 +350,7 @@ public class Civilian : MonoBehaviour, ITargetable
 
         // Tools
         if (def.startingTools != null)
-            GetComponent<ToolController>()?.SetStartingTools(def.startingTools);
+            GetComponent<ToolController>()?.SetStartingTools(def.startingTools.ToArray());
 
         // Needs
         if (def.needs != null)
