@@ -60,6 +60,7 @@ public class Civilian : MonoBehaviour, ITargetable
     [Header("State Settings")]
     [SerializeField] private CivilianStateSettings stateSettings;
     public bool HasStateSettings => stateSettings != null;
+    public bool UsesScriptableObjectStates => states.Count > 0;
 
     // IHasHealth / ITargetable style properties
     public int TeamID => teamID;
@@ -234,6 +235,11 @@ public class Civilian : MonoBehaviour, ITargetable
         CraftingJobManager.Instance?.UnregisterCivilian(this);
         WorkerTaskDispatcher.Instance?.UnregisterWorker(this);
         CivilianRegistry.Unregister(this);
+    }
+
+    void OnDestroy()
+    {
+        DestroyStateMachine();
     }
 
     void Start()
@@ -781,34 +787,56 @@ public class Civilian : MonoBehaviour, ITargetable
 
     private void InitializeStateMachine()
     {
-        states.Clear();
-        states[State.Idle] = new IdleState(this);
-        states[State.SeekingFoodStorage] = new SeekingFoodStorageState(this);
-        states[State.Eating] = new EatingState(this);
-        states[State.SeekingHouse] = new SeekingHouseState(this);
-        states[State.Sleeping] = new SleepingState(this);
-        states[State.SearchingNode] = new SearchingNodeState(this);
-        states[State.GoingToNode] = new GoingToNodeState(this);
-        states[State.Gathering] = new GatheringState(this);
-        states[State.FindDepositStorage] = new FindDepositStorageState(this);
-        states[State.GoingToDepositStorage] = new GoingToDepositStorageState(this);
-        states[State.Depositing] = new DepositingState(this);
-        states[State.SearchingBuildSite] = new SearchingBuildSiteState(this);
-        states[State.GoingToBuildSite] = new GoingToBuildSiteState(this);
-        states[State.Building] = new BuildingState(this);
-        states[State.SearchingSupplySite] = new SearchingSupplySiteState(this);
-        states[State.GoingToPickupStorage] = new GoingToPickupStorageState(this);
-        states[State.PickingUp] = new PickingUpState(this);
-        states[State.GoingToDeliverSite] = new GoingToDeliverSiteState(this);
-        states[State.Delivering] = new DeliveringState(this);
-        states[State.FetchingCraftInput] = new FetchingCraftInputState(this);
-        states[State.DeliveringCraftInput] = new DeliveringCraftInputState(this);
-        states[State.GoingToWorkPoint] = new GoingToWorkPointState(this);
-        states[State.CraftingAtWorkPoint] = new CraftingAtWorkPointState(this);
-        states[State.CollectingCraftOutput] = new CollectingCraftOutputState(this);
-        states[State.DeliveringCraftOutput] = new DeliveringCraftOutputState(this);
+        DestroyStateMachine();
+
+        RegisterState<IdleState>(State.Idle);
+        RegisterState<SeekingFoodStorageState>(State.SeekingFoodStorage);
+        RegisterState<EatingState>(State.Eating);
+        RegisterState<SeekingHouseState>(State.SeekingHouse);
+        RegisterState<SleepingState>(State.Sleeping);
+        RegisterState<SearchingNodeState>(State.SearchingNode);
+        RegisterState<GoingToNodeState>(State.GoingToNode);
+        RegisterState<GatheringState>(State.Gathering);
+        RegisterState<FindDepositStorageState>(State.FindDepositStorage);
+        RegisterState<GoingToDepositStorageState>(State.GoingToDepositStorage);
+        RegisterState<DepositingState>(State.Depositing);
+        RegisterState<SearchingBuildSiteState>(State.SearchingBuildSite);
+        RegisterState<GoingToBuildSiteState>(State.GoingToBuildSite);
+        RegisterState<BuildingState>(State.Building);
+        RegisterState<SearchingSupplySiteState>(State.SearchingSupplySite);
+        RegisterState<GoingToPickupStorageState>(State.GoingToPickupStorage);
+        RegisterState<PickingUpState>(State.PickingUp);
+        RegisterState<GoingToDeliverSiteState>(State.GoingToDeliverSite);
+        RegisterState<DeliveringState>(State.Delivering);
+        RegisterState<FetchingCraftInputState>(State.FetchingCraftInput);
+        RegisterState<DeliveringCraftInputState>(State.DeliveringCraftInput);
+        RegisterState<GoingToWorkPointState>(State.GoingToWorkPoint);
+        RegisterState<CraftingAtWorkPointState>(State.CraftingAtWorkPoint);
+        RegisterState<CollectingCraftOutputState>(State.CollectingCraftOutput);
+        RegisterState<DeliveringCraftOutputState>(State.DeliveringCraftOutput);
 
         SetState(state);
+    }
+
+    private void RegisterState<TState>(State stateKey) where TState : CivilianStateBase
+    {
+        TState stateAsset = ScriptableObject.CreateInstance<TState>();
+        stateAsset.hideFlags = HideFlags.HideAndDontSave;
+        stateAsset.Initialize(this);
+        states[stateKey] = stateAsset;
+    }
+
+    private void DestroyStateMachine()
+    {
+        currentStateHandler = null;
+
+        foreach (CivilianStateBase stateAsset in states.Values)
+        {
+            if (stateAsset != null)
+                Destroy(stateAsset);
+        }
+
+        states.Clear();
     }
 
     bool TryChooseNeededResource(ConstructionSite site, out ResourceDefinition neededType)
@@ -1127,13 +1155,13 @@ public class Civilian : MonoBehaviour, ITargetable
         }
     }
 
-    private abstract class CivilianStateBase
+    private abstract class CivilianStateBase : ScriptableObject
     {
-        protected readonly Civilian civilian;
+        protected Civilian civilian;
 
-        protected CivilianStateBase(Civilian civilian)
+        public void Initialize(Civilian owner)
         {
-            this.civilian = civilian;
+            civilian = owner;
         }
 
         public virtual void Enter() { }
@@ -1152,7 +1180,6 @@ public class Civilian : MonoBehaviour, ITargetable
 
     private sealed class IdleState : CivilianStateBase
     {
-        public IdleState(Civilian civilian) : base(civilian) { }
         public override string TaskLabel => "Waiting for job";
         public override string GetStateDetails() => civilian.HasJob ? "Idle between assignments" : "No assignment yet";
 
@@ -1183,7 +1210,6 @@ public class Civilian : MonoBehaviour, ITargetable
 
     private sealed class SeekingFoodStorageState : CivilianStateBase
     {
-        public SeekingFoodStorageState(Civilian civilian) : base(civilian) { }
         public override string TaskLabel => "Seeking food";
 
         public override void Tick()
@@ -1220,7 +1246,6 @@ public class Civilian : MonoBehaviour, ITargetable
 
     private sealed class EatingState : CivilianStateBase
     {
-        public EatingState(Civilian civilian) : base(civilian) { }
         public override string TaskLabel => "Eating";
 
         public override void Tick()
@@ -1244,7 +1269,6 @@ public class Civilian : MonoBehaviour, ITargetable
 
     private sealed class SeekingHouseState : CivilianStateBase
     {
-        public SeekingHouseState(Civilian civilian) : base(civilian) { }
         public override string TaskLabel => "Seeking house";
 
         public override void Tick()
@@ -1272,7 +1296,6 @@ public class Civilian : MonoBehaviour, ITargetable
 
     private sealed class SleepingState : CivilianStateBase
     {
-        public SleepingState(Civilian civilian) : base(civilian) { }
         public override string TaskLabel => "Sleeping";
 
         public override void Tick()
@@ -1299,7 +1322,6 @@ public class Civilian : MonoBehaviour, ITargetable
 
     private sealed class SearchingNodeState : CivilianStateBase
     {
-        public SearchingNodeState(Civilian civilian) : base(civilian) { }
         public override string TaskLabel => "Searching for resource node";
         public override string GetStateDetails() => "Scanning for nearest valid task";
 
@@ -1332,7 +1354,6 @@ public class Civilian : MonoBehaviour, ITargetable
 
     private sealed class GoingToNodeState : CivilianStateBase
     {
-        public GoingToNodeState(Civilian civilian) : base(civilian) { }
         public override string TaskLabel => "Moving to target node";
         public override string GetStateDetails() => MovingTowardTarget();
 
@@ -1357,7 +1378,6 @@ public class Civilian : MonoBehaviour, ITargetable
 
     private sealed class GatheringState : CivilianStateBase
     {
-        public GatheringState(Civilian civilian) : base(civilian) { }
         public override string TaskLabel => "Collecting resource";
         public override string GetStateDetails() => InteractingWithTarget();
 
@@ -1383,7 +1403,6 @@ public class Civilian : MonoBehaviour, ITargetable
 
     private sealed class FindDepositStorageState : CivilianStateBase
     {
-        public FindDepositStorageState(Civilian civilian) : base(civilian) { }
         public override string TaskLabel => "Finding storage";
 
         public override void Tick()
@@ -1403,7 +1422,6 @@ public class Civilian : MonoBehaviour, ITargetable
 
     private sealed class GoingToDepositStorageState : CivilianStateBase
     {
-        public GoingToDepositStorageState(Civilian civilian) : base(civilian) { }
         public override string TaskLabel => "Moving to storage";
         public override string GetStateDetails() => MovingTowardTarget();
 
@@ -1423,7 +1441,6 @@ public class Civilian : MonoBehaviour, ITargetable
 
     private sealed class DepositingState : CivilianStateBase
     {
-        public DepositingState(Civilian civilian) : base(civilian) { }
         public override string TaskLabel => "Depositing carried resources";
         public override string GetStateDetails() => InteractingWithTarget();
 
@@ -1451,7 +1468,6 @@ public class Civilian : MonoBehaviour, ITargetable
 
     private sealed class SearchingBuildSiteState : CivilianStateBase
     {
-        public SearchingBuildSiteState(Civilian civilian) : base(civilian) { }
         public override string TaskLabel => "Searching for construction work";
         public override string GetStateDetails() => "Scanning for nearest valid task";
 
@@ -1486,7 +1502,6 @@ public class Civilian : MonoBehaviour, ITargetable
 
     private sealed class GoingToBuildSiteState : CivilianStateBase
     {
-        public GoingToBuildSiteState(Civilian civilian) : base(civilian) { }
         public override string TaskLabel => "Moving to build site";
         public override string GetStateDetails() => MovingTowardTarget();
 
@@ -1514,7 +1529,6 @@ public class Civilian : MonoBehaviour, ITargetable
 
     private sealed class BuildingState : CivilianStateBase
     {
-        public BuildingState(Civilian civilian) : base(civilian) { }
         public override string TaskLabel => "Building structure";
 
         public override void Tick()
@@ -1539,7 +1553,6 @@ public class Civilian : MonoBehaviour, ITargetable
 
     private sealed class SearchingSupplySiteState : CivilianStateBase
     {
-        public SearchingSupplySiteState(Civilian civilian) : base(civilian) { }
         public override string TaskLabel => "Waiting for haul assignment";
         public override string GetStateDetails() => "Scanning for nearest valid task";
 
@@ -1589,7 +1602,6 @@ public class Civilian : MonoBehaviour, ITargetable
 
     private sealed class GoingToPickupStorageState : CivilianStateBase
     {
-        public GoingToPickupStorageState(Civilian civilian) : base(civilian) { }
         public override string TaskLabel => "Moving to pickup";
         public override string GetStateDetails() => MovingTowardTarget();
 
@@ -1621,7 +1633,6 @@ public class Civilian : MonoBehaviour, ITargetable
 
     private sealed class PickingUpState : CivilianStateBase
     {
-        public PickingUpState(Civilian civilian) : base(civilian) { }
         public override string TaskLabel => "Collecting resource from storage";
         public override string GetStateDetails() => InteractingWithTarget();
 
@@ -1662,7 +1673,6 @@ public class Civilian : MonoBehaviour, ITargetable
 
     private sealed class GoingToDeliverSiteState : CivilianStateBase
     {
-        public GoingToDeliverSiteState(Civilian civilian) : base(civilian) { }
         public override string TaskLabel => "Moving to delivery target";
         public override string GetStateDetails() => MovingTowardTarget();
 
@@ -1681,7 +1691,6 @@ public class Civilian : MonoBehaviour, ITargetable
 
     private sealed class DeliveringState : CivilianStateBase
     {
-        public DeliveringState(Civilian civilian) : base(civilian) { }
         public override string TaskLabel => "Delivering resources";
         public override string GetStateDetails() => InteractingWithTarget();
 
@@ -1708,7 +1717,6 @@ public class Civilian : MonoBehaviour, ITargetable
 
     private sealed class FetchingCraftInputState : CivilianStateBase
     {
-        public FetchingCraftInputState(Civilian civilian) : base(civilian) { }
         public override string TaskLabel => "Fetching crafting inputs";
         public override string GetStateDetails() => "Scanning for nearest valid task";
 
@@ -1759,7 +1767,6 @@ public class Civilian : MonoBehaviour, ITargetable
 
     private sealed class DeliveringCraftInputState : CivilianStateBase
     {
-        public DeliveringCraftInputState(Civilian civilian) : base(civilian) { }
         public override string TaskLabel => "Delivering crafting inputs";
         public override string GetStateDetails() => InteractingWithTarget();
 
@@ -1805,7 +1812,6 @@ public class Civilian : MonoBehaviour, ITargetable
 
     private sealed class GoingToWorkPointState : CivilianStateBase
     {
-        public GoingToWorkPointState(Civilian civilian) : base(civilian) { }
         public override string TaskLabel => "Moving to work point";
         public override string GetStateDetails() => MovingTowardTarget();
 
@@ -1849,7 +1855,6 @@ public class Civilian : MonoBehaviour, ITargetable
 
     private sealed class CraftingAtWorkPointState : CivilianStateBase
     {
-        public CraftingAtWorkPointState(Civilian civilian) : base(civilian) { }
         public override string TaskLabel => "Producing goods";
         public override string GetStateDetails() => "Producing goods at assigned workstation";
 
@@ -1879,7 +1884,6 @@ public class Civilian : MonoBehaviour, ITargetable
 
     private sealed class CollectingCraftOutputState : CivilianStateBase
     {
-        public CollectingCraftOutputState(Civilian civilian) : base(civilian) { }
         public override string TaskLabel => "Collecting outputs";
         public override string GetStateDetails() => "Scanning for nearest valid task";
 
@@ -1932,7 +1936,6 @@ public class Civilian : MonoBehaviour, ITargetable
 
     private sealed class DeliveringCraftOutputState : CivilianStateBase
     {
-        public DeliveringCraftOutputState(Civilian civilian) : base(civilian) { }
         public override string TaskLabel => "Delivering crafted goods";
         public override string GetStateDetails() => InteractingWithTarget();
 

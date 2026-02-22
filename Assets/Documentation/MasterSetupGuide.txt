@@ -794,3 +794,8 @@ FSM refactor note (2026-02-20)
 - Create at least one `CivilianStateSettings` asset (`Create > CubeWars > Civilian > State Settings`).
 - Assign that asset to the Civilian prefab/component (`stateSettings`) so FSM timing values are inspector-driven.
 - Recommended initial values match runtime defaults: search retry 1.5, idle wander radius 3, idle wander min/max 2/5, no-task return delay 10, work-point stall repath 10.
+
+Civilian FSM architecture update (2026-02-22)
+- Civilian states are now fully ScriptableObject-backed runtime handlers.
+- Verify civilian prefabs still include the required controllers and assign `CivilianStateSettings` for timing values.
+- Scene validation now checks both state-settings assignment and ScriptableObject state initialization for civilians.
