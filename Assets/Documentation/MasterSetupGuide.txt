@@ -789,3 +789,8 @@ FSM refactor note (2026-02-20)
 - `CivilianStateBase` now exposes virtual task/detail methods so each state can define its own inspector-facing strings.
 - Scene setup requirements are unchanged; this is an internal Civilian architecture cleanup for maintainability.
 - Civilian FSM execution has been fully moved into concrete state classes: each state now owns its complete `Tick()` body, and legacy `Tick*` state methods were removed from `Civilian`.
+
+[2026-02 Civilian state ScriptableObject setup]
+- Create at least one `CivilianStateSettings` asset (`Create > CubeWars > Civilian > State Settings`).
+- Assign that asset to the Civilian prefab/component (`stateSettings`) so FSM timing values are inspector-driven.
+- Recommended initial values match runtime defaults: search retry 1.5, idle wander radius 3, idle wander min/max 2/5, no-task return delay 10, work-point stall repath 10.
