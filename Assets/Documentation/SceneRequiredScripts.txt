@@ -44,7 +44,7 @@ Scene camera/input scripts
 - RTSCamera
 
 Team setup scripts (at least one)
-- TeamBootstrap OR SixTeamBootstrap OR HQSpawner
+- TeamBootstrap OR SixTeamBootstrap
 
 Notes
 - DiplomacyManager should have "Initialize All Teams At War" enabled unless manually configured.
@@ -355,7 +355,7 @@ Script-enforced component requirements (latest)
 
 
 Missing-script component diagnostics (2026-02 update)
-- SceneRequiredScripts now validates bootstrap presence correctly by accepting any of: TeamBootstrap, SixTeamBootstrap, or HQSpawner.
+- SceneRequiredScripts now validates bootstrap presence correctly by accepting any of: TeamBootstrap or SixTeamBootstrap.
 - Missing script scans now include the full GameObject hierarchy path for each object with missing MonoBehaviour references.
 - Validation logs print up to 20 missing-script object paths, followed by a summary count for any additional objects.
 
