@@ -799,3 +799,11 @@ Civilian FSM architecture update (2026-02-22)
 - Civilian states are now fully ScriptableObject-backed runtime handlers.
 - Verify civilian prefabs still include the required controllers and assign `CivilianStateSettings` for timing values.
 - Scene validation now checks both state-settings assignment and ScriptableObject state initialization for civilians.
+
+
+AI scalability architecture (2026 update)
+- Add TaskBoard (central push-based task publication and worker assignment entry-point).
+- Add CivilianAIScheduler (centralized ~10Hz staggered AI ticking; movement remains frame-based).
+- WorkerTaskDispatcher now serves as O(1)-queue backend and workers pull tasks through scheduler ticks instead of per-unit full-frame scans.
+- Civilian AI now uses hierarchical layers for debug/logic organization: Mode, WorkType, WorkPhase.
+- Road speed bonus should come from Road trigger volumes/path cache via MovementController.IsOnRoad (no per-frame raycast checks).
