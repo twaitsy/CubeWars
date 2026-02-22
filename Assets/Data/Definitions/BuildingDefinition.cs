@@ -35,7 +35,7 @@ public class StorageSettings
 public class BuildingDefinition
 {
     // Identity
-    public string id;
+    public string id;                // <-- added for stationId lookups
     public string displayName;
     public Sprite icon;
     public GameObject prefab;
@@ -61,6 +61,10 @@ public class BuildingDefinition
     public bool isProducer = false;
     public List<ProductionRecipeDefinition> recipes = new();
     public int workerSlots = 0;
+
+    // Added for BonusCalculator / production systems
+    public int productionQueueSize = 1;
+    public float productionSpeedMultiplier = 1f;
 
     // Storage
     public bool isStorage = false;

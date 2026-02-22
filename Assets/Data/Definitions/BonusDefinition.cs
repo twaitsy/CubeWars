@@ -4,49 +4,72 @@ using UnityEngine;
 public enum BonusTargetType
 {
     Resource,
-    Category
+    Category,
+    QualityTier,
+    JobType,
+    Recipe,
+    Station
+}
+
+public enum BonusStackingMode
+{
+    Multiply,
+    Add,
+    Override
 }
 
 [Serializable]
 public class BonusDefinition
 {
-    public string id; // optional, for debugging or lookup
+    [Header("Identity")]
+    public string id;
 
+    [Header("Target Type")]
     public BonusTargetType targetType;
 
-    // Only one of these is used depending on targetType.
-    // For Resource targets this stores a shallow data copy selected from ResourcesDatabase.
+    [Header("Targets")]
     public ResourceDefinition resource;
     public ResourceCategory category;
+    public int qualityTier;
+    public CivilianJobType jobType;
+    public ProductionRecipeDefinition recipe;
+    public string stationId;
 
-    // Multiplier applied to speed/efficiency/etc.
+    [Header("Bonus Value")]
     public float multiplier = 1f;
+    public float additiveBonus = 0f;
+    public BonusStackingMode stackingMode = BonusStackingMode.Multiply;
 
-    public bool Matches(ResourceDefinition target)
+    public bool Matches(ResourceDefinition targetResource,
+                        CivilianJobType workerJob,
+                        ProductionRecipeDefinition targetRecipe,
+                        string activeStationId)
     {
-        if (target == null)
-            return false;
-
         switch (targetType)
         {
             case BonusTargetType.Resource:
-                if (resource == null)
+                if (resource == null || targetResource == null)
                     return false;
-
-                if (ReferenceEquals(resource, target))
+                if (ReferenceEquals(resource, targetResource))
                     return true;
-
-                if (!string.IsNullOrWhiteSpace(resource.id) &&
-                    !string.IsNullOrWhiteSpace(target.id) &&
-                    string.Equals(resource.id, target.id, StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-
-                return false;
+                return string.Equals(resource.id, targetResource.id, StringComparison.OrdinalIgnoreCase);
 
             case BonusTargetType.Category:
-                return category == target.category;
+                return targetResource != null && targetResource.category == category;
+
+            case BonusTargetType.QualityTier:
+                return targetResource != null && targetResource.tier == qualityTier;
+
+            case BonusTargetType.JobType:
+                return workerJob == jobType;
+
+            case BonusTargetType.Recipe:
+                return targetRecipe != null && recipe != null &&
+                       string.Equals(recipe.recipeId, targetRecipe.recipeId, StringComparison.OrdinalIgnoreCase);
+
+            case BonusTargetType.Station:
+                return !string.IsNullOrWhiteSpace(activeStationId) &&
+                       string.Equals(stationId, activeStationId, StringComparison.OrdinalIgnoreCase);
 
             default:
                 return false;

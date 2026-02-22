@@ -5,7 +5,7 @@ using UnityEngine;
 [Serializable]
 public class UnitDefinition
 {
-    [Header("1. Core Identity & Classification")]
+    [Header("1. Core Identity")]
     public string id;
     public string displayName;
     public Sprite icon;
@@ -13,16 +13,15 @@ public class UnitDefinition
     public int faction;
     public UnitClassType unitClass = UnitClassType.Soldier;
     public int tier = 1;
-    public bool isCombatUnit = true;
-    public bool isWorker;
-    public bool isCivilian;
+    public int techTier = 1;
     public bool isMechanical;
     public bool isBiological = true;
     public UnitSizeCategory sizeCategory = UnitSizeCategory.Medium;
     public int populationCost = 1;
     public List<ResourceAmount> upkeepCost = new();
+    public List<string> roleTags = new(); // e.g. "frontline", "ranged", "siege"
 
-    [Header("2. Movement & Navigation Stats")]
+    [Header("2. Movement")]
     public float moveSpeed = 3.5f;
     public float acceleration = 8f;
     public float deceleration = 8f;
@@ -34,10 +33,13 @@ public class UnitDefinition
     public float waterMovementPenalty = 1f;
     public float slopePenalty = 1f;
     public float stuckDetectionTime = 3f;
-    public float fleeSpeedMultiplier = 1.2f;
-    public float carryingSpeedPenalty = 1f;
+    public bool canSwim;
+    public bool canClimb;
+    public bool canFly;
+    public bool canBurrow;
+    public float formationSpacing = 1f;
 
-    [Header("3. Health, Survival & Resistances")]
+    [Header("3. Health & Resistances")]
     public int maxHealth = 100;
     public float healthRegenRate = 0f;
     public int armor = 0;
@@ -52,11 +54,13 @@ public class UnitDefinition
     public float bleedingRate;
     public float reviveTime = 8f;
     public float deathDelay = 0f;
+    public int shieldValue;
+    public float shieldRegenRate;
 
     [Header("4. Combat Stats")]
-    public int attackDamage = 0;
-    public AttackType attackType = AttackType.None;
-    public float attackRange = 0f;
+    public int attackDamage = 10;
+    public AttackType attackType = AttackType.Melee;
+    public float attackRange = 1.5f;
     public float attackWindup = 0.1f;
     public float attackRecovery = 0.1f;
     public float attackCooldown = 1f;
@@ -74,64 +78,10 @@ public class UnitDefinition
     public float fleeThreshold = 0.15f;
     public float morale = 1f;
     public float moraleBreakChance;
+    public List<UnitClassType> preferredTargets = new();
+    public List<BonusDefinition> attackModifiers = new();
 
-    [Header("5. Worker / Economy Stats")]
-    public int carryCapacity = 10;
-    public float gatherSpeed = 1f;
-    public float gatherYieldMultiplier = 1f;
-    public float gatherRange = 1.5f;
-    public float buildSpeed = 1f;
-    public float repairSpeed = 1f;
-    public float haulSpeedMultiplier = 1f;
-    public float refineEfficiency = 1f;
-    public float craftingSpeed = 1f;
-    public float craftingQuality = 1f;
-    public float taskSwitchPenalty;
-    public float workStaminaCost = 1f;
-    public float resourceDetectionRange = 12f;
-    public List<StringFloatStat> resourcePreference = new();
-    public float toolEffectivenessMultiplier = 1f;
-    public float workAccuracy = 1f;
-
-    [Header("8. Job / Profession Stats")]
-    public CivilianJobType jobType = CivilianJobType.Generalist;
-    public string jobTypeId;
-    public List<string> allowedJobs = new();
-    public List<string> preferredJobs = new();
-    public List<StringFloatStat> jobSpeedMultipliers = new();
-    public JobTrainingLevel trainingLevel = JobTrainingLevel.Novice;
-    public float xpGainRate = 1f;
-    public float xpRequiredForNextLevel = 100f;
-    public float jobSuccessChance = 1f;
-    public float jobFailurePenalty;
-    public float multitaskEfficiency = 1f;
-
-    [Header("11. Training, Upgrades & Progression")]
-    public List<ResourceAmount> trainingCost = new();
-    public float trainingTime = 5f;
-    public BuildingDefinition trainedAt;
-    public List<ResourceAmount> upgradeCost = new();
-    public float upgradeTime = 5f;
-    public UnitDefinition upgradeTo;
-    public float experience;
-    public int level = 1;
-    public List<LevelBonusDefinition> levelUpBonuses = new();
-    public float veterancyDamageBonus;
-    public float veterancySpeedBonus;
-
-    [Header("12. Animation & Visual Stats")]
-    public string animationSet;
-    public float modelScale = 1f;
-    public List<string> idleAnimationVariants = new();
-    public float walkAnimationSpeed = 1f;
-    public float attackAnimationSpeed = 1f;
-    public string footstepType;
-    public string voiceSet;
-    public Sprite portrait;
-    public List<Color> colorPalette = new();
-    public List<string> accessorySet = new();
-
-    [Header("13. AI Control & State Machine Tuning")]
+    [Header("5. Combat AI")]
     public float decisionFrequency = 0.25f;
     public float retargetFrequency = 0.2f;
     public int maxConcurrentTasks = 1;
@@ -143,8 +93,40 @@ public class UnitDefinition
     public Vector3 priorityBias = new(0.2f, 0.4f, 0.4f);
     public float fleeDecisionCooldown = 2f;
     public float targetMemoryDuration = 5f;
+    public string stance = "Aggressive"; // Aggressive, Defensive, Hold
+    public List<string> aiTargetPriorityTags = new();
 
-    [Header("14. Meta / Game Design Stats")]
+    [Header("6. Training & Upgrades")]
+    public List<ResourceAmount> trainingCost = new();
+    public float trainingTime = 5f;
+    public BuildingDefinition trainedAt;
+    public TechNodeDefinition requiredTech;
+    public List<ResourceAmount> upgradeCost = new();
+    public float upgradeTime = 5f;
+    public UnitDefinition upgradeTo;
+    public float experience;
+    public int level = 1;
+    public List<LevelBonusDefinition> levelUpBonuses = new();
+    public float veterancyDamageBonus;
+    public float veterancySpeedBonus;
+    public List<ToolDefinition> startingTools = new();
+    public List<ResourceAmount> startingInventory = new();
+
+    [Header("7. Animation & Visuals")]
+    public string animationSet;
+    public float modelScale = 1f;
+    public List<string> idleAnimationVariants = new();
+    public float walkAnimationSpeed = 1f;
+    public float attackAnimationSpeed = 1f;
+    public string footstepType;
+    public string voiceSet;
+    public Sprite portrait;
+    public List<Color> colorPalette = new();
+    public List<string> accessorySet = new();
+    public AnimationClip deathAnimation;
+    public AnimationClip hitAnimation;
+
+    [Header("8. Meta")]
     public float costMultiplier = 1f;
     public float upkeepMultiplier = 1f;
     public float difficultyScalingFactor = 1f;
@@ -152,8 +134,7 @@ public class UnitDefinition
     public RarityType rarity = RarityType.Common;
     public float aiRecruitmentWeight = 1f;
     public float playerRecruitmentWeight = 1f;
-
-    [Header("Compatibility")]
-    public ToolDefinition[] startingTools;
-    public List<NeedDefinition> needs;
+    public List<string> aiRoleTags = new(); // e.g. "frontline", "ranged", "siege"
+    public List<string> aiWeaknessTags = new();
+    public List<string> aiCounterTags = new();
 }
