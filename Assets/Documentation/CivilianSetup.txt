@@ -116,3 +116,12 @@ FSM ownership update (2026-02-20)
 - `CivilianStateBase` includes virtual metadata methods, and each concrete state overrides only what it needs.
 - This removes centralized state-to-string switch blocks and keeps future state changes localized per class.
 - FSM migration complete: legacy top-level state `Tick*` methods were removed from `Civilian`; each concrete `CivilianStateBase` derivative now contains full per-state execution logic in `Tick()`.
+
+State tuning via ScriptableObject (2026-02)
+- Civilian state timing is now configured through `CivilianStateSettings` assets.
+- In the Civilian inspector, assign `stateSettings` to control:
+  - search retry cadence
+  - idle wander radius + min/max interval
+  - idle no-task house-return delay
+  - craft work-point stall repath timeout
+- If unassigned, Civilian falls back to built-in defaults, and `SceneRequiredScripts` will log a diagnostic warning.

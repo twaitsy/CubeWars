@@ -57,6 +57,9 @@ public class Civilian : MonoBehaviour, ITargetable
     public House AssignedHouse => housingController != null ? housingController.AssignedHouse : null;
     public FoodDatabase foodDatabase;
     public ResourcesDatabase resourcesDatabase;
+    [Header("State Settings")]
+    [SerializeField] private CivilianStateSettings stateSettings;
+    public bool HasStateSettings => stateSettings != null;
 
     // IHasHealth / ITargetable style properties
     public int TeamID => teamID;
@@ -177,7 +180,12 @@ public class Civilian : MonoBehaviour, ITargetable
     public int carryCapacity => carryingController != null ? carryingController.Capacity : 30;
     public float gatherTickSeconds => gatheringController != null ? gatheringController.gatherInterval : 1f;
     public int harvestPerTick => gatheringController != null ? gatheringController.harvestPerTick : 1;
-    private float searchRetrySeconds => 1.5f;
+    private float searchRetrySeconds => stateSettings != null ? stateSettings.searchRetrySeconds : 1.5f;
+    private float idleWanderRadius => stateSettings != null ? stateSettings.idleWanderRadius : 3f;
+    private float idleWanderIntervalMin => stateSettings != null ? stateSettings.idleWanderIntervalMin : 2f;
+    private float idleWanderIntervalMax => stateSettings != null ? Mathf.Max(stateSettings.idleWanderIntervalMin, stateSettings.idleWanderIntervalMax) : 5f;
+    private float idleNoTaskReturnToHouseDelay => stateSettings != null ? stateSettings.idleNoTaskReturnToHouseDelay : 10f;
+    private float workPointStallRepathSeconds => stateSettings != null ? stateSettings.workPointStallRepathSeconds : 10f;
     private bool buildersCanHaulMaterials => constructionWorkerControl == null || constructionWorkerControl.CanHaulMaterials;
     public int foodToEatPerMeal => needsController != null ? needsController.FoodToEatPerMeal : 10;
     private float eatDurationSeconds => needsController != null ? needsController.EatDurationSeconds : 1.2f;
@@ -633,7 +641,7 @@ public class Civilian : MonoBehaviour, ITargetable
 
     bool TryFallbackToHouseInteractionPoint()
     {
-        if (idleNoTaskTimer < 10f)
+        if (idleNoTaskTimer < idleNoTaskReturnToHouseDelay)
             return false;
 
         if (AssignedHouse == null)
@@ -1163,8 +1171,8 @@ public class Civilian : MonoBehaviour, ITargetable
             civilian.idleWanderTimer -= Time.deltaTime;
             if (civilian.idleWanderTimer <= 0f || (civilian.idleWanderTarget - civilian.transform.position).sqrMagnitude < 1f)
             {
-                civilian.idleWanderTimer = Random.Range(2f, 5f);
-                Vector2 jitter = Random.insideUnitCircle * 3f;
+                civilian.idleWanderTimer = Random.Range(civilian.idleWanderIntervalMin, civilian.idleWanderIntervalMax);
+                Vector2 jitter = Random.insideUnitCircle * civilian.idleWanderRadius;
                 civilian.idleWanderTarget = civilian.AssignedHouse.transform.position + new Vector3(jitter.x, 0f, jitter.y);
             }
 
@@ -1828,7 +1836,7 @@ public class Civilian : MonoBehaviour, ITargetable
             }
 
             civilian.stalledAtWorkPointTimer += Time.deltaTime;
-            if (civilian.stalledAtWorkPointTimer < 10f)
+            if (civilian.stalledAtWorkPointTimer < civilian.workPointStallRepathSeconds)
                 return;
 
             Debug.LogWarning($"[{nameof(Civilian)}] Workpoint stalled for {civilian.name}. Clearing crafting assignment.");

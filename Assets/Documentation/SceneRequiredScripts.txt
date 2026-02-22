@@ -414,3 +414,8 @@ Maintenance note (2026-02 civilian state-machine refactor)
 - Civilian state labels/details now come from concrete `CivilianStateBase` derivatives rather than centralized enum switch blocks.
 - Validation/scene bootstrap expectations remain unchanged; only internal state-behavior ownership was refactored.
 - Civilian FSM internals were further refactored: state-class `Tick()` methods now contain full state logic, replacing legacy top-level `Tick*` state methods. Scene requirements remain unchanged.
+
+[2026-02 Civilian state ScriptableObject update]
+- Civilian state timing is now data-driven via `CivilianStateSettings` ScriptableObject assets.
+- Assign `Civilian.stateSettings` on Civilian prefabs to tune state timers (search retry, idle wander interval/radius, idle fallback delay, work-point stall repath threshold) without code changes.
+- `SceneRequiredScripts` now emits a civilian diagnostics warning when a Civilian is missing a `CivilianStateSettings` assignment.
