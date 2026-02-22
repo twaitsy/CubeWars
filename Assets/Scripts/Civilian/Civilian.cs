@@ -59,6 +59,8 @@ public class Civilian : MonoBehaviour, ITargetable
     public ResourcesDatabase resourcesDatabase;
     [Header("State Settings")]
     [SerializeField] private CivilianStateSettings stateSettings;
+    [Header("Debug")]
+    [SerializeField] private bool enableDebugLogs;
     public bool HasStateSettings => stateSettings != null;
     public bool UsesScriptableObjectStates => states.Count > 0;
 
@@ -120,8 +122,10 @@ public class Civilian : MonoBehaviour, ITargetable
         if (state == newState && currentStateHandler != null)
             return;
 
+        State previousState = state;
         currentStateHandler?.Exit();
         state = newState;
+        DebugStateTransition(previousState, newState);
 
         if (states.TryGetValue(newState, out var nextState))
         {
@@ -303,6 +307,8 @@ public class Civilian : MonoBehaviour, ITargetable
         CivilianAIScheduler.Instance?.Register(this);
 
         housingController?.TryAssignHouseIfNeeded();
+
+        DebugLog($"Initialized. Team={teamID}, JobType={jobType}, State={state}, HasHouse={AssignedHouse != null}");
     }
 
 
@@ -410,6 +416,11 @@ public class Civilian : MonoBehaviour, ITargetable
         if (CivilianAIScheduler.Instance != null)
             return;
 
+        if (enableDebugLogs && Time.frameCount % 300 == 0)
+        {
+            DebugLog($"Running unscheduled AI tick. State={state}, Carry={carriedAmount}, Target={CurrentTargetName}");
+        }
+
         SchedulerTickAI(Time.deltaTime, true, CivilianAILodTier.Full);
         SchedulerTickMovement(Time.deltaTime);
     }
@@ -436,7 +447,27 @@ public class Civilian : MonoBehaviour, ITargetable
         currentStateHandler?.Tick(deltaTime);
 
         if ((state == State.Idle || state.ToString().StartsWith("Searching")) && WorkerTaskDispatcher.Instance != null)
-            WorkerTaskDispatcher.Instance.TryAssignAnyTask(this);
+        {
+            bool assigned = WorkerTaskDispatcher.Instance.TryAssignAnyTask(this);
+            if (enableDebugLogs && !assigned)
+                DebugLog($"No task assigned while in {state}. JobType={jobType}");
+        }
+    }
+
+    private void DebugStateTransition(State previous, State next)
+    {
+        if (!enableDebugLogs || previous == next)
+            return;
+
+        Debug.Log($"[{nameof(Civilian)}] {name} state: {previous} -> {next}", this);
+    }
+
+    private void DebugLog(string message)
+    {
+        if (!enableDebugLogs)
+            return;
+
+        Debug.Log($"[{nameof(Civilian)}] {name}: {message}", this);
     }
 
 

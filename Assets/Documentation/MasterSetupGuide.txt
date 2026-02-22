@@ -811,3 +811,8 @@ AI scalability architecture (2026 update)
 [2026-02 Civilian out-parameter compile fix]
 - Fixed Civilian compile errors by routing out-parameter resource selections through local variables before assigning to the carriedResource property.
 - No scene wiring changes required; this is a C# property/ref safety fix only.
+
+Inspector + civilian debug troubleshooting (2026-02)
+- If clicking units/buildings does not show UnitInspectorUI, verify SelectionManager exists and that at least one UnitInspectorUI is active in scene. SelectionManager now auto-binds the first UnitInspectorUI it finds when `inspectorUI` is not assigned.
+- For civilian behavior stalls, enable `Civilian.enableDebugLogs` on the prefab/instance to log state transitions and task-assignment misses in play mode.
+

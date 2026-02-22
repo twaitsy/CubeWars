@@ -435,3 +435,9 @@ AI scalability architecture (2026 update)
 [2026-02 Civilian out-parameter compile fix]
 - Fixed Civilian compile errors by routing out-parameter resource selections through local variables before assigning to the carriedResource property.
 - No scene wiring changes required; this is a C# property/ref safety fix only.
+
+Maintenance note (2026-02 inspector/debug)
+- UnitInspectorUI can now be auto-discovered by SelectionManager at runtime if the inspectorUI reference is left empty in the scene.
+- Keep at least one active UnitInspectorUI component in the loaded scene so click-selection can display inspector panels.
+- Civilian has an `enableDebugLogs` toggle that logs state transitions and failed task assignment attempts to help diagnose civilian stall regressions.
+
