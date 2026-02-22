@@ -441,3 +441,13 @@ Maintenance note (2026-02 inspector/debug)
 - Keep at least one active UnitInspectorUI component in the loaded scene so click-selection can display inspector panels.
 - Civilian has an `enableDebugLogs` toggle that logs state transitions and failed task assignment attempts to help diagnose civilian stall regressions.
 
+
+
+[2026-02 runtime/data-definition compatibility follow-up]
+- No additional required scene scripts were introduced.
+- Civilian prefab database hydration now expects civilian-core stats only (health/move/carry/gather/build/starting tools) from `CivilianDefinition`; combat/training/upgrade values should be authored in their dedicated systems.
+- `JobDefinition` assets used by civilian assignment should include `defaultJobType` plus capability flags consumed by dispatcher matching.
+- Build/inspector compatibility aliases now exist for upgraded definitions:
+  - `BuildItemDefinition.category` resolves from `menuCategory`
+  - `UnitProductionDefinition.unitName` resolves from `displayName`
+

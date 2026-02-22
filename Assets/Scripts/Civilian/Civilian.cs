@@ -348,10 +348,6 @@ public class Civilian : MonoBehaviour, ITargetable
         // Building
         constructionWorkerControl?.SetBuildSpeed(def.buildSpeed);
 
-        // Combat
-        GetComponent<CombatController>()?.SetCombatStats(
-            def.attackDamage, def.attackRange, def.attackCooldown, def.armor);
-
         // Tools
         if (def.startingTools != null)
             GetComponent<ToolController>()?.SetStartingTools(def.startingTools);
@@ -363,12 +359,6 @@ public class Civilian : MonoBehaviour, ITargetable
         // Jobs
         GetComponent<JobController>()?.SetJobType(def.jobType);
 
-        // Training
-        GetComponent<TrainingController>()?.SetTraining(
-            def.trainingCost, def.trainingTime, def.trainedAt);
-
-        // Upgrades
-        GetComponent<UpgradeController>()?.SetUpgradeTarget(def.upgradeTo);
     }
 
     void RegisterWithJobManager()

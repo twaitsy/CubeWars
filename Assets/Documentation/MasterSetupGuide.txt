@@ -746,6 +746,15 @@ Update (2026-02-20)
 - WorkerTaskGenerationSystem now creates separate crafting requests for production workers and haulers so `maxAssignedHaulers` is respected.
 - Gather tasks now force the assigned node in Civilian state flow (SearchingNode -> GoingToNode) to align task registry requests with actual assignment behavior.
 
+
+[2026-02 data model/runtime alignment cleanup]
+- `CivilianDefinition` runtime hydration now uses only civilian-core runtime stats (health, movement speed, carry capacity, gather speed, build speed, starting tools) and no longer pushes combat/training/upgrade fields from the civilian database path.
+- Recipe-level throughput multipliers were restored on `ProductionRecipeDefinition` (`inputEfficiencyMultiplier`, `outputEfficiencyMultiplier`) so crafting input/output scaling remains data-driven.
+- `JobDefinition` runtime profile now includes `defaultJobType` and `HasCapability(...)` for dispatcher/job-assignment flows.
+- Compatibility aliases were added for upgraded definitions used by legacy runtime/UI calls:
+  - `BuildItemDefinition.category` (read-only alias of `menuCategory`)
+  - `UnitProductionDefinition.unitName` (read-only alias of `displayName`)
+
 [2026-02 Need-action AI update]
 - Assign `GameDatabase.needs` and `GameDatabase.needsActions` for all scenes using civilians.
 - `NeedsDatabase` must contain (minimum) `food`, `rest`, and `water` ids if you want default civilian survival tuning.

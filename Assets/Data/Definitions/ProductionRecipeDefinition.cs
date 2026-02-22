@@ -73,6 +73,8 @@ public class ProductionRecipeDefinition
     public float weatherPenaltyMultiplier = 1f;
 
     [Header("Quality & Efficiency")]
+    public float inputEfficiencyMultiplier = 1f;
+    public float outputEfficiencyMultiplier = 1f;
     public bool inputQualityAffectsOutput = false;
     public float outputQualityMultiplier = 1f;
     public float workerSpeedMultiplier = 1f;

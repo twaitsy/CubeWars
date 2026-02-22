@@ -28,6 +28,7 @@ public class UnitProductionDefinition : ScriptableObject
     // Identity
     public string id;
     public string displayName;
+    public string unitName => displayName;
     public Sprite icon;
 
     [TextArea]
