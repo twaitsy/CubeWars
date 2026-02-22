@@ -114,9 +114,9 @@ public class SceneRequiredScripts : MonoBehaviour
             if (civ == null)
                 continue;
 
-            bool missing = string.IsNullOrWhiteSpace(civ.unitDefinitionId)
+            bool missing = string.IsNullOrWhiteSpace(civ.civilianDefinitionId)
                 || loaded == null
-                || !loaded.TryGetUnitById(civ.unitDefinitionId, out var def)
+                || !loaded.TryGetCivilianById(civ.civilianDefinitionId, out var def)
                 || def == null;
 
             if (missing)
@@ -176,7 +176,7 @@ public class SceneRequiredScripts : MonoBehaviour
         }
 
         if (civiliansMissingUnitDefinition > 0)
-            Debug.LogWarning($"[SceneRequiredScripts] Workforce diagnostics: {civiliansMissingUnitDefinition} civilian(s) have missing/invalid unitDefinitionId database entries.", this);
+            Debug.LogWarning($"[SceneRequiredScripts] Workforce diagnostics: {civiliansMissingUnitDefinition} civilian(s) have missing/invalid civilianDefinitionId database entries.", this);
 
         if (nodesMissingResource > 0 || nodesResourceNotInDatabase > 0)
             Debug.LogWarning($"[SceneRequiredScripts] Resource diagnostics: {nodesMissingResource} node(s) missing a resource definition, {nodesResourceNotInDatabase} node(s) reference resources not present in database. Node-name auto-assignment only works when names match resource IDs/display names.", this);

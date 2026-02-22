@@ -501,7 +501,7 @@ Database-driven runtime stat setup (new)
   - move speed
   - attack damage/range/cooldown
   - armor
-- Civilian prefabs can set `Civilian.unitDefinitionId` (default: `civilian`) to pull max health, move speed, and carry capacity.
+- Civilian prefabs can set `Civilian.civilianDefinitionId` (default: `civilian`) to pull max health, move speed, and carry capacity from `CiviliansDatabase`.
 - Building prefabs can set `Building.buildingDefinitionId` to pull max health from `BuildingsDatabase`.
 - `DefenseTurret` also pulls attack range/damage from building database values when available.
 
@@ -555,7 +555,7 @@ Maintenance note (2026-02 civilian logistics)
 
 Workforce troubleshooting update (latest)
 - Civilian prefab does not need its own ResourceStorageContainer/ResourceStorageProvider to gather/haul.
-- Ensure every Civilian prefab has a valid `unitDefinitionId` that exists in UnitsDatabase.
+- Ensure every Civilian prefab has a valid `civilianDefinitionId` that exists in CiviliansDatabase.
 - Ensure every ResourceNode has `resource` assigned and that ResourceDefinition exists in ResourcesDatabase.
 - Use BuildingPrefabValidator on Building/Civilian/ResourceNode prefabs to log missing components and data mismatches.
 - SceneRequiredScripts now includes workforce/resource data diagnostics for these checks at scene validation time.
@@ -741,8 +741,8 @@ Prefab validator scope expansion (2026-02)
 
 Update (2026-02-20)
 - Farm.cs has been removed. Use CraftingBuilding + ProductionRecipe for food production instead of legacy farm scripts.
-- Unit and Civilian `unitDefinitionId` values should be selected from UnitsDatabase (Unit uses inspector dropdown).
-- UnitsDatabase now includes common baseline entries: Civilian, Villager, Militia, Archer, Spearman, Swordsman, Knight, Scout, Priest, Catapult.
+- Unit `unitDefinitionId` values should be selected from UnitsDatabase; Civilian `civilianDefinitionId` values should match CiviliansDatabase entries.
+- UnitsDatabase now contains combat-focused entries (Militia, Archer, Spearman, Swordsman, Knight, Scout, Priest, Catapult), while civilians are stored in CiviliansDatabase (Civilian, Villager).
 - WorkerTaskGenerationSystem now creates separate crafting requests for production workers and haulers so `maxAssignedHaulers` is respected.
 - Gather tasks now force the assigned node in Civilian state flow (SearchingNode -> GoingToNode) to align task registry requests with actual assignment behavior.
 

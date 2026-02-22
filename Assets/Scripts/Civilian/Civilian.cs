@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [RequireComponent(typeof(HealthComponent))]
 [RequireComponent(typeof(MovementController))]
@@ -16,7 +17,8 @@ using UnityEngine;
 public class Civilian : MonoBehaviour, ITargetable
 {
     [Header("Identity")]
-    public string unitDefinitionId = "civilian";
+    [FormerlySerializedAs("unitDefinitionId")]
+    public string civilianDefinitionId = "civilian";
     [Header("Team")]
     public int teamID;
     public bool IsAlive => health != null && health.IsAlive;
@@ -317,13 +319,13 @@ public class Civilian : MonoBehaviour, ITargetable
         var loaded = GameDatabaseLoader.Loaded;
         if (loaded == null)
         {
-            Debug.LogWarning($"[{nameof(Civilian)}] {name}: GameDatabaseLoader.Loaded is null; unitDefinitionId '{unitDefinitionId}' cannot be validated.", this);
+            Debug.LogWarning($"[{nameof(Civilian)}] {name}: GameDatabaseLoader.Loaded is null; civilianDefinitionId '{civilianDefinitionId}' cannot be validated.", this);
             return;
         }
 
-        if (!loaded.TryGetUnitById(unitDefinitionId, out var def) || def == null)
+        if (!loaded.TryGetCivilianById(civilianDefinitionId, out var def) || def == null)
         {
-            Debug.LogWarning($"[{nameof(Civilian)}] {name}: unitDefinitionId '{unitDefinitionId}' was not found in UnitsDatabase.", this);
+            Debug.LogWarning($"[{nameof(Civilian)}] {name}: civilianDefinitionId '{civilianDefinitionId}' was not found in CiviliansDatabase.", this);
             return;
         }
 
