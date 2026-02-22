@@ -2,9 +2,6 @@ using UnityEngine;
 
 public class WorkerTaskGenerationSystem : MonoBehaviour
 {
-    [Min(0.1f)] public float scanTickSeconds = 1f;
-    private float timer;
-
     private WorkerTaskDispatcher Dispatcher => WorkerTaskDispatcher.Instance;
 
     void OnEnable()
@@ -41,20 +38,6 @@ public class WorkerTaskGenerationSystem : MonoBehaviour
         CraftingRegistry.OnBuildingRegistered -= HandleCraftingChanged;
         CraftingRegistry.OnBuildingChanged -= HandleCraftingChanged;
         CraftingRegistry.OnBuildingCompleted -= HandleCraftingChanged;
-    }
-
-    void Update()
-    {
-        // Dispatcher must exist
-        if (Dispatcher == null)
-            return;
-
-        // Timer is unused but kept for future timed logic
-        timer += Time.deltaTime;
-        if (timer < scanTickSeconds)
-            return;
-
-        timer = 0f;
     }
 
     // ========================================================================

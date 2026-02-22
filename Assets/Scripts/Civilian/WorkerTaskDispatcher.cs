@@ -5,11 +5,25 @@ public class WorkerTaskDispatcher : MonoBehaviour
 {
     public static WorkerTaskDispatcher Instance;
 
-    [Min(0.1f)] public float dispatchTickSeconds = 0.4f;
-
-    readonly List<Civilian> workers = new();
+    readonly HashSet<Civilian> workers = new();
     readonly List<WorkerTaskRequest> queuedTasks = new();
-    float dispatchTimer;
+    readonly Dictionary<int, TeamTaskQueues> teamQueues = new();
+
+    sealed class TeamTaskQueues
+    {
+        public readonly Dictionary<WorkerTaskType, Queue<int>> indicesByType = new();
+
+        public Queue<int> GetQueue(WorkerTaskType type)
+        {
+            if (!indicesByType.TryGetValue(type, out Queue<int> queue))
+            {
+                queue = new Queue<int>();
+                indicesByType[type] = queue;
+            }
+
+            return queue;
+        }
+    }
 
     void Awake()
     {
@@ -22,19 +36,9 @@ public class WorkerTaskDispatcher : MonoBehaviour
         Instance = this;
     }
 
-    void Update()
-    {
-        dispatchTimer += Time.deltaTime;
-        if (dispatchTimer < dispatchTickSeconds)
-            return;
-
-        dispatchTimer = 0f;
-        DispatchQueuedTasks();
-    }
-
     public void RegisterWorker(Civilian worker)
     {
-        if (worker == null || workers.Contains(worker))
+        if (worker == null)
             return;
 
         workers.Add(worker);
@@ -48,9 +52,79 @@ public class WorkerTaskDispatcher : MonoBehaviour
         workers.Remove(worker);
     }
 
+    public bool TryAssignAnyTask(Civilian worker)
+    {
+        if (worker == null || !workers.Contains(worker))
+            return false;
+
+        TeamTaskQueues queues = GetTeamQueues(worker.teamID);
+        if (TryAssignFromQueue(worker, queues.GetQueue(WorkerTaskType.Craft))) return true;
+        if (TryAssignFromQueue(worker, queues.GetQueue(WorkerTaskType.Haul))) return true;
+        if (TryAssignFromQueue(worker, queues.GetQueue(WorkerTaskType.Build))) return true;
+        if (TryAssignFromQueue(worker, queues.GetQueue(WorkerTaskType.Gather))) return true;
+
+        // Global tasks can be assigned to any team.
+        TeamTaskQueues globalQueues = GetTeamQueues(-1);
+        if (TryAssignFromQueue(worker, globalQueues.GetQueue(WorkerTaskType.Craft))) return true;
+        if (TryAssignFromQueue(worker, globalQueues.GetQueue(WorkerTaskType.Haul))) return true;
+        if (TryAssignFromQueue(worker, globalQueues.GetQueue(WorkerTaskType.Build))) return true;
+        if (TryAssignFromQueue(worker, globalQueues.GetQueue(WorkerTaskType.Gather))) return true;
+
+        return false;
+    }
+
+    bool TryAssignFromQueue(Civilian worker, Queue<int> queue)
+    {
+        int attempts = queue.Count;
+        for (int i = 0; i < attempts; i++)
+        {
+            int index = queue.Dequeue();
+            if (index < 0 || index >= queuedTasks.Count)
+                continue;
+
+            WorkerTaskRequest task = queuedTasks[index];
+            if (!IsTaskStillValid(task))
+                continue;
+
+            bool canPerform = task.taskType == WorkerTaskType.Craft && task.requiredCraftJobType == CivilianJobType.Hauler
+                ? worker.CanPerform(WorkerCapability.Haul)
+                : worker.CanPerform(task.requiredCapability);
+
+            if (!canPerform)
+            {
+                queue.Enqueue(index);
+                continue;
+            }
+
+            if (!worker.TryAssignTask(task))
+            {
+                queue.Enqueue(index);
+                continue;
+            }
+
+            queuedTasks[index] = default;
+            return true;
+        }
+
+        return false;
+    }
+
     public void QueueTask(WorkerTaskRequest task)
     {
+        int index = queuedTasks.Count;
         queuedTasks.Add(task);
+        GetTeamQueues(task.teamID).GetQueue(task.taskType).Enqueue(index);
+    }
+
+    TeamTaskQueues GetTeamQueues(int teamID)
+    {
+        if (!teamQueues.TryGetValue(teamID, out TeamTaskQueues queues))
+        {
+            queues = new TeamTaskQueues();
+            teamQueues[teamID] = queues;
+        }
+
+        return queues;
     }
 
     public void RemoveQueuedCraftTasks(CraftingBuilding building, CivilianJobType requiredJobType = CivilianJobType.Generalist)
@@ -58,7 +132,7 @@ public class WorkerTaskDispatcher : MonoBehaviour
         if (building == null)
             return;
 
-        for (int i = queuedTasks.Count - 1; i >= 0; i--)
+        for (int i = 0; i < queuedTasks.Count; i++)
         {
             WorkerTaskRequest task = queuedTasks[i];
             if (task.taskType != WorkerTaskType.Craft)
@@ -70,124 +144,32 @@ public class WorkerTaskDispatcher : MonoBehaviour
             if (requiredJobType != CivilianJobType.Generalist && task.requiredCraftJobType != requiredJobType)
                 continue;
 
-            queuedTasks.RemoveAt(i);
+            queuedTasks[i] = default;
         }
     }
 
-    public int GetQueuedGatherTaskCount(ResourceNode node, int teamID = -1)
-    {
-        if (node == null)
-            return 0;
-
-        int count = 0;
-        for (int i = 0; i < queuedTasks.Count; i++)
-        {
-            WorkerTaskRequest task = queuedTasks[i];
-            if (task.taskType != WorkerTaskType.Gather)
-                continue;
-            if (task.resourceNode != node)
-                continue;
-            if (teamID >= 0 && task.teamID != teamID)
-                continue;
-
-            count++;
-        }
-
-        return count;
-    }
-
-
-    public int GetQueuedTaskCount(int teamID = -1)
-    {
-        if (teamID < 0)
-            return queuedTasks.Count;
-
-        int count = 0;
-        for (int i = 0; i < queuedTasks.Count; i++)
-            if (queuedTasks[i].teamID == teamID)
-                count++;
-
-        return count;
-    }
+    public int GetQueuedGatherTaskCount(ResourceNode node, int teamID = -1) => CountQueued(task => task.taskType == WorkerTaskType.Gather && task.resourceNode == node && (teamID < 0 || task.teamID == teamID));
+    public int GetQueuedBuildTaskCount(ConstructionSite site, int teamID = -1) => CountQueued(task => task.taskType == WorkerTaskType.Build && task.constructionSite == site && (teamID < 0 || task.teamID == teamID));
+    public int GetQueuedHaulTaskCount(ConstructionSite site, int teamID = -1) => CountQueued(task => task.taskType == WorkerTaskType.Haul && task.constructionSite == site && (teamID < 0 || task.teamID == teamID));
+    public int GetQueuedCraftTaskCount(CraftingBuilding building, int teamID = -1) => CountQueued(task => task.taskType == WorkerTaskType.Craft && task.craftingBuilding == building && (teamID < 0 || task.teamID == teamID));
+    public int GetQueuedTaskCount(int teamID = -1) => CountQueued(task => teamID < 0 || task.teamID == teamID);
 
     public int GetQueuedTaskCountByType(WorkerTaskType taskType, int teamID = -1)
     {
-        int count = 0;
-        for (int i = 0; i < queuedTasks.Count; i++)
-        {
-            WorkerTaskRequest task = queuedTasks[i];
-            if (task.taskType != taskType)
-                continue;
-            if (teamID >= 0 && task.teamID >= 0 && task.teamID != teamID)
-                continue;
-
-            count++;
-        }
-
-        return count;
+        return CountQueued(task => task.taskType == taskType && (teamID < 0 || task.teamID == teamID));
     }
 
-    public int GetQueuedBuildTaskCount(ConstructionSite site, int teamID = -1)
+    int CountQueued(System.Predicate<WorkerTaskRequest> predicate)
     {
-        if (site == null)
-            return 0;
-
         int count = 0;
         for (int i = 0; i < queuedTasks.Count; i++)
         {
             WorkerTaskRequest task = queuedTasks[i];
-            if (task.taskType != WorkerTaskType.Build)
-                continue;
-            if (task.constructionSite != site)
-                continue;
-            if (teamID >= 0 && task.teamID != teamID)
+            if (task.taskType == 0 && task.requiredCapability == 0 && task.teamID == 0 && task.resourceNode == null && task.constructionSite == null && task.craftingBuilding == null)
                 continue;
 
-            count++;
-        }
-
-        return count;
-    }
-
-    public int GetQueuedHaulTaskCount(ConstructionSite site, int teamID = -1)
-    {
-        if (site == null)
-            return 0;
-
-        int count = 0;
-        for (int i = 0; i < queuedTasks.Count; i++)
-        {
-            WorkerTaskRequest task = queuedTasks[i];
-            if (task.taskType != WorkerTaskType.Haul)
-                continue;
-            if (task.constructionSite != site)
-                continue;
-            if (teamID >= 0 && task.teamID != teamID)
-                continue;
-
-            count++;
-        }
-
-        return count;
-    }
-
-    public int GetQueuedCraftTaskCount(CraftingBuilding building, int teamID = -1)
-    {
-        if (building == null)
-            return 0;
-
-        int count = 0;
-        for (int i = 0; i < queuedTasks.Count; i++)
-        {
-            WorkerTaskRequest task = queuedTasks[i];
-            if (task.taskType != WorkerTaskType.Craft)
-                continue;
-            if (task.craftingBuilding != building)
-                continue;
-            if (teamID >= 0 && task.teamID != teamID)
-                continue;
-
-            count++;
+            if (predicate(task))
+                count++;
         }
 
         return count;
@@ -199,12 +181,9 @@ public class WorkerTaskDispatcher : MonoBehaviour
             return workers.Count;
 
         int count = 0;
-        for (int i = 0; i < workers.Count; i++)
-        {
-            Civilian worker = workers[i];
+        foreach (Civilian worker in workers)
             if (worker != null && worker.teamID == teamID)
                 count++;
-        }
 
         return count;
     }
@@ -216,6 +195,8 @@ public class WorkerTaskDispatcher : MonoBehaviour
         for (int i = 0; i < queuedTasks.Count; i++)
         {
             WorkerTaskRequest task = queuedTasks[i];
+            if (task.resourceNode == null && task.constructionSite == null && task.craftingBuilding == null)
+                continue;
             if (teamID >= 0 && task.teamID != teamID)
                 continue;
 
@@ -229,9 +210,8 @@ public class WorkerTaskDispatcher : MonoBehaviour
     {
         var snapshot = new List<Civilian>();
 
-        for (int i = 0; i < workers.Count; i++)
+        foreach (Civilian worker in workers)
         {
-            Civilian worker = workers[i];
             if (worker == null)
                 continue;
             if (teamID >= 0 && worker.teamID != teamID)
@@ -249,75 +229,6 @@ public class WorkerTaskDispatcher : MonoBehaviour
             return false;
 
         return worker.TryAssignTask(task);
-    }
-
-    void DispatchQueuedTasks()
-    {
-        for (int i = queuedTasks.Count - 1; i >= 0; i--)
-        {
-            WorkerTaskRequest task = queuedTasks[i];
-            if (!IsTaskStillValid(task))
-            {
-                queuedTasks.RemoveAt(i);
-                continue;
-            }
-
-            Civilian worker = FindBestWorker(task);
-            if (worker == null)
-                continue;
-
-            if (!worker.TryAssignTask(task))
-                continue;
-
-            queuedTasks.RemoveAt(i);
-        }
-    }
-
-    Civilian FindBestWorker(WorkerTaskRequest task)
-    {
-        Civilian best = null;
-        float bestDistance = float.MaxValue;
-
-        for (int i = 0; i < workers.Count; i++)
-        {
-            Civilian worker = workers[i];
-            if (worker == null || (task.teamID >= 0 && worker.teamID != task.teamID))
-                continue;
-            if (!IsWorkerAvailable(worker))
-                continue;
-            if (task.taskType == WorkerTaskType.Craft && !worker.CanTakeCraftingAssignment(task.requiredCraftJobType))
-                continue;
-
-            bool canPerform = task.taskType == WorkerTaskType.Craft && task.requiredCraftJobType == CivilianJobType.Hauler
-                ? worker.CanPerform(WorkerCapability.Haul)
-                : worker.CanPerform(task.requiredCapability);
-
-            if (!canPerform)
-                continue;
-
-            float distance = (worker.transform.position - ResolveTaskPosition(task)).sqrMagnitude;
-            if (distance >= bestDistance)
-                continue;
-
-            bestDistance = distance;
-            best = worker;
-        }
-
-        return best;
-    }
-
-    static bool IsWorkerAvailable(Civilian worker)
-    {
-        string state = worker.CurrentState;
-        return state == "Idle" || state.StartsWith("Searching");
-    }
-
-    static Vector3 ResolveTaskPosition(WorkerTaskRequest task)
-    {
-        if (task.resourceNode != null) return task.resourceNode.transform.position;
-        if (task.constructionSite != null) return task.constructionSite.transform.position;
-        if (task.craftingBuilding != null) return task.craftingBuilding.transform.position;
-        return Vector3.zero;
     }
 
     static bool IsTaskStillValid(WorkerTaskRequest task)

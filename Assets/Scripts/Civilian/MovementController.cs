@@ -12,27 +12,39 @@ public class MovementController : MonoBehaviour
     public float StopDistance => stopDistance;
     public bool UseRoadBonus => useRoadBonus;
     public float RoadSpeedMultiplier => roadSpeedMultiplier;
-    private NavMeshAgent agent;
+    public bool IsOnRoad => roadTriggerCount > 0;
 
+    private NavMeshAgent agent;
+    private Vector3 lastDestination = new(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
+    private float lastStoppingDistance = -1f;
+    private int roadTriggerCount;
 
     void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
     }
+
     void Start()
     {
         ApplyToAgent(1f);
     }
+
     public void ApplyMovement(float speedMultiplier)
     {
         agent.speed = moveSpeed * speedMultiplier;
         agent.stoppingDistance = stopDistance;
     }
+
     public void MoveTo(Vector3 destination, float stoppingDistance)
     {
         if (agent == null || !agent.enabled)
             return;
 
+        if ((lastDestination - destination).sqrMagnitude < 0.01f && Mathf.Abs(lastStoppingDistance - stoppingDistance) < 0.05f)
+            return;
+
+        lastDestination = destination;
+        lastStoppingDistance = stoppingDistance;
         agent.stoppingDistance = stoppingDistance;
         agent.SetDestination(destination);
     }
@@ -45,6 +57,18 @@ public class MovementController : MonoBehaviour
         float stop = ResolveStopDistance(destination, stopType);
         Transform moveTarget = ResolveInteractionTarget(destination, interactionType);
         MoveTo(moveTarget.position, stop);
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other != null && other.CompareTag("Road"))
+            roadTriggerCount++;
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        if (other != null && other.CompareTag("Road"))
+            roadTriggerCount = Mathf.Max(0, roadTriggerCount - 1);
     }
 
     public float ResolveStopDistance(Transform destination, BuildingStopDistanceType stopType)
@@ -70,6 +94,7 @@ public class MovementController : MonoBehaviour
 
         return destination;
     }
+
     public bool HasArrived()
     {
         if (agent == null || !agent.enabled || !agent.isOnNavMesh)
@@ -78,26 +103,17 @@ public class MovementController : MonoBehaviour
         if (agent.pathPending)
             return false;
 
-        // If the agent is close enough, consider it arrived
         if (agent.remainingDistance <= agent.stoppingDistance + 0.05f)
             return true;
 
-        // If the agent has no path but is very close, also consider it arrived
         if (!agent.hasPath && agent.velocity.sqrMagnitude < 0.01f)
             return true;
 
         return false;
     }
 
-    public void SetMoveSpeed(float value)
-    {
-        moveSpeed = Mathf.Max(0.01f, value);
-    }
-
-    public void SetStopDistance(float value)
-    {
-        stopDistance = Mathf.Max(0.01f, value);
-    }
+    public void SetMoveSpeed(float value) => moveSpeed = Mathf.Max(0.01f, value);
+    public void SetStopDistance(float value) => stopDistance = Mathf.Max(0.01f, value);
 
     public void SetRoadBonus(bool enabled, float multiplier)
     {
@@ -105,10 +121,7 @@ public class MovementController : MonoBehaviour
         roadSpeedMultiplier = Mathf.Max(0.1f, multiplier);
     }
 
-    public float GetEffectiveSpeed(float worldMultiplier)
-    {
-        return moveSpeed * Mathf.Max(0.01f, worldMultiplier);
-    }
+    public float GetEffectiveSpeed(float worldMultiplier) => moveSpeed * Mathf.Max(0.01f, worldMultiplier);
 
     public void ApplyToAgent(float worldMultiplier)
     {

@@ -99,10 +99,21 @@ public class Civilian : MonoBehaviour, ITargetable
         DeliveringCraftOutput
     }
 
+    public enum ModeLayer { Idle, Working, HandlingNeed, Combat }
+    public enum WorkTypeLayer { None, Gathering, Building, Hauling, Crafting }
+    public enum WorkPhaseLayer { None, Acquire, Move, Perform, Deliver }
+
+    public ModeLayer CurrentMode => ResolveMode();
+    public WorkTypeLayer CurrentWorkType => ResolveWorkType();
+    public WorkPhaseLayer CurrentWorkPhase => ResolveWorkPhase();
+
     private State state;
     private State stateBeforeNeed;
     private readonly Dictionary<State, CivilianStateBase> states = new();
     private CivilianStateBase currentStateHandler;
+    private Vector3 lastMoveDestination = new Vector3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
+    private float lastMoveStopDistance = -1f;
+    private static ToolItem[] cachedToolCatalog;
 
     public void SetState(State newState)
     {
@@ -149,8 +160,31 @@ public class Civilian : MonoBehaviour, ITargetable
     private bool started;
     private bool registeredWithJobManager;
 
-    private ResourceDefinition carriedResource;
-    private int carriedAmount;
+    private ResourceDefinition carriedResource
+    {
+        get => carryingController != null ? carryingController.CarriedResource : null;
+        set
+        {
+            if (carryingController == null)
+                return;
+
+            int amount = carryingController.CarriedAmount;
+            carryingController.SetCarried(value, amount);
+        }
+    }
+
+    private int carriedAmount
+    {
+        get => carryingController != null ? carryingController.CarriedAmount : 0;
+        set
+        {
+            if (carryingController == null)
+                return;
+
+            carryingController.SetCarried(carriedResource, Mathf.Max(0, value));
+        }
+    }
+
     private float currentHunger;
 
     private float currentTiredness;
@@ -208,6 +242,7 @@ public class Civilian : MonoBehaviour, ITargetable
         constructionWorkerControl = GetComponent<ConstructionWorkerControl>();
         InitializeStateMachine();
         CivilianRegistry.Register(this);
+        CivilianAIScheduler.Instance?.Register(this);
     }
 
     void OnEnable()
@@ -218,6 +253,7 @@ public class Civilian : MonoBehaviour, ITargetable
             RegisterWithJobManager();
             CraftingJobManager.Instance?.RegisterCivilian(this);
             WorkerTaskDispatcher.Instance?.RegisterWorker(this);
+            CivilianAIScheduler.Instance?.Register(this);
         }
     }
 
@@ -235,6 +271,7 @@ public class Civilian : MonoBehaviour, ITargetable
         CraftingJobManager.Instance?.UnregisterCivilian(this);
         WorkerTaskDispatcher.Instance?.UnregisterWorker(this);
         CivilianRegistry.Unregister(this);
+        CivilianAIScheduler.Instance?.Unregister(this);
     }
 
     void OnDestroy()
@@ -263,6 +300,7 @@ public class Civilian : MonoBehaviour, ITargetable
         CraftingJobManager.Instance?.RegisterCivilian(this);
         WorkerTaskDispatcher.Instance?.RegisterWorker(this);
         CivilianRegistry.Register(this);
+        CivilianAIScheduler.Instance?.Register(this);
 
         housingController?.TryAssignHouseIfNeeded();
     }
@@ -369,31 +407,51 @@ public class Civilian : MonoBehaviour, ITargetable
 
     void Update()
     {
+        if (CivilianAIScheduler.Instance != null)
+            return;
+
+        SchedulerTickAI(Time.deltaTime, true, CivilianAILodTier.Full);
+        SchedulerTickMovement(Time.deltaTime);
+    }
+
+    public void SchedulerTickMovement(float deltaTime)
+    {
         if (health != null && !health.IsAlive)
             return;
 
-        TickNeeds();
-
         movementController.ApplyMovement(GetMovementSpeedMultiplier());
+    }
 
-        currentStateHandler?.Tick();
+    public void SchedulerTickAI(float deltaTime, bool allowNeedsTick, CivilianAILodTier lodTier)
+    {
+        if (health != null && !health.IsAlive)
+            return;
 
+        if (allowNeedsTick && lodTier != CivilianAILodTier.Coarse)
+            TickNeeds(deltaTime);
 
+        if (lodTier == CivilianAILodTier.Coarse && state == State.Idle)
+            return;
+
+        currentStateHandler?.Tick(deltaTime);
+
+        if ((state == State.Idle || state.ToString().StartsWith("Searching")) && WorkerTaskDispatcher.Instance != null)
+            WorkerTaskDispatcher.Instance.TryAssignAnyTask(this);
     }
 
 
 
-    void TickNeeds()
+    void TickNeeds(float deltaTime)
     {
         if (state == State.CraftingAtWorkPoint && movementController.HasArrived() && targetCraftingBuilding != null && targetCraftingBuilding.State == CraftingBuilding.ProductionState.InProgress)
             return;
 
-        TickToolPickup();
+        TickToolPickup(deltaTime);
 
         if (needsController != null)
         {
             float tirednessMultiplier = GetTirednessRate() / Mathf.Max(0.01f, 0.3f);
-            needsController.TickCivilianNeeds(Time.deltaTime, tirednessMultiplier, health);
+            needsController.TickCivilianNeeds(deltaTime, tirednessMultiplier, health);
             currentHunger = needsController.CurrentHunger;
             currentTiredness = needsController.CurrentTiredness;
             ProcessNeedDrivenState();
@@ -480,7 +538,7 @@ public class Civilian : MonoBehaviour, ITargetable
 
         Transform houseTarget = movementController.ResolveInteractionTarget(AssignedHouse.transform, BuildingInteractionPointType.House);
         float stop = movementController.ResolveStopDistance(AssignedHouse.transform, BuildingStopDistanceType.House);
-        movementController.MoveTo(houseTarget.position, stop);
+        IssueMoveCommandIfChanged(houseTarget.position, stop);
     }
 
     bool TryConsumeFoodFromAssignedHouse()
@@ -601,7 +659,7 @@ public class Civilian : MonoBehaviour, ITargetable
         CurrentDeliverySite = null;
         ClearCraftingAssignment();
 
-        if (carriedAmount > 0)
+        if (CarriedAmount > 0)
         {
             SetState(State.GoingToDepositStorage);
             return;
@@ -640,7 +698,7 @@ public class Civilian : MonoBehaviour, ITargetable
         if (movementController != null)
         {
             float stop = movementController.ResolveStopDistance(null, BuildingStopDistanceType.Default);
-            movementController.MoveTo(worldPos, stop);
+            IssueMoveCommandIfChanged(worldPos, stop);
         }
     }
     // ---------- Hauler / Supply to Construction ----------
@@ -818,10 +876,9 @@ public class Civilian : MonoBehaviour, ITargetable
         SetState(state);
     }
 
-    private void RegisterState<TState>(State stateKey) where TState : CivilianStateBase
+    private void RegisterState<TState>(State stateKey) where TState : CivilianStateBase, new()
     {
-        TState stateAsset = ScriptableObject.CreateInstance<TState>();
-        stateAsset.hideFlags = HideFlags.HideAndDontSave;
+        TState stateAsset = new TState();
         stateAsset.Initialize(this);
         states[stateKey] = stateAsset;
     }
@@ -829,12 +886,6 @@ public class Civilian : MonoBehaviour, ITargetable
     private void DestroyStateMachine()
     {
         currentStateHandler = null;
-
-        foreach (CivilianStateBase stateAsset in states.Values)
-        {
-            if (stateAsset != null)
-                Destroy(stateAsset);
-        }
 
         states.Clear();
     }
@@ -931,12 +982,8 @@ public class Civilian : MonoBehaviour, ITargetable
         if (!useRoadBonus)
             return multiplier;
 
-        Vector3 probe = transform.position + Vector3.up * 0.2f;
-        if (Physics.Raycast(probe, Vector3.down, out RaycastHit hit, 2f))
-        {
-            if (hit.collider != null && hit.collider.CompareTag("Road"))
-                return multiplier * Mathf.Max(1f, roadSpeedMultiplier);
-        }
+        if (movementController != null && movementController.IsOnRoad)
+            return multiplier * Mathf.Max(1f, roadSpeedMultiplier);
 
         return multiplier;
     }
@@ -952,8 +999,18 @@ public class Civilian : MonoBehaviour, ITargetable
 
     bool MoveToPositionAndCheckArrival(Vector3 position, float stopDistance)
     {
-        movementController.MoveTo(position, stopDistance);
+        IssueMoveCommandIfChanged(position, stopDistance);
         return movementController.HasArrived();
+    }
+
+    void IssueMoveCommandIfChanged(Vector3 destination, float stopDistance)
+    {
+        if ((lastMoveDestination - destination).sqrMagnitude < 0.01f && Mathf.Abs(lastMoveStopDistance - stopDistance) < 0.05f)
+            return;
+
+        lastMoveDestination = destination;
+        lastMoveStopDistance = stopDistance;
+        movementController.MoveTo(destination, stopDistance);
     }
 
     int PickupResourceFromStorage(ResourceStorageContainer storage, ResourceDefinition resource, int maxAmount)
@@ -961,9 +1018,9 @@ public class Civilian : MonoBehaviour, ITargetable
         if (storage == null || resource == null || maxAmount <= 0)
             return 0;
 
-        carriedAmount = storage.Withdraw(resource, maxAmount);
-        carryingController?.SetCarried(resource, carriedAmount);
-        return carriedAmount;
+        int amount = storage.Withdraw(resource, maxAmount);
+        carryingController?.SetCarried(resource, amount);
+        return amount;
     }
 
     void ApplyDeliveryAccepted(int accepted)
@@ -971,13 +1028,13 @@ public class Civilian : MonoBehaviour, ITargetable
         if (accepted <= 0)
             return;
 
-        carriedAmount -= accepted;
-        carryingController?.SetCarried(carriedResource, carriedAmount);
+        int remaining = Mathf.Max(0, CarriedAmount - accepted);
+        carryingController?.SetCarried(carriedResource, remaining);
     }
 
-    bool ShouldRetrySearch(ref float timer, float interval)
+    bool ShouldRetrySearch(ref float timer, float interval, float deltaTime)
     {
-        timer += Time.deltaTime;
+        timer += deltaTime;
         if (timer < interval)
             return false;
 
@@ -985,10 +1042,45 @@ public class Civilian : MonoBehaviour, ITargetable
         return true;
     }
 
-    bool TickTimer(ref float timer, float duration)
+    bool TickTimer(ref float timer, float duration, float deltaTime)
     {
-        timer += Time.deltaTime;
+        timer += deltaTime;
         return timer >= duration;
+    }
+
+    ModeLayer ResolveMode()
+    {
+        return state switch
+        {
+            State.SeekingFoodStorage or State.Eating or State.SeekingHouse or State.Sleeping => ModeLayer.HandlingNeed,
+            _ when health != null && !health.IsAlive => ModeLayer.Combat,
+            State.Idle => ModeLayer.Idle,
+            _ => ModeLayer.Working
+        };
+    }
+
+    WorkTypeLayer ResolveWorkType()
+    {
+        return state switch
+        {
+            State.SearchingNode or State.GoingToNode or State.Gathering or State.FindDepositStorage or State.GoingToDepositStorage or State.Depositing => WorkTypeLayer.Gathering,
+            State.SearchingBuildSite or State.GoingToBuildSite or State.Building => WorkTypeLayer.Building,
+            State.SearchingSupplySite or State.GoingToPickupStorage or State.PickingUp or State.GoingToDeliverSite or State.Delivering => WorkTypeLayer.Hauling,
+            State.FetchingCraftInput or State.DeliveringCraftInput or State.GoingToWorkPoint or State.CraftingAtWorkPoint or State.CollectingCraftOutput or State.DeliveringCraftOutput => WorkTypeLayer.Crafting,
+            _ => WorkTypeLayer.None
+        };
+    }
+
+    WorkPhaseLayer ResolveWorkPhase()
+    {
+        return state switch
+        {
+            State.SearchingNode or State.SearchingBuildSite or State.SearchingSupplySite or State.FetchingCraftInput or State.CollectingCraftOutput or State.FindDepositStorage => WorkPhaseLayer.Acquire,
+            State.GoingToNode or State.GoingToBuildSite or State.GoingToPickupStorage or State.GoingToDeliverSite or State.GoingToWorkPoint or State.DeliveringCraftInput or State.DeliveringCraftOutput or State.GoingToDepositStorage => WorkPhaseLayer.Move,
+            State.Gathering or State.Building or State.CraftingAtWorkPoint or State.Eating or State.Sleeping or State.PickingUp => WorkPhaseLayer.Perform,
+            State.Depositing or State.Delivering => WorkPhaseLayer.Deliver,
+            _ => WorkPhaseLayer.None
+        };
     }
 
     string BuildTaskLabel()
@@ -1014,9 +1106,9 @@ public class Civilian : MonoBehaviour, ITargetable
         return baseRate * multiplier;
     }
 
-    void TickToolPickup()
+    void TickToolPickup(float deltaTime)
     {
-        toolPickupTimer += Time.deltaTime;
+        toolPickupTimer += deltaTime;
         if (toolPickupTimer < 1f)
             return;
 
@@ -1043,7 +1135,10 @@ public class Civilian : MonoBehaviour, ITargetable
 
     ToolItem FindToolItemAsset(string nameHint)
     {
-        ToolItem[] items = Resources.LoadAll<ToolItem>("Tool Catalog");
+        if (cachedToolCatalog == null)
+            cachedToolCatalog = Resources.LoadAll<ToolItem>("Tool Catalog");
+
+        ToolItem[] items = cachedToolCatalog;
         for (int i = 0; i < items.Length; i++)
         {
             ToolItem item = items[i];
@@ -1155,7 +1250,7 @@ public class Civilian : MonoBehaviour, ITargetable
         }
     }
 
-    private abstract class CivilianStateBase : ScriptableObject
+    private abstract class CivilianStateBase
     {
         protected Civilian civilian;
 
@@ -1165,7 +1260,7 @@ public class Civilian : MonoBehaviour, ITargetable
         }
 
         public virtual void Enter() { }
-        public virtual void Tick() { }
+        public virtual void Tick(float deltaTime) { }
         public virtual void Exit() { }
         public virtual string TaskLabel => civilian.state.ToString();
         public virtual string GetStateDetails()
@@ -1183,9 +1278,9 @@ public class Civilian : MonoBehaviour, ITargetable
         public override string TaskLabel => "Waiting for job";
         public override string GetStateDetails() => civilian.HasJob ? "Idle between assignments" : "No assignment yet";
 
-        public override void Tick()
+        public override void Tick(float deltaTime)
         {
-            civilian.idleNoTaskTimer += Time.deltaTime;
+            civilian.idleNoTaskTimer += deltaTime;
 
             if (civilian.jobType != CivilianJobType.Idle)
                 return;
@@ -1195,7 +1290,7 @@ public class Civilian : MonoBehaviour, ITargetable
             if (civilian.AssignedHouse == null)
                 return;
 
-            civilian.idleWanderTimer -= Time.deltaTime;
+            civilian.idleWanderTimer -= deltaTime;
             if (civilian.idleWanderTimer <= 0f || (civilian.idleWanderTarget - civilian.transform.position).sqrMagnitude < 1f)
             {
                 civilian.idleWanderTimer = Random.Range(civilian.idleWanderIntervalMin, civilian.idleWanderIntervalMax);
@@ -1204,7 +1299,7 @@ public class Civilian : MonoBehaviour, ITargetable
             }
 
             float stop = civilian.movementController.ResolveStopDistance(civilian.AssignedHouse.transform, BuildingStopDistanceType.House);
-            civilian.movementController.MoveTo(civilian.idleWanderTarget, stop);
+            civilian.IssueMoveCommandIfChanged(civilian.idleWanderTarget, stop);
         }
     }
 
@@ -1212,7 +1307,7 @@ public class Civilian : MonoBehaviour, ITargetable
     {
         public override string TaskLabel => "Seeking food";
 
-        public override void Tick()
+        public override void Tick(float deltaTime)
         {
             if (civilian.TryConsumeFoodFromAssignedHouse())
                 return;
@@ -1248,9 +1343,9 @@ public class Civilian : MonoBehaviour, ITargetable
     {
         public override string TaskLabel => "Eating";
 
-        public override void Tick()
+        public override void Tick(float deltaTime)
         {
-            if (!civilian.TickTimer(ref civilian.needActionTimer, civilian.currentEatDurationSeconds))
+            if (!civilian.TickTimer(ref civilian.needActionTimer, civilian.currentEatDurationSeconds, deltaTime))
                 return;
 
             civilian.needsController.BeginEating(civilian.targetFoodDefinition, civilian.pendingFoodAmount);
@@ -1271,7 +1366,7 @@ public class Civilian : MonoBehaviour, ITargetable
     {
         public override string TaskLabel => "Seeking house";
 
-        public override void Tick()
+        public override void Tick(float deltaTime)
         {
             if (!civilian.housingController.TryEnsureTargetHouse())
                 return;
@@ -1298,7 +1393,7 @@ public class Civilian : MonoBehaviour, ITargetable
     {
         public override string TaskLabel => "Sleeping";
 
-        public override void Tick()
+        public override void Tick(float deltaTime)
         {
             if (civilian.AssignedHouse == null)
             {
@@ -1306,11 +1401,11 @@ public class Civilian : MonoBehaviour, ITargetable
                 return;
             }
 
-            civilian.needsController.TickSleep(Time.deltaTime);
+            civilian.needsController.TickSleep(deltaTime);
             civilian.currentTiredness = civilian.needsController.CurrentTiredness;
             civilian.ConsumeHouseFoodWhileResting();
 
-            if (!civilian.TickTimer(ref civilian.needActionTimer, civilian.sleepDurationSeconds))
+            if (!civilian.TickTimer(ref civilian.needActionTimer, civilian.sleepDurationSeconds, deltaTime))
                 return;
 
             civilian.needsController.CompleteSleep();
@@ -1325,9 +1420,9 @@ public class Civilian : MonoBehaviour, ITargetable
         public override string TaskLabel => "Searching for resource node";
         public override string GetStateDetails() => "Scanning for nearest valid task";
 
-        public override void Tick()
+        public override void Tick(float deltaTime)
         {
-            civilian.idleNoTaskTimer += Time.deltaTime;
+            civilian.idleNoTaskTimer += deltaTime;
 
             if (civilian.gatheringController.forcedNode != null)
             {
@@ -1357,7 +1452,7 @@ public class Civilian : MonoBehaviour, ITargetable
         public override string TaskLabel => "Moving to target node";
         public override string GetStateDetails() => MovingTowardTarget();
 
-        public override void Tick()
+        public override void Tick(float deltaTime)
         {
             if (civilian.carryingController.IsFull)
             {
@@ -1381,7 +1476,7 @@ public class Civilian : MonoBehaviour, ITargetable
         public override string TaskLabel => "Collecting resource";
         public override string GetStateDetails() => InteractingWithTarget();
 
-        public override void Tick()
+        public override void Tick(float deltaTime)
         {
             if (civilian.gatheringController.CurrentNode == null)
             {
@@ -1405,7 +1500,7 @@ public class Civilian : MonoBehaviour, ITargetable
     {
         public override string TaskLabel => "Finding storage";
 
-        public override void Tick()
+        public override void Tick(float deltaTime)
         {
             civilian.targetStorage = null;
             civilian.targetDropoff = null;
@@ -1425,7 +1520,7 @@ public class Civilian : MonoBehaviour, ITargetable
         public override string TaskLabel => "Moving to storage";
         public override string GetStateDetails() => MovingTowardTarget();
 
-        public override void Tick()
+        public override void Tick(float deltaTime)
         {
             Transform depositTarget = civilian.targetStorage != null ? civilian.targetStorage.transform : civilian.targetDropoff != null ? civilian.targetDropoff.transform : null;
             if (depositTarget == null)
@@ -1444,7 +1539,7 @@ public class Civilian : MonoBehaviour, ITargetable
         public override string TaskLabel => "Depositing carried resources";
         public override string GetStateDetails() => InteractingWithTarget();
 
-        public override void Tick()
+        public override void Tick(float deltaTime)
         {
             if (civilian.targetStorage == null && civilian.targetDropoff == null)
             {
@@ -1471,11 +1566,11 @@ public class Civilian : MonoBehaviour, ITargetable
         public override string TaskLabel => "Searching for construction work";
         public override string GetStateDetails() => "Scanning for nearest valid task";
 
-        public override void Tick()
+        public override void Tick(float deltaTime)
         {
-            civilian.idleNoTaskTimer += Time.deltaTime;
+            civilian.idleNoTaskTimer += deltaTime;
 
-            if (!civilian.ShouldRetrySearch(ref civilian.searchTimer, civilian.searchRetrySeconds))
+            if (!civilian.ShouldRetrySearch(ref civilian.searchTimer, civilian.searchRetrySeconds, deltaTime))
                 return;
 
             civilian.targetSite = civilian.FindNearestConstructionSite(civilian.teamID, civilian.transform.position);
@@ -1505,7 +1600,7 @@ public class Civilian : MonoBehaviour, ITargetable
         public override string TaskLabel => "Moving to build site";
         public override string GetStateDetails() => MovingTowardTarget();
 
-        public override void Tick()
+        public override void Tick(float deltaTime)
         {
             if (civilian.targetSite == null || civilian.targetSite.IsComplete)
             {
@@ -1531,7 +1626,7 @@ public class Civilian : MonoBehaviour, ITargetable
     {
         public override string TaskLabel => "Building structure";
 
-        public override void Tick()
+        public override void Tick(float deltaTime)
         {
             if (civilian.targetSite == null || civilian.targetSite.IsComplete)
             {
@@ -1547,7 +1642,7 @@ public class Civilian : MonoBehaviour, ITargetable
                 return;
             }
 
-            civilian.targetSite.AddWork(Time.deltaTime * Mathf.Max(0.25f, civilian.GetBuildMultiplier()));
+            civilian.targetSite.AddWork(deltaTime * Mathf.Max(0.25f, civilian.GetBuildMultiplier()));
         }
     }
 
@@ -1556,9 +1651,9 @@ public class Civilian : MonoBehaviour, ITargetable
         public override string TaskLabel => "Waiting for haul assignment";
         public override string GetStateDetails() => "Scanning for nearest valid task";
 
-        public override void Tick()
+        public override void Tick(float deltaTime)
         {
-            civilian.idleNoTaskTimer += Time.deltaTime;
+            civilian.idleNoTaskTimer += deltaTime;
 
             if (civilian.jobType == CivilianJobType.Hauler && civilian.TryHandleCraftingHaulerPriority())
                 return;
@@ -1569,7 +1664,7 @@ public class Civilian : MonoBehaviour, ITargetable
                 return;
             }
 
-            if (!civilian.ShouldRetrySearch(ref civilian.searchTimer, civilian.searchRetrySeconds))
+            if (!civilian.ShouldRetrySearch(ref civilian.searchTimer, civilian.searchRetrySeconds, deltaTime))
                 return;
 
             civilian.targetSite = civilian.FindNearestConstructionSite(civilian.teamID, civilian.transform.position);
@@ -1605,7 +1700,7 @@ public class Civilian : MonoBehaviour, ITargetable
         public override string TaskLabel => "Moving to pickup";
         public override string GetStateDetails() => MovingTowardTarget();
 
-        public override void Tick()
+        public override void Tick(float deltaTime)
         {
             if (TeamStorageManager.Instance == null || civilian.targetSite == null)
             {
@@ -1636,7 +1731,7 @@ public class Civilian : MonoBehaviour, ITargetable
         public override string TaskLabel => "Collecting resource from storage";
         public override string GetStateDetails() => InteractingWithTarget();
 
-        public override void Tick()
+        public override void Tick(float deltaTime)
         {
             if (TeamStorageManager.Instance == null || civilian.targetStorage == null || civilian.targetSite == null)
             {
@@ -1676,7 +1771,7 @@ public class Civilian : MonoBehaviour, ITargetable
         public override string TaskLabel => "Moving to delivery target";
         public override string GetStateDetails() => MovingTowardTarget();
 
-        public override void Tick()
+        public override void Tick(float deltaTime)
         {
             if (civilian.targetSite == null)
             {
@@ -1694,7 +1789,7 @@ public class Civilian : MonoBehaviour, ITargetable
         public override string TaskLabel => "Delivering resources";
         public override string GetStateDetails() => InteractingWithTarget();
 
-        public override void Tick()
+        public override void Tick(float deltaTime)
         {
             if (civilian.targetSite == null || civilian.carriedAmount <= 0)
             {
@@ -1720,7 +1815,7 @@ public class Civilian : MonoBehaviour, ITargetable
         public override string TaskLabel => "Fetching crafting inputs";
         public override string GetStateDetails() => "Scanning for nearest valid task";
 
-        public override void Tick()
+        public override void Tick(float deltaTime)
         {
             if (civilian.targetCraftingBuilding == null)
             {
@@ -1770,7 +1865,7 @@ public class Civilian : MonoBehaviour, ITargetable
         public override string TaskLabel => "Delivering crafting inputs";
         public override string GetStateDetails() => InteractingWithTarget();
 
-        public override void Tick()
+        public override void Tick(float deltaTime)
         {
             if (civilian.targetCraftingBuilding == null)
             {
@@ -1815,7 +1910,7 @@ public class Civilian : MonoBehaviour, ITargetable
         public override string TaskLabel => "Moving to work point";
         public override string GetStateDetails() => MovingTowardTarget();
 
-        public override void Tick()
+        public override void Tick(float deltaTime)
         {
             if (civilian.targetCraftingBuilding == null)
             {
@@ -1841,7 +1936,7 @@ public class Civilian : MonoBehaviour, ITargetable
                 return;
             }
 
-            civilian.stalledAtWorkPointTimer += Time.deltaTime;
+            civilian.stalledAtWorkPointTimer += deltaTime;
             if (civilian.stalledAtWorkPointTimer < civilian.workPointStallRepathSeconds)
                 return;
 
@@ -1858,7 +1953,7 @@ public class Civilian : MonoBehaviour, ITargetable
         public override string TaskLabel => "Producing goods";
         public override string GetStateDetails() => "Producing goods at assigned workstation";
 
-        public override void Tick()
+        public override void Tick(float deltaTime)
         {
             if (civilian.targetCraftingBuilding == null)
             {
@@ -1887,7 +1982,7 @@ public class Civilian : MonoBehaviour, ITargetable
         public override string TaskLabel => "Collecting outputs";
         public override string GetStateDetails() => "Scanning for nearest valid task";
 
-        public override void Tick()
+        public override void Tick(float deltaTime)
         {
             if (civilian.targetCraftingBuilding == null)
             {
@@ -1939,7 +2034,7 @@ public class Civilian : MonoBehaviour, ITargetable
         public override string TaskLabel => "Delivering crafted goods";
         public override string GetStateDetails() => InteractingWithTarget();
 
-        public override void Tick()
+        public override void Tick(float deltaTime)
         {
             if (civilian.carriedAmount <= 0)
             {

@@ -19,6 +19,8 @@ public class SceneRequiredScripts : MonoBehaviour
         typeof(ResourceRegistry),
         typeof(HousingRegistry),
         typeof(JobManager),
+        typeof(TaskBoard),
+        typeof(CivilianAIScheduler),
         typeof(WorkerTaskDispatcher),
         typeof(WorkerTaskGenerationSystem),
         typeof(CraftingJobManager),
@@ -374,12 +376,12 @@ public class SceneRequiredScripts : MonoBehaviour
 
             if (!civ.UsesScriptableObjectStates)
             {
-                Debug.LogWarning($"[SceneRequiredScripts] Civilian diagnostics: '{civ.name}' has not initialized ScriptableObject-backed civilian states.", civ);
+                Debug.LogWarning($"[SceneRequiredScripts] Civilian diagnostics: '{civ.name}' has not initialized civilian state handlers.", civ);
             }
 
             if (!civ.HasStateSettings)
             {
-                Debug.LogWarning($"[SceneRequiredScripts] Civilian diagnostics: '{civ.name}' has no CivilianStateSettings ScriptableObject assigned. Default state timing values will be used.", civ);
+                Debug.LogWarning($"[SceneRequiredScripts] Civilian diagnostics: '{civ.name}' has no CivilianStateSettings asset assigned. Default state timing values will be used.", civ);
             }
         }
     }
