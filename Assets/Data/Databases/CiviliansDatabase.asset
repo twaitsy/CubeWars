@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9817df26f8f4e638b7e9ed8a1608e74, type: 3}
+  m_Name: CiviliansDatabase
+  m_EditorClassIdentifier: 
+  civilians:
+  - id: civilian
+    displayName: Civilian
+    icon: {fileID: 0}
+    prefab: {fileID: 5538168870909510437, guid: ce51064a809c1c74ea9b7d4891fb23aa, type: 3}
+    jobType: 0
+    isCombatUnit: 0
+    maxHealth: 50
+    moveSpeed: 2.5
+    attackDamage: 1
+    attackRange: 1.2
+    attackCooldown: 1.2
+    armor: 0
+    carryCapacity: 30
+    gatherSpeed: 1
+    buildSpeed: 1
+    trainingCost: []
+    trainingTime: 0
+    trainedAt: {id: , displayName: , icon: {fileID: 0}, prefab: {fileID: 0}, category: 0, subCategory: , constructionCost: [], buildTime: 0, maxHealth: 0, upkeepCost: [], upkeepInterval: 0, maxResidents: 0, comfortLevel: 0, isProducer: 0, recipes: [], workerSlots: 0, isStorage: 0, storageSettings: {capacity: 0, allowedCategories: []}, isMilitary: 0, attackDamage: 0, attackRange: 0, garrisonSlots: 0, powerConsumption: 0, powerGeneration: 0, waterConsumption: 0}
+    startingTools: []
+  - id: villager
+    displayName: Villager
+    icon: {fileID: 0}
+    prefab: {fileID: 1254357736737325336, guid: 9a227d5f58819b64b848e7915c88b548, type: 3}
+    jobType: 0
+    isCombatUnit: 0
+    maxHealth: 60
+    moveSpeed: 2.8
+    attackDamage: 2
+    attackRange: 1.3
+    attackCooldown: 1.1
+    armor: 1
+    carryCapacity: 35
+    gatherSpeed: 1.1
+    buildSpeed: 1.1
+    trainingCost: []
+    trainingTime: 0
+    trainedAt: {id: , displayName: , icon: {fileID: 0}, prefab: {fileID: 0}, category: 0, subCategory: , constructionCost: [], buildTime: 0, maxHealth: 0, upkeepCost: [], upkeepInterval: 0, maxResidents: 0, comfortLevel: 0, isProducer: 0, recipes: [], workerSlots: 0, isStorage: 0, storageSettings: {capacity: 0, allowedCategories: []}, isMilitary: 0, attackDamage: 0, attackRange: 0, garrisonSlots: 0, powerConsumption: 0, powerGeneration: 0, waterConsumption: 0}
+    startingTools: []

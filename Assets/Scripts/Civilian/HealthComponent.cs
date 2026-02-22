@@ -54,6 +54,15 @@ public class HealthComponent : MonoBehaviour, IHasHealth
     }
 
 
+    public void ApplyDefinition(CivilianDefinition def)
+    {
+        if (def == null)
+            return;
+
+        SetMaxHealth(def.maxHealth);
+    }
+
+
     /// <summary>
     /// Assigns the team ID for this unit.
     /// </summary>

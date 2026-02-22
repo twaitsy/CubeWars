@@ -33,6 +33,12 @@ public static class CreateDatabaseMenu
         CreateAsset<UnitsDatabase>("UnitsDatabase.asset");
     }
 
+    [MenuItem("CubeWars/Create/Civilians Database")]
+    public static void CreateCivilians()
+    {
+        CreateAsset<CiviliansDatabase>("CiviliansDatabase.asset");
+    }
+
     [MenuItem("CubeWars/Create/Tech Tree Database")]
     public static void CreateTechTree()
     {

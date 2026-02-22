@@ -8,6 +8,7 @@ public class GameDatabase : ScriptableObject
     public BuildingsDatabase buildings;
     public ResourcesDatabase resources;
     public UnitsDatabase units;
+    public CiviliansDatabase civilians;
     public RecipesDatabase recipes;
     public FoodDatabase foods;
     public TechTreeDatabase techTree;
@@ -18,6 +19,12 @@ public class GameDatabase : ScriptableObject
     {
         definition = null;
         return units != null && units.TryGetById(id, out definition);
+    }
+
+    public bool TryGetCivilianById(string id, out CivilianDefinition definition)
+    {
+        definition = null;
+        return civilians != null && civilians.TryGetById(id, out definition);
     }
 
     public bool TryGetBuildingById(string id, out BuildingDefinition definition)

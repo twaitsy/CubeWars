@@ -112,10 +112,10 @@ public class BuildingPrefabValidator : MonoBehaviour
 
         if (civilian != null)
         {
-            if (string.IsNullOrWhiteSpace(civilian.unitDefinitionId))
-                missing.Add("unitDefinitionId (required for database lookup)");
-            else if (!IsUnitInDatabase(civilian.unitDefinitionId))
-                warnings.Add($"unitDefinitionId '{civilian.unitDefinitionId}' not found in loaded GameDatabase units");
+            if (string.IsNullOrWhiteSpace(civilian.civilianDefinitionId))
+                missing.Add("civilianDefinitionId (required for database lookup)");
+            else if (!IsCivilianInDatabase(civilian.civilianDefinitionId))
+                warnings.Add($"civilianDefinitionId '{civilian.civilianDefinitionId}' not found in loaded GameDatabase civilians");
 
             if (civilian.carryCapacity <= 0)
                 warnings.Add("carryCapacity <= 0 (civilian will effectively carry 1)");
@@ -211,6 +211,7 @@ public class BuildingPrefabValidator : MonoBehaviour
             Debug.LogWarning($"[BuildingPrefabValidator] {name} ({label}): warnings => {string.Join(", ", warnings)}", this);
     }
 
+
     static bool IsUnitInDatabase(string unitId)
     {
         if (string.IsNullOrWhiteSpace(unitId))
@@ -218,6 +219,18 @@ public class BuildingPrefabValidator : MonoBehaviour
 
         GameDatabase loaded = GameDatabaseLoader.Loaded;
         if (loaded != null && loaded.TryGetUnitById(unitId, out var loadedDef) && loadedDef != null)
+            return true;
+
+        return false;
+    }
+
+    static bool IsCivilianInDatabase(string unitId)
+    {
+        if (string.IsNullOrWhiteSpace(unitId))
+            return false;
+
+        GameDatabase loaded = GameDatabaseLoader.Loaded;
+        if (loaded != null && loaded.TryGetCivilianById(unitId, out var loadedDef) && loadedDef != null)
             return true;
 
         return false;
