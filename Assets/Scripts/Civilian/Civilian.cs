@@ -1682,13 +1682,15 @@ public class Civilian : MonoBehaviour, ITargetable
                 return;
             }
 
-            if (!civilian.TryChooseNeededResource(civilian.targetSite, out civilian.carriedResource))
+            if (!civilian.TryChooseNeededResource(civilian.targetSite, out ResourceDefinition neededResource))
             {
                 civilian.targetSite = null;
                 civilian.CurrentDeliverySite = null;
                 civilian.SetState((civilian.jobType == CivilianJobType.Builder) ? State.SearchingBuildSite : State.SearchingSupplySite);
                 return;
             }
+
+            civilian.carriedResource = neededResource;
 
             civilian.SetState(State.GoingToPickupStorage);
             civilian.idleNoTaskTimer = 0f;
@@ -1837,8 +1839,10 @@ public class Civilian : MonoBehaviour, ITargetable
                 return;
             }
 
-            if (civilian.targetCraftingBuilding.TryGetInputRequest(civilian.transform.position, out civilian.carriedResource, out int amount, out civilian.targetStorage))
+            if (civilian.targetCraftingBuilding.TryGetInputRequest(civilian.transform.position, out ResourceDefinition requestedResource, out int amount, out civilian.targetStorage))
             {
+                civilian.carriedResource = requestedResource;
+
                 if (civilian.targetStorage == null)
                 {
                     ProductionNotificationManager.Instance?.NotifyIfReady($"missing-storage-{civilian.targetCraftingBuilding.GetInstanceID()}", $"{civilian.targetCraftingBuilding.name}: no storage with {civilian.carriedResource} found.");
@@ -2010,11 +2014,13 @@ public class Civilian : MonoBehaviour, ITargetable
                 return;
             }
 
-            if (!civilian.targetCraftingBuilding.TryGetOutputRequest(civilian.transform.position, out civilian.carriedResource, out int amount, out civilian.targetStorage))
+            if (!civilian.targetCraftingBuilding.TryGetOutputRequest(civilian.transform.position, out ResourceDefinition requestedOutput, out int amount, out civilian.targetStorage))
             {
                 civilian.SetState(State.FetchingCraftInput);
                 return;
             }
+
+            civilian.carriedResource = requestedOutput;
 
             Transform outputTransform = civilian.targetCraftingBuilding.outputSlot != null
                 ? civilian.targetCraftingBuilding.outputSlot
