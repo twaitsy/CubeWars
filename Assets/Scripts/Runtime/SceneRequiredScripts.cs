@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 [DisallowMultipleComponent]
 public class SceneRequiredScripts : MonoBehaviour
 {
-    // Documentation sync note (2026-02): Civilian out-parameter/property compile fix required no scene dependency changes.
+    // Documentation sync note (2026-02): SelectionManager now auto-binds UnitInspectorUI if inspector reference is unset; scene dependency list unchanged.
     [SerializeField] bool checkOnAwake = true;
 
     static readonly Type[] RequiredSceneScripts =

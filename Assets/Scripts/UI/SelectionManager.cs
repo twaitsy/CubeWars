@@ -27,6 +27,15 @@ public class SelectionManager : MonoBehaviour
         Instance = this;
         if (mainCamera == null)
             mainCamera = Camera.main;
+
+        if (inspectorUI == null)
+        {
+            inspectorUI = FindFirstObjectByType<UnitInspectorUI>();
+            if (inspectorUI == null)
+                Debug.LogWarning("[SelectionManager] UnitInspectorUI reference is missing and no UnitInspectorUI was found in scene. Selection inspector will not render.", this);
+            else
+                Debug.Log("[SelectionManager] Auto-bound UnitInspectorUI reference.", this);
+        }
     }
 
     void Update()

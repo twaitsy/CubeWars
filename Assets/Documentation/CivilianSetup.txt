@@ -131,3 +131,9 @@ ScriptableObject state migration update (2026-02-22)
 - `CivilianStateBase` now derives from `ScriptableObject`; all concrete states initialize through `InitializeStateMachine()`.
 - State lifecycle now includes explicit ScriptableObject cleanup through `DestroyStateMachine()` during `OnDestroy()`.
 - This keeps civilian state ownership modular while preserving existing per-state TaskLabel/details metadata.
+
+Debugging civilian stalls (2026-02)
+- `Civilian` includes `enableDebugLogs`.
+- Turn it on for a prefab/instance to log state transitions (`Idle -> SearchingNode`, etc.) and no-task-assigned traces when the worker remains idle/searching.
+- Use this together with `DiagnosticUI` to identify missing storage/tasks/navigation links.
+
