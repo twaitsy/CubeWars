@@ -214,6 +214,7 @@ MonoBehaviour:
   harvestPerTick: 1
   gatherInterval: 1
   gatherRange: 1.5
+  forcedNode: {fileID: 0}
 --- !u!114 &3871291967957977171
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -289,14 +290,11 @@ MonoBehaviour:
   teamID: 0
   jobDefinition: {fileID: 0}
   jobType: 1
-  showGatherProgressBar: 1
-  gatherProgressBarOffset: {x: 0, y: 2.2, z: 0}
-  gatherProgressBarWidth: 1
-  gatherProgressBarHeight: 0.1
   HasJob: 0
-  CurrentNode: {fileID: 0}
   foodDatabase: {fileID: 11400000, guid: c7e14d390ed4edf45b16b190c79256ae, type: 2}
   resourcesDatabase: {fileID: 11400000, guid: 87f27aa07d5d1b049bfb1818298c31c9, type: 2}
+  stateSettings: {fileID: 0}
+  enableDebugLogs: 1
 --- !u!114 &7023568545619106114
 MonoBehaviour:
   m_ObjectHideFlags: 0

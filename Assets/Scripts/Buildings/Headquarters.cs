@@ -60,7 +60,7 @@ public class Headquarters : Building
             if (startingResources[i].resource == null || remaining[i] <= 0)
                 continue;
 
-            Debug.LogWarning($"Headquarters team {teamID} could not apply full starting resources for {startingResources[i].resource.displayName}. Remaining: {remaining[i]}", this);
+       //     Debug.LogWarning($"Headquarters team {teamID} could not apply full starting resources for {startingResources[i].resource.displayName}. Remaining: {remaining[i]}", this);
         }
     }
 
