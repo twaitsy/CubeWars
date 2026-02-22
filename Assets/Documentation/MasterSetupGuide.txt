@@ -807,3 +807,7 @@ AI scalability architecture (2026 update)
 - WorkerTaskDispatcher now serves as O(1)-queue backend and workers pull tasks through scheduler ticks instead of per-unit full-frame scans.
 - Civilian AI now uses hierarchical layers for debug/logic organization: Mode, WorkType, WorkPhase.
 - Road speed bonus should come from Road trigger volumes/path cache via MovementController.IsOnRoad (no per-frame raycast checks).
+
+[2026-02 Civilian out-parameter compile fix]
+- Fixed Civilian compile errors by routing out-parameter resource selections through local variables before assigning to the carriedResource property.
+- No scene wiring changes required; this is a C# property/ref safety fix only.

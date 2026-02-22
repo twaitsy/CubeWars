@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 [DisallowMultipleComponent]
 public class SceneRequiredScripts : MonoBehaviour
 {
+    // Documentation sync note (2026-02): Civilian out-parameter/property compile fix required no scene dependency changes.
     [SerializeField] bool checkOnAwake = true;
 
     static readonly Type[] RequiredSceneScripts =
