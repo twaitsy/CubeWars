@@ -45,7 +45,7 @@ Camera/input/UI scene objects:
 - TaskBoardUI (if using role/task tracking)
 
 Team setup (at least one):
-- TeamBootstrap OR SixTeamBootstrap OR HQSpawner
+- TeamBootstrap OR SixTeamBootstrap
 
 -----------------------------------------------------------------
 2) Headquarters + Team foundations
@@ -729,7 +729,7 @@ The following gameplay scripts now enforce required dependencies with RequireCom
 
 
 SceneRequiredScripts missing-script alert behavior (2026-02)
-- Scene validation now treats TeamBootstrap, SixTeamBootstrap, and HQSpawner as valid alternatives for team bootstrap.
+- Scene validation now treats TeamBootstrap and SixTeamBootstrap as valid alternatives for team bootstrap.
 - Missing MonoBehaviour references are now reported with explicit GameObject hierarchy paths to speed up scene cleanup.
 - The validator prints the first 20 missing-script object paths, then emits an overflow summary if more are found.
 

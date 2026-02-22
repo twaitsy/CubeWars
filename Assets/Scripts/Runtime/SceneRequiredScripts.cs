@@ -59,12 +59,8 @@ public class SceneRequiredScripts : MonoBehaviour
         // Check bootstrap requirement
         bool hasTeamBootstrap = FindObjectsByType<TeamBootstrap>(FindObjectsSortMode.None).Length > 0;
         bool hasSixTeamBootstrap = FindObjectsByType<SixTeamBootstrap>(FindObjectsSortMode.None).Length > 0;
- //       bool hasHQSpawner = FindObjectsByType<HQSpawner>(FindObjectsSortMode.None).Length > 0;
-
-//        if (!hasTeamBootstrap && !hasSixTeamBootstrap && !hasHQSpawner)
-//        {
-//            missingRequiredTypes.Add("TeamBootstrap OR SixTeamBootstrap OR HQSpawner");
- //       }
+        if (!hasTeamBootstrap && !hasSixTeamBootstrap)
+            missingRequiredTypes.Add("TeamBootstrap OR SixTeamBootstrap");
 
         // Check for missing script components
         List<string> missingScriptGameObjects = GetMissingScriptComponentGameObjectPathsInActiveScene();
