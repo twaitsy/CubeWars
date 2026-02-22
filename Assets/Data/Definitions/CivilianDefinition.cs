@@ -52,13 +52,11 @@ public class CivilianDefinition
     // ---------------------------------------------------------
     // Core Stats
     // ---------------------------------------------------------
-    public float strength = 1f;
-    public float dexterity = 1f;
-    public float intelligence = 1f;
-    public float stamina = 1f;
-
-    public float baseMoveSpeed = 3.5f;
-    public float moveSpeedMultiplier = 1f;
+    public float maxHealth = 100f;
+    public float moveSpeed = 3.5f;
+    public int carryCapacity = 10;
+    public float gatherSpeed = 1f;
+    public float buildSpeed = 1f;
 
     public float morale = 1f;
     public float moraleRecoveryRate = 0.1f;
@@ -99,6 +97,7 @@ public class CivilianDefinition
     // Tools & Equipment
     // ---------------------------------------------------------
     public float toolEffectivenessMultiplier = 1f;
+    public List<ToolDefinition> startingTools = new();
     public List<ToolDefinition> allowedTools = new();
     public List<ToolDefinition> preferredTools = new();
 

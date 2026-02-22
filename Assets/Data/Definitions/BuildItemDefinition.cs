@@ -48,6 +48,7 @@ public class BuildItemDefinition : ScriptableObject
     public Sprite icon;
 
     public BuildMenuCategory menuCategory = BuildMenuCategory.Economy;
+    public string category => menuCategory.ToString();
     public int techTier = 1;
     public List<string> tags = new(); // e.g. "eco", "defense", "housing"
     public KeyCode hotkey = KeyCode.None;

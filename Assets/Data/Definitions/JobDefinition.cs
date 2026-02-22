@@ -24,7 +24,8 @@ public class JobDefinition
     public Sprite icon;
     [TextArea] public string description;
 
-    public CivilianJobType jobType;
+    public CivilianJobType defaultJobType = CivilianJobType.Generalist;
+    public CivilianRole legacyRole = CivilianRole.None;
     public JobCategory category = JobCategory.Gathering;
     public int tier = 1;
     public List<string> roleTags = new(); // e.g. "woodcutting", "mining", "smithing"
@@ -49,6 +50,7 @@ public class JobDefinition
     public List<ToolDefinition> forbiddenTools = new();
     public List<ResourceCategory> resourceCategoriesWorked = new();
     public List<BonusDefinition> jobBonuses = new(); // job-specific bonuses
+    public List<WorkerCapability> capabilities = new();
 
     [Header("Buildings & Recipes")]
     public List<BuildingDefinition> requiredBuildings = new();
@@ -65,4 +67,9 @@ public class JobDefinition
     public string animationSet;
     public float workAnimationSpeed = 1f;
     public string soundSet;
+
+    public bool HasCapability(WorkerCapability capability)
+    {
+        return capabilities != null && capabilities.Contains(capability);
+    }
 }
