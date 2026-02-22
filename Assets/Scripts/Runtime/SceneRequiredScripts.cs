@@ -372,6 +372,11 @@ public class SceneRequiredScripts : MonoBehaviour
                 Debug.LogWarning($"[SceneRequiredScripts] Civilian diagnostics: '{civ.name}' has neither FoodDatabase nor ResourcesDatabase assigned. Hunger food fallback will depend on global ResourcesDatabase.Instance.", civ);
             }
 
+            if (!civ.UsesScriptableObjectStates)
+            {
+                Debug.LogWarning($"[SceneRequiredScripts] Civilian diagnostics: '{civ.name}' has not initialized ScriptableObject-backed civilian states.", civ);
+            }
+
             if (!civ.HasStateSettings)
             {
                 Debug.LogWarning($"[SceneRequiredScripts] Civilian diagnostics: '{civ.name}' has no CivilianStateSettings ScriptableObject assigned. Default state timing values will be used.", civ);

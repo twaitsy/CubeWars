@@ -125,3 +125,9 @@ State tuning via ScriptableObject (2026-02)
   - idle no-task house-return delay
   - craft work-point stall repath timeout
 - If unassigned, Civilian falls back to built-in defaults, and `SceneRequiredScripts` will log a diagnostic warning.
+
+ScriptableObject state migration update (2026-02-22)
+- Civilian FSM handlers are now instantiated as ScriptableObject-backed states at runtime.
+- `CivilianStateBase` now derives from `ScriptableObject`; all concrete states initialize through `InitializeStateMachine()`.
+- State lifecycle now includes explicit ScriptableObject cleanup through `DestroyStateMachine()` during `OnDestroy()`.
+- This keeps civilian state ownership modular while preserving existing per-state TaskLabel/details metadata.

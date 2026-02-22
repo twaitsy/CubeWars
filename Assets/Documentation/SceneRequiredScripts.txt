@@ -419,3 +419,7 @@ Maintenance note (2026-02 civilian state-machine refactor)
 - Civilian state timing is now data-driven via `CivilianStateSettings` ScriptableObject assets.
 - Assign `Civilian.stateSettings` on Civilian prefabs to tune state timers (search retry, idle wander interval/radius, idle fallback delay, work-point stall repath threshold) without code changes.
 - `SceneRequiredScripts` now emits a civilian diagnostics warning when a Civilian is missing a `CivilianStateSettings` assignment.
+
+Civilian diagnostics update (2026-02-22)
+- SceneRequiredScripts now validates that each registered Civilian has initialized ScriptableObject-backed FSM states.
+- Existing warning for missing `CivilianStateSettings` asset remains and still indicates fallback timing defaults.
